@@ -1,95 +1,68 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { Box, Container, Flex, Grid, GridItem, Heading, Stack, Text } from "@chakra-ui/react";
+
+import colors from "@/shared/chakra/colors";
+import typography from "@/shared/chakra/typography";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    <Box as="main">
+      <Container maxW="container.xl" minH="100dvh" py="4">
+        <Stack spacing="10">
+          <Colors />
+          <Typography />
+        </Stack>
+      </Container>
+    </Box>
   );
 }
+
+const Colors = () => {
+  return (
+    <Box>
+      <Heading size="md" mb="4">
+        Colors
+      </Heading>
+      <Grid gap="6" templateColumns="repeat(auto-fit, minmax(12.5rem, 1fr))">
+        {Object.entries(colors).map(([label, value]) => {
+          if (typeof value === "string") return <Color key={label} label={label} value={value} />;
+          return Object.entries(value).map(([nestedLabel, nestedValue]) => (
+            <Color key={`${label} ${nestedLabel}`} label={`${label} ${nestedLabel}`} value={nestedValue} />
+          ));
+        })}
+      </Grid>
+    </Box>
+  );
+};
+
+const Color = ({ label, value }: { label: string; value: string }) => {
+  return (
+    <GridItem>
+      <Flex gap="2" align="center">
+        <Box boxSize="12" bgColor={value} rounded="md" shadow="md" />
+        <Box>
+          <Text textTransform="capitalize" fontWeight="semibold">
+            {label}
+          </Text>
+          <Text textTransform="uppercase">{value}</Text>
+        </Box>
+      </Flex>
+    </GridItem>
+  );
+};
+
+const Typography = () => {
+  return (
+    <Box>
+      <Heading size="md" mb="4">
+        Typography
+      </Heading>
+      <Stack gap="6">
+        {Object.keys(typography.textStyles).map(style => (
+          <Text key={style} textStyle={style}>
+            ({style}) The quick brown fox jumps over the lazy dog
+          </Text>
+        ))}
+      </Stack>
+    </Box>
+  );
+};
