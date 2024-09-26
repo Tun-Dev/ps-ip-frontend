@@ -1,19 +1,13 @@
-import { Theme, extendTheme } from "@chakra-ui/react";
-import { theme as chakraProTheme } from "@chakra-ui/pro-theme";
+import { Theme, ThemeOverride, extendTheme } from "@chakra-ui/react";
 
-const font = `'Poppins', sans-serif`;
+import colors from "./colors";
+import styles from "./styles";
+import typography from "./typography";
 
-const proTheme = extendTheme(chakraProTheme) as Theme;
-
-const extendedConfig = {
-  colors: {
-    ...proTheme.colors,
-  },
-  fonts: {
-    ...proTheme.fonts,
-    body: font,
-    heading: font,
-  },
+const extendedConfig: ThemeOverride = {
+  styles,
+  colors,
+  ...typography,
   shadows: {},
   breakpoints: {
     base: "0px",
@@ -24,6 +18,6 @@ const extendedConfig = {
   components: {},
 };
 
-const theme = extendTheme(extendedConfig);
+const theme = extendTheme(extendedConfig) as Theme;
 
 export default theme;
