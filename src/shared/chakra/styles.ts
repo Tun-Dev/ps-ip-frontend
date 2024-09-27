@@ -1,9 +1,3 @@
-const styles = {
-  global: {
-    body: {
-      color: "text",
-    },
-  },
-};
+const styles = {};
 
 export default styles;

@@ -1,9 +1,7 @@
-const typography = {
-  fonts: {
-    body: "var(--font-inter)",
-    heading: "var(--font-inter)",
-  },
-  textStyles: {
+import { StyleConfig } from "@chakra-ui/react";
+
+const typography: StyleConfig = {
+  variants: {
     "Body3-Regular": {
       fontSize: "10px",
       fontWeight: "normal",
