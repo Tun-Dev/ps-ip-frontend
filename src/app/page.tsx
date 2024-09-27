@@ -1,7 +1,18 @@
-import { Box, Container, Flex, Grid, GridItem, Heading, Stack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Container,
+  Flex,
+  Grid,
+  GridItem,
+  Heading,
+  Stack,
+  Text,
+  Button,
+} from "@chakra-ui/react";
 
 import colors from "@/shared/chakra/colors";
 import typography from "@/shared/chakra/typography";
+import { MdAddCircle } from "react-icons/md";
 
 export default function Home() {
   return (
@@ -10,6 +21,7 @@ export default function Home() {
         <Stack spacing="10">
           <Colors />
           <Typography />
+          <Buttons />
         </Stack>
       </Container>
     </Box>
@@ -24,9 +36,14 @@ const Colors = () => {
       </Heading>
       <Grid gap="6" templateColumns="repeat(auto-fit, minmax(12.5rem, 1fr))">
         {Object.entries(colors).map(([label, value]) => {
-          if (typeof value === "string") return <Color key={label} label={label} value={value} />;
+          if (typeof value === "string")
+            return <Color key={label} label={label} value={value} />;
           return Object.entries(value).map(([nestedLabel, nestedValue]) => (
-            <Color key={`${label} ${nestedLabel}`} label={`${label} ${nestedLabel}`} value={nestedValue} />
+            <Color
+              key={`${label} ${nestedLabel}`}
+              label={`${label} ${nestedLabel}`}
+              value={nestedValue}
+            />
           ));
         })}
       </Grid>
@@ -57,12 +74,35 @@ const Typography = () => {
         Typography
       </Heading>
       <Stack gap="6">
-        {Object.keys(typography.textStyles).map(style => (
+        {Object.keys(typography.textStyles).map((style) => (
           <Text key={style} textStyle={style}>
             ({style}) The quick brown fox jumps over the lazy dog
           </Text>
         ))}
       </Stack>
+    </Box>
+  );
+};
+
+const Buttons = () => {
+  const types = ["primary", "secondary", "tertiary", "accept", "cancel"];
+  return (
+    <Box>
+      <Heading size="md" mb="4">
+        Buttons
+      </Heading>
+      <Grid gap="6" templateColumns="repeat(auto-fit, minmax(12.5rem, 1fr))">
+        {types.map((value, index) => (
+          <Button
+            variant={value}
+            key={index}
+            leftIcon={<MdAddCircle />}
+            rightIcon={<MdAddCircle />}
+          >
+            {value}
+          </Button>
+        ))}
+      </Grid>
     </Box>
   );
 };

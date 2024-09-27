@@ -3,6 +3,7 @@ import { Theme, ThemeOverride, extendTheme } from "@chakra-ui/react";
 import colors from "./colors";
 import styles from "./styles";
 import typography from "./typography";
+import buttonTheme from "./buttonTheme";
 
 const extendedConfig: ThemeOverride = {
   styles,
@@ -15,7 +16,9 @@ const extendedConfig: ThemeOverride = {
     md: "1600px",
     lg: "1920px",
   },
-  components: {},
+  components: {
+    Button: buttonTheme,
+  },
 };
 
 const theme = extendTheme(extendedConfig) as Theme;
