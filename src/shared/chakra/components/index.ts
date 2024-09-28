@@ -6,10 +6,10 @@ import Select from './select';
 import Text from './text';
 
 const components: ThemeComponents = {
-  Input,
-  Select,
-  Text,
-  Heading,
+  Input: Input,
+  Select: Select,
+  Text: Text,
+  Heading: Heading,
 };
 
 export default components;

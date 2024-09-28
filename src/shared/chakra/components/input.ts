@@ -26,5 +26,5 @@ const dropdown = definePartsStyle({
 });
 
 export default defineMultiStyleConfig({
-  variants: { primary: dropdown },
+  variants: { dropdown: dropdown },
 });

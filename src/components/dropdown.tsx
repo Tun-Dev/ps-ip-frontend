@@ -44,7 +44,7 @@ export const Dropdown = <Option, IsMulti extends boolean = false, Group extends 
   return (
     <Select
       components={{ DropdownIndicator, Option: OptionComponent, IndicatorSeparator: null }}
-      variant="primary"
+      variant="dropdown"
       instanceId="dropdown"
       menuPosition="fixed"
       chakraStyles={{
