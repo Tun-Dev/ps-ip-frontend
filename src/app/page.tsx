@@ -113,13 +113,24 @@ const Dropdowns = () => {
           <Heading variant="Header1Bold" mb="2">
             Chakra Select
           </Heading>
-          <Select placeholder="Select...">
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
+          <Stack spacing="2">
+            <Text>Small</Text>
+            <Select placeholder="Select..." size="small">
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+            <Text>Medium</Text>
+            <Select placeholder="Select...">
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+          </Stack>
         </Box>
       </Stack>
     </Box>
