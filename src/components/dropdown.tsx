@@ -46,6 +46,7 @@ export const Dropdown = <Option, IsMulti extends boolean = false, Group extends 
       components={{ DropdownIndicator, Option: OptionComponent, IndicatorSeparator: null }}
       variant="primary"
       instanceId="dropdown"
+      menuPosition="fixed"
       chakraStyles={{
         menuList: (styles) => ({ ...styles, bgColor: 'primary.50' }),
         inputContainer: (styles) => ({ ...styles, py: '0.25rem' }),
