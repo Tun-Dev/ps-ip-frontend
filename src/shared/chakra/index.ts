@@ -1,1 +1,1 @@
-export * from "./ThemedChakraProvider";
+export * from './ThemedChakraProvider';
