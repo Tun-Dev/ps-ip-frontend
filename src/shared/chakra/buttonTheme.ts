@@ -9,21 +9,21 @@ type ButtonSize = keyof typeof sizes;
 
 const sizeStyleMap: { [k in ButtonSize]: SystemStyleInterpolation } = {
   small: {
-    paddingBlock: "8px",
+    padding: "8px",
     fontSize: "10px",
     fontWeight: 600,
     lineHeight: "16px",
     h: "24px",
   },
   medium: {
-    paddingBlock: "12px",
+    padding: "12px",
     fontSize: "13px",
     fontWeight: 600,
     lineHeight: "20px",
     h: "32px",
   },
   default: {
-    paddingBlock: "24px",
+    padding: "24px",
     fontSize: "16px",
     fontWeight: 600,
     lineHeight: "24px",

@@ -85,24 +85,33 @@ const Typography = () => {
 };
 
 const Buttons = () => {
+  const sizes = ["small", "medium", "default"];
   const types = ["primary", "secondary", "tertiary", "accept", "cancel"];
   return (
     <Box>
       <Heading size="md" mb="4">
         Buttons
       </Heading>
-      <Grid gap="6" templateColumns="repeat(auto-fit, minmax(12.5rem, 1fr))">
-        {types.map((value, index) => (
-          <Button
-            variant={value}
-            key={index}
-            leftIcon={<MdAddCircle />}
-            rightIcon={<MdAddCircle />}
-          >
-            {value}
-          </Button>
+      <Flex flexDirection="column" gap="6">
+        {types.map((variant, variantIndex) => (
+          <Flex key={variantIndex} flexDirection="column" gap="4">
+            <Text fontWeight="bold" textTransform="capitalize">{variant}</Text>
+            <Flex alignItems="center" gap="4" flexWrap="wrap">
+              {sizes.map((size) => (
+                <Button
+                  key={`${variant}-${size}`}
+                  variant={variant}
+                  size={size}
+                  leftIcon={<MdAddCircle />}
+                  rightIcon={<MdAddCircle />}
+                >
+                  {variant}
+                </Button>
+              ))}
+            </Flex>
+          </Flex>
         ))}
-      </Grid>
+      </Flex>
     </Box>
   );
 };
