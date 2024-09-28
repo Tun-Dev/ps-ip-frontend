@@ -1,15 +1,19 @@
-"use client";
+'use client';
 
-import { Flex, Icon } from "@chakra-ui/react";
-import { Select, components } from "chakra-react-select";
-import { MdArrowDropDown } from "react-icons/md";
+import { Flex, Icon } from '@chakra-ui/react';
+import { Select, components } from 'chakra-react-select';
+import { MdArrowDropDown } from 'react-icons/md';
 
-import type { DropdownOption } from "@/types";
-import type { DropdownIndicatorProps, GroupBase, OptionProps, Props } from "chakra-react-select";
+import type { DropdownOption } from '@/types';
+import type { DropdownIndicatorProps, GroupBase, OptionProps, Props } from 'chakra-react-select';
 
-import colors from "@/shared/chakra/colors";
+import colors from '@/shared/chakra/colors';
 
-const DropdownIndicator = <Option, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>>(
+const DropdownIndicator = <
+  Option,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>
+>(
   props: DropdownIndicatorProps<Option, IsMulti, Group>
 ) => {
   return (
@@ -43,16 +47,16 @@ export const Dropdown = <Option, IsMulti extends boolean = false, Group extends 
       variant="primary"
       instanceId="dropdown"
       chakraStyles={{
-        menuList: styles => ({ ...styles, bgColor: "primary.50" }),
-        inputContainer: styles => ({ ...styles, py: "0.25rem" }),
-        placeholder: styles => ({ ...styles, color: "text" }),
+        menuList: (styles) => ({ ...styles, bgColor: 'primary.50' }),
+        inputContainer: (styles) => ({ ...styles, py: '0.25rem' }),
+        placeholder: (styles) => ({ ...styles, color: 'text' }),
       }}
       styles={{
         option: (styles, { isSelected, isFocused }) => ({
           ...styles,
           color: colors.text,
           backgroundColor: isSelected ? colors.primary[200] : isFocused ? colors.primary[100] : colors.primary[50],
-          ":hover": { backgroundColor: isSelected ? colors.primary[200] : colors.primary[100] },
+          ':hover': { backgroundColor: isSelected ? colors.primary[200] : colors.primary[100] },
         }),
       }}
       {...props}

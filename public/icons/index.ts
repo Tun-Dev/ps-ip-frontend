@@ -1,1 +1,1 @@
-export { ShortAnswerIcon } from "./short-answer-icon";
+export { ShortAnswerIcon } from './short-answer-icon';
