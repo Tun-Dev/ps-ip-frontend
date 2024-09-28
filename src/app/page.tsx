@@ -1,6 +1,6 @@
-'use client';
-
 import { Box, Container, Stack, Text } from '@chakra-ui/react';
+
+// import colors from "@/shared/chakra/colors";
 
 export default function Home() {
   return (
