@@ -1,7 +1,10 @@
 'use client';
 
+import { useMemo } from "react";
 import { Box, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text,Button } from '@chakra-ui/react';
 import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft,MdAddCircle } from 'react-icons/md';
+import { ReusableTable } from "@/shared";
+import { ColumnDef } from "@tanstack/react-table";
 
 import { Dropdown } from '@/components';
 
@@ -21,6 +24,7 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons/>
+          <Table/>
         </Stack>
       </Container>
     </Box>
@@ -169,3 +173,42 @@ const Buttons = () => {
     </Box>
   );
 };
+
+const Table = () => {
+  type Person = {
+    name: string;
+    age: number;
+    email: string;
+  };
+  const data: Person[] = [
+    { name: 'John Doe', age: 30, email: 'john@example.com' },
+    { name: 'Jane Smith', age: 25, email: 'jane@example.com' },
+    { name: 'Bob Johnson', age: 45, email: 'bob@example.com' },
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const columns: ColumnDef<any>[] = useMemo(
+    () => [
+      {
+        header: () => <Text>Name</Text>,
+        accessorKey: 'name',
+      },
+      {
+        header: () => <Text>Age</Text>,
+        accessorKey: 'age',
+      },
+      {
+        header: () => <Text>Email address</Text>,
+        accessorKey: 'email',
+      },
+    ],
+    []
+  );
+
+  return (
+    <Flex flexDir="column" alignItems="center" gap="3">
+      <Text variant="Body1Bold" fontSize="24px">Table</Text>
+      <ReusableTable data={data} columns={columns} />
+    </Flex>
+  );
+}
