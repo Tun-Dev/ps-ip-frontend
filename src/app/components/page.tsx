@@ -190,16 +190,30 @@ const Table = () => {
   const columns: ColumnDef<any>[] = useMemo(
     () => [
       {
-        header: () => <Text>Name</Text>,
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Name
+          </Text>
+        ),
         accessorKey: 'name',
       },
       {
-        header: () => <Text>Age</Text>,
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Age
+          </Text>
+        ),
         accessorKey: 'age',
+        enableSorting: false,
       },
       {
-        header: () => <Text>Email address</Text>,
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Email address
+          </Text>
+        ),
         accessorKey: 'email',
+        enableSorting: true,
       },
     ],
     []
