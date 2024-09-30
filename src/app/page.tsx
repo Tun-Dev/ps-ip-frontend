@@ -1,20 +1,30 @@
-import { Box, Container, Flex, Grid, GridItem, Heading, Stack, Text } from "@chakra-ui/react";
+"use client";
 
+import { Box, ChakraProvider, Container, Flex, Grid, GridItem, Heading, Stack, Text, Input } from "@chakra-ui/react";
 import colors from "@/shared/chakra/colors";
 import typography from "@/shared/chakra/typography";
+import theme from './inputTheme'
+
 
 export default function Home() {
-  return (
-    <Box as="main">
-      <Container maxW="container.xl" minH="100dvh" py="4">
-        <Stack spacing="10">
-          <Colors />
-          <Typography />
-        </Stack>
-      </Container>
-    </Box>
+  return (   
+    <ChakraProvider theme={theme}> 
+      <Box as="main">
+        <Container maxW="container.xl" minH="100dvh" py="4">
+          <Stack spacing="10">
+            <Colors />
+            <Typography />
+            <Input variant="searchFieldSmall" placeholder="search" />
+            <Input variant="textField" placeholder="Date" />
+            <Input variant="textFieldLarge" placeholder="Beneficiary address" />
+            <Input variant="userNameField" placeholder="input username" />            
+          </Stack>
+        </Container>
+      </Box>
+      </ChakraProvider>  
   );
 }
+
 
 const Colors = () => {
   return (
@@ -50,6 +60,7 @@ const Color = ({ label, value }: { label: string; value: string }) => {
   );
 };
 
+
 const Typography = () => {
   return (
     <Box>
@@ -61,7 +72,7 @@ const Typography = () => {
           <Text key={style} textStyle={style}>
             ({style}) The quick brown fox jumps over the lazy dog
           </Text>
-        ))}
+        ))}    
       </Stack>
     </Box>
   );
