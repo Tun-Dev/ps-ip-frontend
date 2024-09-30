@@ -17,7 +17,9 @@ export default function Home() {
             <Input variant="searchFieldSmall" placeholder="search" />
             <Input variant="textField" placeholder="Date" />
             <Input variant="textFieldLarge" placeholder="Beneficiary address" />
-            <Input variant="userNameField" placeholder="input username" />            
+            <Input variant="userNameField" placeholder="input username" />
+            <Input variant="newTextField" placeholder="Another field" />
+            <Input variant="smallTextField" placeholder="Time" />            
           </Stack>
         </Container>
       </Box>

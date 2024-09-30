@@ -1,4 +1,5 @@
-import { extendTheme } from "@chakra-ui/react";
+import { background, extendTheme } from "@chakra-ui/react";
+import { BiBorderRadius } from "react-icons/bi";
 
 const theme = extendTheme({
   components: {
@@ -43,6 +44,31 @@ const theme = extendTheme({
             border: "1px solid #EBEBEB",
             borderRadius:"6px",
             backgroundColor: "#FFFFFF"
+          },
+        },
+
+        newTextField: {
+          field: {
+            width: "402px",
+            height: "64px",
+            padding: "8px 16px",
+            gap: "200px",
+            borderRadius: "6px",
+            border: "1px solid #EBEBEB",
+            backgroundColor: "var(--Surface-white, #FFFFFF)"
+          },
+        },
+
+        smallTextField: {
+          field: {
+            width: "193px",
+            height: "40px",
+            padding: "8px",
+            gap: "200px",
+            BorderRadius: "6px",
+            border: "1px solid #EBEBEB",
+            backgroundColor: " #FFFFFF",
+            opacity: "1",
           },
         },
 
