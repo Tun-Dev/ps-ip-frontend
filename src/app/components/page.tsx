@@ -1,7 +1,7 @@
 'use client';
 
-import { Box, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text,Button } from '@chakra-ui/react';
-import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft,MdAddCircle } from 'react-icons/md';
+import { Box, Button, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text } from '@chakra-ui/react';
+import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 
 import { Dropdown } from '@/components';
 
@@ -20,7 +20,7 @@ export default function ComponentPage() {
           <Colors />
           <Texts />
           <Headings />
-          <Buttons/>
+          <Buttons />
         </Stack>
       </Container>
     </Box>
@@ -104,43 +104,58 @@ const Dropdowns = () => {
     <Box maxW="sm">
       <Heading mb="4">Dropdowns</Heading>
       <Stack gap="6">
-        <Box>
+        <Stack spacing="2">
           <Heading variant="Header1Bold" mb="2">
             React Select
           </Heading>
-          <Dropdown options={options} />
-        </Box>
-        <Box>
-          <Heading variant="Header1Bold" mb="2">
-            Chakra Select
-          </Heading>
-          <Stack spacing="2">
-            <Text>Small</Text>
-            <Select placeholder="Select..." size="small">
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            <Text>Medium</Text>
-            <Select placeholder="Select...">
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-          </Stack>
-        </Box>
+          <Text fontWeight="bold">Primary</Text>
+          <Dropdown variant="primaryDropdown" options={options} />
+          <Text fontWeight="bold">White</Text>
+          <Dropdown variant="whiteDropdown" options={options} />
+        </Stack>
+        <Stack spacing="2">
+          <Heading variant="Header1Bold">Chakra Select</Heading>
+          <Text fontWeight="bold">Small (Primary)</Text>
+          <Select placeholder="Select..." size="small">
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <Text fontWeight="bold">Medium (Primary)</Text>
+          <Select placeholder="Select...">
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <Text fontWeight="bold">Small (White)</Text>
+          <Select placeholder="Select..." size="small" variant="white">
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <Text fontWeight="bold">Medium (White)</Text>
+          <Select placeholder="Select..." variant="white">
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </Stack>
       </Stack>
     </Box>
   );
 };
 
 const Buttons = () => {
-  const sizes = ["small", "medium", "default"];
-  const types = ["primary", "secondary", "tertiary", "accept", "cancel"];
+  const sizes = ['small', 'medium', 'default'];
+  const types = ['primary', 'secondary', 'tertiary', 'accept', 'cancel'];
   return (
     <Box>
       <Heading size="md" mb="4">
@@ -149,7 +164,9 @@ const Buttons = () => {
       <Flex flexDirection="column" gap="6">
         {types.map((variant, variantIndex) => (
           <Flex key={variantIndex} flexDirection="column" gap="4">
-            <Text fontWeight="bold" textTransform="capitalize">{variant}</Text>
+            <Text fontWeight="bold" textTransform="capitalize">
+              {variant}
+            </Text>
             <Flex alignItems="center" gap="4" flexWrap="wrap">
               {sizes.map((size) => (
                 <Button
