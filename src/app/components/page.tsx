@@ -1,7 +1,7 @@
 'use client';
 
-import { Box, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text,Button } from '@chakra-ui/react';
-import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft,MdAddCircle } from 'react-icons/md';
+import { Box, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text, Button } from '@chakra-ui/react';
+import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft, MdAddCircle } from 'react-icons/md';
 
 import { Dropdown } from '@/components';
 
@@ -20,7 +20,7 @@ export default function ComponentPage() {
           <Colors />
           <Texts />
           <Headings />
-          <Buttons/>
+          <Buttons />
         </Stack>
       </Container>
     </Box>
@@ -139,8 +139,8 @@ const Dropdowns = () => {
 };
 
 const Buttons = () => {
-  const sizes = ["small", "medium", "default"];
-  const types = ["primary", "secondary", "tertiary", "accept", "cancel"];
+  const sizes = ['small', 'medium', 'default'];
+  const types = ['primary', 'secondary', 'tertiary', 'accept', 'cancel'];
   return (
     <Box>
       <Heading size="md" mb="4">
@@ -149,7 +149,9 @@ const Buttons = () => {
       <Flex flexDirection="column" gap="6">
         {types.map((variant, variantIndex) => (
           <Flex key={variantIndex} flexDirection="column" gap="4">
-            <Text fontWeight="bold" textTransform="capitalize">{variant}</Text>
+            <Text fontWeight="bold" textTransform="capitalize">
+              {variant}
+            </Text>
             <Flex alignItems="center" gap="4" flexWrap="wrap">
               {sizes.map((size) => (
                 <Button

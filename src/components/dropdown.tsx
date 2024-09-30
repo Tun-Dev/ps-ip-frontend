@@ -12,7 +12,7 @@ import colors from '@/shared/chakra/colors';
 const DropdownIndicator = <
   Option,
   IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>
+  Group extends GroupBase<Option> = GroupBase<Option>,
 >(
   props: DropdownIndicatorProps<Option, IsMulti, Group>
 ) => {
