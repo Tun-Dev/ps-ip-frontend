@@ -1,13 +1,14 @@
 'use client';
 
 import { Box, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text,Button } from '@chakra-ui/react';
-import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft,MdAddCircle } from 'react-icons/md';
+import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft,MdAddCircle, MdViewCarousel } from 'react-icons/md';
 
 import { Dropdown } from '@/components';
 
 import colors from '@/shared/chakra/colors';
 import heading from '@/shared/chakra/components/heading';
 import text from '@/shared/chakra/components/text';
+import { OverviewCard } from '@/components/overview';
 
 import { ShortAnswerIcon } from '../../../public/icons';
 
@@ -21,6 +22,7 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons/>
+          <OverviewCard title='Running program' number={20} icon={MdViewCarousel}/>
         </Stack>
       </Container>
     </Box>
