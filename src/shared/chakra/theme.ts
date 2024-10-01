@@ -16,7 +16,9 @@ const extendedConfig: ThemeOverride = {
     heading: 'var(--font-inter)',
   },
   colors,
-  shadows: {},
+  shadows: {
+    card: '0px 4px 6px -1px rgba(3, 48, 0, 0.04), 0px 2px 4px -1px rgba(3, 48, 0, 0.04)',
+  },
   breakpoints: {
     base: '0px',
     sm: '1440px',

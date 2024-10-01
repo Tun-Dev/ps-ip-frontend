@@ -1,11 +1,9 @@
 'use client';
 
-
 import { Box, Button, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text } from '@chakra-ui/react';
 import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 
-
-import { Dropdown } from '@/components';
+import { Dropdown, ModuleCard } from '@/components';
 
 import colors from '@/shared/chakra/colors';
 import heading from '@/shared/chakra/components/heading';
@@ -23,6 +21,7 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons />
+          <ModuleCardSection />
         </Stack>
       </Container>
     </Box>
@@ -185,6 +184,15 @@ const Buttons = () => {
           </Flex>
         ))}
       </Flex>
+    </Box>
+  );
+};
+
+const ModuleCardSection = () => {
+  return (
+    <Box maxW="16.375rem">
+      <Heading mb="4">Module Card</Heading>
+      <ModuleCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
     </Box>
   );
 };
