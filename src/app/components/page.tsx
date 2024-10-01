@@ -1,11 +1,21 @@
 'use client';
 
-
-import { Box, Button, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Grid,
+  GridItem,
+  Heading,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 
-
-import { Dropdown } from '@/components';
+import { Dropdown, GeepComponent } from '@/components';
 
 import colors from '@/shared/chakra/colors';
 import heading from '@/shared/chakra/components/heading';
@@ -23,6 +33,7 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons />
+          <GeepComponents />
         </Stack>
       </Container>
     </Box>
@@ -185,6 +196,44 @@ const Buttons = () => {
           </Flex>
         ))}
       </Flex>
+    </Box>
+  );
+};
+
+const GeepComponents = () => {
+  return (
+    <Box maxW="33.75rem">
+      <Heading mb="4">GEEP Components</Heading>
+      <SimpleGrid columns={2} spacing="4">
+        <GeepComponent
+          name="Government Enterprise And Empowerment Programme"
+          logo="GEEP LOGO"
+          count={5}
+          waveDirection="top"
+          bgColor="white"
+        />
+        <GeepComponent
+          name="CBN Backward Integration Fund"
+          logo="CBNIF LOGO"
+          count={5}
+          waveDirection="bottom"
+          bgColor="white"
+        />
+        <GeepComponent
+          name="Government Enterprise And Empowerment Programme"
+          logo="GEEP LOGO"
+          count={5}
+          waveDirection="top"
+          bgColor="primary.50"
+        />
+        <GeepComponent
+          name="CBN Backward Integration Fund"
+          logo="CBNIF LOGO"
+          count={5}
+          waveDirection="bottom"
+          bgColor="primary.50"
+        />
+      </SimpleGrid>
     </Box>
   );
 };
