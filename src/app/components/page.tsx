@@ -1,21 +1,8 @@
 'use client';
-
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  Grid,
-  GridItem,
-  Heading,
-  Select,
-  SimpleGrid,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text } from '@chakra-ui/react';
 import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 
-import { Dropdown, GeepComponent } from '@/components';
+import { Dropdown, ModuleCard } from '@/components';
 
 import colors from '@/shared/chakra/colors';
 import heading from '@/shared/chakra/components/heading';
@@ -33,7 +20,11 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons />
+
+          <ModuleCardSection />
+
           <GeepComponents />
+
         </Stack>
       </Container>
     </Box>
@@ -200,6 +191,13 @@ const Buttons = () => {
   );
 };
 
+
+const ModuleCardSection = () => {
+  return (
+    <Box maxW="16.375rem">
+      <Heading mb="4">Module Card</Heading>
+      <ModuleCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
+
 const GeepComponents = () => {
   return (
     <Box maxW="33.75rem">
@@ -234,6 +232,7 @@ const GeepComponents = () => {
           bgColor="primary.50"
         />
       </SimpleGrid>
+
     </Box>
   );
 };
