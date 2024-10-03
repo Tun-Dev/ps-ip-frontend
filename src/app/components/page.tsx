@@ -36,7 +36,7 @@ export default function ComponentPage() {
           <Buttons />
           <ModuleCardSection />
           <GeepComponents />
-          <Input />
+          <Input variant='primary' placeholder='user'/>
         </Stack>
       </Container>
     </Box>

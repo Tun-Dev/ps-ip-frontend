@@ -12,7 +12,7 @@ const primaryVariant = definePartsStyle({
     px: '16px',
     borderRadius: '6px',
     border: '1px solid',
-    borderColor: 'grey.100',
+    borderColor: 'grey.200',
     backgroundColor: 'white',
     color: 'grey.400',
 
