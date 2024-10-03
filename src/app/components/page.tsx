@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Box,
   Button,
@@ -10,11 +11,12 @@ import {
   Select,
   SimpleGrid,
   Stack,
-  Text,
+  Text,  
+  Input
 } from '@chakra-ui/react';
 import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 
-import { Dropdown, GeepComponent, ModuleCard } from '@/components';
+import { Dropdown, GeepComponent, ModuleCard, } from '@/components';
 
 import colors from '@/shared/chakra/colors';
 import heading from '@/shared/chakra/components/heading';
@@ -32,10 +34,9 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons />
-
           <ModuleCardSection />
-
           <GeepComponents />
+          <Input />
         </Stack>
       </Container>
     </Box>
