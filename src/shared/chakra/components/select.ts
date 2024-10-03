@@ -43,6 +43,21 @@ const sizes = {
   medium: definePartsStyle({ field: medium.field, icon: medium.icon }),
 };
 
+const white = definePartsStyle({
+  field: {
+    color: 'text',
+    outline: '1px solid',
+    outlineColor: 'grey.200',
+    background: 'white',
+    _hover: { background: 'gray.50' },
+    _active: { background: 'gray.100' },
+    _focusVisible: { outlineColor: 'primary.500' },
+  },
+  icon: {
+    color: 'primary.600',
+  },
+});
+
 const primary = definePartsStyle({
   field: {
     color: 'text',
@@ -60,7 +75,7 @@ const primary = definePartsStyle({
 
 export default defineMultiStyleConfig({
   baseStyle,
-  variants: { primary },
+  variants: { primary, white },
   sizes,
   defaultProps: {
     variant: 'primary',
