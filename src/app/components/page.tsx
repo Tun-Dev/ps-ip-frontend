@@ -275,7 +275,7 @@ const ApplicationCards = () => {
     <Box>
       <Heading mb="4">Application Cards</Heading>
       <Flex flexDir="column" gap="4">
-        <Grid gap="6" templateColumns="repeat(auto-fit, minmax(242px, 1fr))">
+        <Grid gap="6" templateColumns="repeat(auto-fit, minmax(15.25rem, 1fr))">
           {types.map((type, index) => (
             <ApplicationCard key={index} title={type} status="Completed" number={index + 1} />
           ))}

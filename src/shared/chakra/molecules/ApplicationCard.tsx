@@ -30,6 +30,7 @@ const ApplicationCard = ({ status, title, number }: ApplicationCard) => {
       padding="12px"
       borderRadius="16px"
       bg={getBgColour(status)}
+      minW="15.25rem"
     >
       <Flex justifyContent="space-between">
         <Flex alignItems="center" gap="2">
