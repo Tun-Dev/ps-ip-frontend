@@ -14,11 +14,9 @@ import {
 } from '@chakra-ui/react';
 import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 
-import { useMemo } from "react";
-import { Box, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text,Button } from '@chakra-ui/react';
-import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft,MdAddCircle } from 'react-icons/md';
-import { ReusableTable } from "@/shared";
-import { ColumnDef } from "@tanstack/react-table";
+import { useMemo } from 'react';
+import { ReusableTable } from '@/shared';
+import { ColumnDef } from '@tanstack/react-table';
 import { Dropdown, GeepComponent, ModuleCard } from '@/components';
 
 import colors from '@/shared/chakra/colors';
@@ -36,8 +34,8 @@ export default function ComponentPage() {
           <Colors />
           <Texts />
           <Headings />
-          <Buttons/>
-          <Table/>
+          <Buttons />
+          <Table />
           <ModuleCardSection />
           <GeepComponents />
         </Stack>
@@ -253,11 +251,13 @@ const Table = () => {
 
   return (
     <Flex flexDir="column" alignItems="center" gap="3">
-      <Text variant="Body1Bold" fontSize="24px">Table</Text>
+      <Text variant="Body1Bold" fontSize="24px">
+        Table
+      </Text>
       <ReusableTable data={data} columns={columns} />
     </Flex>
   );
-}
+};
 
 const ModuleCardSection = () => {
   return (

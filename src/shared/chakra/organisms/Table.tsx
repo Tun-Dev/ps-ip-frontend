@@ -35,14 +35,15 @@ function ReusableTable<T extends object>({ data, columns }: ReusableTableProps<T
         <Thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <Tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
+              {headerGroup.headers.map((header, index) => (
                 <Th
                   key={header.id}
                   onClick={header.column.getToggleSortingHandler()}
                   cursor={header.column.getCanSort() ? 'pointer' : 'default'}
                   bg="grey.100"
                   border="none"
-                  borderRadius="6px"
+                  borderLeftRadius={index === 0 ? '6px' : ''}
+                  borderRightRadius={index === headerGroup.headers.length - 1 ? '6px' : ''}
                 >
                   <Box display="flex" alignItems="center">
                     {header.column.getCanSort() && (
