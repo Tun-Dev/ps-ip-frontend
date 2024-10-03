@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gen:theme-typings": "chakra-cli tokens src/shared/chakra/theme.ts"
+    "format": "npx prettier . --write",
+    "gen:theme-typings": "chakra-cli tokens src/shared/chakra/theme.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
@@ -16,6 +18,8 @@
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "chakra-react-select": "^4.9.2",
+    "eslint-config-prettier": "^9.1.0",
     "framer-motion": "^11.9.0",
     "next": "14.2.13",
     "react": "^18",
@@ -29,7 +33,14 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.13",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
     "typescript": "^5"
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --fix",
+    "*.{js,jsx,ts,tsx,css,md}": "prettier --write --ignore-unknown"
+  }
 }
