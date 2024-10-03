@@ -1,5 +1,5 @@
 import { extendTheme, ThemeOverride } from '@chakra-ui/react';
-import { inputTheme } from '@/components/inputTheme';
+
 
 import colors from './colors';
 import components from './components';

@@ -21,8 +21,13 @@ export default function ComponentPage() {
           <Colors />
           <Texts />
           <Headings />
-          <Buttons/>
-          <OverviewCard title='Running program' number={20} icon={MdViewCarousel}/>
+          <Buttons />
+          <Flex gap='15px'>
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+          </Flex>
         </Stack>
       </Container>
     </Box>

@@ -11,7 +11,7 @@ type OverviewCardProps = {
 export const OverviewCard = ({ title, icon, number }: OverviewCardProps) => {
   return (
     <Box     
-      maxW="max-content"      
+      minW="265px"      
       padding="16px"      
       borderRadius="12px"
       border="1px solid"
@@ -20,7 +20,9 @@ export const OverviewCard = ({ title, icon, number }: OverviewCardProps) => {
       boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
     >
         <Flex mb='16px' align='center' gap="8px">
-        <Icon as={icon} boxSize="1.25rem" color="primary.600" />
+          <Box backgroundColor='gray.100' padding='6px' borderRadius='10px' gap='8px' width='32px' height='32px'>
+            <Icon as={icon} boxSize="1.25rem" color="primary.600" />
+          </Box>
         <Text as='h2' variant="Body1Semibold" color="grey.500">{title }</Text>              
         </Flex>
         <Heading as="p" variant="Header2Bold">{number}</Heading>
