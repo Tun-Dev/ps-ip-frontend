@@ -58,8 +58,12 @@ const SideBarItem = ({
       transition="all 0.3s ease-in-out"
       bg={active ? 'primary.500' : ''}
     >
-      <Icon fill={active ? 'white' : '#A4A4A4'} width={active ? '20px' : '16px'} height={active ? '20px' : '16px'} />
-      <Text variant={active ? 'Body1Bold' : 'Body2Semibold'} color={active ? 'white' : 'grey.400'}>
+      <Icon color={active ? 'white' : '#A4A4A4'} size={active ? '20px' : '16px'} />
+      <Text
+        variant={active ? 'Body1Bold' : 'Body2Semibold'}
+        color={active ? 'white' : 'grey.400'}
+        transition="all 0.3s ease-in-out"
+      >
         {name}
       </Text>
     </Flex>
