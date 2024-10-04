@@ -13,11 +13,15 @@ const primaryVariant = definePartsStyle({
     borderRadius: '6px',
     border: '1px solid',
     borderColor: 'grey.200',
-    backgroundColor: 'white',
+    backgroundColor: 'White',
     color: 'grey.400',
 
     _placeholder: {
       color: 'grey.400',
+    },
+
+    _focus: {
+      color: 'text',
     },
   },
 });
