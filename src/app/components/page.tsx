@@ -26,6 +26,7 @@ import text from '@/shared/chakra/components/text';
 import { OverviewCard } from '@/components/overview';
 
 import { ShortAnswerIcon } from '../../../public/icons';
+import { ApplicationCard } from '@/shared';
 
 export default function ComponentPage() {
   return (
@@ -46,6 +47,7 @@ export default function ComponentPage() {
           <Table />
           <ModuleCardSection />
           <GeepComponents />
+          <ApplicationCards />
           <Input variant='primary' placeholder='input username'/>
         </Stack>
       </Container>
@@ -311,6 +313,50 @@ const GeepComponents = () => {
           bgColor="primary.50"
         />
       </SimpleGrid>
+    </Box>
+  );
+};
+
+const ApplicationCards = () => {
+  type Type =
+    | 'Application'
+    | 'Enumeration'
+    | 'Nomination'
+    | 'Verification'
+    | 'Vetting'
+    | 'Whitelisting'
+    | 'Disbursement';
+
+  const types: Type[] = [
+    'Application',
+    'Enumeration',
+    'Nomination',
+    'Verification',
+    'Vetting',
+    'Whitelisting',
+    'Disbursement',
+  ];
+
+  return (
+    <Box>
+      <Heading mb="4">Application Cards</Heading>
+      <Flex flexDir="column" gap="4">
+        <Grid gap="6" templateColumns="repeat(auto-fit, minmax(15.25rem, 1fr))">
+          {types.map((type, index) => (
+            <ApplicationCard key={index} title={type} status="Completed" number={index + 1} />
+          ))}
+        </Grid>
+        <Grid gap="6" templateColumns="repeat(auto-fit, minmax(242px, 1fr))">
+          {types.map((type, index) => (
+            <ApplicationCard key={index} title={type} status="Processing" number={index + 1} />
+          ))}
+        </Grid>
+        <Grid gap="6" templateColumns="repeat(auto-fit, minmax(242px, 1fr))">
+          {types.map((type, index) => (
+            <ApplicationCard key={index} title={type} status="Pending" number={index + 1} />
+          ))}
+        </Grid>
+      </Flex>
     </Box>
   );
 };
