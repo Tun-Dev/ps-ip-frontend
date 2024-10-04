@@ -1,5 +1,5 @@
 import { Box, Container, Stack, Text } from '@chakra-ui/react';
-import { OverviewCard } from '@/components/overview';
+// import { OverviewCard } from '@/components/overview';
 // import colors from "@/shared/chakra/colors";
 
 export default function Home() {
@@ -7,7 +7,7 @@ export default function Home() {
     <Box as="main">
       <Container maxW="container.xl" minH="100dvh" py="4">
         <Stack spacing="10">
-          <Text variant="Body1Bold">Home Page</Text>          
+          <Text variant="Body1Bold">Home Page</Text>
         </Stack>
       </Container>
     </Box>

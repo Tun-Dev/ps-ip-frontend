@@ -8,12 +8,20 @@ import {
   Grid,
   GridItem,
   Heading,
+  Input,
   Select,
   SimpleGrid,
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
+import {
+  MdAddCircle,
+  MdArrowDropDown,
+  MdCloudUpload,
+  MdDateRange,
+  MdFormatAlignLeft,
+  MdViewCarousel,
+} from 'react-icons/md';
 
 import { useMemo } from 'react';
 import { ReusableTable } from '@/shared';
@@ -26,7 +34,7 @@ import text from '@/shared/chakra/components/text';
 import { OverviewCard } from '@/components/overview';
 
 import { ShortAnswerIcon } from '../../../public/icons';
-import { ApplicationCard } from '@/shared';
+import { NotificationCard } from '@/shared';
 
 export default function ComponentPage() {
   return (
@@ -38,7 +46,7 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons />
-          <Flex gap='15px'>
+          <Flex gap="15px">
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
@@ -47,8 +55,8 @@ export default function ComponentPage() {
           <Table />
           <ModuleCardSection />
           <GeepComponents />
-          <ApplicationCards />
-          <Input variant='primary' placeholder='input username'/>
+          <NotificationCards />
+          <Input variant="primary" placeholder="input username" />
         </Stack>
       </Container>
     </Box>
@@ -317,46 +325,17 @@ const GeepComponents = () => {
   );
 };
 
-const ApplicationCards = () => {
-  type Type =
-    | 'Application'
-    | 'Enumeration'
-    | 'Nomination'
-    | 'Verification'
-    | 'Vetting'
-    | 'Whitelisting'
-    | 'Disbursement';
-
-  const types: Type[] = [
-    'Application',
-    'Enumeration',
-    'Nomination',
-    'Verification',
-    'Vetting',
-    'Whitelisting',
-    'Disbursement',
-  ];
-
+const NotificationCards = () => {
   return (
     <Box>
-      <Heading mb="4">Application Cards</Heading>
-      <Flex flexDir="column" gap="4">
-        <Grid gap="6" templateColumns="repeat(auto-fit, minmax(15.25rem, 1fr))">
-          {types.map((type, index) => (
-            <ApplicationCard key={index} title={type} status="Completed" number={index + 1} />
-          ))}
-        </Grid>
-        <Grid gap="6" templateColumns="repeat(auto-fit, minmax(242px, 1fr))">
-          {types.map((type, index) => (
-            <ApplicationCard key={index} title={type} status="Processing" number={index + 1} />
-          ))}
-        </Grid>
-        <Grid gap="6" templateColumns="repeat(auto-fit, minmax(242px, 1fr))">
-          {types.map((type, index) => (
-            <ApplicationCard key={index} title={type} status="Pending" number={index + 1} />
-          ))}
-        </Grid>
-      </Flex>
+      <Heading size="md" mb="4">
+        Notification Cards
+      </Heading>
+      <Grid gap="6" templateColumns="repeat(auto-fit, minmax(22.375rem, 1fr))">
+        <NotificationCard />
+        <NotificationCard />
+        <NotificationCard />
+      </Grid>
     </Box>
   );
 };
