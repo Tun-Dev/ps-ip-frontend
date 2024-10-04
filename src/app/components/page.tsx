@@ -23,6 +23,7 @@ import { Dropdown, GeepComponent, ModuleCard } from '@/components';
 import colors from '@/shared/chakra/colors';
 import heading from '@/shared/chakra/components/heading';
 import text from '@/shared/chakra/components/text';
+import { OverviewCard } from '@/components/overview';
 
 import { ShortAnswerIcon } from '../../../public/icons';
 
@@ -36,6 +37,12 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons />
+          <Flex gap='15px'>
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+          </Flex>
           <Table />
           <ModuleCardSection />
           <GeepComponents />
