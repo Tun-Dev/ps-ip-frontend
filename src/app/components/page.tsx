@@ -11,12 +11,14 @@ import {
   Select,
   SimpleGrid,
   Stack,
-  Text,  
-  Input
+  Text,
 } from '@chakra-ui/react';
 import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 
-import { Dropdown, GeepComponent, ModuleCard, } from '@/components';
+import { useMemo } from 'react';
+import { ReusableTable } from '@/shared';
+import { ColumnDef } from '@tanstack/react-table';
+import { Dropdown, GeepComponent, ModuleCard } from '@/components';
 
 import colors from '@/shared/chakra/colors';
 import heading from '@/shared/chakra/components/heading';
@@ -34,6 +36,7 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons />
+          <Table />
           <ModuleCardSection />
           <GeepComponents />
           <Input variant='primary' placeholder='input username'/>
@@ -200,6 +203,61 @@ const Buttons = () => {
         ))}
       </Flex>
     </Box>
+  );
+};
+
+const Table = () => {
+  type Person = {
+    name: string;
+    age: number;
+    email: string;
+  };
+  const data: Person[] = [
+    { name: 'John Doe', age: 30, email: 'john@example.com' },
+    { name: 'Jane Smith', age: 25, email: 'jane@example.com' },
+    { name: 'Bob Johnson', age: 45, email: 'bob@example.com' },
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const columns: ColumnDef<any>[] = useMemo(
+    () => [
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Name
+          </Text>
+        ),
+        accessorKey: 'name',
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Age
+          </Text>
+        ),
+        accessorKey: 'age',
+        enableSorting: false,
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Email address
+          </Text>
+        ),
+        accessorKey: 'email',
+        enableSorting: true,
+      },
+    ],
+    []
+  );
+
+  return (
+    <Flex flexDir="column" alignItems="center" gap="3">
+      <Text variant="Body1Bold" fontSize="24px">
+        Table
+      </Text>
+      <ReusableTable data={data} columns={columns} />
+    </Flex>
   );
 };
 

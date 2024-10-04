@@ -30,6 +30,7 @@ const extendedConfig: ThemeOverride = {
     ...components,
     Input: inputTheme,
   },
+  components,
 };
 
 const theme = extendTheme(extendedConfig);
