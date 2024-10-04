@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Box,
   Button,
@@ -14,11 +15,15 @@ import {
 } from '@chakra-ui/react';
 import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 
+import { useMemo } from 'react';
+import { ReusableTable } from '@/shared';
+import { ColumnDef } from '@tanstack/react-table';
 import { Dropdown, GeepComponent, ModuleCard } from '@/components';
 
 import colors from '@/shared/chakra/colors';
 import heading from '@/shared/chakra/components/heading';
 import text from '@/shared/chakra/components/text';
+import { OverviewCard } from '@/components/overview';
 
 import { ShortAnswerIcon } from '../../../public/icons';
 import { ApplicationCard } from '@/shared';
@@ -33,11 +38,17 @@ export default function ComponentPage() {
           <Texts />
           <Headings />
           <Buttons />
-
+          <Flex gap='15px'>
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+          </Flex>
+          <Table />
           <ModuleCardSection />
-
           <GeepComponents />
           <ApplicationCards />
+          <Input variant='primary' placeholder='input username'/>
         </Stack>
       </Container>
     </Box>
@@ -201,6 +212,61 @@ const Buttons = () => {
         ))}
       </Flex>
     </Box>
+  );
+};
+
+const Table = () => {
+  type Person = {
+    name: string;
+    age: number;
+    email: string;
+  };
+  const data: Person[] = [
+    { name: 'John Doe', age: 30, email: 'john@example.com' },
+    { name: 'Jane Smith', age: 25, email: 'jane@example.com' },
+    { name: 'Bob Johnson', age: 45, email: 'bob@example.com' },
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const columns: ColumnDef<any>[] = useMemo(
+    () => [
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Name
+          </Text>
+        ),
+        accessorKey: 'name',
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Age
+          </Text>
+        ),
+        accessorKey: 'age',
+        enableSorting: false,
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Email address
+          </Text>
+        ),
+        accessorKey: 'email',
+        enableSorting: true,
+      },
+    ],
+    []
+  );
+
+  return (
+    <Flex flexDir="column" alignItems="center" gap="3">
+      <Text variant="Body1Bold" fontSize="24px">
+        Table
+      </Text>
+      <ReusableTable data={data} columns={columns} />
+    </Flex>
   );
 };
 
