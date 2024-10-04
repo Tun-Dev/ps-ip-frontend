@@ -1,5 +1,6 @@
 import { selectAnatomy } from '@chakra-ui/anatomy';
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react';
+import { primaryVariant } from './inputTheme';
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(selectAnatomy.keys);
 
@@ -48,5 +49,5 @@ const primaryDropdown = definePartsStyle({
 });
 
 export default defineMultiStyleConfig({
-  variants: { primaryDropdown, whiteDropdown },
+  variants: { primary: primaryVariant, primaryDropdown, whiteDropdown },
 });

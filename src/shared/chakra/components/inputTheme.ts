@@ -5,7 +5,7 @@ import { createMultiStyleConfigHelpers } from '@chakra-ui/react';
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(inputAnatomy.keys);
 
-const primaryVariant = definePartsStyle({
+export const primaryVariant = definePartsStyle({
   field: {
     fontSize: '16px',
     py: '8px',

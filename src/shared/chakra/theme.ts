@@ -1,5 +1,4 @@
 import { extendTheme, ThemeOverride } from '@chakra-ui/react';
-import { inputTheme } from '@/components/inputTheme';
 
 import colors from './colors';
 import components from './components';
@@ -25,10 +24,6 @@ const extendedConfig: ThemeOverride = {
     sm: '1440px',
     md: '1600px',
     lg: '1920px',
-  },
-  components: {
-    ...components,
-    Input: inputTheme,
   },
   components,
 };
