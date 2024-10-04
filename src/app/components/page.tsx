@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Box,
   Button,
@@ -38,6 +39,7 @@ export default function ComponentPage() {
           <Table />
           <ModuleCardSection />
           <GeepComponents />
+          <Input variant='primary' placeholder='input username'/>
         </Stack>
       </Container>
     </Box>
