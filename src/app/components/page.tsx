@@ -1,9 +1,24 @@
 'use client';
 
-import { Box, Container, Flex, Grid, GridItem, Heading, Select, Stack, Text,Button } from '@chakra-ui/react';
-import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft,MdAddCircle, MdViewCarousel } from 'react-icons/md';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Grid,
+  GridItem,
+  Heading,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
+import { MdAddCircle, MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 
-import { Dropdown } from '@/components';
+import { useMemo } from 'react';
+import { ReusableTable } from '@/shared';
+import { ColumnDef } from '@tanstack/react-table';
+import { Dropdown, GeepComponent, ModuleCard } from '@/components';
 
 import colors from '@/shared/chakra/colors';
 import heading from '@/shared/chakra/components/heading';
@@ -28,6 +43,10 @@ export default function ComponentPage() {
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
           </Flex>
+          <Table />
+          <ModuleCardSection />
+          <GeepComponents />
+          <Input variant='primary' placeholder='input username'/>
         </Stack>
       </Container>
     </Box>
@@ -111,43 +130,58 @@ const Dropdowns = () => {
     <Box maxW="sm">
       <Heading mb="4">Dropdowns</Heading>
       <Stack gap="6">
-        <Box>
+        <Stack spacing="2">
           <Heading variant="Header1Bold" mb="2">
             React Select
           </Heading>
-          <Dropdown options={options} />
-        </Box>
-        <Box>
-          <Heading variant="Header1Bold" mb="2">
-            Chakra Select
-          </Heading>
-          <Stack spacing="2">
-            <Text>Small</Text>
-            <Select placeholder="Select..." size="small">
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            <Text>Medium</Text>
-            <Select placeholder="Select...">
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-          </Stack>
-        </Box>
+          <Text fontWeight="bold">Primary</Text>
+          <Dropdown variant="primaryDropdown" options={options} />
+          <Text fontWeight="bold">White</Text>
+          <Dropdown variant="whiteDropdown" options={options} />
+        </Stack>
+        <Stack spacing="2">
+          <Heading variant="Header1Bold">Chakra Select</Heading>
+          <Text fontWeight="bold">Small (Primary)</Text>
+          <Select placeholder="Select..." size="small">
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <Text fontWeight="bold">Medium (Primary)</Text>
+          <Select placeholder="Select...">
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <Text fontWeight="bold">Small (White)</Text>
+          <Select placeholder="Select..." size="small" variant="white">
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <Text fontWeight="bold">Medium (White)</Text>
+          <Select placeholder="Select..." variant="white">
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </Stack>
       </Stack>
     </Box>
   );
 };
 
 const Buttons = () => {
-  const sizes = ["small", "medium", "default"];
-  const types = ["primary", "secondary", "tertiary", "accept", "cancel"];
+  const sizes = ['small', 'medium', 'default'];
+  const types = ['primary', 'secondary', 'tertiary', 'accept', 'cancel'];
   return (
     <Box>
       <Heading size="md" mb="4">
@@ -156,7 +190,9 @@ const Buttons = () => {
       <Flex flexDirection="column" gap="6">
         {types.map((variant, variantIndex) => (
           <Flex key={variantIndex} flexDirection="column" gap="4">
-            <Text fontWeight="bold" textTransform="capitalize">{variant}</Text>
+            <Text fontWeight="bold" textTransform="capitalize">
+              {variant}
+            </Text>
             <Flex alignItems="center" gap="4" flexWrap="wrap">
               {sizes.map((size) => (
                 <Button
@@ -173,6 +209,108 @@ const Buttons = () => {
           </Flex>
         ))}
       </Flex>
+    </Box>
+  );
+};
+
+const Table = () => {
+  type Person = {
+    name: string;
+    age: number;
+    email: string;
+  };
+  const data: Person[] = [
+    { name: 'John Doe', age: 30, email: 'john@example.com' },
+    { name: 'Jane Smith', age: 25, email: 'jane@example.com' },
+    { name: 'Bob Johnson', age: 45, email: 'bob@example.com' },
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const columns: ColumnDef<any>[] = useMemo(
+    () => [
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Name
+          </Text>
+        ),
+        accessorKey: 'name',
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Age
+          </Text>
+        ),
+        accessorKey: 'age',
+        enableSorting: false,
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="gray.500">
+            Email address
+          </Text>
+        ),
+        accessorKey: 'email',
+        enableSorting: true,
+      },
+    ],
+    []
+  );
+
+  return (
+    <Flex flexDir="column" alignItems="center" gap="3">
+      <Text variant="Body1Bold" fontSize="24px">
+        Table
+      </Text>
+      <ReusableTable data={data} columns={columns} />
+    </Flex>
+  );
+};
+
+const ModuleCardSection = () => {
+  return (
+    <Box maxW="16.375rem">
+      <Heading mb="4">Module Card</Heading>
+      <ModuleCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
+    </Box>
+  );
+};
+
+const GeepComponents = () => {
+  return (
+    <Box maxW="33.75rem">
+      <Heading mb="4">GEEP Components</Heading>
+      <SimpleGrid columns={2} spacing="4">
+        <GeepComponent
+          name="Government Enterprise And Empowerment Programme"
+          logo="GEEP LOGO"
+          count={5}
+          waveDirection="top"
+          bgColor="white"
+        />
+        <GeepComponent
+          name="CBN Backward Integration Fund"
+          logo="CBNIF LOGO"
+          count={5}
+          waveDirection="bottom"
+          bgColor="white"
+        />
+        <GeepComponent
+          name="Government Enterprise And Empowerment Programme"
+          logo="GEEP LOGO"
+          count={5}
+          waveDirection="top"
+          bgColor="primary.50"
+        />
+        <GeepComponent
+          name="CBN Backward Integration Fund"
+          logo="CBNIF LOGO"
+          count={5}
+          waveDirection="bottom"
+          bgColor="primary.50"
+        />
+      </SimpleGrid>
     </Box>
   );
 };

@@ -12,7 +12,7 @@ import colors from '@/shared/chakra/colors';
 const DropdownIndicator = <
   Option,
   IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>
+  Group extends GroupBase<Option> = GroupBase<Option>,
 >(
   props: DropdownIndicatorProps<Option, IsMulti, Group>
 ) => {
@@ -23,42 +23,67 @@ const DropdownIndicator = <
   );
 };
 
-const OptionComponent = <Option, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>>({
-  children,
-  ...props
-}: OptionProps<Option, IsMulti, Group>) => {
+const OptionComponent = <Option, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>>(
+  variant: string,
+  { children, ...props }: OptionProps<Option, IsMulti, Group>
+) => {
   const icon = (props.data as DropdownOption)?.icon;
   return (
     <components.Option {...props}>
       <Flex gap="2" align="center" fontSize="0.8125rem" fontWeight="semibold">
-        {icon && <Icon as={icon} boxSize="1rem" color="primary.600" />}
+        {icon && (
+          <Icon
+            as={icon}
+            boxSize="1rem"
+            color={variant === 'whiteDropdown' && props.isSelected ? 'white' : 'primary.600'}
+          />
+        )}
         {children}
       </Flex>
     </components.Option>
   );
 };
 
-export const Dropdown = <Option, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>>(
-  props: Props<Option, IsMulti, Group>
-) => {
+const getStyles = (variant: string, isSelected: boolean, isFocused: boolean) => {
+  if (variant === 'whiteDropdown') {
+    if (isSelected) return { optionBg: colors.primary[500], hoverBg: colors.primary[500] };
+    if (isFocused) return { optionBg: 'var(--chakra-colors-gray-100)', hoverBg: 'var(--chakra-colors-gray-100)' };
+    return { optionBg: 'white', hoverBg: colors.primary[50] };
+  }
+  if (isSelected) return { optionBg: colors.primary[200], hoverBg: colors.primary[200] };
+  if (isFocused) return { optionBg: colors.primary[100], hoverBg: colors.primary[100] };
+  return { optionBg: colors.primary[50], hoverBg: colors.primary[100] };
+};
+
+export const Dropdown = <Option, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>>({
+  variant = 'primaryDropdown',
+  ...props
+}: Props<Option, IsMulti, Group>) => {
   return (
     <Select
-      components={{ DropdownIndicator, Option: OptionComponent, IndicatorSeparator: null }}
-      variant="dropdown"
+      components={{
+        DropdownIndicator,
+        Option: (optionProps) => OptionComponent(variant, optionProps),
+        IndicatorSeparator: null,
+      }}
+      variant={variant}
       instanceId="dropdown"
       menuPosition="fixed"
       chakraStyles={{
-        menuList: (styles) => ({ ...styles, bgColor: 'primary.50' }),
+        menuList: (styles) => ({ ...styles, bgColor: variant === 'whiteDropdown' ? 'white' : 'primary.50' }),
         inputContainer: (styles) => ({ ...styles, py: '0.25rem' }),
         placeholder: (styles) => ({ ...styles, color: 'text' }),
       }}
       styles={{
-        option: (styles, { isSelected, isFocused }) => ({
-          ...styles,
-          color: colors.text,
-          backgroundColor: isSelected ? colors.primary[200] : isFocused ? colors.primary[100] : colors.primary[50],
-          ':hover': { backgroundColor: isSelected ? colors.primary[200] : colors.primary[100] },
-        }),
+        option: (styles, { isSelected, isFocused }) => {
+          const { optionBg, hoverBg } = getStyles(variant, isSelected, isFocused);
+          return {
+            ...styles,
+            color: variant === 'whiteDropdown' && isSelected ? 'white' : colors.text,
+            backgroundColor: optionBg,
+            ':hover': { backgroundColor: hoverBg },
+          };
+        },
       }}
       {...props}
     />
