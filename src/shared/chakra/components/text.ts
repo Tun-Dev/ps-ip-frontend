@@ -54,6 +54,12 @@ const Body1Bold = defineStyle({
   lineHeight: '24px',
 });
 
+const Header2Bold = defineStyle({
+  fontSize: '24px',
+  fontWeight: 'bold',
+  lineHeight: '32px',
+});
+
 export default defineStyleConfig({
   variants: {
     Body3Regular,
@@ -65,6 +71,7 @@ export default defineStyleConfig({
     Body1Regular,
     Body1Semibold,
     Body1Bold,
+    Header2Bold,
   },
   defaultProps: { variant: 'Body1Regular' },
 });
