@@ -1,6 +1,6 @@
 import { Box, Container, Stack, Text } from '@chakra-ui/react';
 
-// import colors from "@/shared/chakra/colors";
+import { FormBuilder } from '@/components/form-builder';
 
 export default function Home() {
   return (
@@ -8,6 +8,7 @@ export default function Home() {
       <Container maxW="container.xl" minH="100dvh" py="4">
         <Stack spacing="10">
           <Text variant="Body1Bold">Home Page</Text>
+          <FormBuilder />
         </Stack>
       </Container>
     </Box>
