@@ -54,24 +54,59 @@ const Body1Bold = defineStyle({
   lineHeight: '24px',
 });
 
+const Header1Regular = defineStyle({
+  fontSize: '20px',
+  fontWeight: 'normal',
+  lineHeight: '28px',
+});
+
+const Header1Bold = defineStyle({
+  fontSize: '20px',
+  fontWeight: 'bold',
+  lineHeight: '28px',
+});
+
 const Header2Bold = defineStyle({
   fontSize: '24px',
   fontWeight: 'bold',
   lineHeight: '32px',
 });
 
-export default defineStyleConfig({
-  variants: {
-    Body3Regular,
-    Body3Semibold,
-    Body3Bold,
-    Body2Regular,
-    Body2Semibold,
-    Body2Bold,
-    Body1Regular,
-    Body1Semibold,
-    Body1Bold,
-    Header2Bold,
-  },
+const Header3Bold = defineStyle({
+  fontSize: '30px',
+  fontWeight: 'bold',
+  lineHeight: '36px',
+});
+
+const Header4Bold = defineStyle({
+  fontSize: '36px',
+  fontWeight: 'bold',
+  lineHeight: '40px',
+});
+
+const variants = {
+  Body3Regular,
+  Body3Semibold,
+  Body3Bold,
+  Body2Regular,
+  Body2Semibold,
+  Body2Bold,
+  Body1Regular,
+  Body1Semibold,
+  Body1Bold,
+  Header1Regular,
+  Header1Bold,
+  Header2Bold,
+  Header3Bold,
+  Header4Bold,
+};
+
+export const Text = defineStyleConfig({
+  variants,
   defaultProps: { variant: 'Body1Regular' },
+});
+
+export const Heading = defineStyleConfig({
+  variants,
+  defaultProps: { variant: 'Header2Bold' },
 });

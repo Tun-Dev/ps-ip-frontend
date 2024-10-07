@@ -1,9 +1,8 @@
 import { ThemeComponents } from '@chakra-ui/react';
 
-import Heading from './heading';
 import Input from './input';
 import Select from './select';
-import Text from './text';
+import { Heading, Text } from './typography';
 import buttonTheme from './buttonTheme';
 
 const components: ThemeComponents = {
