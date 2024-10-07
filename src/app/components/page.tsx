@@ -29,9 +29,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Dropdown, GeepComponent, ModuleCard } from '@/components';
 
 import colors from '@/shared/chakra/colors';
-import heading from '@/shared/chakra/components/heading';
-import text from '@/shared/chakra/components/text';
 import { OverviewCard } from '@/components/overview';
+import { Text as typography } from '@/shared/chakra/components/typography';
 
 import { ShortAnswerIcon } from '../../../public/icons';
 import { NotificationCard } from '@/shared';
@@ -44,7 +43,6 @@ export default function ComponentPage() {
           <Dropdowns />
           <Colors />
           <Texts />
-          <Headings />
           <Buttons />
           <Flex gap="15px">
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
@@ -98,29 +96,13 @@ const Color = ({ label, value }: { label: string; value: string }) => {
 const Texts = () => {
   return (
     <Box>
-      <Heading mb="4">Texts</Heading>
+      <Heading mb="4">Typography</Heading>
       <Stack gap="6">
-        {text.variants &&
-          Object.keys(text.variants).map((variant) => (
+        {typography.variants &&
+          Object.keys(typography.variants).map((variant) => (
             <Text key={variant} variant={variant}>
               ({variant}) The quick brown fox jumps over the lazy dog
             </Text>
-          ))}
-      </Stack>
-    </Box>
-  );
-};
-
-const Headings = () => {
-  return (
-    <Box>
-      <Heading mb="4">Headings</Heading>
-      <Stack gap="6">
-        {heading.variants &&
-          Object.keys(heading.variants).map((variant) => (
-            <Heading key={variant} variant={variant}>
-              ({variant}) The quick brown fox jumps over the lazy dog
-            </Heading>
           ))}
       </Stack>
     </Box>
