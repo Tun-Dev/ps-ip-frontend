@@ -85,7 +85,6 @@ const SideBarItem = ({
   url: string;
   active?: boolean;
 }) => {
-  console.log(active);
   const router = useRouter();
   return (
     <Flex
