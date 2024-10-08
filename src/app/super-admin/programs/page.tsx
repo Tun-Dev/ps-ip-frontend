@@ -26,7 +26,7 @@ interface ModuleProps {
   active: boolean;
 }
 
-const Modules: ModuleProps[] = [
+export const ModulesData: ModuleProps[] = [
   {
     id: 1,
     name: 'Enumeration',
@@ -92,7 +92,7 @@ const ProgramsPage = () => {
 
   return (
     <Grid templateColumns="1fr auto">
-      <SimpleGrid columns={!!selectedId ? 3 : 4} spacingY="6" spacingX="5" px="6" py="5">
+      <SimpleGrid columns={!!selectedId ? 3 : 4} spacingY="6" spacingX="5" py="5">
         {programs.map((item) => (
           <GeepComponent
             key={item.id}
@@ -107,12 +107,12 @@ const ProgramsPage = () => {
         ))}
       </SimpleGrid>
       {selectedProgram && (
-        <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200" h="100%">
+        <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200" h="100%" ml="5">
           <Heading variant="Body2Semibold" color="grey.400" mb="2">
             Modules - ({selectedProgram.count})
           </Heading>
           <Stack spacing="3" minW="263px">
-            {Modules.map((item, index) => (
+            {ModulesData.map((item, index) => (
               <ModuleCard key={index} {...item} />
             ))}
             {/* Module Cards go here */}

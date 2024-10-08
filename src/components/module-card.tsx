@@ -1,10 +1,12 @@
-import { Flex, Image, Text } from '@chakra-ui/react';
+'use client';
+
+import { Flex, FlexProps, Image, Text } from '@chakra-ui/react';
 import React from 'react';
 import { MdArrowForward, MdCheckCircle, MdRefresh } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 // import EnumerationIcon from '../../public/icons/undraw_interview.svg';
 
-interface ModuleCardProps {
+interface ModuleCardProps extends Omit<FlexProps, 'id'> {
   id: number;
   name: string;
   status: 'Completed' | 'In progress' | 'Pending';
@@ -13,7 +15,7 @@ interface ModuleCardProps {
   active: boolean;
 }
 
-const ModuleCard = ({ id, name, status, icon, isDisabled }: ModuleCardProps) => {
+const ModuleCard = ({ id, name, status, icon, isDisabled, ...rest }: ModuleCardProps) => {
   const router = useRouter();
   return (
     <Flex
@@ -27,6 +29,7 @@ const ModuleCard = ({ id, name, status, icon, isDisabled }: ModuleCardProps) => 
       gap="8px"
       cursor={isDisabled ? 'not-allowed' : 'pointer'}
       onClick={!isDisabled ? () => router.push(`/super-admin/programs/${id}/${name.toLowerCase()}`) : undefined}
+      {...rest}
     >
       <Flex justifyContent="space-between" w="full">
         <Flex gap="4px">
