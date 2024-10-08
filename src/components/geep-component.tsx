@@ -1,15 +1,16 @@
-import type { BoxProps, IconProps } from '@chakra-ui/react';
+import type { ButtonProps, IconProps } from '@chakra-ui/react';
 import { Avatar, Box, Flex, HStack, Icon, IconButton, Stack, Text } from '@chakra-ui/react';
+import type { MouseEvent } from 'react';
 import { MdDelete, MdEdit } from 'react-icons/md';
 
 type Props = {
   name: string;
-  logo: string;
+  logo?: string;
   count: number;
   waveDirection?: 'top' | 'bottom';
-  onEdit?: () => void;
-  onDelete?: () => void;
-} & BoxProps;
+  onEdit?: (e: MouseEvent<HTMLButtonElement>) => void;
+  onDelete?: (e: MouseEvent<HTMLButtonElement>) => void;
+} & ButtonProps;
 
 export const GeepComponent = ({ name, logo, count, waveDirection = 'top', onEdit, onDelete, ...props }: Props) => {
   return (
@@ -23,6 +24,7 @@ export const GeepComponent = ({ name, logo, count, waveDirection = 'top', onEdit
       rounded="2xl"
       boxShadow="card"
       overflow="hidden"
+      cursor="pointer"
       {...props}
     >
       <Stack spacing="3" pos="relative" zIndex="docked">

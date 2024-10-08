@@ -1,7 +1,8 @@
 'use client';
 
 import { Box, Grid, Heading, SimpleGrid, Stack } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { type MouseEvent, useState } from 'react';
 
 import { GeepComponent } from '@/components';
 
@@ -17,9 +18,25 @@ const PROGRAMS = [
 ];
 
 const ProgramsPage = () => {
+  const router = useRouter();
   const [programs, setPrograms] = useState(PROGRAMS);
   const [selectedId, setSelectedId] = useState(0);
   const selectedProgram = programs.find((program) => program.id === selectedId);
+
+  const handleEdit = (e: MouseEvent<HTMLButtonElement>, itemId: number) => {
+    e.stopPropagation();
+    router.push(`/super-admin/programs/${itemId}`);
+  };
+
+  const handleDelete = (e: MouseEvent<HTMLButtonElement>, itemId: number) => {
+    e.stopPropagation();
+    if (selectedId === itemId) setSelectedId(0);
+    setPrograms((programs) => programs.filter((program) => program.id !== itemId));
+  };
+
+  const handleSelect = (itemId: number) => {
+    setSelectedId((id) => (id === itemId ? 0 : itemId));
+  };
 
   return (
     <Grid templateColumns="1fr auto">
@@ -28,12 +45,12 @@ const ProgramsPage = () => {
           <GeepComponent
             key={item.id}
             name={item.name}
-            logo={item.logo}
             count={item.count}
             waveDirection={item.id % 2 === 0 ? 'bottom' : 'top'}
-            bgColor={selectedId === item.id ? 'primary.100' : 'white'}
-            onEdit={() => setSelectedId((id) => (id === item.id ? 0 : item.id))}
-            onDelete={() => setPrograms((programs) => programs.filter((program) => program.id !== item.id))}
+            bgColor={selectedId === item.id ? 'primary.50' : 'white'}
+            onClick={() => handleSelect(item.id)}
+            onEdit={(e) => handleEdit(e, item.id)}
+            onDelete={(e) => handleDelete(e, item.id)}
           />
         ))}
       </SimpleGrid>
