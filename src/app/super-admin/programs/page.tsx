@@ -17,6 +17,58 @@ const PROGRAMS = [
   { id: 8, name: 'CBN Backward Integration Fund', logo: 'CBNIF LOGO', count: 5 },
 ];
 
+interface ModuleProps {
+  id: number;
+  name: string;
+  status: 'Completed' | 'In progress' | 'Pending';
+  icon: string;
+  isDisabled: boolean;
+  active: boolean;
+}
+
+const Modules: ModuleProps[] = [
+  {
+    id: 1,
+    name: 'Enumeration',
+    status: 'Completed',
+    icon: '/icons/undraw_interview.svg',
+    isDisabled: false,
+    active: true,
+  },
+  {
+    id: 2,
+    name: 'Verification',
+    status: 'In progress',
+    icon: '/icons/undraw_authentication.svg',
+    isDisabled: false,
+    active: true,
+  },
+  {
+    id: 3,
+    name: 'Vetting',
+    status: 'Pending',
+    icon: '/icons/undraw_following.svg',
+    isDisabled: true,
+    active: true,
+  },
+  {
+    id: 4,
+    name: 'Whitelisting',
+    status: 'Pending',
+    icon: '/icons/undraw_followers.svg',
+    isDisabled: true,
+    active: true,
+  },
+  {
+    id: 5,
+    name: 'Disbursement',
+    status: 'Pending',
+    icon: '/icons/undraw_online_payments.svg',
+    isDisabled: true,
+    active: true,
+  },
+];
+
 const ProgramsPage = () => {
   const router = useRouter();
   const [programs, setPrograms] = useState(PROGRAMS);
@@ -60,7 +112,9 @@ const ProgramsPage = () => {
             Modules - ({selectedProgram.count})
           </Heading>
           <Stack spacing="3" minW="263px">
-            <ModuleCard />
+            {Modules.map((item, index) => (
+              <ModuleCard key={index} {...item} />
+            ))}
             {/* Module Cards go here */}
           </Stack>
         </Box>

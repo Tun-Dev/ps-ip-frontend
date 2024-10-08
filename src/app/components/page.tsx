@@ -51,7 +51,7 @@ export default function ComponentPage() {
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
           </Flex>
           <Table />
-          <ModuleCardSection />
+          <ModuleDashboardCardSection />
           <GeepComponents />
           <NotificationCards />
           <Input variant="primary" placeholder="input username" />
@@ -260,7 +260,7 @@ const Table = () => {
   );
 };
 
-const ModuleCardSection = () => {
+const ModuleDashboardCardSection = () => {
   return (
     <Box maxW="16.375rem">
       <Heading mb="4">Module Card</Heading>

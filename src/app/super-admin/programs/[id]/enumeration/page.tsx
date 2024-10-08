@@ -32,7 +32,7 @@ const EnumerationPage = () => {
   const [selectedAgent, setSelectedAgent] = useState<(typeof aggregatorData)[number] | null>(null);
 
   return (
-    <Box>
+    <Box w="full">
       <Flex align="center" justify="space-between" mb="8">
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
