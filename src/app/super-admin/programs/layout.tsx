@@ -1,7 +1,8 @@
+import { Flex } from '@chakra-ui/react';
 import type { PropsWithChildren } from 'react';
 
 const ProgramsLayout = ({ children }: PropsWithChildren) => {
-  return <div>{children}</div>;
+  return <Flex>{children}</Flex>;
 };
 
 export default ProgramsLayout;

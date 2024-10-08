@@ -4,7 +4,7 @@ import { Box, Grid, Heading, SimpleGrid, Stack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { type MouseEvent, useState } from 'react';
 
-import { GeepComponent } from '@/components';
+import { GeepComponent, ModuleCard } from '@/components';
 
 const PROGRAMS = [
   { id: 1, name: 'Government Enterprise And Empowerment Programme', logo: 'GEEP LOGO', count: 5 },
@@ -55,11 +55,12 @@ const ProgramsPage = () => {
         ))}
       </SimpleGrid>
       {selectedProgram && (
-        <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200">
+        <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200" h="100%">
           <Heading variant="Body2Semibold" color="grey.400" mb="2">
             Modules - ({selectedProgram.count})
           </Heading>
           <Stack spacing="3" minW="263px">
+            <ModuleCard />
             {/* Module Cards go here */}
           </Stack>
         </Box>

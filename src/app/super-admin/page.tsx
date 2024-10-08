@@ -4,7 +4,7 @@ import { Flex, Grid, Text, Link, Icon, Box } from '@chakra-ui/react';
 import React, { useMemo } from 'react';
 import { OverviewCard } from '@/components/overview';
 import { MdViewCarousel, MdOpenInNew } from 'react-icons/md';
-import { ModuleCard } from '@/components';
+import { ModuleDashboardCard } from '@/components';
 import { NotificationCard, ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
 
@@ -107,10 +107,10 @@ const SuperAdminDashboard = () => {
           Modules In Progress
         </Text>
         <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(262px, 1fr))">
-          <ModuleCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
-          <ModuleCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
-          <ModuleCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
-          <ModuleCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
+          <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
+          <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
+          <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
+          <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
         </Grid>
       </Flex>
       <Flex flexDir="column" gap="12px">

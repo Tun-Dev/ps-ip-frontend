@@ -1,23 +1,14 @@
-import { Heading, Image, Stack, StackProps, Text } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
+import React from 'react';
 
-type Props = {
-  text: string;
-  number: number;
-  image: string;
-} & StackProps;
-
-export const ModuleCard = ({ text, number, image, ...props }: Props) => {
+const ModuleCard = () => {
   return (
-    <Stack spacing="4" p="4" border="1px solid" borderColor="grey.100" rounded="xl" boxShadow="card" {...props}>
-      <Heading as="p" variant="Header2Bold">
-        {number.toLocaleString()}
-      </Heading>
-      <Stack spacing="6">
-        <Image src={image} alt={text} alignSelf="center" />
-        <Text variant="Body1Semibold" color="grey.500">
-          {text}
-        </Text>
-      </Stack>
-    </Stack>
+    <Flex h="156px" w="full" bg="primary.50" boxShadow="card" borderRadius="16px" p="12px">
+      <Flex></Flex>
+      <Flex></Flex>
+      <Flex></Flex>
+    </Flex>
   );
 };
+
+export { ModuleCard };
