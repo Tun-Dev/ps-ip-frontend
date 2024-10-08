@@ -72,11 +72,11 @@ export const tertiaryVariant = () =>
 
 export const formSuccessVariant = () =>
   ({
-    color: 'primary.500',
-    fill: 'primary.500',
+    color: 'green',
+    fill: 'green',
     bg: 'green/10',
     _hover: {
-      bg: 'primary.200',
+      bg: 'green/20',
     },
     font: 'body1-bold',
   }) as SystemStyleInterpolation;

@@ -13,9 +13,10 @@ import { TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons';
 interface ReusableTableProps<T extends object> {
   data: T[];
   columns: ColumnDef<T>[];
+  onClick?: (row: T) => void;
 }
 
-function ReusableTable<T extends object>({ data, columns }: ReusableTableProps<T>) {
+function ReusableTable<T extends object>({ data, columns, onClick }: ReusableTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
@@ -58,7 +59,7 @@ function ReusableTable<T extends object>({ data, columns }: ReusableTableProps<T
                         )}
                       </Box>
                     )}
-                    <Text as="span" variant="Body3Semibold" color="gray.500">
+                    <Text as="span" variant="Body3Semibold" color="grey.500">
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </Text>
                   </Box>
@@ -69,7 +70,13 @@ function ReusableTable<T extends object>({ data, columns }: ReusableTableProps<T
         </Thead>
         <Tbody>
           {table.getRowModel().rows.map((row) => (
-            <Tr key={row.id} borderBottomColor="grey.500">
+            <Tr
+              key={row.id}
+              borderBottomColor="grey.500"
+              onClick={onClick ? () => onClick(row.original) : undefined}
+              cursor={onClick ? 'pointer' : undefined}
+              _hover={onClick ? { bgColor: 'primary.50' } : undefined}
+            >
               {row.getVisibleCells().map((cell) => (
                 <Td key={cell.id}>
                   <Text as="span" variant="Body2Semibold" color="text">

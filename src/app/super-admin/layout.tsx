@@ -1,5 +1,5 @@
+import { Box, Flex } from '@chakra-ui/react';
 import Sidebar from './components/Sidebar';
-import { Flex } from '@chakra-ui/react';
 
 const SuperAdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -7,9 +7,9 @@ const SuperAdminLayout = ({ children }: { children: React.ReactNode }) => {
       <Flex pos="fixed" w="208px" top="24px" bottom="24px" left="24px">
         <Sidebar />
       </Flex>
-      <Flex w="calc(100% - 232px)" borderRadius="12px" ml="auto" bg="white" p="24px" boxShadow="card">
+      <Box w="calc(100% - 232px)" borderRadius="12px" ml="auto" bg="white" p="24px" boxShadow="card">
         {children}
-      </Flex>
+      </Box>
     </Flex>
   );
 };
