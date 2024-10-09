@@ -26,7 +26,7 @@ import {
 import { useMemo } from 'react';
 import { ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
-import { Dropdown, GeepComponent, ModuleCard } from '@/components';
+import { Dropdown, GeepComponent, ModuleDashboardCard } from '@/components';
 
 import colors from '@/shared/chakra/colors';
 import { OverviewCard } from '@/components/overview';
@@ -51,7 +51,7 @@ export default function ComponentPage() {
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
           </Flex>
           <Table />
-          <ModuleCardSection />
+          <ModuleDashboardCardSection />
           <GeepComponents />
           <NotificationCards />
           <Input variant="primary" placeholder="input username" />
@@ -260,11 +260,11 @@ const Table = () => {
   );
 };
 
-const ModuleCardSection = () => {
+const ModuleDashboardCardSection = () => {
   return (
     <Box maxW="16.375rem">
       <Heading mb="4">Module Card</Heading>
-      <ModuleCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
+      <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
     </Box>
   );
 };

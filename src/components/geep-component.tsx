@@ -1,15 +1,19 @@
-import type { BoxProps, IconProps } from '@chakra-ui/react';
+import type { ButtonProps, IconProps } from '@chakra-ui/react';
 import { Avatar, Box, Flex, HStack, Icon, IconButton, Stack, Text } from '@chakra-ui/react';
+import type { MouseEvent } from 'react';
 import { MdDelete, MdEdit } from 'react-icons/md';
 
 type Props = {
   name: string;
-  logo: string;
+  logo?: string;
   count: number;
   waveDirection?: 'top' | 'bottom';
-} & BoxProps;
+  isActive?: boolean;
+  onEdit?: (e: MouseEvent<HTMLButtonElement>) => void;
+  onDelete?: (e: MouseEvent<HTMLButtonElement>) => void;
+} & ButtonProps;
 
-export const GeepComponent = ({ name, logo, count, waveDirection = 'top', ...props }: Props) => {
+export const GeepComponent = ({ name, logo, count, waveDirection, isActive, onEdit, onDelete, ...props }: Props) => {
   return (
     <Box
       pos="relative"
@@ -21,6 +25,9 @@ export const GeepComponent = ({ name, logo, count, waveDirection = 'top', ...pro
       rounded="2xl"
       boxShadow="card"
       overflow="hidden"
+      cursor="pointer"
+      bgColor={isActive ? 'primary.100' : 'white'}
+      _hover={{ bgColor: isActive ? 'primary.100' : 'primary.50' }}
       {...props}
     >
       <Stack spacing="3" pos="relative" zIndex="docked">
@@ -38,6 +45,7 @@ export const GeepComponent = ({ name, logo, count, waveDirection = 'top', ...pro
               minW="unset"
               aria-label="Delete"
               color="red"
+              onClick={onDelete}
             />
             <IconButton
               icon={<MdEdit />}
@@ -45,13 +53,20 @@ export const GeepComponent = ({ name, logo, count, waveDirection = 'top', ...pro
               p="0"
               boxSize="4"
               minW="unset"
-              aria-label="Delete"
+              aria-label="Edit"
               color="primary.600"
+              onClick={onEdit}
             />
           </HStack>
         </Flex>
         <Stack align="center">
-          <Avatar boxSize="6rem" name={name} src={logo} bgColor="primary.100" color="grey.400" />
+          <Avatar
+            boxSize="6rem"
+            name={name}
+            src={logo}
+            bgColor={isActive ? 'primary.50' : 'primary.100'}
+            color="grey.400"
+          />
           <Text variant="Body2Semibold" color="grey.500" textTransform="uppercase" textAlign="center">
             {name}
           </Text>

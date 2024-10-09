@@ -1,5 +1,5 @@
 export { Dropdown } from './dropdown';
 
-export { ModuleCard } from './module-card';
+export { ModuleDashboardCard } from './module-dashboard-card';
 export { GeepComponent } from './geep-component';
-
+export { ModuleCard } from './module-card';

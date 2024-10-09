@@ -73,6 +73,7 @@ export const Dropdown = <Option, IsMulti extends boolean = false, Group extends 
         menuList: (styles) => ({ ...styles, bgColor: variant === 'whiteDropdown' ? 'white' : 'primary.50' }),
         inputContainer: (styles) => ({ ...styles, py: '0.25rem' }),
         placeholder: (styles) => ({ ...styles, color: 'text' }),
+        container: (styles) => ({ ...styles, w: 'full' }),
       }}
       styles={{
         option: (styles, { isSelected, isFocused }) => {

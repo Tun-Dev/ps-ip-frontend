@@ -31,7 +31,11 @@ const Sidebar = () => {
 
       <Flex flex="1 1 0%" mt="104px" flexDirection="column" gap="10px">
         {sideBarData.map((item, index) => (
-          <SideBarItem key={index} {...item} active={pathname === item.url} />
+          <SideBarItem
+            key={index}
+            {...item}
+            active={pathname.startsWith(item.url) && (item.url === '/super-admin' ? pathname === '/super-admin' : true)}
+          />
         ))}
       </Flex>
 
@@ -85,7 +89,6 @@ const SideBarItem = ({
   url: string;
   active?: boolean;
 }) => {
-  console.log(active);
   const router = useRouter();
   return (
     <Flex
