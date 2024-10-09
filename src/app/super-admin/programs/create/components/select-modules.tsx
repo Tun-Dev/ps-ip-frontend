@@ -1,16 +1,16 @@
 'use client';
 
-import { Box, Button, Heading, SimpleGrid, Stack } from '@chakra-ui/react';
+import { Box, Button, Heading, SimpleGrid, Stack, StackProps } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import { ModuleCard } from '@/components';
 import { ModulesData } from '@/utils';
 
-const SelectModules = () => {
+const SelectModules = (props: StackProps) => {
   const [modules, setModules] = useState(ModulesData);
   return (
-    <Stack py="6" maxW="52.9375rem" spacing="8.75rem">
+    <Stack py="6" maxW="52.9375rem" spacing="8.75rem" {...props}>
       <Box>
         <Heading variant="Body2Semibold" color="grey.500" mb="4">
           Selected Modules

@@ -1,5 +1,3 @@
-import { Text } from '@chakra-ui/react';
-
 import EditModules from './components/edit-modules';
 import SelectModules from './components/select-modules';
 
@@ -11,15 +9,12 @@ const ProgramCreatePage = ({ searchParams }: Props) => {
   const step = parseInt(searchParams.step || '1');
   const currentModule = searchParams.currentModule || 'application';
 
-  switch (step) {
-    case 1:
-      return <SelectModules />;
-    case 2:
-      return <EditModules currentModule={currentModule} />;
-
-    default:
-      return <Text textAlign="center">Step not found</Text>;
-  }
+  return (
+    <>
+      <SelectModules display={step === 1 ? 'flex' : 'none'} />
+      <EditModules display={step === 2 ? 'flex' : 'none'} currentModule={currentModule} />
+    </>
+  );
 };
 
 export default ProgramCreatePage;
