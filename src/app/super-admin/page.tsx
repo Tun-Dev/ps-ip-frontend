@@ -3,7 +3,15 @@
 import { Flex, Grid, Text, Link, Icon, Box } from '@chakra-ui/react';
 import React, { useMemo } from 'react';
 import { OverviewCard } from '@/components/overview';
-import { MdViewCarousel, MdOpenInNew } from 'react-icons/md';
+import {
+  MdViewCarousel,
+  MdOpenInNew,
+  MdEmojiEmotions,
+  MdVolunteerActivism,
+  MdViewList,
+  MdLocalShipping,
+  MdStickyNote2,
+} from 'react-icons/md';
 import { ModuleDashboardCard } from '@/components';
 import { NotificationCard, ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
@@ -97,9 +105,9 @@ const SuperAdminDashboard = () => {
         </Text>
         <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(265px, 1fr))">
           <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
-          <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
-          <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
-          <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+          <OverviewCard title="Total Beneficiaries" number={500000} icon={MdEmojiEmotions} />
+          <OverviewCard title="Beneficiaries Disbursed" number={15000} icon={MdEmojiEmotions} />
+          <OverviewCard title="Amount Disbursed" number={375000} icon={MdVolunteerActivism} />
         </Grid>
       </Flex>
       <Flex flexDir="column" gap="12px">
@@ -108,9 +116,13 @@ const SuperAdminDashboard = () => {
         </Text>
         <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(262px, 1fr))">
           <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
-          <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
-          <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
-          <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
+          <ModuleDashboardCard text="Beneficiaries Enumerated" number={200000} image="/icons/undraw_interview.svg" />
+          <ModuleDashboardCard
+            text="Awaiting KYC Verification"
+            number={150000}
+            image="/icons/undraw_authentication.svg"
+          />
+          <ModuleDashboardCard text="Awaiting  Disbursement" number={20000} image="/icons/undraw_online_payments.svg" />
         </Grid>
       </Flex>
       <Flex flexDir="column" gap="12px">
@@ -118,9 +130,9 @@ const SuperAdminDashboard = () => {
           Recent Notifications
         </Text>
         <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(22.375rem, 1fr))">
-          <NotificationCard />
-          <NotificationCard />
-          <NotificationCard />
+          {NotificationData.map((item, index) => (
+            <NotificationCard key={index} {...item} />
+          ))}
         </Grid>
       </Flex>
       <Flex flexDir="column" gap="12px">
@@ -138,3 +150,24 @@ const SuperAdminDashboard = () => {
 };
 
 export default SuperAdminDashboard;
+
+const NotificationData = [
+  {
+    title: 'Enumeration Update',
+    time: '1hr ago',
+    desc: 'Enumeration from Ikeja just concluded',
+    Icon: MdViewList,
+  },
+  {
+    title: 'Disbursement Update',
+    time: '2hrs ago',
+    desc: 'Disbursement at Ikeja is at 50% completion',
+    Icon: MdLocalShipping,
+  },
+  {
+    title: 'Application Update',
+    time: '3hrs ago',
+    desc: '5,000 new beneficiaries sent in applications from Ikeja',
+    Icon: MdStickyNote2,
+  },
+];
