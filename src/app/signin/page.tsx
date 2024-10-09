@@ -1,6 +1,10 @@
+'use clientgit ';
+
 import { Button, Flex, Image, Text, Input } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 
 const SignInPage = () => {
+  const router = useRouter();
   return (
     <Flex w="full" h="100vh" p="12px">
       <Flex w="calc(100% - 708px)" borderRadius="24px" overflow="hidden" pos="relative">
@@ -31,7 +35,7 @@ const SignInPage = () => {
             </Flex>
           </Flex>
 
-          <Button variant="primary" w="full" h="48px" mt="12px">
+          <Button variant="primary" w="full" h="48px" mt="12px" onClick={() => router.push('/super-admin')}>
             Sign in
           </Button>
         </Flex>
