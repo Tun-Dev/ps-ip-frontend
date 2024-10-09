@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { type MouseEvent, useState } from 'react';
 
 import { GeepComponent, ModuleCard } from '@/components';
+import { ModulesData } from '@/utils';
 
 const PROGRAMS = [
   { id: 1, name: 'Government Enterprise And Empowerment Programme', logo: 'GEEP LOGO', count: 5 },
@@ -15,58 +16,6 @@ const PROGRAMS = [
   { id: 6, name: 'INVESMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM', logo: 'IDICE LOGO', count: 4 },
   { id: 7, name: 'ALIKO DANGOTE FOUNDATION FUND', logo: 'ADFF LOGO', count: 3 },
   { id: 8, name: 'CBN Backward Integration Fund', logo: 'CBNIF LOGO', count: 5 },
-];
-
-interface ModuleProps {
-  id: number;
-  name: string;
-  status: 'Completed' | 'In progress' | 'Pending';
-  icon: string;
-  isDisabled: boolean;
-  active: boolean;
-}
-
-export const ModulesData: ModuleProps[] = [
-  {
-    id: 1,
-    name: 'Enumeration',
-    status: 'Completed',
-    icon: '/icons/undraw_interview.svg',
-    isDisabled: false,
-    active: true,
-  },
-  {
-    id: 2,
-    name: 'Verification',
-    status: 'In progress',
-    icon: '/icons/undraw_authentication.svg',
-    isDisabled: false,
-    active: true,
-  },
-  {
-    id: 3,
-    name: 'Vetting',
-    status: 'Pending',
-    icon: '/icons/undraw_following.svg',
-    isDisabled: true,
-    active: true,
-  },
-  {
-    id: 4,
-    name: 'Whitelisting',
-    status: 'Pending',
-    icon: '/icons/undraw_followers.svg',
-    isDisabled: true,
-    active: true,
-  },
-  {
-    id: 5,
-    name: 'Disbursement',
-    status: 'Pending',
-    icon: '/icons/undraw_online_payments.svg',
-    isDisabled: true,
-    active: true,
-  },
 ];
 
 const ProgramsPage = () => {
@@ -91,7 +40,7 @@ const ProgramsPage = () => {
   };
 
   return (
-    <Grid templateColumns="1fr auto">
+    <Grid templateColumns="1fr auto" alignItems="start">
       <SimpleGrid columns={!!selectedId ? 3 : 4} spacingY="6" spacingX="5" py="5">
         {programs.map((item) => (
           <GeepComponent
@@ -99,7 +48,7 @@ const ProgramsPage = () => {
             name={item.name}
             count={item.count}
             waveDirection={item.id % 2 === 0 ? 'bottom' : 'top'}
-            bgColor={selectedId === item.id ? 'primary.50' : 'white'}
+            isActive={selectedId === item.id}
             onClick={() => handleSelect(item.id)}
             onEdit={(e) => handleEdit(e, item.id)}
             onDelete={(e) => handleDelete(e, item.id)}
@@ -115,7 +64,6 @@ const ProgramsPage = () => {
             {ModulesData.map((item, index) => (
               <ModuleCard key={index} {...item} />
             ))}
-            {/* Module Cards go here */}
           </Stack>
         </Box>
       )}

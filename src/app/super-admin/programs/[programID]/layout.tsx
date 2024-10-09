@@ -2,8 +2,9 @@
 
 import { Flex } from '@chakra-ui/react';
 import type { PropsWithChildren } from 'react';
-import { ModulesData } from '../page';
+
 import { ModuleCard } from '@/components';
+import { ModulesData } from '@/utils';
 
 const ProgramIDLayout = ({ children }: PropsWithChildren) => {
   return (

@@ -8,11 +8,12 @@ type Props = {
   logo?: string;
   count: number;
   waveDirection?: 'top' | 'bottom';
+  isActive?: boolean;
   onEdit?: (e: MouseEvent<HTMLButtonElement>) => void;
   onDelete?: (e: MouseEvent<HTMLButtonElement>) => void;
 } & ButtonProps;
 
-export const GeepComponent = ({ name, logo, count, waveDirection = 'top', onEdit, onDelete, ...props }: Props) => {
+export const GeepComponent = ({ name, logo, count, waveDirection, isActive, onEdit, onDelete, ...props }: Props) => {
   return (
     <Box
       pos="relative"
@@ -25,6 +26,8 @@ export const GeepComponent = ({ name, logo, count, waveDirection = 'top', onEdit
       boxShadow="card"
       overflow="hidden"
       cursor="pointer"
+      bgColor={isActive ? 'primary.100' : 'white'}
+      _hover={{ bgColor: isActive ? 'primary.100' : 'primary.50' }}
       {...props}
     >
       <Stack spacing="3" pos="relative" zIndex="docked">
@@ -61,7 +64,7 @@ export const GeepComponent = ({ name, logo, count, waveDirection = 'top', onEdit
             boxSize="6rem"
             name={name}
             src={logo}
-            bgColor={props.bgColor === 'primary.100' ? 'primary.50' : 'primary.100'}
+            bgColor={isActive ? 'primary.50' : 'primary.100'}
             color="grey.400"
           />
           <Text variant="Body2Semibold" color="grey.500" textTransform="uppercase" textAlign="center">
