@@ -10,7 +10,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
   const pathname = usePathname();
 
   return (
-    <Flex flexDir="column">
+    <Flex flexDir="column" h="full">
       <Flex
         h="72px"
         pb="24px"
@@ -29,7 +29,9 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
           </Button>
         )}
       </Flex>
-      {children}
+      <Flex flex="1 1 0%" w="100%" h="full">
+        {children}
+      </Flex>
     </Flex>
   );
 };
