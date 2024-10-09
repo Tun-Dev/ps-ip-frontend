@@ -1,5 +1,4 @@
-import { Box, Button, ButtonGroup, Heading, Stack } from '@chakra-ui/react';
-import Link from 'next/link';
+import { Box, Heading, Stack } from '@chakra-ui/react';
 
 import { FormBuilder } from '@/components/form-builder';
 
@@ -17,17 +16,7 @@ const EditModules = ({ currentModule }: Props) => {
           </Box>{' '}
           {currentModule}
         </Heading>
-        <Stack spacing="2.94rem">
-          <FormBuilder />
-          <ButtonGroup size="default" spacing="4" alignSelf="end" w="full" maxW="31.25rem">
-            <Button as={Link} href="/super-admin/programs/create" type="button" variant="secondary" flex="1">
-              Back
-            </Button>
-            <Button type="submit" variant="primary" flex="1">
-              Next
-            </Button>
-          </ButtonGroup>
-        </Stack>
+        <FormBuilder />
       </Box>
     </Stack>
   );

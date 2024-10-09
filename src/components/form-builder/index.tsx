@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Stack } from '@chakra-ui/react';
+import { Button, ButtonGroup, Stack } from '@chakra-ui/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { MdAddCircle } from 'react-icons/md';
@@ -56,26 +57,36 @@ export function FormBuilder() {
         setValue('fields', updatedFields);
       }}
     >
-      <Stack as="form" onSubmit={handleSubmit(onSubmit)} spacing="8">
-        <Stack spacing="6">
-          {fields.map((field, index) => (
-            <SortableItem key={field.id} field={field} onChange={handleDropdown} onDelete={() => remove(index)} />
-          ))}
+      <Stack as="form" onSubmit={handleSubmit(onSubmit)} spacing="2.94rem">
+        <Stack spacing="8">
+          <Stack spacing="6">
+            {fields.map((field, index) => (
+              <SortableItem key={field.id} field={field} onChange={handleDropdown} onDelete={() => remove(index)} />
+            ))}
+          </Stack>
+          <Button
+            type="button"
+            variant="tertiary"
+            size="default"
+            leftIcon={<MdAddCircle color="var(--chakra-colors-primary-600)" size="1.5rem" />}
+            onClick={() => append({ name: 'New Question', type: 'Short answer' })}
+            border="1px dashed"
+            borderColor="grey.300"
+            py="1rem"
+            color="grey.400"
+            w="full"
+          >
+            Add New Question
+          </Button>
         </Stack>
-        <Button
-          type="button"
-          variant="tertiary"
-          size="default"
-          leftIcon={<MdAddCircle color="var(--chakra-colors-primary-600)" size="1.5rem" />}
-          onClick={() => append({ name: 'New Question', type: 'Short answer' })}
-          border="1px dashed"
-          borderColor="grey.300"
-          py="1rem"
-          color="grey.400"
-          w="full"
-        >
-          Add New Question
-        </Button>
+        <ButtonGroup size="default" spacing="4" alignSelf="end" w="full" maxW="31.25rem">
+          <Button as={Link} href="/super-admin/programs/create" type="button" variant="secondary" flex="1">
+            Back
+          </Button>
+          <Button type="submit" variant="primary" flex="1">
+            Next
+          </Button>
+        </ButtonGroup>
       </Stack>
     </Sortable>
   );
