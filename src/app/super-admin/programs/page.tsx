@@ -7,7 +7,7 @@ import { type MouseEvent, useState } from 'react';
 import { GeepComponent, ModuleCard } from '@/components';
 import { ModulesData } from '@/utils';
 
-export const PROGRAMS = [
+export const ProgramsData = [
   { id: 1, name: 'Government Enterprise And Empowerment Programme', logo: 'GEEP LOGO', count: 5 },
   { id: 2, name: 'INVESMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM', logo: 'IDICE LOGO', count: 4 },
   { id: 3, name: 'ALIKO DANGOTE FOUNDATION FUND', logo: 'ADFF LOGO', count: 3 },
@@ -20,7 +20,7 @@ export const PROGRAMS = [
 
 const ProgramsPage = () => {
   const router = useRouter();
-  const [programs, setPrograms] = useState(PROGRAMS);
+  const [programs, setPrograms] = useState(ProgramsData);
   const [selectedId, setSelectedId] = useState(0);
   const selectedProgram = programs.find((program) => program.id === selectedId);
 
