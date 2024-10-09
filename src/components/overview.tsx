@@ -5,16 +5,17 @@ type OverviewCardProps = {
   title: string;
   icon: IconType;
   number: number;
+  active?: boolean;
 };
 
-export const OverviewCard = ({ title, icon, number }: OverviewCardProps) => {
+export const OverviewCard = ({ title, icon, number, active }: OverviewCardProps) => {
   return (
     <Box
       minW="265px"
       padding="16px"
       borderRadius="12px"
       border="1px solid"
-      backgroundColor="white"
+      backgroundColor={active ? 'primary.50' : 'white'}
       borderColor="grey.100"
       boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
     >
