@@ -1,8 +1,16 @@
-import { Center, Flex, Icon, Link, Text } from '@chakra-ui/react';
+import { Center, Flex, Link, Text, Icon as ChakraIcon } from '@chakra-ui/react';
 import React from 'react';
-import { MdLocalShipping, MdOpenInNew } from 'react-icons/md';
+import { MdOpenInNew } from 'react-icons/md';
+import { IconType } from 'react-icons';
 
-const NotificationCard = () => {
+interface NotificationCardProps {
+  title: string;
+  time: string;
+  desc: string;
+  Icon: IconType;
+}
+
+const NotificationCard = ({ title, time, desc, Icon }: NotificationCardProps) => {
   return (
     <Flex
       flexDir="column"
@@ -15,28 +23,29 @@ const NotificationCard = () => {
     >
       <Flex gap="4">
         <Center h="2rem" w="2rem" bg="grey.100" padding="8px" borderRadius="10px">
-          <Icon as={MdLocalShipping} color="primary.600" />
+          <Icon color="#6AB166" />
         </Center>
         <Flex flexDir="column" gap="2">
           <Text display="flex" alignItems="center" gap="2" color="grey.500" variant="Body2Semibold">
-            Disbursement update{' '}
+            {title}{' '}
             <Text as="span" color="grey.400" variant="Body3Semibold">
-              1hr ago
+              {time}
             </Text>
           </Text>
           <Text variant="Body2Regular">
-            Enumeration from{' '}
+            {desc}
+            {/* Enumeration from{' '}
             <Text as="span" variant="Body2Bold">
               Ikeja{' '}
             </Text>
-            just concluded
+            just concluded */}
           </Text>
         </Flex>
       </Flex>
       <Flex justifyContent="flex-end" color="primary.500">
         <Link>
           <Text display="flex" alignItems="center" gap="1" variant="Body3Semibold">
-            View details <Icon as={MdOpenInNew} />
+            View details <ChakraIcon as={MdOpenInNew} />
           </Text>
         </Link>
       </Flex>
