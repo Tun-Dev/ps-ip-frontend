@@ -9,6 +9,8 @@ export const OPTIONS = [
   { label: 'File upload', value: 'File upload', icon: MdDateRange },
 ] as const;
 
+export type Option = (typeof OPTIONS)[number];
+
 export interface ModuleProps {
   id: number;
   name: string;

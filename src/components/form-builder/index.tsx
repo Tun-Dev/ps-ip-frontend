@@ -1,31 +1,48 @@
 'use client';
 
+import { Button, Stack } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 import { useFieldArray, useForm } from 'react-hook-form';
-
-import { OPTIONS } from '@/utils';
-import { Button, ButtonGroup, Stack } from '@chakra-ui/react';
 import { MdAddCircle } from 'react-icons/md';
+
+import { Option } from '@/utils';
 import { Sortable } from './sortable';
 import { SortableItem } from './sortable-item';
 
 export type FormValues = {
-  fields: { name: string; type: (typeof OPTIONS)[number]['value'] }[];
+  fields: { name: string; type: Option['value'] }[];
 };
 
 const defaultValues: FormValues = {
   fields: [
     { name: 'Full Name', type: 'Short answer' },
-    { name: 'Gender', type: 'Dropdown' },
+    { name: 'Upload Picture', type: 'File upload' },
     { name: 'Date of Birth', type: 'Date' },
+    { name: 'Gender', type: 'Dropdown' },
+    { name: 'Phone Number', type: 'Short answer' },
+    { name: 'National Identity Number', type: 'Short answer' },
+    { name: 'Local Government Area', type: 'Dropdown' },
+    { name: 'Email', type: 'Short answer' },
+    { name: 'Address', type: 'Paragraph' },
   ],
 };
 
 export function FormBuilder() {
   const { control, setValue, handleSubmit } = useForm<FormValues>({ defaultValues });
   const { fields, remove, append } = useFieldArray({ name: 'fields', control });
+  const router = useRouter();
 
   const onSubmit = (values: FormValues) => {
     console.log(values);
+    router.push('/super-admin/programs/create?step=3');
+  };
+
+  const handleDropdown = (fieldId: string, type: Option['value']) => {
+    const updated = fields.map((field) => {
+      if (field.id === fieldId) return { name: field.name, type };
+      return { name: field.name, type: field.type };
+    });
+    setValue('fields', updated);
   };
 
   return (
@@ -39,28 +56,26 @@ export function FormBuilder() {
         setValue('fields', updatedFields);
       }}
     >
-      <Stack as="form" onSubmit={handleSubmit(onSubmit)} spacing="6" maxW="32rem">
-        <Stack spacing="4">
+      <Stack as="form" onSubmit={handleSubmit(onSubmit)} spacing="8">
+        <Stack spacing="6">
           {fields.map((field, index) => (
-            <SortableItem key={field.id} field={field} onDelete={() => remove(index)} />
+            <SortableItem key={field.id} field={field} onChange={handleDropdown} onDelete={() => remove(index)} />
           ))}
         </Stack>
-        <ButtonGroup size="default" spacing="4">
-          <Button
-            type="button"
-            variant="secondary"
-            leftIcon={<MdAddCircle />}
-            onClick={() => append({ name: 'New Question', type: 'Short answer' })}
-            border="1px dashed"
-            borderColor="grey.300"
-            w="full"
-          >
-            Add New Question
-          </Button>
-          <Button type="submit" variant="primary" w="full">
-            Submit
-          </Button>
-        </ButtonGroup>
+        <Button
+          type="button"
+          variant="tertiary"
+          size="default"
+          leftIcon={<MdAddCircle color="var(--chakra-colors-primary-600)" size="1.5rem" />}
+          onClick={() => append({ name: 'New Question', type: 'Short answer' })}
+          border="1px dashed"
+          borderColor="grey.300"
+          py="1rem"
+          color="grey.400"
+          w="full"
+        >
+          Add New Question
+        </Button>
       </Stack>
     </Sortable>
   );
