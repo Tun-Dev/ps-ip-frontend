@@ -1,4 +1,4 @@
-'use clientgit ';
+'use client ';
 
 import { Button, Flex, Image, Text, Input } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
