@@ -12,8 +12,8 @@ export const ModuleDashboardCard = ({ text, number, image, ...props }: Props) =>
       <Heading as="p" variant="Header2Bold">
         {number.toLocaleString()}
       </Heading>
-      <Stack spacing="6">
-        <Image src={image} alt={text} alignSelf="center" />
+      <Stack spacing="6" h="full">
+        <Image src={image} alt={text} alignSelf="center" h="full" />
         <Text variant="Body1Semibold" color="grey.500">
           {text}
         </Text>
