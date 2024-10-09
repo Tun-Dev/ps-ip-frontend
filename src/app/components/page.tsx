@@ -34,7 +34,6 @@ import { Text as typography } from '@/shared/chakra/components/typography';
 
 import { ShortAnswerIcon } from '../../../public/icons';
 import { NotificationCard } from '@/shared';
-import AggregatorModal from '@/shared/chakra/components/aggregatorModal';
 
 export default function ComponentPage() {
   return (
@@ -56,7 +55,6 @@ export default function ComponentPage() {
           <GeepComponents />
           <NotificationCards />
           <Input variant="primary" placeholder="input username" />
-          <AggregatorModal />
         </Stack>
       </Container>
     </Box>

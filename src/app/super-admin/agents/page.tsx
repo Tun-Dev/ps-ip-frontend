@@ -16,11 +16,13 @@ import {
   TabPanel,
   TabPanels,
   TabList,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { OverviewCard } from '@/components/overview';
 import { MdGroups, MdGroupAdd, MdSearch, MdAddCircle, MdDownload } from 'react-icons/md';
 import { ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
+import { AggregatorModal } from '@/shared';
 
 const AggregatorTab = () => {
   const data = [
@@ -96,8 +98,11 @@ const AggregatorTab = () => {
     []
   );
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px" borderTop="1px solid" borderTopColor="grey.200">
+      <AggregatorModal isOpen={isOpen} onClose={onClose} />
       <Flex justifyContent="space-between">
         <Flex gap="8px" alignItems="center">
           <Flex gap="8px" alignItems="center">
@@ -128,7 +133,7 @@ const AggregatorTab = () => {
           <Button leftIcon={<MdDownload />} variant="secondary" w="193px" borderRadius="10px" size="medium">
             Download Report
           </Button>
-          <Button leftIcon={<MdAddCircle />} variant="primary" size="medium">
+          <Button leftIcon={<MdAddCircle />} variant="primary" size="medium" onClick={onOpen}>
             Add New Aggregator
           </Button>
         </Flex>

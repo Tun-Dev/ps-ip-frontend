@@ -13,22 +13,28 @@ import {
 } from '@chakra-ui/react';
 import { Dropdown } from '@/components';
 
-const AggregatorModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
+type ModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+};
 
-  const onOpen = () => setIsOpen(true);
-  const onClose = () => setIsOpen(false);
+const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
+  const options = [
+    { label: 'Short answer', value: 'Short answer' },
+    { label: 'Paragraph', value: 'Paragraph' },
+    { label: 'Dropdown', value: 'Dropdown' },
+    { label: 'Date', value: 'Date' },
+    { label: 'File upload', value: 'File upload' },
+  ];
 
   return (
     <>
-      <Button onClick={onOpen} variant="primary">
-        Add New Aggregator
-      </Button>
-
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent width="498px" height="756px" borderRadius="12px">
-          <ModalHeader>Add New Aggregator</ModalHeader>
+          <ModalHeader>
+            <Text variant="Body1Semibold">Add New Aggregator</Text>
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Flex direction="column">
@@ -43,7 +49,11 @@ const AggregatorModal = () => {
               <Text as="p" fontSize="13px" color="gray.500" mb={2}>
                 Assign Program
               </Text>
-              <Dropdown variant="whiteDropdown" placeholder="INVESTMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM" />
+              <Dropdown
+                variant="whiteDropdown"
+                placeholder="INVESTMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM"
+                options={options}
+              />
             </Flex>
           </ModalBody>
           <ModalFooter>
@@ -65,4 +75,4 @@ const AggregatorModal = () => {
   );
 };
 
-export default AggregatorModal;
+export { AggregatorModal };
