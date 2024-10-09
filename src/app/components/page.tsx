@@ -20,7 +20,10 @@ import {
   MdCloudUpload,
   MdDateRange,
   MdFormatAlignLeft,
+  MdLocalShipping,
+  MdStickyNote2,
   MdViewCarousel,
+  MdViewList,
 } from 'react-icons/md';
 
 import { useMemo } from 'react';
@@ -314,10 +317,31 @@ const NotificationCards = () => {
         Notification Cards
       </Heading>
       <Grid gap="6" templateColumns="repeat(auto-fit, minmax(22.375rem, 1fr))">
-        <NotificationCard />
-        <NotificationCard />
-        <NotificationCard />
+        {NotificationData.map((item, index) => (
+          <NotificationCard key={index} {...item} />
+        ))}
       </Grid>
     </Box>
   );
 };
+
+const NotificationData = [
+  {
+    title: 'Enumeration Update',
+    time: '1hr ago',
+    desc: 'Enumeration from Ikeja just concluded',
+    Icon: MdViewList,
+  },
+  {
+    title: 'Disbursement Update',
+    time: '2hrs ago',
+    desc: 'Disbursement at Ikeja is at 50% completion',
+    Icon: MdLocalShipping,
+  },
+  {
+    title: 'Application Update',
+    time: '3hrs ago',
+    desc: '5,000 new beneficiaries sent in applications from Ikeja',
+    Icon: MdStickyNote2,
+  },
+];
