@@ -8,9 +8,9 @@ import { ModuleCard } from '@/components';
 const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Flex h="100%" w="full">
-      <Flex flex="1 1 0%">
-        <Flex>top part</Flex>
-        <Flex>{children}</Flex>
+      <Flex flex="1 1 0%" w="full">
+        {/* <Flex>top part</Flex> */}
+        <Flex w="full">{children}</Flex>
       </Flex>
 
       <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200" h="100%" ml="5">

@@ -10,7 +10,7 @@ import { ModulesData } from '@/utils';
 const SelectModules = (props: StackProps) => {
   const [modules, setModules] = useState(ModulesData);
   return (
-    <Stack py="6" maxW="52.9375rem" spacing="8.75rem" {...props}>
+    <Stack py="6" w="full" spacing="8.75rem" {...props}>
       <Box>
         <Heading variant="Body2Semibold" color="grey.500" mb="4">
           Selected Modules

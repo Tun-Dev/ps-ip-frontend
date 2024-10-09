@@ -40,7 +40,7 @@ const ProgramsPage = () => {
   };
 
   return (
-    <Grid templateColumns="1fr auto" alignItems="start">
+    <Grid templateColumns="1fr auto" alignItems="start" w="full">
       <SimpleGrid columns={!!selectedId ? 3 : 4} spacingY="6" spacingX="5" py="5">
         {programs.map((item) => (
           <GeepComponent
