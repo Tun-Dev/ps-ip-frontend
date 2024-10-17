@@ -3,7 +3,9 @@ import { Box, Heading, Stack, StackProps } from '@chakra-ui/react';
 import { FormBuilder } from '@/components/form-builder';
 
 type Props = {
-  currentModule: string;
+  currentModule?: string;
+  step: number;
+  moduleId: number;
 } & StackProps;
 
 const EditModules = ({ currentModule, ...props }: Props) => {

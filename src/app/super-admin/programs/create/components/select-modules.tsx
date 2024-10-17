@@ -1,7 +1,7 @@
 'use client';
 
-import { Box, Button, Heading, SimpleGrid, Stack, StackProps } from '@chakra-ui/react';
-import Link from 'next/link';
+import { Box, Heading, SimpleGrid, Stack, StackProps } from '@chakra-ui/react';
+// import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
@@ -12,7 +12,7 @@ type Props = {
   step: number;
 } & StackProps;
 
-const SelectModules = ({ step, ...props }: Props) => {
+const SelectModules = ({ ...props }: Props) => {
   const [modules, setModules] = useState(ModulesData);
   const router = useRouter();
   const pathname = usePathname();
@@ -42,7 +42,7 @@ const SelectModules = ({ step, ...props }: Props) => {
           ))}
         </SimpleGrid>
       </Box>
-      <Button
+      {/* <Button
         as={Link}
         href={`/super-admin/programs/create?step=${step + 1}`}
         variant="primary"
@@ -52,7 +52,7 @@ const SelectModules = ({ step, ...props }: Props) => {
         maxW="15.125rem"
       >
         Next
-      </Button>
+      </Button> */}
     </Stack>
   );
 };
