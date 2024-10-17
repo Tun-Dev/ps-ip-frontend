@@ -1,7 +1,4 @@
-'use client';
-
 import { Button, Flex, Image, Stack, StackProps, Text } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
 import { MouseEvent } from 'react';
 import { MdArrowForward, MdCheckCircle, MdEdit, MdRefresh } from 'react-icons/md';
 
@@ -12,8 +9,7 @@ type ModuleCardProps = {
 } & ModuleProps &
   Omit<StackProps, 'id'>;
 
-const ModuleCard = ({ id, name, status, icon, isDisabled, active, onRemove, ...rest }: ModuleCardProps) => {
-  const router = useRouter();
+const ModuleCard = ({ id, name, status, icon, isDisabled, active, onRemove, onClick, ...rest }: ModuleCardProps) => {
   return (
     <Stack spacing="3" w="full" {...rest}>
       <Flex
@@ -25,7 +21,7 @@ const ModuleCard = ({ id, name, status, icon, isDisabled, active, onRemove, ...r
         flexDir="column"
         gap="8px"
         cursor={isDisabled ? 'not-allowed' : 'pointer'}
-        onClick={!isDisabled ? () => router.push(`/super-admin/programs/${id}/${name.toLowerCase()}`) : undefined}
+        onClick={!isDisabled ? onClick : undefined}
       >
         <Flex justifyContent="space-between" w="full">
           <Flex gap="4px">

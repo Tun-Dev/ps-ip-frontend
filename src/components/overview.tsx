@@ -11,16 +11,22 @@ type OverviewCardProps = {
 export const OverviewCard = ({ title, icon, number, active }: OverviewCardProps) => {
   return (
     <Box
-      minW="265px"
       padding="16px"
       borderRadius="12px"
       border="1px solid"
       backgroundColor={active ? 'primary.50' : 'white'}
       borderColor="grey.100"
-      boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
+      boxShadow="card"
     >
       <Flex mb="16px" align="center" gap="8px">
-        <Box backgroundColor="gray.100" padding="6px" borderRadius="10px" gap="8px" width="32px" height="32px">
+        <Box
+          backgroundColor={active ? 'primary.100' : 'grey.100'}
+          padding="6px"
+          borderRadius="10px"
+          gap="8px"
+          width="32px"
+          height="32px"
+        >
           <Icon as={icon} boxSize="1.25rem" color="primary.600" />
         </Box>
         <Text as="h2" variant="Body1Semibold" color="grey.500">
@@ -28,7 +34,7 @@ export const OverviewCard = ({ title, icon, number, active }: OverviewCardProps)
         </Text>
       </Flex>
       <Heading as="p" variant="Header2Bold">
-        {number}
+        {number.toLocaleString()}
       </Heading>
     </Box>
   );

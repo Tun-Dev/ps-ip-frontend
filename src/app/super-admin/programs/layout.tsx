@@ -2,7 +2,7 @@
 
 import { Button, Flex, Text } from '@chakra-ui/react';
 import { usePathname, useRouter } from 'next/navigation';
-import type { PropsWithChildren } from 'react';
+import { Suspense, type PropsWithChildren } from 'react';
 import { MdAddCircle } from 'react-icons/md';
 
 const ProgramsLayout = ({ children }: PropsWithChildren) => {
@@ -30,7 +30,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
         )}
       </Flex>
       <Flex flex="1 1 0%" w="100%" h="full">
-        {children}
+        <Suspense fallback="Loading...">{children}</Suspense>
       </Flex>
     </Flex>
   );

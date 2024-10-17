@@ -138,11 +138,7 @@ const AggregatorTab = () => {
           </Button>
         </Flex>
       </Flex>
-      <Box
-        padding="0px 1rem 1rem"
-        boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
-        borderRadius="12px"
-      >
+      <Box padding="0px 1rem 1rem" boxShadow="card" borderRadius="12px">
         <ReusableTable data={data} columns={columns} />
       </Box>
     </Flex>
@@ -407,11 +403,7 @@ const AgentsTab = () => {
                 Download Report
               </Button>
             </Flex>
-            <Box
-              padding="0px 1rem 1rem"
-              boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
-              borderRadius="12px"
-            >
+            <Box padding="0px 1rem 1rem" boxShadow="card" borderRadius="12px">
               <ReusableTable data={agentsData} columns={columns} />
             </Box>
           </Flex>
@@ -448,11 +440,7 @@ const AgentsTab = () => {
                 Download Report
               </Button>
             </Flex>
-            <Box
-              padding="0px 1rem 1rem"
-              boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
-              borderRadius="12px"
-            >
+            <Box padding="0px 1rem 1rem" boxShadow="card" borderRadius="12px">
               <ReusableTable data={inactiveAgentsData} columns={inactiveColumns} />
             </Box>
           </Flex>

@@ -24,6 +24,7 @@ import {
   MdStickyNote2,
   MdViewCarousel,
   MdViewList,
+  MdVolunteerActivism,
 } from 'react-icons/md';
 
 import { useMemo } from 'react';
@@ -50,7 +51,7 @@ export default function ComponentPage() {
           <Flex gap="15px">
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
-            <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
+            <OverviewCard title="Total Partners" number={10} icon={MdVolunteerActivism} />
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
           </Flex>
           <Table />

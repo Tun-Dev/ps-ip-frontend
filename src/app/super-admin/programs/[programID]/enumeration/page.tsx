@@ -36,7 +36,7 @@ const EnumerationPage = () => {
       <Flex align="center" justify="space-between" mb="8">
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
-            <Text as="label" variant="Body2Semibold" color="grey.500">
+            <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
               Sort by
             </Text>
             <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />

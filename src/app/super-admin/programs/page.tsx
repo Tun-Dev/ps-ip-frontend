@@ -50,8 +50,12 @@ const ProgramsPage = () => {
             Modules - ({selectedProgram.count})
           </Heading>
           <Stack spacing="3" minW="263px">
-            {ModulesData.map((item, index) => (
-              <ModuleCard key={index} {...item} />
+            {ModulesData.map((item) => (
+              <ModuleCard
+                key={item.id}
+                {...item}
+                onClick={() => router.push(`/super-admin/programs/${item.id}/${item.name.toLowerCase()}`)}
+              />
             ))}
           </Stack>
         </Box>

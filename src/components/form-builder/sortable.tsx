@@ -15,14 +15,15 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { ComponentProps } from 'react';
 
 type SortableProps = {
   children?: React.ReactNode;
   items: UniqueIdentifier[];
   setItems: (items: UniqueIdentifier[]) => void;
-};
+} & ComponentProps<typeof DndContext>;
 
-export function Sortable({ children, items, setItems }: SortableProps) {
+export function Sortable({ children, items, setItems, ...props }: SortableProps) {
   const sensors = useSensors(
     useSensor(MouseSensor),
     useSensor(TouchSensor),
@@ -41,6 +42,7 @@ export function Sortable({ children, items, setItems }: SortableProps) {
         const overIndex = over ? items.indexOf(over.id) : -1;
         if (activeIndex !== overIndex) setItems(arrayMove(items, activeIndex, overIndex));
       }}
+      {...props}
     >
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
         {children}
