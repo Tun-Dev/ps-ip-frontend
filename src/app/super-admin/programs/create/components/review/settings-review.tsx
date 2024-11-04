@@ -1,13 +1,14 @@
-import { Stack, Text, type StackProps } from '@chakra-ui/react';
+import { Stack, Text } from '@chakra-ui/react';
 import { MdCheck, MdClear } from 'react-icons/md';
 
 type Props = {
   settings: { label: string; value: boolean }[];
-} & StackProps;
+  display?: string;
+};
 
-export const SettingsReview = ({ settings, ...props }: Props) => {
+export const SettingsReview = ({ settings, display }: Props) => {
   return (
-    <Stack {...props}>
+    <Stack display={display}>
       <Text as="h3" variant="Body2Semibold">
         Admin Settings
       </Text>

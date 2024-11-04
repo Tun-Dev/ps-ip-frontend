@@ -11,73 +11,91 @@ export const OPTIONS = [
 
 export type Option = (typeof OPTIONS)[number];
 
-export interface ModuleProps {
-  id: number;
-  name: 'Application' | 'Enumeration' | 'Verification' | 'Vetting' | 'Whitelisting' | 'Disbursement';
-  status: 'Completed' | 'In progress' | 'Pending' | 'Edit';
-  icon: string;
-  isDisabled: boolean;
-  active: boolean;
-}
-
-export const ModulesData: ModuleProps[] = [
+export const ALL_MODULES = [
   {
     id: 1,
     name: 'Application',
-    status: 'Completed',
     icon: '/icons/undraw_my_app.svg',
-    isDisabled: false,
-    active: false,
+    hasForm: true,
+    hasSettings: true,
   },
   {
     id: 2,
     name: 'Enumeration',
-    status: 'Completed',
     icon: '/icons/undraw_interview.svg',
-    isDisabled: false,
-    active: false,
+    hasForm: true,
+    hasSettings: true,
   },
   {
     id: 3,
     name: 'Verification',
-    status: 'In progress',
     icon: '/icons/undraw_authentication.svg',
-    isDisabled: false,
-    active: false,
+    hasForm: false,
+    hasSettings: false,
   },
   {
     id: 4,
-    name: 'Vetting',
-    status: 'Pending',
-    icon: '/icons/undraw_following.svg',
-    isDisabled: false,
-    active: false,
+    name: 'Nomination',
+    icon: '/icons/undraw_selecting_team.svg',
+    hasForm: false,
+    hasSettings: false,
   },
   {
     id: 5,
-    name: 'Whitelisting',
-    status: 'Pending',
-    icon: '/icons/undraw_followers.svg',
-    isDisabled: false,
-    active: false,
+    name: 'Vetting',
+    icon: '/icons/undraw_following.svg',
+    hasForm: true,
+    hasSettings: true,
   },
   {
     id: 6,
+    name: 'Whitelisting',
+    icon: '/icons/undraw_followers.svg',
+    hasForm: false,
+    hasSettings: true,
+  },
+  {
+    id: 7,
     name: 'Disbursement',
-    status: 'Pending',
     icon: '/icons/undraw_online_payments.svg',
-    isDisabled: false,
-    active: false,
+    hasForm: false,
+    hasSettings: true,
+  },
+  {
+    id: 8,
+    name: 'Survey',
+    icon: '/icons/undraw_survey.svg',
+    hasForm: true,
+    hasSettings: false,
   },
 ];
 
+export type ModuleProps = (typeof ALL_MODULES)[number];
+
 export const ProgramsData = [
   { id: 1, name: 'Government Enterprise And Empowerment Programme', logo: 'GEEP LOGO', count: 5 },
-  { id: 2, name: 'INVESMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM', logo: 'IDICE LOGO', count: 4 },
+  { id: 2, name: 'INVESTMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM', logo: 'IDICE LOGO', count: 4 },
   { id: 3, name: 'ALIKO DANGOTE FOUNDATION FUND', logo: 'ADFF LOGO', count: 3 },
   { id: 4, name: 'CBN Backward Integration Fund', logo: 'CBNIF LOGO', count: 5 },
   { id: 5, name: 'Government Enterprise And Empowerment Programme', logo: 'GEEP LOGO', count: 5 },
-  { id: 6, name: 'INVESMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM', logo: 'IDICE LOGO', count: 4 },
+  { id: 6, name: 'INVESTMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM', logo: 'IDICE LOGO', count: 4 },
   { id: 7, name: 'ALIKO DANGOTE FOUNDATION FUND', logo: 'ADFF LOGO', count: 3 },
   { id: 8, name: 'CBN Backward Integration Fund', logo: 'CBNIF LOGO', count: 5 },
 ];
+
+export const MONTHS = [
+  { value: 'January', label: 'January' },
+  { value: 'February', label: 'February' },
+  { value: 'March', label: 'March' },
+  { value: 'April', label: 'April' },
+  { value: 'May', label: 'May' },
+  { value: 'June', label: 'June' },
+  { value: 'July', label: 'July' },
+  { value: 'August', label: 'August' },
+  { value: 'September', label: 'September' },
+  { value: 'October', label: 'October' },
+  { value: 'November', label: 'November' },
+  { value: 'December', label: 'December' },
+];
+
+export const CURRENT_MONTH = new Date().toLocaleString('en-US', { month: 'long' });

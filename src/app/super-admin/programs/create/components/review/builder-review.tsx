@@ -7,7 +7,7 @@ type Props = {
   fields: { name: string; type: string }[];
 } & SimpleGridProps;
 
-const FormReview = ({ fields, ...props }: Props) => {
+export const BuilderReview = ({ fields, ...props }: Props) => {
   return (
     <SimpleGrid columns={2} spacingX="7.1875rem" spacingY="8" {...props}>
       {fields.map((field) => (
@@ -37,5 +37,3 @@ const FormReview = ({ fields, ...props }: Props) => {
     </SimpleGrid>
   );
 };
-
-export default FormReview;

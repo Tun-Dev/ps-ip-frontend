@@ -67,7 +67,7 @@ const AggregatorTab = () => {
       },
       {
         header: () => <p></p>,
-        accessorKey: 'amount',
+        accessorKey: 'assigned',
         enableSorting: false,
         cell: () => (
           <Flex justifyContent="center" alignItems="center" gap="8px">
@@ -241,7 +241,7 @@ const AgentsTab = () => {
             Deactivate Agent
           </Button>
         ),
-        accessorKey: 'amount',
+        accessorKey: 'deactivate',
         enableSorting: false,
         cell: () => (
           <Button variant="cancel" size="small">
@@ -328,7 +328,7 @@ const AgentsTab = () => {
             Activate
           </Button>
         ),
-        accessorKey: 'amount',
+        accessorKey: 'deactivate',
         enableSorting: false,
         cell: () => (
           <Flex justifyContent="center" alignItems="center" gap="8px">
@@ -346,7 +346,7 @@ const AgentsTab = () => {
   );
 
   return (
-    <Tabs size="sm" colorScheme="green">
+    <Tabs size="sm" variant="unstyled">
       <TabList>
         <Tab>
           <Flex alignItems="center" gap="4px">
@@ -444,9 +444,6 @@ const AgentsTab = () => {
               <ReusableTable data={inactiveAgentsData} columns={inactiveColumns} />
             </Box>
           </Flex>
-        </TabPanel>
-        <TabPanel>
-          <p>three!</p>
         </TabPanel>
       </TabPanels>
     </Tabs>

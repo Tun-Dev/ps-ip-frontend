@@ -11,6 +11,12 @@ const extendedConfig: ThemeOverride = {
       },
     },
   },
+  semanticTokens: {
+    colors: {
+      red: '#FF0000',
+      green: '#00A75B',
+    },
+  },
   fonts: {
     body: 'var(--font-inter)',
     heading: 'var(--font-inter)',
@@ -18,6 +24,7 @@ const extendedConfig: ThemeOverride = {
   colors,
   shadows: {
     card: '0px 4px 6px -1px rgba(3, 48, 0, 0.04), 0px 2px 4px -1px rgba(3, 48, 0, 0.04)',
+    banner: '0px 2px 4px -1px rgba(3, 48, 0, 0.04), 0px 4px 6px -1px rgba(3, 48, 0, 0.04)',
   },
   breakpoints: {
     base: '0px',

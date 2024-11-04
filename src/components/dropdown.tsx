@@ -72,7 +72,7 @@ export const Dropdown = <Option, IsMulti extends boolean = false, Group extends 
       chakraStyles={{
         menuList: (styles) => ({ ...styles, bgColor: variant === 'whiteDropdown' ? 'white' : 'primary.50' }),
         inputContainer: (styles) => ({ ...styles, py: '0.25rem' }),
-        placeholder: (styles) => ({ ...styles, color: 'text' }),
+        placeholder: (styles) => ({ ...styles, color: 'grey.500', fontSize: '16px', fontWeight: '400' }),
         container: (styles) => ({ ...styles, w: 'full' }),
       }}
       styles={{

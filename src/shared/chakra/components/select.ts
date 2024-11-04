@@ -19,7 +19,8 @@ const small = {
     borderRadius: '0.25rem',
     fontSize: '0.8125rem',
     py: '0.25rem',
-    px: '0.5rem',
+    pl: '0.5rem',
+    pr: '1.5rem',
   }),
   icon: defineStyle({
     boxSize: '1rem',
@@ -31,7 +32,8 @@ const medium = {
     borderRadius: '0.375rem',
     fontSize: '1rem',
     py: '0.375rem',
-    px: '0.75rem',
+    pl: '0.75rem',
+    pr: '2rem',
   }),
   icon: defineStyle({
     boxSize: '1.25rem',

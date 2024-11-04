@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { type MouseEvent, useState } from 'react';
 
 import { GeepComponent, ModuleCard } from '@/components';
-import { ModulesData, ProgramsData } from '@/utils';
+import { ALL_MODULES, ProgramsData } from '@/utils';
 
 const ProgramsPage = () => {
   const router = useRouter();
@@ -15,7 +15,7 @@ const ProgramsPage = () => {
 
   const handleEdit = (e: MouseEvent<HTMLButtonElement>, itemId: number) => {
     e.stopPropagation();
-    router.push(`/super-admin/programs/${itemId}`);
+    router.push(`/super-admin/programs/${itemId}/application`);
   };
 
   const handleDelete = (e: MouseEvent<HTMLButtonElement>, itemId: number) => {
@@ -50,10 +50,12 @@ const ProgramsPage = () => {
             Modules - ({selectedProgram.count})
           </Heading>
           <Stack spacing="3" minW="263px">
-            {ModulesData.map((item) => (
+            {ALL_MODULES.map((item, index) => (
               <ModuleCard
                 key={item.id}
-                {...item}
+                module={item}
+                status="In progress"
+                number={index + 1}
                 onClick={() => router.push(`/super-admin/programs/${item.id}/${item.name.toLowerCase()}`)}
               />
             ))}

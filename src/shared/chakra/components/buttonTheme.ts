@@ -34,6 +34,9 @@ export const primaryVariant = () =>
     bg: 'primary.500',
     _hover: {
       bg: 'primary.800',
+      _disabled: {
+        _hover: { bg: 'primary.500' },
+      },
     },
     font: 'body1-bold',
   }) as SystemStyleInterpolation;
@@ -55,6 +58,9 @@ export const secondaryVariant = () =>
     bg: 'primary.100',
     _hover: {
       bg: 'primary.200',
+      _disabled: {
+        _hover: { bg: 'primary.100' },
+      },
     },
     font: 'body1-bold',
   }) as SystemStyleInterpolation;
@@ -66,6 +72,9 @@ export const tertiaryVariant = () =>
     bg: 'transparent',
     _hover: {
       bg: 'primary.100',
+      _disabled: {
+        _hover: { bg: 'transparent' },
+      },
     },
     font: 'body1-bold',
   }) as SystemStyleInterpolation;
@@ -77,6 +86,9 @@ export const formSuccessVariant = () =>
     bg: 'green/10',
     _hover: {
       bg: 'green/20',
+      _disabled: {
+        _hover: { bg: 'green/10' },
+      },
     },
     font: 'body1-bold',
   }) as SystemStyleInterpolation;
@@ -88,6 +100,9 @@ export const formErrorVariant = () =>
     bg: 'red/10',
     _hover: {
       bg: 'red/20',
+      _disabled: {
+        _hover: { bg: 'red/10' },
+      },
     },
     font: 'body1-bold',
   }) as SystemStyleInterpolation;

@@ -1,40 +1,36 @@
-import { Box, Button, ButtonGroup, Heading, Stack, StackProps } from '@chakra-ui/react';
-import Link from 'next/link';
+import { Box, BoxProps, Heading } from '@chakra-ui/react';
 
-import { ModulesData } from '@/utils';
-import { ApplicationForm } from './application-form';
-import { EnumerationForm } from './enumeration-form';
-import { VettingForm } from './vetting-form';
+import { useProgramForm } from '@/providers/form-provider';
+import { useProgramStore } from '@/providers/programs-store-provider';
+import { useFieldArray } from 'react-hook-form';
+import CheckboxForm from './checkbox-form';
+import FormBuilder from './form-builder';
 
-type Props = {
-  step: number;
-  moduleId: number;
-} & StackProps;
+const EditModules = (props: BoxProps) => {
+  const selectedModules = useProgramStore((state) => state.selectedModules);
+  const activeModuleId = useProgramStore((state) => state.activeModuleId);
+  const activeModule = selectedModules.find((module) => module.id === activeModuleId);
+  const activeModuleIndex = selectedModules.findIndex((module) => module.id === activeModuleId);
 
-const EditModules = ({ step, moduleId, ...props }: Props) => {
-  const moduleName = ModulesData.find((module) => module.id === moduleId)?.name;
+  const { control } = useProgramForm();
+  const { fields: checkboxFields } = useFieldArray({ name: 'editModules.checkboxForm', control, keyName: 'key' });
+  const { fields: builderFields } = useFieldArray({ name: 'editModules.builderForm', control, keyName: 'key' });
+
   return (
-    <Stack py="6" spacing="2.94rem" minH="31.375rem" {...props}>
-      <Box flex="1">
-        <Heading variant="Body2Semibold" color="primary.500" mb="6" textTransform="capitalize">
-          <Box as="span" display="inline-block" rounded="full" px="0.4375rem" bgColor="primary.100">
-            {moduleId}
-          </Box>{' '}
-          {moduleName}
-        </Heading>
-        <ApplicationForm display={moduleId === 1 ? 'flex' : 'none'} />
-        <EnumerationForm display={moduleId === 2 ? 'flex' : 'none'} />
-        <VettingForm display={moduleId === 4 ? 'flex' : 'none'} />
-      </Box>
-      <ButtonGroup size="default" spacing="4" alignSelf="end" w="full" maxW="31.25rem">
-        <Button as={Link} href={`/super-admin/programs/create?step=${step - 1}`} variant="secondary" flex="1">
-          Back
-        </Button>
-        <Button as={Link} href={`/super-admin/programs/create?step=${step + 1}`} variant="primary" flex="1">
-          Next
-        </Button>
-      </ButtonGroup>
-    </Stack>
+    <Box flex="1" py="6" {...props}>
+      <Heading variant="Body2Semibold" color="primary.500" mb="4" textTransform="capitalize">
+        <Box as="span" display="inline-block" rounded="full" px="0.4375rem" bgColor="primary.100">
+          {activeModuleIndex + 1}
+        </Box>{' '}
+        {activeModule?.name}
+      </Heading>
+      {checkboxFields.map((field, index) => (
+        <CheckboxForm key={field.key} index={index} display={activeModuleId === field.id ? 'flex' : 'none'} />
+      ))}
+      {builderFields.map((field, index) => (
+        <FormBuilder key={field.key} index={index} display={activeModuleId === field.id ? 'block' : 'none'} />
+      ))}
+    </Box>
   );
 };
 

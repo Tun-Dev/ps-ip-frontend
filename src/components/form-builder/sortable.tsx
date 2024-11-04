@@ -38,9 +38,11 @@ export function Sortable({ children, items, setItems, ...props }: SortableProps)
       collisionDetection={closestCenter}
       modifiers={[restrictToVerticalAxis]}
       onDragEnd={({ active, over }) => {
-        const activeIndex = items.indexOf(active.id);
-        const overIndex = over ? items.indexOf(over.id) : -1;
-        if (activeIndex !== overIndex) setItems(arrayMove(items, activeIndex, overIndex));
+        if (over && active.id !== over.id) {
+          const activeIndex = items.indexOf(active.id);
+          const overIndex = items.indexOf(over.id);
+          if (activeIndex !== overIndex) setItems(arrayMove(items, activeIndex, overIndex));
+        }
       }}
       {...props}
     >

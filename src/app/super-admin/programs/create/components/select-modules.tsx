@@ -1,59 +1,43 @@
 'use client';
 
-import { Box, Heading, SimpleGrid, Stack, StackProps } from '@chakra-ui/react';
-// import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { Box, BoxProps, Heading, SimpleGrid, Text } from '@chakra-ui/react';
 
 import { ModuleCard } from '@/components';
-import { ModulesData } from '@/utils';
+import { useProgramStore } from '@/providers/programs-store-provider';
 
-type Props = {
-  step: number;
-} & StackProps;
-
-const SelectModules = ({ ...props }: Props) => {
-  const [modules, setModules] = useState(ModulesData);
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+const SelectModules = (props: BoxProps) => {
+  const modules = useProgramStore((state) => state.selectedModules);
+  const setSelectedModules = useProgramStore((state) => state.setSelectedModules);
+  const setActiveModuleId = useProgramStore((state) => state.setActiveModuleId);
+  const setStep = useProgramStore((state) => state.setStep);
 
   return (
-    <Stack py="6" w="full" spacing="8.75rem" {...props}>
-      <Box>
-        <Heading variant="Body2Semibold" color="grey.500" mb="4">
-          Selected Modules
-        </Heading>
+    <Box py="6" w="full" {...props}>
+      <Heading variant="Body2Semibold" color="grey.500" mb="4">
+        Selected Modules
+      </Heading>
+      {modules.length > 0 ? (
         <SimpleGrid columns={3} spacingX="12" spacingY="8">
-          {modules.map((item) => (
+          {modules.map((item, index) => (
             <ModuleCard
               key={item.id}
-              {...item}
-              isDisabled={false}
+              module={item}
+              number={index + 1}
               status="Edit"
               onClick={() => {
-                const params = new URLSearchParams(searchParams.toString());
-                params.set('step', '2');
-                params.set('moduleId', item.id.toString());
-                router.push(`${pathname}?${params.toString()}`);
+                setStep(2);
+                setActiveModuleId(item.id);
               }}
-              onRemove={() => setModules((prev) => prev.filter((module) => module.id !== item.id))}
+              onRemove={() => setSelectedModules(modules.filter((module) => module.id !== item.id))}
             />
           ))}
         </SimpleGrid>
-      </Box>
-      {/* <Button
-        as={Link}
-        href={`/super-admin/programs/create?step=${step + 1}`}
-        variant="primary"
-        size="default"
-        alignSelf="end"
-        w="full"
-        maxW="15.125rem"
-      >
-        Next
-      </Button> */}
-    </Stack>
+      ) : (
+        <Text variant="Body2Semibold" textAlign="center">
+          Please select modules from the right panel
+        </Text>
+      )}
+    </Box>
   );
 };
 

@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Suspense, type PropsWithChildren } from 'react';
 import { MdAddCircle } from 'react-icons/md';
 
+import ProgramsBreadcrumbs from './programs-breadcrumbs';
+
 const ProgramsLayout = ({ children }: PropsWithChildren) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -19,9 +21,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
         justifyContent="space-between"
         alignItems="center"
       >
-        <Text variant="Body1Semibold" color="grey.400">
-          Programs
-        </Text>
+        <ProgramsBreadcrumbs />
         {pathname !== '/super-admin/programs/create' && (
           <Button variant="primary" gap="8px" onClick={() => router.push('/super-admin/programs/create')}>
             <MdAddCircle />
@@ -30,7 +30,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
         )}
       </Flex>
       <Flex flex="1 1 0%" w="100%" h="full">
-        <Suspense fallback="Loading...">{children}</Suspense>
+        <Suspense>{children}</Suspense>
       </Flex>
     </Flex>
   );

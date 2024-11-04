@@ -1,5 +1,4 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
-import React from 'react';
 
 const MultiStepHeader = ({ activeStep }: { activeStep: number }) => {
   return (
@@ -27,7 +26,6 @@ const StepItem = ({ step, activeStep, label }: { step: number; activeStep: numbe
         borderRadius="50%"
         border="2px dashed"
         borderColor={isActive ? 'secondary.600' : 'grey.300'}
-        // p="8px"
         justifyContent="center"
         alignItems="center"
         transition="all 0.3s ease-in-out"
@@ -58,7 +56,7 @@ const StepItem = ({ step, activeStep, label }: { step: number; activeStep: numbe
 };
 
 const ProgressLine = ({ step, activeStep }: { step: number; activeStep: number }) => {
-  const isActive = activeStep >= step;
+  const isActive = activeStep > step;
   return (
     <Box
       w="48px"

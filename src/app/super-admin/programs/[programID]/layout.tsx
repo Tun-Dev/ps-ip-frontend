@@ -1,24 +1,27 @@
-'use client';
-
 import { Flex } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 
 import { ModuleCard } from '@/components';
-import { ModulesData } from '@/utils';
+import { ALL_MODULES } from '@/utils';
+
+export function generateStaticParams() {
+  return ALL_MODULES.map((item) => ({ programID: item.id.toString() }));
+}
 
 const ProgramIDLayout = ({ children }: PropsWithChildren) => {
-  const router = useRouter();
-
   return (
     <Flex w="full" flexDir="column" gap="20px" pt="20px">
-      <Flex gap="12px">
-        {ModulesData.map((item) => (
+      <Flex gap="12px" overflowX="auto">
+        {ALL_MODULES.map((item, index) => (
           <ModuleCard
             key={item.id}
-            {...item}
+            module={item}
+            status="In progress"
             maxW="242px"
-            onClick={() => router.push(`/super-admin/programs/${item.id}/${item.name.toLowerCase()}`)}
+            flexShrink={0}
+            number={index + 1}
+            route={`/super-admin/programs/${item.id}/${item.name.toLowerCase()}`}
+            scroll
           />
         ))}
       </Flex>

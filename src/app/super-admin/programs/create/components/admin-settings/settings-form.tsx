@@ -1,33 +1,24 @@
 'use client';
 
-import { Checkbox, CheckboxGroup, Stack, type StackProps } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
-import { useFieldArray, useForm } from 'react-hook-form';
-
-type FormValues = {
-  settings: { label: string; value: boolean }[];
-};
+import { useProgramForm } from '@/providers/form-provider';
+import { Checkbox, CheckboxGroup, Stack } from '@chakra-ui/react';
+import { useFieldArray } from 'react-hook-form';
 
 type Props = {
-  defaultValues: FormValues;
-} & StackProps;
+  index: number;
+  display?: string;
+};
 
-export function SettingsForm({ defaultValues, ...props }: Props) {
-  const { control, register, handleSubmit } = useForm<FormValues>({ defaultValues });
-  const { fields } = useFieldArray({ name: 'settings', control });
-  const router = useRouter();
-
-  const onSubmit = (values: FormValues) => {
-    console.log(values);
-    router.push('/super-admin/programs/create?step=4');
-  };
+export function SettingsForm({ index, display }: Props) {
+  const { control, register } = useProgramForm();
+  const { fields } = useFieldArray({ name: `settings.${index}.fields`, control });
 
   return (
-    <Stack as="form" onSubmit={handleSubmit(onSubmit)} {...props}>
+    <Stack display={display}>
       <CheckboxGroup>
         <Stack spacing="5" align="start">
-          {fields.map((field, index) => (
-            <Checkbox key={field.id} {...register(`settings.${index}.value`)}>
+          {fields.map((field, idx) => (
+            <Checkbox key={field.id} {...register(`settings.${index}.fields.${idx}.value`)}>
               {field.label}
             </Checkbox>
           ))}

@@ -1,20 +1,20 @@
-import { Box, Button, Flex, Grid, Icon, Input, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Icon, Input, Stack } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { FieldArrayWithId } from 'react-hook-form';
+import type { FieldArrayWithId, UseFormRegisterReturn } from 'react-hook-form';
 import { MdEdit, MdPerson } from 'react-icons/md';
 
 import { OPTIONS, Option } from '@/utils';
-import type { FormValues } from '.';
 import { Dropdown } from '../dropdown';
 
 type SortableItemProps = {
-  field: FieldArrayWithId<FormValues, 'fields', 'id'>;
+  field: FieldArrayWithId<{ fields: { name: string; type: string }[] }, 'fields', 'id'>;
   onDelete: () => void;
-  onChange: (id: string, type: Option['value']) => void;
+  onChange: (type: Option['value']) => void;
+  inputProps: UseFormRegisterReturn<`editModules.builderForm.${number}.fields.${number}.name`>;
 };
 
-export function SortableItem({ field, onDelete, onChange }: SortableItemProps) {
+export function SortableItem({ field, inputProps, onDelete, onChange }: SortableItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, setActivatorNodeRef } = useSortable({
     id: field.id,
   });
@@ -22,7 +22,7 @@ export function SortableItem({ field, onDelete, onChange }: SortableItemProps) {
   return (
     <Box
       ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition, touchAction: 'none' }}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
       {...attributes}
       tabIndex={undefined}
       cursor="auto"
@@ -30,17 +30,18 @@ export function SortableItem({ field, onDelete, onChange }: SortableItemProps) {
       <Grid alignItems="end" gap="3" gridTemplateColumns={field.type === 'Paragraph' ? '1fr auto' : '13.5rem auto'}>
         <Stack align="flex-start" spacing="2" flex="1">
           <Flex align="center" gap="2">
-            <Text
-              as="label"
-              variant="Body2Semibold"
+            <Input
               px="2"
               py="1"
+              boxSize="auto"
               border="1px dashed"
               borderColor="grey.300"
               borderRadius="0.25rem"
-            >
-              {field.name}
-            </Text>
+              fontSize="13px"
+              fontWeight="semibold"
+              lineHeight="20px"
+              {...inputProps}
+            />
             <Icon as={MdEdit} aria-label={`Edit ${field.name}`} color="primary.500" boxSize="3" />
           </Flex>
           {field.type === 'File upload' ? (
@@ -65,7 +66,7 @@ export function SortableItem({ field, onDelete, onChange }: SortableItemProps) {
             <Dropdown
               options={OPTIONS}
               value={OPTIONS.find((opt) => opt.value === field.type)}
-              onChange={(value) => value && onChange(field.id, value.value)}
+              onChange={(value) => value && onChange(value.value)}
             />
           </Box>
           <Button variant="cancel" size="medium" type="button" onClick={onDelete}>
@@ -74,12 +75,14 @@ export function SortableItem({ field, onDelete, onChange }: SortableItemProps) {
           <Grid
             ref={setActivatorNodeRef}
             {...listeners}
+            as="button"
+            type="button"
+            cursor="grab"
             gridTemplateColumns="auto auto"
             gap="1"
-            role="button"
-            tabIndex={0}
             outlineColor="transparent"
             _focus={{ boxShadow: 'outline' }}
+            style={{ touchAction: 'none' }}
           >
             {Array.from(Array(6).keys()).map((index) => (
               <Box key={index} bg="primary.400" boxSize="1" />

@@ -4,7 +4,7 @@ import { Box, Heading, SimpleGrid } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 
 import { ModuleCard } from '@/components';
-import { ModulesData } from '@/utils';
+import { ALL_MODULES } from '@/utils';
 
 const ModulesPage = () => {
   const router = useRouter();
@@ -15,11 +15,12 @@ const ModulesPage = () => {
         Modules
       </Heading>
       <SimpleGrid columns={4} spacingX="6" spacingY="5">
-        {ModulesData.map((item, index) => (
+        {ALL_MODULES.map((item, index) => (
           <ModuleCard
             key={item.id}
-            {...item}
-            id={index + 1}
+            module={item}
+            status="In progress"
+            number={index + 1}
             onClick={() => router.push(`/clients/modules/${item.id}/${item.name.toLowerCase()}`)}
           />
         ))}

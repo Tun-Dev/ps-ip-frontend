@@ -1,7 +1,20 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Flex, Text, Box, Button, InputGroup, InputLeftElement, Icon, Input, Select } from '@chakra-ui/react';
+import {
+  Flex,
+  Text,
+  Box,
+  Button,
+  InputGroup,
+  InputLeftElement,
+  Icon,
+  Input,
+  Select,
+  Tab,
+  TabList,
+  Tabs,
+} from '@chakra-ui/react';
 import { ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
 import {
@@ -16,7 +29,7 @@ import {
 import { OverviewCard } from '@/components/overview';
 
 const VendorsDisbursementDashboard = () => {
-  const [isDisbursed, setIsDisbursed] = useState(false);
+  const [isDisbursed, setIsDisbursed] = useState('pending');
 
   const data = [
     {
@@ -220,11 +233,23 @@ const VendorsDisbursementDashboard = () => {
         ),
         accessorKey: 'Status',
         enableSorting: false,
-        cell: () => (
-          <Button variant="secondary" size="small">
-            {isDisbursed ? 'Disbursed' : 'Mark as disbursed'}
-          </Button>
-        ),
+        cell: () =>
+          isDisbursed ? (
+            <Text color="green" size="sm">
+              Disbursed
+            </Text>
+          ) : (
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={() => {
+                console.log('Setting disbursed to true');
+                setIsDisbursed('disbursed');
+              }}
+            >
+              Mark as disbursed
+            </Button>
+          ),
       },
     ],
     [isDisbursed]
@@ -251,34 +276,24 @@ const VendorsDisbursementDashboard = () => {
           </Box>
         </Flex>
       </Flex>
-
-      <Flex flexWrap="wrap" gap="12px">
-        <Text
-          variant="Body2Semibold"
-          color="gray.500"
-          cursor="pointer"
-          _hover={{ color: 'primary' }}
-          onClick={() => setIsDisbursed(false)}
-        >
-          Orders Pending{' '}
-          <Box as="span" px="8px" py="2px" borderRadius="8px" bg="gray.200" color="gray.500">
-            5,000
-          </Box>{' '}
-        </Text>
-        <Text
-          variant="Body2Semibold"
-          color="gray.500"
-          cursor="pointer"
-          _hover={{ color: 'primary' }}
-          onClick={() => setIsDisbursed(true)}
-        >
-          Orders Disbursed{' '}
-          <Box as="span" px="8px" py="2px" borderRadius="8px" bg="gray.200" color="gray.500">
-            15,000
-          </Box>{' '}
-        </Text>
-      </Flex>
-
+      <Tabs>
+        <TabList>
+          <Tab
+            onClick={() => setIsDisbursed('pending')}
+            color={isDisbursed !== 'pending' ? 'grey.500' : 'primary.500'}
+            gap="4px"
+          >
+            Orders Pending <TabTag text="5,000" active={isDisbursed === 'pending'} />
+          </Tab>
+          <Tab
+            onClick={() => setIsDisbursed('disbursed')}
+            color={isDisbursed !== 'disbursed' ? 'grey.500' : 'primary.500'}
+            gap="4px"
+          >
+            Orders Disbursed <TabTag text="15,000" active={isDisbursed === 'disbursed'} />
+          </Tab>
+        </TabList>
+      </Tabs>
       <Flex justifyContent="space-between" alignItems="center">
         <Flex gap="8px" alignItems="center">
           <Text variant="Body2Semibold" color="gray.500" whiteSpace="nowrap">
@@ -324,3 +339,18 @@ const VendorsDisbursementDashboard = () => {
 };
 
 export default VendorsDisbursementDashboard;
+
+const TabTag = ({ active, text }: { active: boolean; text: string }) => {
+  return (
+    <Box
+      px="8px"
+      py="2px"
+      borderRadius="8px"
+      bg={active ? 'primary.100' : 'grey.200'}
+      color={!active ? 'grey.500' : 'green'}
+      transition="all 0.3s ease-in-out"
+    >
+      <Text variant="Body3Semibold">{text}</Text>
+    </Box>
+  );
+};
