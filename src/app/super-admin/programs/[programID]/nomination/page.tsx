@@ -1,11 +1,24 @@
 'use client';
 
-import { Box, Button, ButtonGroup, Flex, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react';
+import {
+  Button,
+  ButtonGroup,
+  Flex,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+} from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
-import { MdCloudUpload, MdDownload, MdSearch } from 'react-icons/md';
+import { MdCloudUpload, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
-import { Dropdown } from '@/components';
+import { Dropdown } from '@/shared/chakra/components';
 import { ReusableTable } from '@/shared';
 
 const options = [
@@ -20,7 +33,7 @@ const NominationPage = () => {
   const [sort, setSort] = useState<Option | null>(options[0]);
 
   return (
-    <Box>
+    <Flex direction="column" h="full">
       <Flex align="center" justify="space-between" mb="8">
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
@@ -45,8 +58,16 @@ const NominationPage = () => {
           </Button>
         </ButtonGroup>
       </Flex>
-      <ReusableTable data={data} columns={columns} />
-    </Box>
+      {data.length < 1 ? (
+        <Flex align="center" justify="center" flex="1">
+          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+            No data available.
+          </Text>
+        </Flex>
+      ) : (
+        <ReusableTable data={data} columns={columns} />
+      )}
+    </Flex>
   );
 };
 
@@ -169,7 +190,7 @@ const data = [
     age: 61,
     disabled: true,
     liberate: true,
-    status: 'Nominated',
+    status: 'Denied',
   },
 ];
 
@@ -255,9 +276,31 @@ const columns: ColumnDef<(typeof data)[number]>[] = [
           Nominated
         </Text>
       ) : (
-        <Button variant="accept" size="small">
-          Nominate
-        </Button>
+        // <Button variant="accept" size="small">
+        //   Nominate
+        // </Button>
+        <Flex h="full" onClick={(e) => e.stopPropagation()}>
+          <Popover placement="bottom-end">
+            <PopoverTrigger>
+              <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                <MdMoreHoriz size="1.25rem" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent w="121px" p="8px">
+              <PopoverArrow />
+              <PopoverBody p="0">
+                <Flex flexDir="column">
+                  <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
+                    Approve
+                  </Button>
+                  <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
+                    Deny
+                  </Button>
+                </Flex>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+        </Flex>
       ),
   },
 ];

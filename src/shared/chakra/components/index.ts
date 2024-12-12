@@ -1,18 +1,7 @@
-import { ThemeComponents } from '@chakra-ui/react';
+export { Dropdown } from './dropdown';
 
-import Input from './input';
-import Select from './select';
-import { Heading, Text } from './typography';
-import buttonTheme from './buttonTheme';
-import { tabsTheme } from './tabsTheme';
-
-const components: ThemeComponents = {
-  Input: Input,
-  Select: Select,
-  Text: Text,
-  Heading: Heading,
-  Button: buttonTheme,
-  Tabs: tabsTheme,
-};
-
-export default components;
+export { GeepComponent } from './geep-component';
+export { ModuleCard } from './module-card';
+export { ModuleDashboardCard } from './module-dashboard-card';
+export { ModuleProgressCard } from './module-progress-card';
+export { ClientRootLayout } from './QueryWrapper';

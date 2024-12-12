@@ -1,5 +1,7 @@
-import { Box, Flex, Text } from '@chakra-ui/react';
-import type { PropsWithChildren } from 'react';
+import { Box, Flex } from '@chakra-ui/react';
+import { Suspense, type PropsWithChildren } from 'react';
+
+import ProgramsBreadcrumbs from './programs-breadcrumbs';
 
 const ModulesLayout = ({ children }: PropsWithChildren) => {
   return (
@@ -12,11 +14,11 @@ const ModulesLayout = ({ children }: PropsWithChildren) => {
         justifyContent="space-between"
         alignItems="center"
       >
-        <Text variant="Body1Semibold" color="grey.400">
-          INVESTMENT IN DIGITAL CREATIVE ENTERPRISES PROGRAM (iDICE)
-        </Text>
+        <ProgramsBreadcrumbs />
       </Flex>
-      <Box flex="1 1 0%">{children}</Box>
+      <Box flex="1 1 0%" boxSize="full">
+        <Suspense>{children}</Suspense>
+      </Box>
     </Flex>
   );
 };

@@ -21,9 +21,10 @@ const NotificationCard = ({ title, time, desc, Icon, boldWord }: NotificationCar
       boxShadow="card"
       borderRadius="12px"
       padding="10px 12px"
+      bg="primary.30"
     >
       <Flex gap="4">
-        <Center h="2rem" w="2rem" bg="grey.100" padding="8px" borderRadius="10px">
+        <Center h="2rem" w="2rem" bg="primary.100" padding="8px" borderRadius="10px">
           <Icon color="var(--chakra-colors-primary-600)" />
         </Center>
         <Flex flexDir="column" gap="2">
@@ -44,7 +45,7 @@ const NotificationCard = ({ title, time, desc, Icon, boldWord }: NotificationCar
           </Text>
         </Flex>
       </Flex>
-      <Flex justifyContent="flex-end" color="primary.500">
+      <Flex justifyContent="flex-end" color="secondary.500">
         <Link>
           <Text display="flex" alignItems="center" gap="1" variant="Body3Semibold">
             View details <ChakraIcon as={MdOpenInNew} />

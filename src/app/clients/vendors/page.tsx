@@ -5,7 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 import { MdDownload, MdEmojiEmotions, MdGroupAdd, MdGroups, MdSearch, MdVolunteerActivism } from 'react-icons/md';
 
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import { ReusableTable } from '@/shared';
 
 const ClientsVendorsPage = () => {

@@ -1,22 +1,29 @@
 'use client';
 
 import {
-  Box,
   Button,
   ButtonGroup,
   Flex,
-  IconButton,
+  // IconButton,
   Input,
   InputGroup,
   InputLeftElement,
   Text,
+  useDisclosure,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverBody,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { MdCloudUpload, MdDelete, MdDownload, MdSearch } from 'react-icons/md';
+import { MdCloudUpload, MdMoreHoriz, MdDownload, MdSearch } from 'react-icons/md';
 
-import { Dropdown } from '@/components';
 import { ReusableTable } from '@/shared';
+import { Dropdown } from '@/shared/chakra/components';
+import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -28,11 +35,15 @@ const options = [
 type Option = (typeof options)[number];
 
 const EnumerationPage = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[0]);
-  const [selectedAgent, setSelectedAgent] = useState<(typeof aggregatorData)[number] | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const agent = searchParams.get('agent');
 
   return (
-    <Box w="full">
+    <Flex direction="column" h="full">
       <Flex align="center" justify="space-between" mb="8">
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
@@ -57,16 +68,36 @@ const EnumerationPage = () => {
           </Button>
         </ButtonGroup>
       </Flex>
-      {selectedAgent ? (
-        <ReusableTable data={beneficiaryData} columns={beneficiaryColumns} />
+      {aggregatorData.length < 1 ? (
+        <Flex align="center" justify="center" flex="1">
+          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+            No data available.
+          </Text>
+        </Flex>
+      ) : agent ? (
+        beneficiaryData.length < 1 ? (
+          <Flex align="center" justify="center" flex="1">
+            <Text variant="Body2Semibold" textAlign="center">
+              No data available.
+            </Text>
+          </Flex>
+        ) : (
+          <ReusableTable selectable data={beneficiaryData} columns={beneficiaryColumns} onClick={onOpen} />
+        )
       ) : (
         <ReusableTable
+          selectable
           data={aggregatorData}
           columns={aggregatorColumns}
-          onClick={(aggregator) => setSelectedAgent(aggregator)}
+          onClick={(aggregator) => {
+            const searchParams = new URLSearchParams();
+            searchParams.append('agent', aggregator.agent);
+            router.push(`${pathname}?${searchParams.toString()}`);
+          }}
         />
       )}
-    </Box>
+      <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} />
+    </Flex>
   );
 };
 
@@ -198,17 +229,27 @@ const aggregatorColumns: ColumnDef<(typeof aggregatorData)[number]>[] = [
     ),
   },
   {
-    header: 'Objective',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Objective
+      </Text>
+    ),
     accessorKey: 'objective',
     enableSorting: false,
     cell: (info) => (
-      <Text as="span" variant="Body2Semibold" bgColor="grey.200" rounded="xl" p="0.125rem 0.71875rem">
-        {info.row.original.objective}/1000
-      </Text>
+      <Flex justifyContent="center">
+        <Text as="span" variant="Body2Semibold" bgColor="grey.200" rounded="xl" p="0.125rem 0.71875rem">
+          {info.row.original.objective}/1000
+        </Text>
+      </Flex>
     ),
   },
   {
-    header: 'Status/Completion time',
+    header: () => (
+      <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+        Status/Completion time
+      </Text>
+    ),
     accessorKey: 'status',
     enableSorting: false,
     cell: (info) => (
@@ -219,43 +260,82 @@ const aggregatorColumns: ColumnDef<(typeof aggregatorData)[number]>[] = [
         variant={info.row.original.status === 'Online' ? 'Body3Semibold' : 'Body2Regular'}
         color={info.row.original.status === 'Online' ? 'green' : 'text'}
       >
-        {info.row.original.status}
+        {info.row.original.status}{' '}
+        <Text as="span" display="inline" variant="Body3Semibold" color="green">
+          (Active)
+        </Text>
       </Text>
     ),
   },
+  // {
+  //   id: 'deactivated',
+  //   enableSorting: false,
+  //   cell: (info) =>
+  //     info.row.original.deactivated ? (
+  //       <Flex gap="2" align="center">
+  //         <Text as="span" color="red" textAlign="center" variant="Body3Semibold">
+  //           Deactivated
+  //         </Text>
+  //         <Button variant="accept" size="small">
+  //           Activate
+  //         </Button>
+  //       </Flex>
+  //     ) : (
+  //       <Button variant="cancel" size="small">
+  //         Deactivate agent
+  //       </Button>
+  //     ),
+  // },
+  // {
+  //   id: 'actions',
+  //   enableSorting: false,
+  //   cell: () => (
+  //     <IconButton
+  //       icon={<MdDelete />}
+  //       variant="cancel"
+  //       bgColor="transparent"
+  //       p="0"
+  //       boxSize="4"
+  //       minW="unset"
+  //       aria-label="Delete"
+  //       color="red"
+  //     />
+  //   ),
+  // },
   {
-    id: 'deactivated',
-    enableSorting: false,
-    cell: (info) =>
-      info.row.original.deactivated ? (
-        <Flex gap="2" align="center">
-          <Text as="span" color="red" textAlign="center" variant="Body3Semibold">
-            Deactivated
-          </Text>
-          <Button variant="accept" size="small">
-            Activate
-          </Button>
-        </Flex>
-      ) : (
-        <Button variant="cancel" size="small">
-          Deactivate agent
-        </Button>
-      ),
-  },
-  {
-    id: 'actions',
+    header: () => (
+      <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+        Actions
+      </Text>
+    ),
+    accessorKey: 'actions',
     enableSorting: false,
     cell: () => (
-      <IconButton
-        icon={<MdDelete />}
-        variant="cancel"
-        bgColor="transparent"
-        p="0"
-        boxSize="4"
-        minW="unset"
-        aria-label="Delete"
-        color="red"
-      />
+      <Flex h="full" onClick={(e) => e.stopPropagation()}>
+        <Popover placement="bottom-end">
+          <PopoverTrigger>
+            <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+              <MdMoreHoriz size="1.25rem" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent minW="121px" w="fit-content" p="8px">
+            <PopoverArrow />
+            <PopoverBody p="0">
+              <Flex flexDir="column">
+                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
+                  Deactivate Agent
+                </Button>
+                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
+                  Delete Data
+                </Button>
+                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
+                  Edit Data
+                </Button>
+              </Flex>
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
+      </Flex>
     ),
   },
 ];
@@ -464,10 +544,32 @@ const beneficiaryColumns: ColumnDef<(typeof beneficiaryData)[number]>[] = [
           Denied
         </Text>
       ) : (
-        <ButtonGroup size="small" spacing="2">
-          <Button variant="accept">Approve</Button>
-          <Button variant="cancel">Deny</Button>
-        </ButtonGroup>
+        // <ButtonGroup size="small" spacing="2" onClick={(e) => e.stopPropagation()}>
+        //   <Button variant="accept">Approve</Button>
+        //   <Button variant="cancel">Deny</Button>
+        // </ButtonGroup>
+        <Flex h="full" onClick={(e) => e.stopPropagation()}>
+          <Popover placement="bottom-end">
+            <PopoverTrigger>
+              <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                <MdMoreHoriz size="1.25rem" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent w="121px" p="8px">
+              <PopoverArrow />
+              <PopoverBody p="0">
+                <Flex flexDir="column">
+                  <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
+                    Approve
+                  </Button>
+                  <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
+                    Deny
+                  </Button>
+                </Flex>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+        </Flex>
       ),
   },
 ];

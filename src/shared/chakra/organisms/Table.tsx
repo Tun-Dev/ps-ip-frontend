@@ -1,32 +1,104 @@
-import React from 'react';
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
+  Box,
+  Checkbox,
+  Icon,
+  SkeletonText,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+} from '@chakra-ui/react';
+import {
   ColumnDef,
+  flexRender,
+  getCoreRowModel,
   getSortedRowModel,
+  RowSelectionState,
   SortingState,
+  useReactTable,
 } from '@tanstack/react-table';
-import { Table, Thead, Tbody, Tr, Th, Td, TableContainer, Box, Text, Icon } from '@chakra-ui/react';
-import { TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import React from 'react';
 import { MdSortByAlpha } from 'react-icons/md';
 
 interface ReusableTableProps<T extends object> {
   data: T[];
   columns: ColumnDef<T>[];
   onClick?: (row: T) => void;
+  headerBgColor?: string;
+  onSelectionChange?: (selectedRows: T[]) => void;
+  selectable?: boolean;
+  isLoading?: boolean;
 }
 
-function ReusableTable<T extends object>({ data, columns, onClick }: ReusableTableProps<T>) {
+function ReusableTable<T extends object>({
+  data,
+  columns,
+  onClick,
+  headerBgColor,
+  onSelectionChange,
+  selectable = false,
+  isLoading,
+}: ReusableTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+
+  // Update columns to include checkbox selection
+  const selectionColumn: ColumnDef<T> = React.useMemo(
+    () => ({
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          isChecked={table.getIsAllRowsSelected()}
+          isIndeterminate={table.getIsSomeRowsSelected()}
+          onChange={table.getToggleAllRowsSelectedHandler()}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          isChecked={row.getIsSelected()}
+          isIndeterminate={row.getIsSomeSelected()}
+          onChange={row.getToggleSelectedHandler()}
+        />
+      ),
+      size: 20,
+    }),
+    []
+  );
+
+  const tableData = React.useMemo(() => (isLoading ? Array(10).fill({}) : data), [isLoading, data]);
+
+  const tableColumns = React.useMemo(() => {
+    if (isLoading) return columns.map((column) => ({ ...column, cell: () => <SkeletonText noOfLines={1} /> }));
+    if (selectable) return [selectionColumn, ...columns];
+    return columns;
+  }, [columns, isLoading, selectable, selectionColumn]);
 
   const table = useReactTable({
-    data,
-    columns,
+    data: tableData,
+    columns: tableColumns,
     state: {
       sorting,
+      rowSelection,
     },
+    enableRowSelection: true,
     onSortingChange: setSorting,
+    onRowSelectionChange: (updater) => {
+      // Type-safe row selection update
+      const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
+
+      setRowSelection(newSelection);
+
+      // Convert selected row indices to original data
+      const selectedRows = Object.keys(newSelection).map((key) => data[parseInt(key, 10)]);
+
+      // Call selection change callback
+      onSelectionChange?.(selectedRows);
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
@@ -42,12 +114,13 @@ function ReusableTable<T extends object>({ data, columns, onClick }: ReusableTab
                   key={header.id}
                   onClick={header.column.getToggleSortingHandler()}
                   cursor={header.column.getCanSort() ? 'pointer' : 'default'}
-                  bg="grey.100"
+                  bg={headerBgColor ?? 'primary.50'}
                   border="none"
                   borderLeftRadius={index === 0 ? '6px' : ''}
                   borderRightRadius={index === headerGroup.headers.length - 1 ? '6px' : ''}
                   p="0.375rem 0.75rem"
                   textTransform="capitalize"
+                  w={`${header.column.getSize()}px`}
                 >
                   <Box display="flex" alignItems="center" gap="1">
                     {header.column.getCanSort() && (
@@ -79,8 +152,8 @@ function ReusableTable<T extends object>({ data, columns, onClick }: ReusableTab
               _hover={onClick ? { bgColor: 'primary.50' } : undefined}
             >
               {row.getVisibleCells().map((cell) => (
-                <Td key={cell.id} p="0.5rem 0.75rem">
-                  <Text as="span" variant="Body2Semibold" color="text">
+                <Td key={cell.id} p="0.5rem 0.75rem" w={`${cell.column.getSize()}px`}>
+                  <Text as="div" variant="Body2Semibold" color="text">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Text>
                 </Td>

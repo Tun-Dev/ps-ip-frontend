@@ -1,6 +1,6 @@
 'use client';
 
-import { withDesktopOnlyOverlay } from '@/components/desktop-only-overlay';
+import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
 import { Box, Flex, Image } from '@chakra-ui/react';
 
 const BeneficiaryLayout = ({ children }: { children: React.ReactNode }) => {

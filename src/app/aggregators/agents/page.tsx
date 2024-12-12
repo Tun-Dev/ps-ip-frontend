@@ -18,7 +18,7 @@ import {
   TabList,
   useDisclosure,
 } from '@chakra-ui/react';
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import { MdGroups, MdSearch, MdAddCircle, MdDownload, MdEditCalendar } from 'react-icons/md';
 import { AddNewAgentModal, ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
@@ -290,7 +290,7 @@ const AgentsTab = () => {
                 boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
                 borderRadius="12px"
               >
-                <ReusableTable data={agentsData} columns={columns} />
+                <ReusableTable selectable data={agentsData} columns={columns} />
               </Box>
             </Flex>
           </TabPanel>
@@ -337,7 +337,7 @@ const AgentsTab = () => {
                 boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
                 borderRadius="12px"
               >
-                <ReusableTable data={inactiveAgentsData} columns={inactiveColumns} />
+                <ReusableTable selectable data={inactiveAgentsData} columns={inactiveColumns} />
               </Box>
             </Flex>
           </TabPanel>

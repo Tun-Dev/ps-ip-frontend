@@ -1,6 +1,6 @@
 'use client';
 
-import { withDesktopOnlyOverlay } from '@/components/desktop-only-overlay';
+import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
 import { Box, Flex } from '@chakra-ui/react';
 import Sidebar from './components/Sidebar';
 

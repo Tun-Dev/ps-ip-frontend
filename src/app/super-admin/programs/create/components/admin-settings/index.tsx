@@ -1,32 +1,40 @@
-import { Box, Heading, Stack, StackProps } from '@chakra-ui/react';
-import { useFieldArray } from 'react-hook-form';
+import { Box, Heading, Stack, StackProps, Text } from '@chakra-ui/react';
 
-import { useProgramForm } from '@/providers/form-provider';
+import { useGetModules } from '@/hooks/useGetModules';
 import { useProgramStore } from '@/providers/programs-store-provider';
 import { SettingsForm } from './settings-form';
 
 const AdminSettings = (props: StackProps) => {
-  const selectedModules = useProgramStore((state) => state.selectedModules);
-  const activeModuleId = useProgramStore((state) => state.activeModuleId);
-  const activeModule = selectedModules.find((module) => module.id === activeModuleId);
-  const activeModuleIndex = selectedModules.findIndex((module) => module.id === activeModuleId);
+  const { data: modules } = useGetModules();
 
-  const { control } = useProgramForm();
-  const { fields } = useFieldArray({ name: 'settings', control, keyName: 'key' });
+  const selectedModuleIds = useProgramStore((state) => state.selectedModules);
+  const activeModuleId = useProgramStore((state) => state.activeModuleId);
+
+  if (!activeModuleId || !selectedModuleIds.ids.has(activeModuleId)) return null;
 
   return (
     <Stack py="6" spacing="2.94rem" {...props}>
-      <Box flex="1">
-        <Heading variant="Body2Semibold" color="primary.500" mb="4" textTransform="capitalize">
-          <Box as="span" display="inline-block" rounded="full" px="0.4375rem" bgColor="primary.100">
-            {activeModuleIndex + 1}
-          </Box>{' '}
-          {activeModule?.name}
-        </Heading>
-        {fields.map((field, index) => (
-          <SettingsForm key={field.key} index={index} display={activeModuleId === field.id ? 'flex' : 'none'} />
-        ))}
-      </Box>
+      {Array.from(selectedModuleIds.ids).map((moduleId, index) => {
+        const currentModule = modules?.body.find((module) => module.id === moduleId);
+        if (!currentModule) return null;
+        return (
+          <Box key={moduleId} flex="1" display={activeModuleId === moduleId ? 'block' : 'none'}>
+            <Heading variant="Body2Semibold" color="primary.500" mb="4" textTransform="capitalize">
+              <Box as="span" display="inline-block" rounded="full" px="0.4375rem" bgColor="primary.100">
+                {index + 1}
+              </Box>{' '}
+              {currentModule?.name}
+            </Heading>
+            {currentModule.ModuleGuidelines.length > 0 ? (
+              <SettingsForm currentModule={currentModule} />
+            ) : (
+              <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+                No settings for this module.
+              </Text>
+            )}
+          </Box>
+        );
+      })}
     </Stack>
   );
 };

@@ -1,11 +1,11 @@
 'use client';
 
-import { Box, Button, Flex, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react';
+import { Button, Flex, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 import { MdDownload, MdSearch } from 'react-icons/md';
 
-import { Dropdown } from '@/components';
+import { Dropdown } from '@/shared/chakra/components';
 import { ReusableTable } from '@/shared';
 
 const options = [
@@ -22,7 +22,7 @@ const EnumerationPage = () => {
   const [selectedAgent, setSelectedAgent] = useState<(typeof aggregatorData)[number] | null>(null);
 
   return (
-    <Box w="full">
+    <Flex direction="column" h="full">
       <Flex align="center" justify="space-between" mb="8">
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
@@ -42,8 +42,22 @@ const EnumerationPage = () => {
           Download Report
         </Button>
       </Flex>
-      {selectedAgent ? (
-        <ReusableTable data={beneficiaryData} columns={beneficiaryColumns} />
+      {aggregatorData.length < 1 ? (
+        <Flex align="center" justify="center" flex="1">
+          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+            No data available.
+          </Text>
+        </Flex>
+      ) : selectedAgent ? (
+        beneficiaryData.length < 1 ? (
+          <Flex align="center" justify="center" flex="1">
+            <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+              No data available.
+            </Text>
+          </Flex>
+        ) : (
+          <ReusableTable data={beneficiaryData} columns={beneficiaryColumns} />
+        )
       ) : (
         <ReusableTable
           data={aggregatorData}
@@ -51,7 +65,7 @@ const EnumerationPage = () => {
           onClick={(aggregator) => setSelectedAgent(aggregator)}
         />
       )}
-    </Box>
+    </Flex>
   );
 };
 

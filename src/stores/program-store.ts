@@ -1,10 +1,9 @@
-import { type ModuleProps } from '@/utils';
 import { createStore } from 'zustand/vanilla';
 
 export type ProgramState = {
   step: number;
   activeModuleId: number | null;
-  selectedModules: ModuleProps[];
+  selectedModules: { ids: Set<number> };
 };
 
 export type ProgramActions = {
@@ -12,8 +11,8 @@ export type ProgramActions = {
   nextStep: () => void;
   previousStep: () => void;
   setActiveModuleId: (index: number) => void;
-  setSelectedModules: (modules: ModuleProps[]) => void;
-  reset: () => void;
+  setSelectedModules: (selectedModules: { ids: Set<number> }) => void;
+  resetState: () => void;
 };
 
 export type ProgramStore = ProgramState & ProgramActions;
@@ -23,7 +22,7 @@ const MAX_STEP = 4;
 
 export const defaultProgramState: ProgramState = {
   step: MIN_STEP,
-  selectedModules: [],
+  selectedModules: { ids: new Set() },
   activeModuleId: null,
 };
 
@@ -34,7 +33,7 @@ export const createProgramStore = (initState: ProgramState = defaultProgramState
     nextStep: () => set((state) => ({ step: Math.min(state.step + 1, MAX_STEP) })),
     previousStep: () => set((state) => ({ step: Math.max(state.step - 1, MIN_STEP) })),
     setActiveModuleId: (moduleId) => set(() => ({ activeModuleId: moduleId })),
-    setSelectedModules: (modules) => set(() => ({ selectedModules: modules })),
-    reset: () => set(() => defaultProgramState),
+    setSelectedModules: (selectedModules) => set(() => ({ selectedModules })),
+    resetState: () => set(() => ({ step: MIN_STEP, selectedModules: { ids: new Set() }, activeModuleId: null })),
   }));
 };

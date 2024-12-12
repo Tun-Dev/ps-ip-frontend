@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 import { Flex, Text, Box, Select, InputGroup, InputLeftElement, Icon, Input, Button } from '@chakra-ui/react';
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import { MdSearch, MdDownload, MdRefresh, MdCheckCircle, MdCloudUpload, MdEdit, MdDelete } from 'react-icons/md';
 import { ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';

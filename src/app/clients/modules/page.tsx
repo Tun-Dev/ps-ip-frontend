@@ -3,7 +3,7 @@
 import { Box, Heading, SimpleGrid } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 
-import { ModuleCard } from '@/components';
+import { ModuleCard } from '@/shared/chakra/components';
 import { ALL_MODULES } from '@/utils';
 
 const ModulesPage = () => {

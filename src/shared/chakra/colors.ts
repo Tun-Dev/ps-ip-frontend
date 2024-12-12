@@ -1,7 +1,9 @@
 const colors = {
   primary: {
+    30: '#F8FBF7',
     50: '#F3F9F2',
     100: '#E6F2E6',
+    150: '#DAECD9',
     200: '#CDE5CC',
     400: '#9CCB99',
     500: '#077D00',

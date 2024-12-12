@@ -1,44 +1,63 @@
-import { Box, BoxProps, Heading, Stack } from '@chakra-ui/react';
+import { Box, BoxProps, Heading, Stack, Text } from '@chakra-ui/react';
 
+import { useGetModules } from '@/hooks/useGetModules';
 import { useProgramForm } from '@/providers/form-provider';
 import { useProgramStore } from '@/providers/programs-store-provider';
 import { BuilderReview } from './builder-review';
 import { CheckboxFormReview } from './checkbox-form-review';
 import { SettingsReview } from './settings-review';
+import { VettingReview } from './vetting-review';
 
 const Review = (props: BoxProps) => {
-  const selectedModules = useProgramStore((state) => state.selectedModules);
+  const { data: modules } = useGetModules();
   const activeModuleId = useProgramStore((state) => state.activeModuleId);
-  const activeModule = selectedModules.find((module) => module.id === activeModuleId);
-  const activeModuleIndex = selectedModules.findIndex((module) => module.id === activeModuleId);
+  const selectedModuleIds = useProgramStore((state) => state.selectedModules);
 
   const { getValues } = useProgramForm();
-  const settings = getValues('settings');
-  const editModules = getValues('editModules');
+  const surveyForm = getValues('surveyForm');
+  const vettingForm = getValues('vettingForm');
+  const programModules = getValues('programModules');
+
+  if (!activeModuleId || !selectedModuleIds.ids.has(activeModuleId)) return null;
 
   return (
     <Box flex="1" py="6" {...props}>
-      <Heading variant="Body2Semibold" color="primary.500" mb="4" textTransform="capitalize">
-        <Box as="span" display="inline-block" rounded="full" px="0.4375rem" bgColor="primary.100">
-          {activeModuleIndex + 1}
-        </Box>{' '}
-        {activeModule?.name}
-      </Heading>
-      <Stack spacing="6">
-        {editModules.builderForm.map((form) => (
-          <BuilderReview key={form.id} fields={form.fields} display={activeModuleId === form.id ? 'grid' : 'none'} />
-        ))}
-        {editModules.checkboxForm.map((form) => (
-          <CheckboxFormReview
-            key={form.id}
-            sections={form.sections}
-            display={activeModuleId === form.id ? 'flex' : 'none'}
-          />
-        ))}
-        {settings.map((form) => (
-          <SettingsReview key={form.id} settings={form.fields} display={activeModuleId === form.id ? 'flex' : 'none'} />
-        ))}
-      </Stack>
+      {Array.from(selectedModuleIds.ids).map((moduleId, index) => {
+        const currentModule = modules?.body.find((module) => module.id === moduleId);
+        const dataPoints = programModules.find((module) => module.moduleId === moduleId)?.dataPoints ?? [];
+
+        if (!currentModule) return null;
+
+        return (
+          <Box key={moduleId} display={activeModuleId === moduleId ? 'block' : 'none'}>
+            <Heading variant="Body2Semibold" color="primary.500" mb="6" textTransform="capitalize">
+              <Box as="span" display="inline-block" rounded="full" px="0.4375rem" bgColor="primary.100">
+                {index + 1}
+              </Box>{' '}
+              {currentModule.name}
+            </Heading>
+            <Stack spacing="6">
+              {currentModule.name === 'Survey' && <BuilderReview fields={surveyForm.fields} name="Survey Form" />}
+              {currentModule.name === 'Vetting' && vettingForm.type === 'manual' && (
+                <BuilderReview fields={vettingForm.manualFields} name="Vetting Form" />
+              )}
+              {currentModule.name === 'Vetting' && vettingForm.type === 'automated' && (
+                <VettingReview fields={vettingForm.automatedFields} />
+              )}
+              {dataPoints.length > 0 && <CheckboxFormReview dataPoints={dataPoints} />}
+              {currentModule.ModuleGuidelines.length > 0 && <SettingsReview module={currentModule} />}
+              {currentModule.name !== 'Survey' &&
+                currentModule.name !== 'Vetting' &&
+                dataPoints.length === 0 &&
+                currentModule.ModuleGuidelines.length === 0 && (
+                  <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+                    No additional review for this module.
+                  </Text>
+                )}
+            </Stack>
+          </Box>
+        );
+      })}
     </Box>
   );
 };

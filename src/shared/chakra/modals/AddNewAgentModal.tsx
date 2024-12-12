@@ -11,7 +11,7 @@ import {
   ModalBody,
   ModalFooter,
 } from '@chakra-ui/react';
-import { Dropdown } from '@/components';
+import { Dropdown } from '@/shared/chakra/components';
 
 type ModalProps = {
   isOpen: boolean;
@@ -65,7 +65,7 @@ const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
               width="402px"
               height="48px"
               onClick={() => {
-                console.log('Agent added');
+                // console.log('Agent added');
                 onClose();
               }}
             >

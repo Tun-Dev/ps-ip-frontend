@@ -1,37 +1,49 @@
-import { Box, BoxProps, Heading } from '@chakra-ui/react';
+import { Box, BoxProps, Heading, Text } from '@chakra-ui/react';
+import { memo } from 'react';
 
-import { useProgramForm } from '@/providers/form-provider';
+import { useGetModules } from '@/hooks/useGetModules';
 import { useProgramStore } from '@/providers/programs-store-provider';
-import { useFieldArray } from 'react-hook-form';
 import CheckboxForm from './checkbox-form';
-import FormBuilder from './form-builder';
+import SurveyForm from './survey-form';
+import VettingForm from './vetting-form';
 
-const EditModules = (props: BoxProps) => {
-  const selectedModules = useProgramStore((state) => state.selectedModules);
+const EditModules = memo((props: BoxProps) => {
+  const { data: modules } = useGetModules();
   const activeModuleId = useProgramStore((state) => state.activeModuleId);
-  const activeModule = selectedModules.find((module) => module.id === activeModuleId);
-  const activeModuleIndex = selectedModules.findIndex((module) => module.id === activeModuleId);
+  const selectedModuleIds = useProgramStore((state) => state.selectedModules);
 
-  const { control } = useProgramForm();
-  const { fields: checkboxFields } = useFieldArray({ name: 'editModules.checkboxForm', control, keyName: 'key' });
-  const { fields: builderFields } = useFieldArray({ name: 'editModules.builderForm', control, keyName: 'key' });
+  if (!activeModuleId || !selectedModuleIds.ids.has(activeModuleId)) return null;
 
   return (
     <Box flex="1" py="6" {...props}>
-      <Heading variant="Body2Semibold" color="primary.500" mb="4" textTransform="capitalize">
-        <Box as="span" display="inline-block" rounded="full" px="0.4375rem" bgColor="primary.100">
-          {activeModuleIndex + 1}
-        </Box>{' '}
-        {activeModule?.name}
-      </Heading>
-      {checkboxFields.map((field, index) => (
-        <CheckboxForm key={field.key} index={index} display={activeModuleId === field.id ? 'flex' : 'none'} />
-      ))}
-      {builderFields.map((field, index) => (
-        <FormBuilder key={field.key} index={index} display={activeModuleId === field.id ? 'block' : 'none'} />
-      ))}
+      {Array.from(selectedModuleIds.ids).map((moduleId, index) => {
+        const currentModule = modules?.body.find((module) => module.id === moduleId);
+        return (
+          <Box key={moduleId} display={activeModuleId === moduleId ? 'block' : 'none'}>
+            <Heading variant="Body2Semibold" color="primary.500" mb="6" textTransform="capitalize">
+              <Box as="span" display="inline-block" rounded="full" px="0.4375rem" bgColor="primary.100">
+                {index + 1}
+              </Box>{' '}
+              {currentModule?.name}
+            </Heading>
+            {currentModule?.name === 'Application' || currentModule?.name === 'Enumeration' ? (
+              <CheckboxForm moduleId={moduleId} />
+            ) : currentModule?.name === 'Vetting' ? (
+              <VettingForm />
+            ) : currentModule?.name === 'Survey' ? (
+              <SurveyForm />
+            ) : (
+              <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+                Cannot edit this module.
+              </Text>
+            )}
+          </Box>
+        );
+      })}
     </Box>
   );
-};
+});
+
+EditModules.displayName = 'EditModules';
 
 export default EditModules;

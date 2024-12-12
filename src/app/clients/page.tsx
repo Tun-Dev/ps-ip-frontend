@@ -11,9 +11,9 @@ import {
   MdVolunteerActivism,
 } from 'react-icons/md';
 
-import { ModuleDashboardCard } from '@/components';
-import { OverviewCard } from '@/components/overview';
 import { NotificationCard, ReusableTable } from '@/shared';
+import { ModuleDashboardCard } from '@/shared/chakra/components';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import { Link } from '@chakra-ui/next-js';
 
 const ClientsDashboard = () => {
@@ -34,14 +34,10 @@ const ClientsDashboard = () => {
           Modules In Progress
         </Text>
         <Grid gap="1rem" templateColumns={{ base: 'repeat(3, 1fr)', sm: 'repeat(4, 1fr)' }}>
-          <ModuleDashboardCard text="Applications" number={150000} image="/images/undraw-my-app.svg" />
-          <ModuleDashboardCard text="Beneficiaries Enumerated" number={50000} image="/icons/undraw_interview.svg" />
-          <ModuleDashboardCard
-            text="Awaiting KYC Verification"
-            number={150000}
-            image="/icons/undraw_authentication.svg"
-          />
-          <ModuleDashboardCard text="Awaiting Disbursement" number={20000} image="/icons/undraw_online_payments.svg" />
+          <ModuleDashboardCard text="Applications" number={150000} image="/icons/Application.svg" />
+          <ModuleDashboardCard text="Beneficiaries Enumerated" number={50000} image="/icons/Enumeration.svg" />
+          <ModuleDashboardCard text="Awaiting KYC Verification" number={150000} image="/icons/Verification.svg" />
+          <ModuleDashboardCard text="Awaiting Disbursement" number={20000} image="/icons/Disbursement.svg" />
         </Grid>
       </Flex>
       <Flex flexDir="column" gap="12px">

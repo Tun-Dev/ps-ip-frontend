@@ -1,21 +1,28 @@
 import { Stack, Text } from '@chakra-ui/react';
 import { MdCheck, MdClear } from 'react-icons/md';
 
+import { useProgramForm } from '@/providers/form-provider';
+import { Module } from '@/types';
+
 type Props = {
-  settings: { label: string; value: boolean }[];
-  display?: string;
+  module: Module;
 };
 
-export const SettingsReview = ({ settings, display }: Props) => {
+export const SettingsReview = ({ module }: Props) => {
+  const { getValues } = useProgramForm();
+  const programModules = getValues('programModules');
+
+  const guidelines = programModules.find((md) => md.moduleId === module.id)?.guidelines ?? [];
+
   return (
-    <Stack display={display}>
+    <Stack>
       <Text as="h3" variant="Body2Semibold">
         Admin Settings
       </Text>
       <Stack spacing="4" align="start">
-        {settings.map((setting) => (
+        {module.ModuleGuidelines.map((guideline) => (
           <Text
-            key={setting.label}
+            key={guideline.id}
             display="inline-flex"
             gap="0.5"
             align="center"
@@ -23,12 +30,12 @@ export const SettingsReview = ({ settings, display }: Props) => {
             color="grey.500"
             lineHeight={1}
           >
-            {setting.value ? (
+            {guidelines.includes(guideline.id) ? (
               <MdCheck color="var(--chakra-colors-primary-500)" />
             ) : (
               <MdClear color="var(--chakra-colors-red)" />
             )}
-            {setting.label}
+            {guideline.name}
           </Text>
         ))}
       </Stack>

@@ -14,8 +14,13 @@ import {
   Button,
   useDisclosure,
   Grid,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverBody,
 } from '@chakra-ui/react';
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import {
   MdSearch,
   MdAddCircle,
@@ -24,9 +29,11 @@ import {
   MdVolunteerActivism,
   MdEmojiEmotions,
   MdAccountBalanceWallet,
+  MdMoreHoriz,
 } from 'react-icons/md';
 import { ReusableTable, NewVendorModal } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
+import { useGetVendorOverview } from '@/hooks/useGetVendorOverview';
 
 const VendorsTab = () => {
   const data = [
@@ -104,7 +111,7 @@ const VendorsTab = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="gray.500" align="center">
             Scheduled Date
           </Text>
         ),
@@ -118,22 +125,34 @@ const VendorsTab = () => {
       },
       {
         header: () => (
-          <Flex>
-            <Button variant="cancel" size="small">
-              Delete Vendor
-            </Button>
-          </Flex>
+          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+            Actions
+          </Text>
         ),
-        accessorKey: 'amount',
+        accessorKey: 'deactivate',
         enableSorting: false,
         cell: () => (
-          <Flex justifyContent="center" gap="8px" w="100%">
-            <Button variant="cancel" size="small">
-              Delete Vendor
-            </Button>
-            <Button variant="secondary" size="small">
-              Edit
-            </Button>
+          <Flex>
+            <Popover placement="bottom-end">
+              <PopoverTrigger>
+                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                  <MdMoreHoriz size="1.25rem" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent w="fit-content">
+                <PopoverArrow />
+                <PopoverBody>
+                  <Flex flexDir="column">
+                    <Button w="100%" bg="transparent" size="small">
+                      Delete Vendor
+                    </Button>
+                    <Button w="100%" bg="transparent" size="small">
+                      Edit
+                    </Button>
+                  </Flex>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
           </Flex>
         ),
       },
@@ -143,7 +162,7 @@ const VendorsTab = () => {
 
   return (
     <Box padding="0px 1rem 1rem" boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A" borderRadius="12px">
-      <ReusableTable data={data} columns={columns} />
+      <ReusableTable selectable data={data} columns={columns} />
     </Box>
   );
 };
@@ -273,18 +292,32 @@ const OrderTab = () => {
       },
       {
         header: () => (
-          <Flex>
-            <Button variant="cancel" size="small">
-              Stop Order
-            </Button>
-          </Flex>
+          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+            Actions
+          </Text>
         ),
-        accessorKey: 'amount',
+        accessorKey: 'deactivate',
         enableSorting: false,
         cell: () => (
-          <Button variant="cancel" size="small">
-            Stop Order
-          </Button>
+          <Flex>
+            <Popover placement="bottom-end">
+              <PopoverTrigger>
+                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                  <MdMoreHoriz size="1.25rem" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent w="fit-content">
+                <PopoverArrow />
+                <PopoverBody>
+                  <Flex flexDir="column">
+                    <Button w="100%" bg="transparent" size="small">
+                      Stop Order
+                    </Button>
+                  </Flex>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          </Flex>
         ),
       },
     ],
@@ -293,7 +326,7 @@ const OrderTab = () => {
 
   return (
     <Box padding="0px 1rem 1rem" boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A" borderRadius="12px">
-      <ReusableTable data={data} columns={columns} />
+      <ReusableTable selectable data={data} columns={columns} />
     </Box>
   );
 };
@@ -450,12 +483,51 @@ const AmountsDisbursedTab = () => {
 
   return (
     <Box padding="0px 1rem 1rem" boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A" borderRadius="12px">
-      <ReusableTable data={data} columns={columns} />
+      <ReusableTable selectable data={data} columns={columns} />
     </Box>
   );
 };
 
 const VendorPage = () => {
+  const { response: overview } = useGetVendorOverview();
+
+  const cards = [
+    {
+      name: 'Vendors',
+      icon: MdLocalShipping,
+      value: overview?.body?.vendors || 0,
+      identifier: 'vendors',
+      clickable: true,
+    },
+    {
+      name: 'Orders',
+      icon: MdLocalShipping,
+      value: overview?.body?.orders || 0,
+      identifier: 'orders',
+      clickable: true,
+    },
+    {
+      name: 'Amount Disbursed',
+      icon: MdVolunteerActivism,
+      value: overview?.body?.amountDisbursed || 0,
+      identifier: 'amount-disbursed',
+      clickable: true,
+    },
+    {
+      name: 'Beneficiaries Disbursed',
+      icon: MdEmojiEmotions,
+      value: overview?.body?.beneficiariesDisbursed || 0,
+      identifier: 'beneficiaries-disbursed',
+      clickable: false,
+    },
+    {
+      name: 'Amount Disbursable',
+      icon: MdAccountBalanceWallet,
+      value: overview?.body?.amountDisburseable || 0,
+      identifier: 'amount-disbursable',
+      clickable: false,
+    },
+  ];
   const [selected, setSelected] = useState<string>('vendors');
 
   let component;
@@ -473,51 +545,29 @@ const VendorPage = () => {
       component = <VendorsTab />;
   }
 
-  const cards = [
-    {
-      name: 'Vendors',
-      icon: MdLocalShipping,
-      value: 10,
-      identifier: 'vendors',
-    },
-    {
-      name: 'Orders',
-      icon: MdLocalShipping,
-      value: 10,
-      identifier: 'orders',
-    },
-    {
-      name: 'Amount Disbursed',
-      icon: MdVolunteerActivism,
-      value: 30000000,
-      identifier: 'amount-disbursed',
-    },
-    {
-      name: 'Beneficiaries Disbursed',
-      icon: MdEmojiEmotions,
-      value: 10,
-      identifier: 'beneficiaries-disbursed',
-    },
-    {
-      name: 'Amount Disbursable',
-      icon: MdAccountBalanceWallet,
-      value: 3000,
-      identifier: 'amount-disbursable',
-    },
-  ];
-
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%">
       <NewVendorModal isOpen={isOpen} onClose={onClose} />
       <Flex flexDir="column" gap="12px">
-        <Text variant="Body1Semibold" color="grey.400">
-          Overview
-        </Text>
+        <Flex alignItems="center" justifyContent="space-between">
+          <Text variant="Body1Semibold" color="grey.400">
+            Overview
+          </Text>
+
+          <Button variant="primary" gap="8px" onClick={onOpen}>
+            <MdAddCircle />
+            <Text> Add New Vendor</Text>
+          </Button>
+        </Flex>
         <Grid gap="6" templateColumns="repeat(auto-fit, minmax(265px, 1fr))">
           {cards.map((card, index) => (
-            <Box key={index} onClick={() => setSelected(card.identifier)} cursor="pointer">
+            <Box
+              key={index}
+              onClick={card.clickable ? () => setSelected(card.identifier) : () => {}}
+              cursor={card.clickable ? 'pointer' : 'default'}
+            >
               <OverviewCard
                 title={card.name}
                 number={card.value}
@@ -558,9 +608,6 @@ const VendorPage = () => {
           <Flex gap="8px" alignItems="center">
             <Button leftIcon={<MdDownload />} variant="secondary" w="193px" borderRadius="10px" size="medium">
               Download Report
-            </Button>
-            <Button leftIcon={<MdAddCircle />} variant="primary" size="medium" onClick={onOpen}>
-              Add New Vendor
             </Button>
           </Flex>
         </Flex>

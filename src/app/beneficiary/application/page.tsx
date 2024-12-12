@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-import { MultiStepHeaderBen } from '../components/MultiStepHeaderBen';
-import { Box, Button, Flex, Icon, Text, Input, Image } from '@chakra-ui/react';
-import { InputContainer } from '../components/InputContainer';
-import { MdCheckCircle, MdInfo, MdOutlineAddCircle, MdRefresh } from 'react-icons/md';
-import { Dropdown } from '@/components';
+import { Dropdown } from '@/shared/chakra/components';
+import { Box, Button, Flex, Icon, Image, Input, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { MdCheckCircle, MdInfo, MdOutlineAddCircle, MdRefresh } from 'react-icons/md';
+import { InputContainer } from '../components/InputContainer';
+import { MultiStepHeaderBen } from '../components/MultiStepHeaderBen';
 
 const BeneficiaryApplication = () => {
   const router = useRouter();
@@ -200,7 +200,7 @@ const stepsT = [
     status: 'Your Application has been sent.',
     progress: 'Verification in Progress',
     estimatedTime: 'Estimated completion time - 3 working days',
-    image: '/icons/undraw_authentication.svg',
+    image: '/icons/Verification.svg',
   },
   {
     stage: 'Vetting',
@@ -209,7 +209,7 @@ const stepsT = [
     status: 'Congratulations, you have been verified.',
     progress: 'Vetting in Progress',
     estimatedTime: 'Estimated completion time - 3 working days',
-    image: '/icons/undraw_following.svg',
+    image: '/icons/Vetting.svg',
   },
   {
     stage: 'Whitelisting',
@@ -217,7 +217,7 @@ const stepsT = [
     status: 'Congratulations, you have been vetted.',
     progress: 'Whitelisting in Progress',
     estimatedTime: 'Estimated completion time - 3 working days',
-    image: '/icons/undraw_followers.svg',
+    image: '/icons/Whitelisting.svg',
   },
   {
     stage: 'Disbursement',
@@ -226,6 +226,6 @@ const stepsT = [
     status: 'Congratulations, you have been whitelisted.',
     progress: 'Disbursement in Progress',
     estimatedTime: 'Estimated completion time - 3 working days',
-    image: '/icons/undraw_online_payments.svg',
+    image: '/icons/Disbursement.svg',
   },
 ];

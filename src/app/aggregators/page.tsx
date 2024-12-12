@@ -2,7 +2,7 @@
 
 import { Flex, Grid, Text, Link, Icon, Box } from '@chakra-ui/react';
 import React, { useMemo } from 'react';
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import { MdOpenInNew, MdViewList, MdLocalShipping, MdStickyNote2, MdGroups, MdRefresh } from 'react-icons/md';
 import { NotificationCard, ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';

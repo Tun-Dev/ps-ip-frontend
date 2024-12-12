@@ -1,90 +1,44 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Flex, Text, Box, Button, InputGroup, InputLeftElement, Icon, Input, Select } from '@chakra-ui/react';
-import { ReusableTable } from '@/shared';
+import {
+  Flex,
+  Text,
+  Box,
+  Button,
+  InputGroup,
+  InputLeftElement,
+  Icon,
+  Input,
+  Select,
+  useDisclosure,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverBody,
+  useToast,
+} from '@chakra-ui/react';
+import { ReusableTable, AddNewPartnerModal } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
-import { MdSearch, MdVolunteerActivism, MdDownload, MdAddCircle } from 'react-icons/md';
-import { OverviewCard } from '@/components/overview';
+import { MdSearch, MdVolunteerActivism, MdDownload, MdAddCircle, MdMoreHoriz } from 'react-icons/md';
+import { OverviewCard } from '@/shared/chakra/components/overview';
+import { useGetPartners } from '@/hooks/useGetPartners';
+import { useDeletePartner } from '@/hooks/useDeletePartner';
 
 const PartnerTab = () => {
-  const data = [
-    {
-      partner: 'Federal Ministry of Finance',
-      program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAM',
-      amountDisbursed: (250000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Federal Ministry of Industry Trade & Investment',
-      program: 'INVESTMENT IN DIGITAL CREATIVE PROGRAM',
-      amountDisbursed: (500000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Design Foundation',
-      program: 'ALIKO DANGOTE FOUNDATION FUND',
-      amountDisbursed: (300000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Central Bank of Nigeria',
-      program: 'CBN BACKWARD INTEGRATION FUND',
-      amountDisbursed: (600000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Central Bank of Nigeria',
-      program: 'CBN BACKWARD INTEGRATION FUND',
-      amountDisbursed: (400000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Federal Ministry of Industry Trade & Investment',
-      program: 'INVESTMENT IN DIGITAL CREATIVE PROGRAM',
-      amountDisbursed: (200000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Federal Ministry of Finance',
-      program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAM',
-      amountDisbursed: (300000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Federal Ministry of Industry Trade & Investment',
-      program: 'INVESTMENT IN DIGITAL CREATIVE PROGRAM',
-      amountDisbursed: (500000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Design Foundation',
-      program: 'ALIKO DANGOTE FOUNDATION FUND',
-      amountDisbursed: (300000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Federal Ministry of Finance',
-      program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAM',
-      amountDisbursed: (700000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Central Bank of Nigeria',
-      program: 'CBN BACKWARD INTEGRATION FUND',
-      amountDisbursed: (250000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Design Foundation',
-      program: 'ALIKO DANGOTE FOUNDATION FUND',
-      amountDisbursed: (100000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Federal Ministry of Industry Trade & Investment',
-      program: 'INVESTMENT IN DIGITAL CREATIVE PROGRAM',
-      amountDisbursed: (150000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Design Foundation',
-      program: 'ALIKO DANGOTE FOUNDATION FUND',
-      amountDisbursed: (300000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-    {
-      partner: 'Federal Ministry of Finance',
-      program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAM',
-      amountDisbursed: (250000000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    },
-  ];
+  const toast = useToast();
+  const { data: partners, isLoading } = useGetPartners({ page: 1, pageSize: 10 });
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { mutate: delPartner, isPending } = useDeletePartner();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleDeletePartner = (id: string) => {
+    delPartner(id, {
+      onSuccess: () => {
+        toast({ title: 'Partner deleted successfully', status: 'success' });
+      },
+    });
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const columns: ColumnDef<any>[] = useMemo(
     () => [
@@ -94,7 +48,7 @@ const PartnerTab = () => {
             Partner
           </Text>
         ),
-        accessorKey: 'partner',
+        accessorKey: 'name',
         enableSorting: false,
       },
       {
@@ -112,35 +66,68 @@ const PartnerTab = () => {
             Amount Disbursed
           </Text>
         ),
-        accessorKey: 'amountDisbursed',
+        accessorKey: 'amount',
         enableSorting: false,
       },
       {
         header: () => (
-          <Button variant="cancel" size="small">
-            Delete partner
-          </Button>
+          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+            Actions
+          </Text>
         ),
-        accessorKey: 'actions',
+        accessorKey: 'deactivate',
         enableSorting: false,
-        cell: () => (
-          <Button variant="cancel" size="small">
-            Delete Partner
-          </Button>
+        cell: (info) => (
+          <Flex>
+            <Popover placement="bottom-end">
+              <PopoverTrigger>
+                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                  <MdMoreHoriz size="1.25rem" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent w="fit-content">
+                <PopoverArrow />
+                <PopoverBody>
+                  <Flex flexDir="column">
+                    <Button
+                      w="100%"
+                      bg="transparent"
+                      size="small"
+                      isLoading={isPending}
+                      onClick={() => {
+                        console.log(info.row.original);
+                        handleDeletePartner(info.row.original.id);
+                      }}
+                    >
+                      Delete Partner
+                    </Button>
+                  </Flex>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          </Flex>
         ),
       },
     ],
-    []
+    [handleDeletePartner, isPending]
   );
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%">
+      <AddNewPartnerModal isOpen={isOpen} onClose={onClose} />
       <Flex flexDir="column" gap="12px">
-        <Text variant="Body1Semibold" color="gray.400">
-          Overview
-        </Text>
+        <Flex alignItems="center" justifyContent="space-between">
+          <Text variant="Body1Semibold" color="grey.400">
+            Overview
+          </Text>
+
+          <Button variant="primary" gap="8px" onClick={onOpen}>
+            <MdAddCircle />
+            <Text> Add New Partner</Text>
+          </Button>
+        </Flex>
         <Box w="256px" cursor="pointer">
-          <OverviewCard title="Total Partner" number={10} icon={MdVolunteerActivism} />
+          <OverviewCard title="Total Partner" number={partners?.body.total || 0} icon={MdVolunteerActivism} />
         </Box>
       </Flex>
 
@@ -174,14 +161,11 @@ const PartnerTab = () => {
           <Button leftIcon={<MdDownload />} variant="secondary" w="193px" borderRadius="10px" size="medium">
             Download Report
           </Button>
-          <Button leftIcon={<MdAddCircle />} variant="primary" size="medium" onClick={() => {}}>
-            Add New Vendor
-          </Button>
         </Flex>
       </Flex>
 
       <Box padding="0px 1rem 1rem" boxShadow="card" borderRadius="12px">
-        <ReusableTable data={data} columns={columns} />
+        <ReusableTable selectable data={partners?.body.data || []} columns={columns} isLoading={isLoading} />
       </Box>
     </Flex>
   );

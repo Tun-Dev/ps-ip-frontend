@@ -15,7 +15,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
     <Flex flexDir="column" h="full">
       <Flex
         h="72px"
-        pb="24px"
+        p="24px"
         borderBottom="1px solid"
         borderBottomColor="grey.200"
         justifyContent="space-between"

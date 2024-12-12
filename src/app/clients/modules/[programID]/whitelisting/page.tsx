@@ -1,11 +1,11 @@
 'use client';
 
-import { Box, Button, Flex, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react';
+import { Button, Flex, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 import { MdDownload, MdSearch } from 'react-icons/md';
 
-import { Dropdown } from '@/components';
+import { Dropdown } from '@/shared/chakra/components';
 import { ReusableTable } from '@/shared';
 
 const options = [
@@ -21,7 +21,7 @@ const WhitelistingPage = () => {
   const [sort, setSort] = useState<Option | null>(options[3]);
 
   return (
-    <Box>
+    <Flex direction="column" h="full">
       <Flex align="center" justify="space-between" mb="8">
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
@@ -41,8 +41,16 @@ const WhitelistingPage = () => {
           Download Report
         </Button>
       </Flex>
-      <ReusableTable data={data} columns={columns} />
-    </Box>
+      {data.length < 1 ? (
+        <Flex align="center" justify="center" flex="1">
+          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+            No data available.
+          </Text>
+        </Flex>
+      ) : (
+        <ReusableTable data={data} columns={columns} />
+      )}
+    </Flex>
   );
 };
 

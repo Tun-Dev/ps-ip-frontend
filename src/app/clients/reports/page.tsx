@@ -13,7 +13,7 @@ import {
   MdVolunteerActivism,
 } from 'react-icons/md';
 
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import { LineGraphCard } from '@/shared';
 import { CURRENT_MONTH, MONTHS } from '@/utils';
 

@@ -1,20 +1,20 @@
 'use client';
 
-import { Flex, Grid, Text, Link, Icon, Box } from '@chakra-ui/react';
-import React, { useMemo } from 'react';
-import { OverviewCard } from '@/components/overview';
-import {
-  MdViewCarousel,
-  MdOpenInNew,
-  MdEmojiEmotions,
-  MdVolunteerActivism,
-  MdViewList,
-  MdLocalShipping,
-  MdStickyNote2,
-} from 'react-icons/md';
-import { ModuleDashboardCard } from '@/components';
 import { NotificationCard, ReusableTable } from '@/shared';
+import { ModuleDashboardCard } from '@/shared/chakra/components';
+import { OverviewCard } from '@/shared/chakra/components/overview';
+import { Box, Flex, Grid, Icon, Link, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
+import { useMemo } from 'react';
+import {
+  MdEmojiEmotions,
+  MdLocalShipping,
+  MdOpenInNew,
+  MdStickyNote2,
+  MdViewCarousel,
+  MdViewList,
+  MdVolunteerActivism,
+} from 'react-icons/md';
 
 const ActivityTable = () => {
   type Person = {
@@ -78,12 +78,13 @@ const ActivityTable = () => {
       padding="10px"
       borderRadius="12px"
       boxShadow="0px 4px 6px -1px rgba(3, 48, 0, 0.04), 0px 2px 4px -1px rgba(3, 48, 0, 0.04)"
+      bg="primary.30"
     >
       <Flex justifyContent="space-between" alignItems="center">
         <Text variant="Body2Semibold" color="grey.500">
           Enumeration - iDICE
         </Text>
-        <Flex justifyContent="flex-end" color="primary.500">
+        <Flex justifyContent="flex-end" color="secondary.500">
           <Link>
             <Text display="flex" alignItems="center" gap="1" variant="Body3Semibold">
               View details <Icon as={MdOpenInNew} />
@@ -91,7 +92,7 @@ const ActivityTable = () => {
           </Link>
         </Flex>
       </Flex>
-      <ReusableTable data={data} columns={columns} />
+      <ReusableTable data={data} columns={columns} headerBgColor="white" />
     </Flex>
   );
 };
@@ -115,14 +116,10 @@ const SuperAdminDashboard = () => {
           Modules In Progress
         </Text>
         <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(262px, 1fr))">
-          <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
-          <ModuleDashboardCard text="Beneficiaries Enumerated" number={200000} image="/icons/undraw_interview.svg" />
-          <ModuleDashboardCard
-            text="Awaiting KYC Verification"
-            number={150000}
-            image="/icons/undraw_authentication.svg"
-          />
-          <ModuleDashboardCard text="Awaiting  Disbursement" number={20000} image="/icons/undraw_online_payments.svg" />
+          <ModuleDashboardCard text="Applications" number={300000} image="/icons/Application.svg" />
+          <ModuleDashboardCard text="Beneficiaries Enumerated" number={200000} image="/icons/Enumeration.svg" />
+          <ModuleDashboardCard text="Awaiting KYC Verification" number={150000} image="/icons/Verification.svg" />
+          <ModuleDashboardCard text="Awaiting  Disbursement" number={20000} image="/icons/Disbursement.svg" />
         </Grid>
       </Flex>
       <Flex flexDir="column" gap="12px">

@@ -26,7 +26,7 @@ import {
   MdEmojiEmotions,
   MdCloudUpload,
 } from 'react-icons/md';
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 
 const VendorsDisbursementDashboard = () => {
   const [isDisbursed, setIsDisbursed] = useState('pending');
@@ -243,7 +243,7 @@ const VendorsDisbursementDashboard = () => {
               variant="secondary"
               size="small"
               onClick={() => {
-                console.log('Setting disbursed to true');
+                // console.log('Setting disbursed to true');
                 setIsDisbursed('disbursed');
               }}
             >

@@ -1,6 +1,6 @@
 'use client';
 
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import { LineGraphCard } from '@/shared';
 import { CURRENT_MONTH, formatCurrency, MONTHS } from '@/utils';
 import { Box, Button, Flex, Grid, Select, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';

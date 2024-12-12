@@ -1,6 +1,9 @@
 'use client';
 
 import { Flex, Image, Text } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import {
   MdGroups,
   MdHome,
@@ -12,7 +15,9 @@ import {
   MdViewCarousel,
   MdVolunteerActivism,
 } from 'react-icons/md';
-import { useRouter, usePathname } from 'next/navigation';
+
+import { useUserStore } from '@/providers/user-store-provider';
+import NotificationModal from '@/shared/chakra/modals/notificationModal';
 
 const sideBarData = [
   { name: 'Dashboard', Icon: MdHome, url: '/super-admin' },
@@ -25,8 +30,20 @@ const sideBarData = [
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const queryClient = useQueryClient();
+  const [isNotfModalOpen, setIsNoftModalOpen] = useState(false);
+  const user = useUserStore((state) => state.user);
+  const logout = useUserStore((state) => state.logout);
+
+  const handleLogout = () => {
+    queryClient.invalidateQueries();
+    queryClient.clear();
+    logout();
+  };
+
   return (
     <Flex w="full" flexDir="column">
+      <NotificationModal isOpen={isNotfModalOpen} onClose={() => setIsNoftModalOpen((prev) => !prev)} />
       <Image src="/images/BOI_LOGO.png" alt="" h="36px" w="181px" />
 
       <Flex flex="1 1 0%" mt="104px" flexDirection="column" gap="10px">
@@ -40,7 +57,12 @@ const Sidebar = () => {
       </Flex>
 
       <Flex flexDir="column">
-        <Flex alignItems="center" justifyContent="space-between">
+        <Flex
+          alignItems="center"
+          justifyContent="space-between"
+          cursor="pointer"
+          onClick={() => setIsNoftModalOpen((prev) => !prev)}
+        >
           <Flex alignItems="center" gap="15px">
             <MdNotifications size="20px" color="#077D00" />
             <Text variant="Body2Semibold" color="#077D00">
@@ -55,16 +77,25 @@ const Sidebar = () => {
         </Flex>
 
         <Flex flexDir="column" mt="88px" gap="16px">
-          <Flex h="64px" borderRadius="6px" bg="primary.100" alignItems="center" justifyContent="center" gap="8px">
-            <Flex boxSize="40px" bg="white" borderRadius="16px" justifyContent="center" alignItems="center">
-              <MdPerson size="24px" color="#9CCB99" />
+          <Flex py="3" px="4" borderRadius="6px" bg="primary.100" alignItems="center" justifyContent="center" gap="8px">
+            <Flex
+              boxSize="40px"
+              bg="white"
+              borderRadius="16px"
+              justifyContent="center"
+              alignItems="center"
+              flexShrink={0}
+            >
+              <MdPerson size="24px" color="#D7D7D7" />
             </Flex>
-            <Flex flexDir="column">
-              <Text variant="Body2Bold">Chukwuemeka Aliu</Text>
-              <Text variant="Body3Semibold">ChukwuAliu@gmail.com</Text>
+            <Flex flexDir="column" minW={0}>
+              <Text variant="Body2Bold">{`${user?.firstName} ${user?.lastName}`}</Text>
+              <Text variant="Body3Semibold" isTruncated>
+                {user?.email}
+              </Text>
             </Flex>
           </Flex>
-          <Flex gap="8px" alignItems="center" justifyContent="center" cursor="pointer" onClick={() => {}}>
+          <Flex gap="8px" align="center" justify="center" cursor="pointer" onClick={handleLogout}>
             <MdLogout size="16px" color="red" />
             <Text variant="Body1Bold" color="red">
               Log out
@@ -101,7 +132,7 @@ const SideBarItem = ({
       cursor="pointer"
       onClick={() => router.push(url)}
       transition="all 0.3s ease-in-out"
-      bg={active ? 'primary.500' : ''}
+      bg={active ? 'secondary.500' : ''}
     >
       <Icon color={active ? 'white' : '#A4A4A4'} size={active ? '20px' : '16px'} />
       <Text

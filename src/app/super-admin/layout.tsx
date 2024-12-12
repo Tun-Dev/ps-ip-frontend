@@ -1,13 +1,17 @@
 'use client';
 
 import { Box, Flex } from '@chakra-ui/react';
+import { usePathname } from 'next/navigation';
 
-import { withDesktopOnlyOverlay } from '@/components/desktop-only-overlay';
 import { ProgramFormProvider } from '@/providers/form-provider';
 import { ProgramStoreProvider } from '@/providers/programs-store-provider';
+import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
+import { withProtectedLoader } from '@/shared/chakra/components/protected-route-loader';
 import Sidebar from './components/Sidebar';
 
 const SuperAdminLayout = ({ children }: { children: React.ReactNode }) => {
+  const pathname = usePathname();
+
   return (
     <ProgramStoreProvider>
       <ProgramFormProvider>
@@ -15,7 +19,14 @@ const SuperAdminLayout = ({ children }: { children: React.ReactNode }) => {
           <Flex pos="fixed" w="208px" top="24px" bottom="24px" left="24px">
             <Sidebar />
           </Flex>
-          <Box w="calc(100% - 232px)" borderRadius="12px" ml="auto" bg="white" p="24px" boxShadow="card">
+          <Box
+            w="calc(100% - 232px)"
+            borderRadius="12px"
+            ml="auto"
+            bg="white"
+            p={pathname === '/super-admin/programs' ? '0px' : '24px'}
+            boxShadow="card"
+          >
             {children}
           </Box>
         </Flex>
@@ -24,4 +35,4 @@ const SuperAdminLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default withDesktopOnlyOverlay(SuperAdminLayout);
+export default withDesktopOnlyOverlay(withProtectedLoader(SuperAdminLayout));

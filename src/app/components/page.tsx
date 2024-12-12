@@ -14,6 +14,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { ColumnDef } from '@tanstack/react-table';
+import { useMemo } from 'react';
 import {
   MdAddCircle,
   MdArrowDropDown,
@@ -27,17 +29,16 @@ import {
   MdVolunteerActivism,
 } from 'react-icons/md';
 
-import { useMemo } from 'react';
 import { ReusableTable } from '@/shared';
-import { ColumnDef } from '@tanstack/react-table';
-import { Dropdown, GeepComponent, ModuleDashboardCard } from '@/components';
-
 import colors from '@/shared/chakra/colors';
-import { OverviewCard } from '@/components/overview';
-import { Text as typography } from '@/shared/chakra/components/typography';
+import { Dropdown, GeepComponent, ModuleDashboardCard, ModuleProgressCard } from '@/shared/chakra/components';
+import { OverviewCard } from '@/shared/chakra/components/overview';
+import NotificationModal from '@/shared/chakra/modals/notificationModal';
+import { Text as typography } from '@/shared/chakra/themes/typography';
 
-import { ShortAnswerIcon } from '../../../public/icons';
 import { NotificationCard } from '@/shared';
+import { ALL_MODULES } from '@/utils';
+import { ShortAnswerIcon } from '../../../public/icons';
 
 export default function ComponentPage() {
   return (
@@ -54,11 +55,13 @@ export default function ComponentPage() {
             <OverviewCard title="Total Partners" number={10} icon={MdVolunteerActivism} />
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
           </Flex>
+          <NotificationModal isOpen={false} onClose={() => {}} />
           <Table />
           <ModuleDashboardCardSection />
           <GeepComponents />
           <NotificationCards />
           <Input variant="primary" placeholder="input username" />
+          <ModuleProgressCards />
         </Stack>
       </Container>
     </Box>
@@ -268,7 +271,7 @@ const ModuleDashboardCardSection = () => {
   return (
     <Box maxW="16.375rem">
       <Heading mb="4">Module Card</Heading>
-      <ModuleDashboardCard text="Applications" number={300000} image="/images/undraw-my-app.svg" />
+      <ModuleDashboardCard text="Applications" number={300000} image="/icons/Application.svg" />
     </Box>
   );
 };
@@ -346,3 +349,23 @@ const NotificationData = [
     Icon: MdStickyNote2,
   },
 ];
+
+const ModuleProgressCards = () => {
+  return (
+    <Box>
+      <Heading size="md" mb="4">
+        Module Progress Cards
+      </Heading>
+      <Grid gap="4" templateColumns="repeat(auto-fit, minmax(15.9375rem, 1fr))">
+        {ALL_MODULES.map((item, index) => (
+          <ModuleProgressCard
+            key={index}
+            number={index + 1}
+            name={item.name}
+            status={index > 1 ? 'Pending' : index === 1 ? 'In Progress' : 'Completed'}
+          />
+        ))}
+      </Grid>
+    </Box>
+  );
+};

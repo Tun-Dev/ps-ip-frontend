@@ -1,12 +1,27 @@
 'use client';
 
-import { Box, Button, ButtonGroup, Flex, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react';
+import {
+  Button,
+  ButtonGroup,
+  Flex,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Text,
+  useDisclosure,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverBody,
+} from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
-import { MdCloudUpload, MdDownload, MdSearch } from 'react-icons/md';
+import { MdCloudUpload, MdDownload, MdSearch, MdMoreHoriz } from 'react-icons/md';
 
-import { Dropdown } from '@/components';
 import { ReusableTable } from '@/shared';
+import { Dropdown } from '@/shared/chakra/components';
+import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -18,10 +33,11 @@ const options = [
 type Option = (typeof options)[number];
 
 const WhitelistingPage = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[3]);
 
   return (
-    <Box>
+    <Flex direction="column" h="full">
       <Flex align="center" justify="space-between" mb="8">
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
@@ -46,8 +62,17 @@ const WhitelistingPage = () => {
           </Button>
         </ButtonGroup>
       </Flex>
-      <ReusableTable data={data} columns={columns} />
-    </Box>
+      {data.length < 1 ? (
+        <Flex align="center" justify="center" flex="1">
+          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+            No data available.
+          </Text>
+        </Flex>
+      ) : (
+        <ReusableTable data={data} columns={columns} onClick={onOpen} selectable />
+      )}
+      <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} initialTab={3} />
+    </Flex>
   );
 };
 
@@ -214,47 +239,67 @@ const columns: ColumnDef<(typeof data)[number]>[] = [
     ),
   },
   {
-    header: 'Gender',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Gender
+      </Text>
+    ),
     accessorKey: 'gender',
     enableSorting: false,
     cell: (info) => (
-      <Text as="span" variant="Body2Regular">
+      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
         {info.row.original.gender}
       </Text>
     ),
   },
   {
-    header: 'Age',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Age
+      </Text>
+    ),
     accessorKey: 'age',
     enableSorting: false,
     cell: (info) => (
-      <Text as="span" variant="Body2Regular">
+      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
         {info.row.original.age}
       </Text>
     ),
   },
   {
-    header: 'Disabled',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Disabled
+      </Text>
+    ),
     accessorKey: 'disabled',
     enableSorting: false,
     cell: (info) => (
-      <Text as="span" variant="Body2Regular">
+      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
         {info.row.original.disabled ? 'YES' : 'NO'}
       </Text>
     ),
   },
   {
-    header: 'Liberate',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Liberate
+      </Text>
+    ),
     accessorKey: 'liberate',
     enableSorting: false,
     cell: (info) => (
-      <Text as="span" variant="Body2Regular">
+      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
         {info.row.original.liberate ? 'YES' : 'NO'}
       </Text>
     ),
   },
   {
-    header: 'Vetting Score',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Vetting Score
+      </Text>
+    ),
     accessorKey: 'score',
     enableSorting: false,
     cell: (info) => (
@@ -264,18 +309,37 @@ const columns: ColumnDef<(typeof data)[number]>[] = [
     ),
   },
   {
-    id: 'status',
+    header: () => (
+      <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+        Actions/Status
+      </Text>
+    ),
+    accessorKey: 'actions',
     enableSorting: false,
-    cell: (info) =>
-      info.row.original.status === 'Whitelisted' ? (
-        <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
-          Whitelisted
-        </Text>
-      ) : (
-        <Button variant="accept" size="small">
-          Whitelist
-        </Button>
-      ),
+    cell: () => (
+      <Flex onClick={(e) => e.stopPropagation()}>
+        <Popover placement="bottom-end">
+          <PopoverTrigger>
+            <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+              <MdMoreHoriz size="1.25rem" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent minW="121px" w="fit-content" p="8px">
+            <PopoverArrow />
+            <PopoverBody p="0px">
+              <Flex flexDir="column">
+                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
+                  Approve
+                </Button>
+                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
+                  Remove Candidate
+                </Button>
+              </Flex>
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
+      </Flex>
+    ),
   },
 ];
 

@@ -5,7 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 import { MdDownload, MdGroupAdd, MdGroups, MdSearch } from 'react-icons/md';
 
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import { ReusableTable } from '@/shared';
 
 const ClientsAgentsPage = () => {
@@ -64,7 +64,7 @@ const AggregatorTab = () => {
         </Button>
       </Flex>
       <Box py="2" px="2.5" boxShadow="card" border="1px solid" borderColor="grey.100" borderRadius="12px">
-        <ReusableTable data={aggregatorData} columns={aggregatorColumns} />
+        <ReusableTable selectable data={aggregatorData} columns={aggregatorColumns} />
       </Box>
     </Flex>
   );
@@ -104,7 +104,7 @@ const AgentsTab = () => {
         </Button>
       </Flex>
       <Box py="2" px="2.5" boxShadow="card" border="1px solid" borderColor="grey.100" borderRadius="12px">
-        <ReusableTable data={agentsData} columns={agentsColumns} />
+        <ReusableTable selectable data={agentsData} columns={agentsColumns} />
       </Box>
     </Flex>
   );

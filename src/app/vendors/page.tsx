@@ -13,7 +13,7 @@ import {
   MdViewList,
   MdStickyNote2,
 } from 'react-icons/md';
-import { OverviewCard } from '@/components/overview';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 
 const NOTIFICATION_DATA = [
   {

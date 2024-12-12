@@ -15,7 +15,8 @@ import {
   Grid,
 } from '@chakra-ui/react';
 import React from 'react';
-import { Dropdown } from '@/components';
+import { Dropdown } from '@/shared/chakra/components';
+import { useGetPrograms } from '@/hooks/useGetPrograms';
 
 type ModalProps = {
   isOpen: boolean;
@@ -23,18 +24,14 @@ type ModalProps = {
 };
 
 const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
-  const options = [
-    { label: 'Short answer', value: 'Short answer' },
-    { label: 'Paragraph', value: 'Paragraph' },
-    { label: 'Dropdown', value: 'Dropdown' },
-    { label: 'Date', value: 'Date' },
-    { label: 'File upload', value: 'File upload' },
-  ];
+  const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
+  const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
 
   const offers = [
     { label: 'Loan', value: 'Loan' },
     { label: 'Tech Skills', value: 'Tech Skills' },
   ];
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -112,7 +109,7 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
             width="402px"
             height="48px"
             onClick={() => {
-              console.log('Aggregator added');
+              // console.log('Aggregator added');
               onClose();
             }}
           >

@@ -1,12 +1,16 @@
 'use client';
 
-import { Box, Button, Flex, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react';
+import { Button, Flex, Input, InputGroup, InputLeftElement, Text, useDisclosure } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 import { MdDownload, MdSearch } from 'react-icons/md';
 
-import { Dropdown } from '@/components';
 import { ReusableTable } from '@/shared';
+import { Dropdown } from '@/shared/chakra/components';
+import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
+// import { useParams } from 'next/navigation';
+// import { useGetProgramById } from '@/hooks/useGetProgramById';
+// import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -18,10 +22,18 @@ const options = [
 type Option = (typeof options)[number];
 
 const ApplicationPage = () => {
+  // const { programID } = useParams();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[0]);
+  // console.log(programID);
+
+  // const { response } = useGetProgramById(programID?.toString());
+
+  // const { data } = useGetBeneficiariesById({ page: 1, pageSize: 10 }, '9', '3');
+  // console.log(data);
 
   return (
-    <Box w="full">
+    <Flex direction="column" h="full">
       <Flex align="center" justify="space-between" mb="8">
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
@@ -41,8 +53,17 @@ const ApplicationPage = () => {
           Download Report
         </Button>
       </Flex>
-      <ReusableTable data={beneficiaryData} columns={beneficiaryColumns} />
-    </Box>
+      {beneficiaryData.length < 1 ? (
+        <Flex align="center" justify="center" flex="1">
+          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+            No data available.
+          </Text>
+        </Flex>
+      ) : (
+        <ReusableTable data={beneficiaryData} columns={beneficiaryColumns} onClick={onOpen} selectable />
+      )}
+      <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} />
+    </Flex>
   );
 };
 
@@ -189,41 +210,57 @@ const beneficiaryColumns: ColumnDef<(typeof beneficiaryData)[number]>[] = [
     ),
   },
   {
-    header: 'Gender',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Gender
+      </Text>
+    ),
     accessorKey: 'gender',
     enableSorting: false,
     cell: (info) => (
-      <Text as="span" variant="Body2Regular">
+      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
         {info.row.original.gender}
       </Text>
     ),
   },
   {
-    header: 'Age',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Age
+      </Text>
+    ),
     accessorKey: 'age',
     enableSorting: false,
     cell: (info) => (
-      <Text as="span" variant="Body2Regular">
+      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
         {info.row.original.age}
       </Text>
     ),
   },
   {
-    header: 'Disabled',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Disabled
+      </Text>
+    ),
     accessorKey: 'disabled',
     enableSorting: false,
     cell: (info) => (
-      <Text as="span" variant="Body2Regular">
+      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
         {info.row.original.disabled ? 'YES' : 'NO'}
       </Text>
     ),
   },
   {
-    header: 'Liberate',
+    header: () => (
+      <Text variant="Body3Semibold" textAlign="center">
+        Liberate
+      </Text>
+    ),
     accessorKey: 'liberate',
     enableSorting: false,
     cell: (info) => (
-      <Text as="span" variant="Body2Regular">
+      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
         {info.row.original.liberate ? 'YES' : 'NO'}
       </Text>
     ),

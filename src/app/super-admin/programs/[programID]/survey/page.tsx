@@ -1,12 +1,13 @@
 'use client';
 
-import { Box, Button, ButtonGroup, Flex, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react';
+import { Button, ButtonGroup, Flex, Input, InputGroup, InputLeftElement, Text, useDisclosure } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 import { MdCloudUpload, MdDownload, MdSearch } from 'react-icons/md';
 
-import { Dropdown } from '@/components';
 import { ReusableTable } from '@/shared';
+import { Dropdown } from '@/shared/chakra/components';
+import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -18,10 +19,11 @@ const options = [
 type Option = (typeof options)[number];
 
 const SurveyPage = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[3]);
 
   return (
-    <Box>
+    <Flex direction="column" h="full">
       <Flex align="center" justify="space-between" mb="8">
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
@@ -46,8 +48,17 @@ const SurveyPage = () => {
           </Button>
         </ButtonGroup>
       </Flex>
-      <ReusableTable data={data} columns={columns} />
-    </Box>
+      {data.length < 1 ? (
+        <Flex align="center" justify="center" flex="1">
+          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+            No data available.
+          </Text>
+        </Flex>
+      ) : (
+        <ReusableTable data={data} columns={columns} onClick={onOpen} />
+      )}
+      <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} />
+    </Flex>
   );
 };
 
