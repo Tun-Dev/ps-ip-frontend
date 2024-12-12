@@ -7,6 +7,7 @@ import { useGetModules } from '@/hooks/useGetModules';
 import { useProgramForm } from '@/providers/form-provider';
 import { useProgramStore } from '@/providers/programs-store-provider';
 import { ModuleCard } from '@/shared/chakra/components';
+import { renameKey } from '@/utils';
 
 const SelectModules = memo((props: BoxProps) => {
   const selectedModuleIds = useProgramStore((state) => state.selectedModules);
@@ -37,10 +38,11 @@ const SelectModules = memo((props: BoxProps) => {
         {Array.from(selectedModuleIds.ids).map((moduleId, index) => {
           const moduleData = modules?.body.find((module) => module.id === moduleId);
           if (!moduleData) return null;
+          const correctedModule = renameKey(moduleData, 'name', 'module');
           return (
             <ModuleCard
               key={moduleId}
-              module={moduleData}
+              module={correctedModule}
               number={index + 1}
               status="Edit"
               onClick={() => {

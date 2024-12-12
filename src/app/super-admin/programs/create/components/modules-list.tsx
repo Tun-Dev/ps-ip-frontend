@@ -3,6 +3,7 @@ import { useProgramForm } from '@/providers/form-provider';
 import { useProgramStore } from '@/providers/programs-store-provider';
 import { ModuleCard } from '@/shared/chakra/components';
 import { Module } from '@/types';
+import { renameKey } from '@/utils';
 import { Box, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useMemo } from 'react';
 
@@ -36,7 +37,7 @@ export function ModulesList() {
   };
 
   const isDisabled = (module: Module) =>
-    (step === 2 && !EDITABLE_MODULES.includes(module.name)) || (step === 3 && module.ModuleGuidelines.length < 1);
+    (step === 2 && !EDITABLE_MODULES.includes(module.module)) || (step === 3 && module.ModuleGuidelines.length < 1);
 
   return (
     <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200" h="100%" ml="5">
@@ -49,14 +50,15 @@ export function ModulesList() {
           : programModules.map((module, index) => {
               if (!module) return null;
               const isSelected = selectedModuleIds.ids.has(module.id);
+              const correctedModule = renameKey(module, 'name', 'module');
               return (
                 <ModuleCard
                   key={module.id}
-                  module={module}
+                  module={correctedModule}
                   number={index + 1}
                   status={step !== 1 ? 'Edit' : isSelected ? 'Selected' : 'Select'}
-                  isActive={step === 1 ? undefined : activeModuleId === module.id}
-                  disabled={isDisabled(module)}
+                  isActive={step === 1 ? undefined : activeModuleId === correctedModule.id}
+                  disabled={isDisabled(correctedModule)}
                   onClick={() => handleModuleClick(module, isSelected)}
                 />
               );

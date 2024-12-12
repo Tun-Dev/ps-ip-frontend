@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 
 import { ModuleCard } from '@/shared/chakra/components';
-import { ALL_MODULES } from '@/utils';
+import { ALL_MODULES, renameKey } from '@/utils';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { ProgramDetails } from '@/types';
 
@@ -88,20 +88,23 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
             onClick={() => handleScroll('left')}
             isDisabled={isAtStart}
           />
-          {modules.map((item, index) => (
-            <ModuleCard
-              key={item.id + index}
-              module={item}
-              status={item.isCompleted ? 'Completed' : item.isActive && !item.isCompleted ? 'In progress' : 'Pending'}
-              maxW="242px"
-              flexShrink={0}
-              number={item.order}
-              route={`/super-admin/programs/${programID}/${item.module.toLowerCase()}`}
-              isActive={pathname.endsWith(item.module.toLowerCase())}
-              scroll
-              scrollSnapAlign="start"
-            />
-          ))}
+          {modules.map((item, index) => {
+            const newItem = renameKey(item, 'moduleGuidelines', 'ModuleGuidelines');
+            return (
+              <ModuleCard
+                key={item.id + index}
+                module={newItem}
+                status={item.isCompleted ? 'Completed' : item.isActive && !item.isCompleted ? 'In progress' : 'Pending'}
+                maxW="242px"
+                flexShrink={0}
+                number={item.order}
+                route={`/super-admin/programs/${programID}/${item.module.toLowerCase()}`}
+                isActive={pathname.endsWith(item.module.toLowerCase())}
+                scroll
+                scrollSnapAlign="start"
+              />
+            );
+          })}
           <IconButton
             aria-label="Scroll right"
             icon={<MdArrowForwardIos size="1.25rem" />}

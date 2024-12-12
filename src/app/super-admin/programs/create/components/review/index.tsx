@@ -7,6 +7,7 @@ import { BuilderReview } from './builder-review';
 import { CheckboxFormReview } from './checkbox-form-review';
 import { SettingsReview } from './settings-review';
 import { VettingReview } from './vetting-review';
+import { renameKey } from '@/utils';
 
 const Review = (props: BoxProps) => {
   const { data: modules } = useGetModules();
@@ -28,28 +29,30 @@ const Review = (props: BoxProps) => {
 
         if (!currentModule) return null;
 
+        const correctedModule = renameKey(currentModule, 'name', 'module');
+
         return (
           <Box key={moduleId} display={activeModuleId === moduleId ? 'block' : 'none'}>
             <Heading variant="Body2Semibold" color="primary.500" mb="6" textTransform="capitalize">
               <Box as="span" display="inline-block" rounded="full" px="0.4375rem" bgColor="primary.100">
                 {index + 1}
               </Box>{' '}
-              {currentModule.name}
+              {correctedModule.module}
             </Heading>
             <Stack spacing="6">
-              {currentModule.name === 'Survey' && <BuilderReview fields={surveyForm.fields} name="Survey Form" />}
-              {currentModule.name === 'Vetting' && vettingForm.type === 'manual' && (
+              {correctedModule.module === 'Survey' && <BuilderReview fields={surveyForm.fields} name="Survey Form" />}
+              {correctedModule.module === 'Vetting' && vettingForm.type === 'manual' && (
                 <BuilderReview fields={vettingForm.manualFields} name="Vetting Form" />
               )}
-              {currentModule.name === 'Vetting' && vettingForm.type === 'automated' && (
+              {correctedModule.module === 'Vetting' && vettingForm.type === 'automated' && (
                 <VettingReview fields={vettingForm.automatedFields} />
               )}
               {dataPoints.length > 0 && <CheckboxFormReview dataPoints={dataPoints} />}
-              {currentModule.ModuleGuidelines.length > 0 && <SettingsReview module={currentModule} />}
-              {currentModule.name !== 'Survey' &&
-                currentModule.name !== 'Vetting' &&
+              {correctedModule.ModuleGuidelines.length > 0 && <SettingsReview module={correctedModule} />}
+              {correctedModule.module !== 'Survey' &&
+                correctedModule.module !== 'Vetting' &&
                 dataPoints.length === 0 &&
-                currentModule.ModuleGuidelines.length === 0 && (
+                correctedModule.ModuleGuidelines.length === 0 && (
                   <Text variant="Body2Semibold" textAlign="center" color="grey.500">
                     No additional review for this module.
                   </Text>

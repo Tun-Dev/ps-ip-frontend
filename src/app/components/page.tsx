@@ -361,7 +361,7 @@ const ModuleProgressCards = () => {
           <ModuleProgressCard
             key={index}
             number={index + 1}
-            name={item.name}
+            name={item.module}
             status={index > 1 ? 'Pending' : index === 1 ? 'In Progress' : 'Completed'}
           />
         ))}

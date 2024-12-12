@@ -88,3 +88,16 @@ export const getDropdownName = (name: string) => {
       return name;
   }
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function renameKey(obj: any, oldKey: string, newKey: string) {
+  if (!(oldKey in obj)) {
+    return obj;
+  }
+  const newObj = {
+    ...obj,
+    [newKey]: obj[oldKey],
+  };
+  delete newObj[oldKey];
+  return newObj;
+}

@@ -21,7 +21,7 @@ const ModulesPage = () => {
             module={item}
             status="In progress"
             number={index + 1}
-            onClick={() => router.push(`/clients/modules/${item.id}/${item.name.toLowerCase()}`)}
+            onClick={() => router.push(`/clients/modules/${item.id}/${item.module.toLowerCase()}`)}
           />
         ))}
       </SimpleGrid>

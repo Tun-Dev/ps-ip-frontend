@@ -62,7 +62,7 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
               </Text>
             </Flex>
             <Text variant={isActive ? 'Body2Bold' : 'Body2Semibold'} color={isDisabled ? 'grey.500' : 'primary.500'}>
-              {module.module ?? module.name}
+              {module.module}
             </Text>
           </Flex>
           <Flex
@@ -77,8 +77,8 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
         </Flex>
         <Flex flex="1" justifyContent="center">
           <Image
-            src={`/icons/${module.module ?? module.name}.svg`}
-            alt={module.module ?? module.name}
+            src={`/icons/${module.module}.svg`}
+            alt={module.module}
             filter={isDisabled ? 'grayscale(90%)' : undefined}
           />
         </Flex>

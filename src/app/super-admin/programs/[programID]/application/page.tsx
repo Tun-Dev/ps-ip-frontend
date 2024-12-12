@@ -8,9 +8,9 @@ import { MdDownload, MdSearch } from 'react-icons/md';
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
-// import { useParams } from 'next/navigation';
-// import { useGetProgramById } from '@/hooks/useGetProgramById';
-// import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
+import { useParams } from 'next/navigation';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -22,15 +22,16 @@ const options = [
 type Option = (typeof options)[number];
 
 const ApplicationPage = () => {
-  // const { programID } = useParams();
+  const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[0]);
-  // console.log(programID);
+  console.log(programID);
 
-  // const { response } = useGetProgramById(programID?.toString());
+  const { response } = useGetProgramById(programID?.toString());
+  console.log(response);
 
-  // const { data } = useGetBeneficiariesById({ page: 1, pageSize: 10 }, '9', '3');
-  // console.log(data);
+  const { data } = useGetBeneficiariesById({ page: 1, pageSize: 10 }, programID?.toLocaleString(), '1');
+  console.log(data);
 
   return (
     <Flex direction="column" h="full">

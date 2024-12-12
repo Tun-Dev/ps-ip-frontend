@@ -20,7 +20,7 @@ const ProgramIDLayout = ({ children, params }: { params: { programID: string } }
             number={index + 1}
             maxW="242px"
             flexShrink={0}
-            route={`/clients/modules/${item.id}/${item.name.toLowerCase()}`}
+            route={`/clients/modules/${item.id}/${item.module.toLowerCase()}`}
             isActive={params.programID === item.id.toString()}
             scroll
           />

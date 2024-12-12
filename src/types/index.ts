@@ -161,9 +161,8 @@ export type Module = {
   module: string;
   formId: null | string;
   order: number;
-  moduleGuidelines: ModuleGuideline[];
+  ModuleGuidelines: ModuleGuideline[];
   form: Form;
-  name: string;
 };
 
 export type ModuleGuideline = {
