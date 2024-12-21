@@ -6,7 +6,7 @@ import { MdAddCircle } from 'react-icons/md';
 import { useProgramForm } from '@/providers/form-provider';
 import { Sortable } from '@/shared/chakra/components/form-builder/sortable';
 import type { DropdownOption } from '@/types';
-import { ManualVettingField } from './manual-vetting-field';
+import { SurveyFormField } from './survey-form-field';
 
 type Item = {
   name: string;
@@ -15,27 +15,29 @@ type Item = {
   options: { label: string; value: string }[];
 };
 
-const ManualVettingForm = memo(({ display }: { display: string }) => {
+const SurveyForm = memo(() => {
   const { control, register, getValues } = useProgramForm();
-  const { fields, remove, append, update, replace } = useFieldArray({ name: 'vettingForm.manualFields', control });
+  const { fields, remove, append, update, replace } = useFieldArray({ name: 'surveyForm.fields', control });
 
   const handleDropdown = (idx: number, value: DropdownOption) => {
-    update(idx, {
-      name: getValues(`vettingForm.manualFields.${idx}.name`),
+    const updatedValue = {
+      name: getValues(`surveyForm.fields.${idx}.name`),
       status: value.status,
       value: value.value,
       options: value.options,
-    });
+    };
+    update(idx, updatedValue);
   };
 
   return (
-    <Box display={display}>
+    <Box>
       <Sortable
-        id="manual-vetting-form"
+        id="survey-form"
         items={fields.map((item) => item.id)}
         setItems={(items) => {
           const updatedFields = items.reduce<Item[]>((acc, item) => {
-            const field = fields.find((field) => field.id === item);
+            const fieldIndex = fields.findIndex((field) => field.id === item);
+            const field = getValues('surveyForm.fields')[fieldIndex];
             if (field) acc.push(field);
             return acc;
           }, []);
@@ -45,10 +47,10 @@ const ManualVettingForm = memo(({ display }: { display: string }) => {
         <Stack spacing="8">
           <Stack spacing="6">
             {fields.map((field, idx) => (
-              <ManualVettingField
+              <SurveyFormField
                 key={field.id}
                 field={field}
-                inputProps={register(`vettingForm.manualFields.${idx}.name`)}
+                inputProps={register(`surveyForm.fields.${idx}.name`)}
                 onChange={(type) => handleDropdown(idx, type)}
                 onDelete={() => remove(idx)}
                 index={idx}
@@ -75,6 +77,6 @@ const ManualVettingForm = memo(({ display }: { display: string }) => {
   );
 });
 
-ManualVettingForm.displayName = 'ManualVettingForm';
+SurveyForm.displayName = 'FormBuilder';
 
-export default ManualVettingForm;
+export default SurveyForm;

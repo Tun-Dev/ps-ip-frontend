@@ -1,11 +1,29 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { QueryKey } from '@tanstack/react-query';
 
 import axiosInstance from '@/lib/axios';
-import { PaginatedResponse } from '@/types';
+import type {
+  APIResponse,
+  ApproveBeneficiaryPayload,
+  Beneficiary,
+  BeneficiaryDetails,
+  PaginatedResponse,
+} from '@/types';
 
 export const getBeneficiaries = async ({ queryKey }: { queryKey: QueryKey }) => {
   const [, programID, moduleId, params] = queryKey;
-  const { data } = await axiosInstance.get<PaginatedResponse<any>>(`/beneficiary/${programID}/${moduleId}`, { params });
+  const { data } = await axiosInstance.get<PaginatedResponse<Beneficiary>>(`/beneficiary/${programID}/${moduleId}`, {
+    params,
+  });
+  return data;
+};
+
+export const approveBeneficiary = async (beneficiary: ApproveBeneficiaryPayload) => {
+  const { data } = await axiosInstance.post<APIResponse<boolean>>('/program/process-beneficiary', beneficiary);
+  return data;
+};
+
+export const getBeneficiaryDetails = async ({ queryKey }: { queryKey: QueryKey }) => {
+  const [, id] = queryKey;
+  const { data } = await axiosInstance.get<APIResponse<BeneficiaryDetails>>(`/beneficiary/get/details/${id}`);
   return data;
 };

@@ -55,7 +55,8 @@ const AutomatedVettingForm = memo(({ display }: { display: string }) => {
         items={fields.map((item) => item.id)}
         setItems={(items) => {
           const updatedFields = items.reduce<Item[]>((acc, item) => {
-            const field = fields.find((field) => field.id === item);
+            const fieldIndex = fields.findIndex((field) => field.id === item);
+            const field = vettingFields[fieldIndex];
             if (field) acc.push(field);
             return acc;
           }, []);

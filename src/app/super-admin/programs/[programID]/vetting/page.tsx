@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import {
@@ -14,14 +15,23 @@ import {
   PopoverContent,
   PopoverArrow,
   PopoverBody,
+  useToast,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { MdCloudUpload, MdDownload, MdSearch, MdMoreHoriz } from 'react-icons/md';
 
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
+import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
+import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
+import { useUploadProgram } from '@/hooks/useUploadData';
+import { Beneficiary } from '@/types';
+import { useParams } from 'next/navigation';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -33,8 +43,147 @@ const options = [
 type Option = (typeof options)[number];
 
 const VettingPage = () => {
+  const toast = useToast();
+  const [page, setPage] = useState(1);
+  const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[0]);
+  const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
+  const { mutate: approveBeneficiary } = useApproveBeneficiary();
+  const { mutate: uploadProgram, isPending } = useUploadProgram();
+  const { response } = useGetProgramById(programID?.toString());
+
+  const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Application')?.id ?? '';
+
+  console.log(programModuleId);
+
+  const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
+    useGetBeneficiariesById({ page: page, pageSize: 10 }, programID?.toLocaleString(), '3');
+
+  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString());
+
+  const isUpload = uploadStatus?.body;
+
+  const totalPages = data?.body.totalPages ?? 0;
+
+  const tableData = useMemo(() => {
+    return data ? data.body.data : [];
+  }, [data]);
+
+  const onApprove = ({ status, id }: { status: string; id: number }) => {
+    const payload = {
+      status: status.toUpperCase(),
+      beneficiaryId: [id],
+      moduleId: 1,
+      programId: Number(programID),
+    };
+
+    approveBeneficiary(payload, {
+      onSuccess: () => {
+        toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
+      },
+    });
+  };
+
+  const uploadData = () => {
+    console.log(programModuleId);
+    uploadProgram(programModuleId.toString(), {
+      onSuccess: () => {
+        toast({ title: 'Data uploaded successfully', status: 'success' });
+      },
+    });
+  };
+
+  const dynamicColumns: ColumnDef<Beneficiary>[] = useMemo(() => {
+    if (!tableData || tableData.length === 0) return [];
+    const keys = Object.keys(tableData[0]);
+
+    const otherColumns = keys
+      .filter((key) => key !== 'id' && key !== 'moduleName' && key !== 'status')
+      .map((key) => ({
+        header: () => (
+          <Text variant="Body3Semibold" textAlign="left">
+            {key}
+          </Text>
+        ),
+        accessorKey: key,
+        cell: (info) => {
+          const value = info.getValue() as string | number | undefined;
+          return (
+            <Text as="span" textAlign="left" display="block" variant="Body2Regular">
+              {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
+            </Text>
+          );
+        },
+        enableSorting: false, // You can enable this if sorting is required
+      }));
+
+    const statusColumn: ColumnDef<Beneficiary> = {
+      header: () => (
+        <Text variant="Body3Semibold" textAlign="center">
+          Status
+        </Text>
+      ),
+      accessorKey: 'status',
+      cell: (info) =>
+        info.row.original.status === 'APPROVED' ? (
+          <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
+            Approved
+          </Text>
+        ) : info.row.original.status === 'DISAPPROVED' ? (
+          <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
+            Denied
+          </Text>
+        ) : (
+          <Flex h="full" onClick={(e) => e.stopPropagation()}>
+            <Popover placement="bottom-end">
+              <PopoverTrigger>
+                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                  <MdMoreHoriz size="1.25rem" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent w="121px" p="8px">
+                <PopoverArrow />
+                <PopoverBody p="0">
+                  <Flex flexDir="column">
+                    <Button
+                      w="100%"
+                      bg="transparent"
+                      size="small"
+                      p="0"
+                      fontSize="13px"
+                      fontWeight="400"
+                      onClick={() => onApprove({ status: 'Approved', id: info.row.original.id })}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      w="100%"
+                      bg="transparent"
+                      size="small"
+                      p="0"
+                      fontSize="13px"
+                      fontWeight="400"
+                      onClick={() => onApprove({ status: 'Disapproved', id: info.row.original.id })}
+                    >
+                      Deny
+                    </Button>
+                  </Flex>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          </Flex>
+        ),
+      enableSorting: false, // Enable sorting for status
+    };
+
+    return [...otherColumns, statusColumn];
+  }, [tableData]);
+
+  const openBeneficiaryModal = (beneficiary: Beneficiary) => {
+    setBeneficiary(beneficiary);
+    onOpen();
+  };
 
   return (
     <Flex direction="column" h="full">
@@ -57,291 +206,176 @@ const VettingPage = () => {
           <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
             Download Report
           </Button>
-          <Button leftIcon={<MdCloudUpload size="0.875rem" />} variant="primary">
-            Upload Selected Data
+          <Button
+            leftIcon={<MdCloudUpload />}
+            variant="primary"
+            size="medium"
+            isLoading={isPending}
+            onClick={uploadData}
+            isDisabled={!isUpload}
+          >
+            Upload Data
           </Button>
         </ButtonGroup>
       </Flex>
-      {data.length < 1 ? (
-        <Flex align="center" justify="center" flex="1">
-          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
-            No data available.
-          </Text>
-        </Flex>
-      ) : (
-        <ReusableTable data={data} columns={columns} onClick={onOpen} selectable />
-      )}
-      <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} initialTab={2} />
+      <>
+        <ReusableTable
+          data={tableData}
+          columns={dynamicColumns}
+          onClick={openBeneficiaryModal}
+          selectable
+          isLoading={isLoading || isRefetching}
+          isError={isError || isRefetchError}
+          onRefresh={refetch}
+        />
+        <TablePagination
+          handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+          handlePageChange={(pageNumber) => setPage(pageNumber)}
+          isNextDisabled={page >= totalPages}
+          isPrevDisabled={page <= 1}
+          currentPage={page}
+          totalPages={totalPages}
+          isDisabled={isLoading || isPlaceholderData}
+          display={totalPages > 1 ? 'flex' : 'none'}
+        />
+      </>
+      {beneficiary && <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} beneficiary={beneficiary} />}
     </Flex>
   );
 };
 
-const data = [
-  {
-    beneficiary: 'Siegfried Fudge',
-    LGA: 'Jianxi',
-    agent: 'Trevor Adshed',
-    gender: 'Male',
-    age: 57,
-    disabled: true,
-    liberate: false,
-    score: 80,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Willy Hutchinson',
-    LGA: 'Yayva',
-    agent: 'Miles Pargiter',
-    gender: 'Male',
-    age: 56,
-    disabled: true,
-    liberate: true,
-    score: 52,
-    status: 'Approved',
-  },
-  {
-    beneficiary: 'Caesar Seaborne',
-    LGA: 'Xingfeng',
-    agent: 'Kennedy Blabey',
-    gender: 'Male',
-    age: 57,
-    disabled: false,
-    liberate: false,
-    score: 83,
-    status: 'Denied',
-  },
-  {
-    beneficiary: 'Linzy Galier',
-    LGA: 'Paris 05',
-    agent: 'Arlen Stoll',
-    gender: 'Female',
-    age: 30,
-    disabled: false,
-    liberate: true,
-    score: 69,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Lyon Stops',
-    LGA: 'Saguiaran',
-    agent: 'Riley Opdenort',
-    gender: 'Male',
-    age: 61,
-    disabled: false,
-    liberate: false,
-    score: 93,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Thelma MacKimmie',
-    LGA: 'Nytva',
-    agent: 'Charo Vesty',
-    gender: 'Female',
-    age: 48,
-    disabled: false,
-    liberate: true,
-    score: 76,
-    status: 'Denied',
-  },
-  {
-    beneficiary: 'Wenonah Gateshill',
-    LGA: 'Migori',
-    agent: 'Janot Horning',
-    gender: 'Female',
-    age: 21,
-    disabled: true,
-    liberate: false,
-    score: 93,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Adelheid Whyborn',
-    LGA: 'Orël',
-    agent: 'Magdaia Baribal',
-    gender: 'Genderqueer',
-    age: 50,
-    disabled: false,
-    liberate: true,
-    score: 89,
-    status: 'Denied',
-  },
-  {
-    beneficiary: 'Shurwood Grigoli',
-    LGA: 'Posse',
-    agent: 'Quinlan Rustman',
-    gender: 'Male',
-    age: 41,
-    disabled: false,
-    liberate: true,
-    score: 73,
-    status: 'Approved',
-  },
-  {
-    beneficiary: 'Gussy Bobasch',
-    LGA: 'Seattle',
-    agent: 'Aurlie Loweth',
-    gender: 'Female',
-    age: 19,
-    disabled: false,
-    liberate: false,
-    score: 76,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Bryana Rutherforth',
-    LGA: 'Cruz das Almas',
-    agent: 'Rheta Acott',
-    gender: 'Female',
-    age: 34,
-    disabled: false,
-    liberate: false,
-    score: 89,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Berty Illesley',
-    LGA: 'Mértola',
-    agent: 'Lorene Schuchmacher',
-    gender: 'Genderqueer',
-    age: 27,
-    disabled: true,
-    liberate: false,
-    score: 65,
-    status: 'Approved',
-  },
-];
-
-const columns: ColumnDef<(typeof data)[number]>[] = [
-  {
-    header: 'Enumerated Beneficiaries (20,000)',
-    accessorKey: 'beneficiary',
-    cell: (info) => (
-      <Text as="span" variant="Body2Semibold">
-        {info.row.original.beneficiary}
-      </Text>
-    ),
-  },
-  {
-    header: 'LGA',
-    accessorKey: 'LGA',
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.LGA}
-      </Text>
-    ),
-  },
-  {
-    header: 'Agent',
-    accessorKey: 'agent',
-    cell: (info) => (
-      <Text as="span" variant="Body2Semibold">
-        {info.row.original.agent}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Gender
-      </Text>
-    ),
-    accessorKey: 'gender',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
-        {info.row.original.gender}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Age
-      </Text>
-    ),
-    accessorKey: 'age',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
-        {info.row.original.age}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Disabled
-      </Text>
-    ),
-    accessorKey: 'disabled',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
-        {info.row.original.disabled ? 'YES' : 'NO'}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Liberate
-      </Text>
-    ),
-    accessorKey: 'liberate',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" textAlign="center" display="block" variant="Body2Regular">
-        {info.row.original.liberate ? 'YES' : 'NO'}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Vetting Score
-      </Text>
-    ),
-    accessorKey: 'score',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" textAlign="center" display="block" variant="Body1Bold" color="green">
-        {info.row.original.score}%
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-        Actions/Status
-      </Text>
-    ),
-    accessorKey: 'actions',
-    enableSorting: false,
-    cell: () => (
-      <Flex onClick={(e) => e.stopPropagation()}>
-        <Popover placement="bottom-end">
-          <PopoverTrigger>
-            <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-              <MdMoreHoriz size="1.25rem" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent w="121px" p="8px">
-            <PopoverArrow />
-            <PopoverBody p="0">
-              <Flex flexDir="column">
-                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
-                  Approve
-                </Button>
-                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
-                  Deny
-                </Button>
-              </Flex>
-            </PopoverBody>
-          </PopoverContent>
-        </Popover>
-      </Flex>
-    ),
-  },
-];
+// const columns: ColumnDef<(typeof data)[number]>[] = [
+//   {
+//     header: 'Enumerated Beneficiaries (20,000)',
+//     accessorKey: 'beneficiary',
+//     cell: (info) => (
+//       <Text as="span" variant="Body2Semibold">
+//         {info.row.original.beneficiary}
+//       </Text>
+//     ),
+//   },
+//   {
+//     header: 'LGA',
+//     accessorKey: 'LGA',
+//     cell: (info) => (
+//       <Text as="span" variant="Body2Regular">
+//         {info.row.original.LGA}
+//       </Text>
+//     ),
+//   },
+//   {
+//     header: 'Agent',
+//     accessorKey: 'agent',
+//     cell: (info) => (
+//       <Text as="span" variant="Body2Semibold">
+//         {info.row.original.agent}
+//       </Text>
+//     ),
+//   },
+//   {
+//     header: () => (
+//       <Text variant="Body3Semibold" textAlign="center">
+//         Gender
+//       </Text>
+//     ),
+//     accessorKey: 'gender',
+//     enableSorting: false,
+//     cell: (info) => (
+//       <Text as="span" textAlign="center" display="block" variant="Body2Regular">
+//         {info.row.original.gender}
+//       </Text>
+//     ),
+//   },
+//   {
+//     header: () => (
+//       <Text variant="Body3Semibold" textAlign="center">
+//         Age
+//       </Text>
+//     ),
+//     accessorKey: 'age',
+//     enableSorting: false,
+//     cell: (info) => (
+//       <Text as="span" textAlign="center" display="block" variant="Body2Regular">
+//         {info.row.original.age}
+//       </Text>
+//     ),
+//   },
+//   {
+//     header: () => (
+//       <Text variant="Body3Semibold" textAlign="center">
+//         Disabled
+//       </Text>
+//     ),
+//     accessorKey: 'disabled',
+//     enableSorting: false,
+//     cell: (info) => (
+//       <Text as="span" textAlign="center" display="block" variant="Body2Regular">
+//         {info.row.original.disabled ? 'YES' : 'NO'}
+//       </Text>
+//     ),
+//   },
+//   {
+//     header: () => (
+//       <Text variant="Body3Semibold" textAlign="center">
+//         Liberate
+//       </Text>
+//     ),
+//     accessorKey: 'liberate',
+//     enableSorting: false,
+//     cell: (info) => (
+//       <Text as="span" textAlign="center" display="block" variant="Body2Regular">
+//         {info.row.original.liberate ? 'YES' : 'NO'}
+//       </Text>
+//     ),
+//   },
+//   {
+//     header: () => (
+//       <Text variant="Body3Semibold" textAlign="center">
+//         Vetting Score
+//       </Text>
+//     ),
+//     accessorKey: 'score',
+//     enableSorting: false,
+//     cell: (info) => (
+//       <Text as="span" textAlign="center" display="block" variant="Body1Bold" color="green">
+//         {info.row.original.score}%
+//       </Text>
+//     ),
+//   },
+//   {
+//     header: () => (
+//       <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+//         Actions/Status
+//       </Text>
+//     ),
+//     accessorKey: 'actions',
+//     enableSorting: false,
+//     cell: () => (
+//       <Flex onClick={(e) => e.stopPropagation()}>
+//         <Popover placement="bottom-end">
+//           <PopoverTrigger>
+//             <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+//               <MdMoreHoriz size="1.25rem" />
+//             </Button>
+//           </PopoverTrigger>
+//           <PopoverContent w="121px" p="8px">
+//             <PopoverArrow />
+//             <PopoverBody p="0">
+//               <Flex flexDir="column">
+//                 <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
+//                   Approve
+//                 </Button>
+//                 <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
+//                   Deny
+//                 </Button>
+//               </Flex>
+//             </PopoverBody>
+//           </PopoverContent>
+//         </Popover>
+//       </Flex>
+//     ),
+//   },
+// ];
 
 export default VettingPage;

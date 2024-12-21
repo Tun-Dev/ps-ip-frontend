@@ -13,12 +13,11 @@ import {
   PopoverContent,
   PopoverTrigger,
   Select,
-  Stack,
   Text,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
-import { MdDownload, MdErrorOutline, MdMoreHoriz, MdRefresh, MdSearch } from 'react-icons/md';
+import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetAggregators } from '@/hooks/useGetAggregators';
@@ -26,7 +25,7 @@ import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import type { Aggregator } from '@/types';
-import { formatErrorMessage } from '@/utils';
+// import { formatErrorMessage } from '@/utils';
 
 const AggregatorTab = () => {
   const [page, setPage] = useState(1);
@@ -40,7 +39,7 @@ const AggregatorTab = () => {
 
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 10 });
 
-  const { data, isLoading, error, isPlaceholderData, refetch } = useGetAggregators({
+  const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } = useGetAggregators({
     page,
     pageSize: 10,
     program: programId === '' ? undefined : parseInt(programId),
@@ -61,7 +60,15 @@ const AggregatorTab = () => {
   // console.log(data);
 
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px" borderTop="1px solid" borderTopColor="grey.200">
+    <Flex
+      flexDir="column"
+      gap="1.5rem"
+      w="100%"
+      h="100%"
+      padding="1rem 0px"
+      borderTop="1px solid"
+      borderTopColor="grey.200"
+    >
       <Flex justifyContent="space-between">
         <Flex gap="8px" alignItems="center">
           <Flex gap="8px" alignItems="center">
@@ -121,53 +128,29 @@ const AggregatorTab = () => {
           </Button>
         </Flex>
       </Flex>
-      <Stack gap="4" padding="0px 1rem 1rem" boxShadow="card" borderRadius="12px">
-        {!isLoading && error ? (
-          <Stack align="center" justify="center" flex="1" gap="2">
-            <Icon as={MdErrorOutline} color="red" boxSize="5" />
-            <Text variant="Body2Semibold" textAlign="center" color="grey.500">
-              {formatErrorMessage(error)}
-            </Text>
-            <Button
-              size="medium"
-              variant="link"
-              iconSpacing="1"
-              color="secondary.500"
-              rightIcon={<MdRefresh size="1rem" />}
-              onClick={() => refetch()}
-            >
-              Retry
-            </Button>
-          </Stack>
-        ) : !isLoading && aggregators.length < 1 ? (
-          <Flex align="center" justify="center" flex="1">
-            <Text variant="Body2Semibold" textAlign="center" color="grey.500">
-              No data available.
-            </Text>
-          </Flex>
-        ) : (
-          <>
-            <ReusableTable
-              selectable
-              data={aggregators}
-              columns={columns}
-              headerBgColor="#F3F9F2"
-              isLoading={isLoading}
-            />
-            <TablePagination
-              handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
-              handlePageChange={(pageNumber) => setPage(pageNumber)}
-              isNextDisabled={page >= totalPages}
-              isPrevDisabled={page <= 1}
-              currentPage={page}
-              totalPages={totalPages}
-              isDisabled={isLoading || isPlaceholderData}
-              display={totalPages > 1 ? 'flex' : 'none'}
-            />
-          </>
-        )}
-      </Stack>
+
+      <>
+        <ReusableTable
+          selectable
+          data={aggregators}
+          columns={columns}
+          headerBgColor="#F3F9F2"
+          isLoading={isLoading || isRefetching}
+          isError={isError || isRefetchError}
+          onRefresh={refetch}
+        />
+        <TablePagination
+          handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+          handlePageChange={(pageNumber) => setPage(pageNumber)}
+          isNextDisabled={page >= totalPages}
+          isPrevDisabled={page <= 1}
+          currentPage={page}
+          totalPages={totalPages}
+          isDisabled={isLoading || isPlaceholderData}
+          display={totalPages > 1 ? 'flex' : 'none'}
+        />
+      </>
     </Flex>
   );
 };

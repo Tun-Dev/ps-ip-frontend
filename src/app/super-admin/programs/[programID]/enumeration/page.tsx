@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import {
@@ -15,15 +16,23 @@ import {
   PopoverContent,
   PopoverArrow,
   PopoverBody,
+  useToast,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 import { MdCloudUpload, MdMoreHoriz, MdDownload, MdSearch } from 'react-icons/md';
 
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
+import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
+import { Beneficiary } from '@/types';
+import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { useUploadProgram } from '@/hooks/useUploadData';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -35,12 +44,147 @@ const options = [
 type Option = (typeof options)[number];
 
 const EnumerationPage = () => {
+  const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [page, setPage] = useState(1);
+  const { programID } = useParams();
   const [sort, setSort] = useState<Option | null>(options[0]);
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const agent = searchParams.get('agent');
+  const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
+  const { mutate: approveBeneficiary } = useApproveBeneficiary();
+  const { mutate: uploadProgram, isPending } = useUploadProgram();
+  const { response } = useGetProgramById(programID?.toString());
+
+  const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Enumeration')?.id ?? '';
+
+  console.log(programModuleId);
+
+  const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
+    useGetBeneficiariesById({ page: page, pageSize: 10 }, programID?.toLocaleString(), '4');
+
+  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString());
+
+  const isUpload = uploadStatus?.body;
+
+  const totalPages = data?.body.totalPages ?? 0;
+
+  const tableData = useMemo(() => {
+    return data ? data.body.data : [];
+  }, [data]);
+
+  const onApprove = ({ status, id }: { status: string; id: number }) => {
+    const payload = {
+      status: status.toUpperCase(),
+      beneficiaryId: [id],
+      moduleId: 4,
+      programId: Number(programID),
+    };
+
+    approveBeneficiary(payload, {
+      onSuccess: () => {
+        toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
+      },
+    });
+  };
+
+  const uploadData = () => {
+    console.log(programModuleId);
+    uploadProgram(programModuleId.toString(), {
+      onSuccess: () => {
+        toast({ title: 'Data uploaded successfully', status: 'success' });
+      },
+    });
+  };
+
+  const dynamicColumns: ColumnDef<Beneficiary>[] = useMemo(() => {
+    if (!tableData || tableData.length === 0) return [];
+    const keys = Object.keys(tableData[0]);
+
+    const otherColumns = keys
+      .filter((key) => key !== 'id' && key !== 'moduleName' && key !== 'status')
+      .map((key) => ({
+        header: () => (
+          <Text variant="Body3Semibold" textAlign="left">
+            {key}
+          </Text>
+        ),
+        accessorKey: key,
+        cell: (info) => {
+          const value = info.getValue() as string | number | undefined;
+          return (
+            <Text as="span" textAlign="left" display="block" variant="Body2Regular">
+              {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
+            </Text>
+          );
+        },
+        enableSorting: false, // You can enable this if sorting is required
+      }));
+
+    const statusColumn: ColumnDef<Beneficiary> = {
+      header: () => (
+        <Text variant="Body3Semibold" textAlign="center">
+          Status
+        </Text>
+      ),
+      accessorKey: 'status',
+      cell: (info) =>
+        info.row.original.status === 'APPROVED' ? (
+          <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
+            Approved
+          </Text>
+        ) : info.row.original.status === 'DISAPPROVED' ? (
+          <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
+            Denied
+          </Text>
+        ) : (
+          <Flex h="full" onClick={(e) => e.stopPropagation()}>
+            <Popover placement="bottom-end">
+              <PopoverTrigger>
+                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                  <MdMoreHoriz size="1.25rem" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent w="121px" p="8px">
+                <PopoverArrow />
+                <PopoverBody p="0">
+                  <Flex flexDir="column">
+                    <Button
+                      w="100%"
+                      bg="transparent"
+                      size="small"
+                      p="0"
+                      fontSize="13px"
+                      fontWeight="400"
+                      onClick={() => onApprove({ status: 'Approved', id: info.row.original.id })}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      w="100%"
+                      bg="transparent"
+                      size="small"
+                      p="0"
+                      fontSize="13px"
+                      fontWeight="400"
+                      onClick={() => onApprove({ status: 'Disapproved', id: info.row.original.id })}
+                    >
+                      Deny
+                    </Button>
+                  </Flex>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          </Flex>
+        ),
+      enableSorting: false, // Enable sorting for status
+    };
+
+    return [...otherColumns, statusColumn];
+  }, [tableData]);
+
+  const openBeneficiaryModal = (beneficiary: Beneficiary) => {
+    setBeneficiary(beneficiary);
+    onOpen();
+  };
 
   return (
     <Flex direction="column" h="full">
@@ -63,515 +207,42 @@ const EnumerationPage = () => {
           <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
             Download Report
           </Button>
-          <Button leftIcon={<MdCloudUpload size="0.875rem" />} variant="primary">
-            Upload Selected Data
+          <Button
+            leftIcon={<MdCloudUpload size="0.875rem" />}
+            variant="primary"
+            isLoading={isPending}
+            onClick={uploadData}
+            isDisabled={!isUpload}
+          >
+            Upload Data
           </Button>
         </ButtonGroup>
       </Flex>
-      {aggregatorData.length < 1 ? (
-        <Flex align="center" justify="center" flex="1">
-          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
-            No data available.
-          </Text>
-        </Flex>
-      ) : agent ? (
-        beneficiaryData.length < 1 ? (
-          <Flex align="center" justify="center" flex="1">
-            <Text variant="Body2Semibold" textAlign="center">
-              No data available.
-            </Text>
-          </Flex>
-        ) : (
-          <ReusableTable selectable data={beneficiaryData} columns={beneficiaryColumns} onClick={onOpen} />
-        )
-      ) : (
-        <ReusableTable
-          selectable
-          data={aggregatorData}
-          columns={aggregatorColumns}
-          onClick={(aggregator) => {
-            const searchParams = new URLSearchParams();
-            searchParams.append('agent', aggregator.agent);
-            router.push(`${pathname}?${searchParams.toString()}`);
-          }}
-        />
-      )}
-      <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} />
+
+      <ReusableTable
+        selectable
+        data={tableData}
+        columns={dynamicColumns}
+        onClick={openBeneficiaryModal}
+        isLoading={isLoading || isRefetching}
+        isError={isError || isRefetchError}
+        onRefresh={refetch}
+      />
+      <TablePagination
+        handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+        handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+        handlePageChange={(pageNumber) => setPage(pageNumber)}
+        isNextDisabled={page >= totalPages}
+        isPrevDisabled={page <= 1}
+        currentPage={page}
+        totalPages={totalPages}
+        isDisabled={isLoading || isPlaceholderData}
+        display={totalPages > 1 ? 'flex' : 'none'}
+      />
+
+      {beneficiary && <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} beneficiary={beneficiary} />}
     </Flex>
   );
 };
-
-const aggregatorData = [
-  {
-    agent: 'Fiorenze Dehn',
-    LGA: 'Corzuela',
-    aggregator: 'WQOOH',
-    objective: 400,
-    status: 'Online',
-    deactivated: false,
-  },
-  {
-    agent: 'Augusto Chatelain',
-    LGA: 'Qianqiao',
-    aggregator: 'JDEIY',
-    objective: 994,
-    status: 'Online',
-    deactivated: false,
-  },
-  {
-    agent: 'Lockwood Gorring',
-    LGA: 'Bobrov',
-    aggregator: 'IRVTY',
-    objective: 889,
-    status: 'Online',
-    deactivated: true,
-  },
-  {
-    agent: 'Lindsay Coatman',
-    LGA: 'Ćićevac',
-    aggregator: 'XZMEA',
-    objective: 545,
-    status: 'Online',
-    deactivated: false,
-  },
-  {
-    agent: 'Molly Kynton',
-    LGA: 'Keruguya',
-    aggregator: 'RPQDP',
-    objective: 297,
-    status: 'Online',
-    deactivated: true,
-  },
-  {
-    agent: 'Zacharie Bagenal',
-    LGA: 'Gyangkar',
-    aggregator: 'SRGPX',
-    objective: 568,
-    status: 'Online',
-    deactivated: false,
-  },
-  {
-    agent: 'Halie Webber',
-    LGA: 'Nanqiao',
-    aggregator: 'VLWEE',
-    objective: 301,
-    status: 'Online',
-    deactivated: false,
-  },
-  {
-    agent: 'Linnet Pfeuffer',
-    LGA: 'Yousheng',
-    aggregator: 'AFMOF',
-    objective: 182,
-    status: 'Online',
-    deactivated: false,
-  },
-  {
-    agent: 'Oliviero Willas',
-    LGA: 'Paso de Carrasco',
-    aggregator: 'BRKIM',
-    objective: 592,
-    status: 'Online',
-    deactivated: false,
-  },
-  {
-    agent: 'Georgianna Harkins',
-    LGA: 'Ulricehamn',
-    aggregator: 'QAIFS',
-    objective: 543,
-    status: 'Online',
-    deactivated: true,
-  },
-  {
-    agent: 'Neill Bannard',
-    LGA: 'Shtip',
-    aggregator: 'PARXH',
-    objective: 1000,
-    status: '2024-10-08 15:47:03',
-    deactivated: false,
-  },
-  {
-    agent: 'Florette Fairbourne',
-    LGA: 'Bureya',
-    aggregator: 'SOOSL',
-    objective: 838,
-    status: 'Online',
-    deactivated: false,
-  },
-];
-
-const aggregatorColumns: ColumnDef<(typeof aggregatorData)[number]>[] = [
-  {
-    header: 'Agents (50)',
-    accessorKey: 'agent',
-    cell: (info) => (
-      <Text as="span" variant="Body2Semibold">
-        {info.row.original.agent}
-      </Text>
-    ),
-  },
-  {
-    header: 'LGA',
-    accessorKey: 'LGA',
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.LGA}
-      </Text>
-    ),
-  },
-  {
-    header: 'Aggregator',
-    accessorKey: 'aggregator',
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.aggregator}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Objective
-      </Text>
-    ),
-    accessorKey: 'objective',
-    enableSorting: false,
-    cell: (info) => (
-      <Flex justifyContent="center">
-        <Text as="span" variant="Body2Semibold" bgColor="grey.200" rounded="xl" p="0.125rem 0.71875rem">
-          {info.row.original.objective}/1000
-        </Text>
-      </Flex>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-        Status/Completion time
-      </Text>
-    ),
-    accessorKey: 'status',
-    enableSorting: false,
-    cell: (info) => (
-      <Text
-        as="span"
-        display="block"
-        textAlign="center"
-        variant={info.row.original.status === 'Online' ? 'Body3Semibold' : 'Body2Regular'}
-        color={info.row.original.status === 'Online' ? 'green' : 'text'}
-      >
-        {info.row.original.status}{' '}
-        <Text as="span" display="inline" variant="Body3Semibold" color="green">
-          (Active)
-        </Text>
-      </Text>
-    ),
-  },
-  // {
-  //   id: 'deactivated',
-  //   enableSorting: false,
-  //   cell: (info) =>
-  //     info.row.original.deactivated ? (
-  //       <Flex gap="2" align="center">
-  //         <Text as="span" color="red" textAlign="center" variant="Body3Semibold">
-  //           Deactivated
-  //         </Text>
-  //         <Button variant="accept" size="small">
-  //           Activate
-  //         </Button>
-  //       </Flex>
-  //     ) : (
-  //       <Button variant="cancel" size="small">
-  //         Deactivate agent
-  //       </Button>
-  //     ),
-  // },
-  // {
-  //   id: 'actions',
-  //   enableSorting: false,
-  //   cell: () => (
-  //     <IconButton
-  //       icon={<MdDelete />}
-  //       variant="cancel"
-  //       bgColor="transparent"
-  //       p="0"
-  //       boxSize="4"
-  //       minW="unset"
-  //       aria-label="Delete"
-  //       color="red"
-  //     />
-  //   ),
-  // },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-        Actions
-      </Text>
-    ),
-    accessorKey: 'actions',
-    enableSorting: false,
-    cell: () => (
-      <Flex h="full" onClick={(e) => e.stopPropagation()}>
-        <Popover placement="bottom-end">
-          <PopoverTrigger>
-            <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-              <MdMoreHoriz size="1.25rem" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent minW="121px" w="fit-content" p="8px">
-            <PopoverArrow />
-            <PopoverBody p="0">
-              <Flex flexDir="column">
-                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-                  Deactivate Agent
-                </Button>
-                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-                  Delete Data
-                </Button>
-                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-                  Edit Data
-                </Button>
-              </Flex>
-            </PopoverBody>
-          </PopoverContent>
-        </Popover>
-      </Flex>
-    ),
-  },
-];
-
-const beneficiaryData = [
-  {
-    beneficiary: 'Gretel Peotz',
-    LGA: 'Minador do Negrão',
-    agent: 'Emelina Dufton',
-    gender: 'Female',
-    age: 33,
-    disabled: true,
-    liberate: true,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Celisse Dable',
-    LGA: 'Rambatan',
-    agent: 'Laney Cardoe',
-    gender: 'Female',
-    age: 37,
-    disabled: true,
-    liberate: true,
-    status: 'Denied',
-  },
-  {
-    beneficiary: 'Rickert McGinlay',
-    LGA: 'Lingyuan',
-    agent: 'Tomlin Scambler',
-    gender: 'Bigender',
-    age: 49,
-    disabled: true,
-    liberate: true,
-    status: 'Approved',
-  },
-  {
-    beneficiary: 'Matilde Menlove',
-    LGA: 'Cisalak',
-    agent: 'Demetra Kippax',
-    gender: 'Female',
-    age: 43,
-    disabled: false,
-    liberate: false,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Brande Kynastone',
-    LGA: 'Kozel’shchyna',
-    agent: 'Erika Twopenny',
-    gender: 'Female',
-    age: 50,
-    disabled: true,
-    liberate: false,
-    status: 'Denied',
-  },
-  {
-    beneficiary: 'Elyn De Roberto',
-    LGA: 'Mó',
-    agent: 'Maryanna Earley',
-    gender: 'Bigender',
-    age: 22,
-    disabled: false,
-    liberate: false,
-    status: 'Approved',
-  },
-  {
-    beneficiary: 'Celine Rowney',
-    LGA: 'Qingtang',
-    agent: 'Thomasine Daout',
-    gender: 'Female',
-    age: 39,
-    disabled: false,
-    liberate: false,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Perri Sprackling',
-    LGA: 'Jembe Timur',
-    agent: 'Belinda Hurworth',
-    gender: 'Female',
-    age: 23,
-    disabled: false,
-    liberate: true,
-    status: 'Approved',
-  },
-  {
-    beneficiary: 'Hansiain Vinnicombe',
-    LGA: 'Lincheng',
-    agent: 'Axe Warne',
-    gender: 'Male',
-    age: 37,
-    disabled: true,
-    liberate: true,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Tabbitha Afonso',
-    LGA: 'El Peñol',
-    agent: 'Johnna Hothersall',
-    gender: 'Female',
-    age: 42,
-    disabled: false,
-    liberate: true,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Case Glancy',
-    LGA: 'Khuzdār',
-    agent: 'Stanfield Martlew',
-    gender: 'Male',
-    age: 52,
-    disabled: false,
-    liberate: true,
-    status: 'Approved',
-  },
-  {
-    beneficiary: 'Ynes Macquire',
-    LGA: 'Ciangir',
-    agent: 'Domini Watts',
-    gender: 'Female',
-    age: 61,
-    disabled: true,
-    liberate: true,
-    status: 'Pending',
-  },
-];
-
-const beneficiaryColumns: ColumnDef<(typeof beneficiaryData)[number]>[] = [
-  {
-    header: 'Enumerated Beneficiaries (20,000)',
-    accessorKey: 'beneficiary',
-    cell: (info) => (
-      <Text as="span" variant="Body2Semibold">
-        {info.row.original.beneficiary}
-      </Text>
-    ),
-  },
-  {
-    header: 'LGA',
-    accessorKey: 'LGA',
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.LGA}
-      </Text>
-    ),
-  },
-  {
-    header: 'Agent',
-    accessorKey: 'agent',
-    cell: (info) => (
-      <Text as="span" variant="Body2Semibold">
-        {info.row.original.agent}
-      </Text>
-    ),
-  },
-  {
-    header: 'Gender',
-    accessorKey: 'gender',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.gender}
-      </Text>
-    ),
-  },
-  {
-    header: 'Age',
-    accessorKey: 'age',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.age}
-      </Text>
-    ),
-  },
-  {
-    header: 'Disabled',
-    accessorKey: 'disabled',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.disabled ? 'YES' : 'NO'}
-      </Text>
-    ),
-  },
-  {
-    header: 'Liberate',
-    accessorKey: 'liberate',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.liberate ? 'YES' : 'NO'}
-      </Text>
-    ),
-  },
-  {
-    id: 'status',
-    enableSorting: false,
-    cell: (info) =>
-      info.row.original.status === 'Approved' ? (
-        <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
-          Approved
-        </Text>
-      ) : info.row.original.status === 'Denied' ? (
-        <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
-          Denied
-        </Text>
-      ) : (
-        // <ButtonGroup size="small" spacing="2" onClick={(e) => e.stopPropagation()}>
-        //   <Button variant="accept">Approve</Button>
-        //   <Button variant="cancel">Deny</Button>
-        // </ButtonGroup>
-        <Flex h="full" onClick={(e) => e.stopPropagation()}>
-          <Popover placement="bottom-end">
-            <PopoverTrigger>
-              <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                <MdMoreHoriz size="1.25rem" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent w="121px" p="8px">
-              <PopoverArrow />
-              <PopoverBody p="0">
-                <Flex flexDir="column">
-                  <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
-                    Approve
-                  </Button>
-                  <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
-                    Deny
-                  </Button>
-                </Flex>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </Flex>
-      ),
-  },
-];
 
 export default EnumerationPage;

@@ -28,7 +28,14 @@ import { useDeletePartner } from '@/hooks/useDeletePartner';
 
 const PartnerTab = () => {
   const toast = useToast();
-  const { data: partners, isLoading } = useGetPartners({ page: 1, pageSize: 10 });
+  const {
+    data: partners,
+    isLoading,
+    isError,
+    isRefetchError,
+    isRefetching,
+    refetch,
+  } = useGetPartners({ page: 1, pageSize: 10 });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { mutate: delPartner, isPending } = useDeletePartner();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,7 +120,7 @@ const PartnerTab = () => {
   );
 
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%">
+    <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
       <AddNewPartnerModal isOpen={isOpen} onClose={onClose} />
       <Flex flexDir="column" gap="12px">
         <Flex alignItems="center" justifyContent="space-between">
@@ -164,9 +171,14 @@ const PartnerTab = () => {
         </Flex>
       </Flex>
 
-      <Box padding="0px 1rem 1rem" boxShadow="card" borderRadius="12px">
-        <ReusableTable selectable data={partners?.body.data || []} columns={columns} isLoading={isLoading} />
-      </Box>
+      <ReusableTable
+        selectable
+        data={partners?.body.data || []}
+        columns={columns}
+        isLoading={isLoading || isRefetching}
+        isError={isError || isRefetchError}
+        onRefresh={refetch}
+      />
     </Flex>
   );
 };

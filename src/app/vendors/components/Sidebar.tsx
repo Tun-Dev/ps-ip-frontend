@@ -1,10 +1,11 @@
 'use client';
 
 import { Flex, Image, Text } from '@chakra-ui/react';
-import { MdHome, MdLocalShipping, MdLogout, MdNoteAlt, MdNotifications, MdPerson } from 'react-icons/md';
-import { useRouter, usePathname } from 'next/navigation';
+import { MdHome, MdLocalShipping, MdLogout, MdNoteAlt, MdPerson } from 'react-icons/md';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import NotificationModal from '@/shared/chakra/modals/notificationModal';
+import { NotificationButton, SideBarItem } from '@/shared/chakra/components';
 
 const sideBarData = [
   { name: 'Dashboard', Icon: MdHome, url: '/vendors' },
@@ -31,24 +32,11 @@ const Sidebar = () => {
       </Flex>
 
       <Flex flexDir="column">
-        <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          cursor="pointer"
-          onClick={() => setIsNoftModalOpen((prev) => !prev)}
-        >
-          <Flex alignItems="center" gap="15px">
-            <MdNotifications size="20px" color="#077D00" />
-            <Text variant="Body2Semibold" color="#077D00">
-              Notifications
-            </Text>
-          </Flex>
-          <Flex boxSize="15px" borderRadius="50%" bg="red" alignItems="center" justifyContent="center">
-            <Text variant="Body3Semibold" color="white">
-              3
-            </Text>
-          </Flex>
-        </Flex>
+        <NotificationButton
+          count={3}
+          url="/vendors/notifications"
+          active={pathname.startsWith('/vendors/notifications')}
+        />
 
         <Flex flexDir="column" mt="88px" gap="16px">
           <Flex h="64px" borderRadius="6px" bg="primary.100" alignItems="center" justifyContent="center" gap="8px">
@@ -73,40 +61,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
-const SideBarItem = ({
-  name,
-  Icon,
-  url,
-  active,
-}: {
-  name: string;
-  Icon: typeof MdHome;
-  url: string;
-  active?: boolean;
-}) => {
-  const router = useRouter();
-  return (
-    <Flex
-      w="full"
-      h="40px"
-      alignItems="center"
-      p={active ? '8px 0px 8px 12px' : '8px 0px'}
-      gap="8px"
-      borderRadius="6px"
-      cursor="pointer"
-      onClick={() => router.push(url)}
-      transition="all 0.3s ease-in-out"
-      bg={active ? 'secondary.500' : ''}
-    >
-      <Icon color={active ? 'white' : '#A4A4A4'} size={active ? '20px' : '16px'} />
-      <Text
-        variant={active ? 'Body1Bold' : 'Body2Semibold'}
-        color={active ? 'white' : 'grey.400'}
-        transition="all 0.3s ease-in-out"
-      >
-        {name}
-      </Text>
-    </Flex>
-  );
-};

@@ -19,6 +19,7 @@ export const CheckboxFormReview = ({ dataPoints }: Props) => {
             display="inline-flex"
             gap="0.5"
             align="center"
+            textAlign="left"
             variant="Body2Semibold"
             color="grey.500"
             lineHeight={1}

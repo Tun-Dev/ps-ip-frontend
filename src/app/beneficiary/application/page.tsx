@@ -50,7 +50,7 @@ const BeneficiaryApplication = () => {
         </Box>
 
         {/* Content for steps */}
-        <Flex flex="1 1 0%" maxH="calc(100dvh - 494px)" overflow="auto" mt="24px" mb="48px" flexDir="column">
+        <Flex flex="1 1 0%" mt="24px" mb="48px" flexDir="column">
           {activeStep === 1 ? (
             <StepApplication />
           ) : activeStep === 2 ? (

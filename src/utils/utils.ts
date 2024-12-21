@@ -7,6 +7,7 @@ import {
   MdEmail,
   MdFormatAlignLeft,
   MdFormatListBulleted,
+  MdGpsFixed,
   MdNumbers,
   MdPerson,
   MdPhone,
@@ -55,6 +56,8 @@ export const getDropdownIcon = (name: string) => {
       return MdPerson;
     case 'NUMBER':
       return MdNumbers;
+    case 'GPS':
+      return MdGpsFixed;
     default:
       return MdQuestionMark;
   }

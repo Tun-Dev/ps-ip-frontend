@@ -12,10 +12,11 @@ type Props = {
 export const ModuleProgressCard = ({ name, number, status }: Props) => {
   return (
     <Flex
-      bgColor={status === 'Pending' ? 'grey.200' : 'primary.100'}
+      border="1px solid"
+      borderColor={status === 'Pending' ? 'grey.300' : 'primary.200'}
       align="center"
-      rounded="1rem"
-      p="3"
+      rounded="8px"
+      p="8px 10px"
       gap="3rem"
       justify="space-between"
       minW="255px"
@@ -24,7 +25,7 @@ export const ModuleProgressCard = ({ name, number, status }: Props) => {
         <Text
           variant="Body2Semibold"
           color={status === 'Pending' ? 'white' : 'primary.500'}
-          bgColor={status === 'Pending' ? 'grey.400' : 'transparent'}
+          bgColor={status === 'Pending' ? 'grey.400' : 'primary.100'}
           rounded="6.25rem"
           px="0.4375rem"
         >

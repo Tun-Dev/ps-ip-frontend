@@ -6,10 +6,10 @@ import type { PropsWithChildren } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 
-import { ModuleCard } from '@/shared/chakra/components';
-import { ALL_MODULES, renameKey } from '@/utils';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
-import { ProgramDetails } from '@/types';
+import { ModuleCard } from '@/shared/chakra/components';
+import { ProgramModulesDetails } from '@/types';
+import { ALL_MODULES, renameKey } from '@/utils';
 
 const ProgramIDLayout = ({ children }: PropsWithChildren) => {
   const pathname = usePathname();
@@ -20,7 +20,9 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
 
   const { response, isLoading } = useGetProgramById(programID?.toString());
 
-  const modules = reorderDescending(response?.body) ?? [];
+  const modules = reorderDescending(response?.body.programModules) ?? [];
+
+  console.log(modules);
 
   const handleScroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -88,11 +90,11 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
             onClick={() => handleScroll('left')}
             isDisabled={isAtStart}
           />
-          {modules.map((item, index) => {
+          {modules.map((item) => {
             const newItem = renameKey(item, 'moduleGuidelines', 'ModuleGuidelines');
             return (
               <ModuleCard
-                key={item.id + index}
+                key={item.id}
                 module={newItem}
                 status={item.isCompleted ? 'Completed' : item.isActive && !item.isCompleted ? 'In progress' : 'Pending'}
                 maxW="242px"
@@ -131,7 +133,7 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
 
 export default ProgramIDLayout;
 
-function reorderDescending(items?: ProgramDetails[]) {
+function reorderDescending(items?: ProgramModulesDetails[]) {
   if (!items) return;
   return items.sort((a, b) => a.order - b.order);
 }

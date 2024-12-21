@@ -37,7 +37,9 @@ export function ModulesList() {
   };
 
   const isDisabled = (module: Module) =>
-    (step === 2 && !EDITABLE_MODULES.includes(module.module)) || (step === 3 && module.ModuleGuidelines.length < 1);
+    (step === 2 && !EDITABLE_MODULES.includes(module.module)) ||
+    (step === 3 && module.ModuleGuidelines.length < 1) ||
+    (step === 3 && module.module === 'Vetting');
 
   return (
     <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200" h="100%" ml="5">

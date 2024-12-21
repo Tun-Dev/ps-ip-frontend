@@ -8,5 +8,5 @@ type Params = Partial<{
 }>;
 
 export const useGetPrograms = (params: Params) => {
-  return useQuery({ queryKey: ['programs', params], queryFn: getPrograms });
+  return useQuery({ queryKey: ['programs', params], queryFn: getPrograms, placeholderData: (data) => data });
 };

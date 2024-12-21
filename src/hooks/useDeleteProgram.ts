@@ -11,7 +11,6 @@ export const useDeleteProgram = () => {
     mutationFn: deleteProgram,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['programs'] });
-      toast({ title: 'Success' });
     },
     onError: (error) => {
       let message = 'An unknown error occurred';

@@ -4,6 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 
 import { getModules } from '@/services/reference';
 
-export const useGetModules = () => {
-  return useQuery({ queryKey: ['modules'], queryFn: getModules });
+export const useGetModules = (enabled?: boolean) => {
+  return useQuery({ queryKey: ['modules'], queryFn: getModules, enabled });
 };

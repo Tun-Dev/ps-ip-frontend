@@ -1,13 +1,37 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { Button, ButtonGroup, Flex, Input, InputGroup, InputLeftElement, Text, useDisclosure } from '@chakra-ui/react';
+import {
+  Button,
+  ButtonGroup,
+  Flex,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useState } from 'react';
-import { MdCloudUpload, MdDownload, MdSearch } from 'react-icons/md';
+import { useMemo, useState } from 'react';
+import { MdCloudUpload, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
+import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { useUploadProgram } from '@/hooks/useUploadData';
+import { Beneficiary } from '@/types';
+import { useParams } from 'next/navigation';
+import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
+import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -19,8 +43,149 @@ const options = [
 type Option = (typeof options)[number];
 
 const VerificationPage = () => {
+  const toast = useToast();
+  const [page, setPage] = useState(1);
+  const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [sort, setSort] = useState<Option | null>(options[3]);
+  const [sort, setSort] = useState<Option | null>(options[0]);
+  const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
+  const { mutate: approveBeneficiary } = useApproveBeneficiary();
+  const { mutate: uploadProgram, isPending } = useUploadProgram();
+  const { response } = useGetProgramById(programID?.toString());
+
+  const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Application')?.id ?? '';
+
+  console.log(programModuleId);
+
+  const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
+    useGetBeneficiariesById({ page: page, pageSize: 10 }, programID?.toLocaleString(), '5');
+
+  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString());
+
+  const isUpload = uploadStatus?.body;
+
+  const totalPages = data?.body.totalPages ?? 0;
+
+  const tableData = useMemo(() => {
+    return data ? data.body.data : [];
+  }, [data]);
+
+  const onApprove = ({ status, id }: { status: string; id: number }) => {
+    const payload = {
+      status: status.toUpperCase(),
+      beneficiaryId: [id],
+      moduleId: 5,
+      programId: Number(programID),
+    };
+
+    approveBeneficiary(payload, {
+      onSuccess: () => {
+        toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
+      },
+    });
+  };
+
+  const uploadData = () => {
+    console.log(programModuleId);
+    uploadProgram(programModuleId.toString(), {
+      onSuccess: () => {
+        toast({ title: 'Data uploaded successfully', status: 'success' });
+      },
+    });
+  };
+
+  const dynamicColumns: ColumnDef<Beneficiary>[] = useMemo(() => {
+    if (!tableData || tableData.length === 0) return [];
+    const keys = Object.keys(tableData[0]);
+
+    const otherColumns = keys
+      .filter((key) => key !== 'id' && key !== 'moduleName' && key !== 'status')
+      .map((key) => ({
+        header: () => (
+          <Text variant="Body3Semibold" textAlign="left">
+            {key}
+          </Text>
+        ),
+        accessorKey: key,
+        cell: (info) => {
+          const value = info.getValue() as string | number | undefined;
+          return (
+            <Text as="span" textAlign="left" display="block" variant="Body2Regular">
+              {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
+            </Text>
+          );
+        },
+        enableSorting: false, // You can enable this if sorting is required
+      }));
+
+    const statusColumn: ColumnDef<Beneficiary> = {
+      header: () => (
+        <Text variant="Body3Semibold" textAlign="center">
+          Status
+        </Text>
+      ),
+      accessorKey: 'status',
+      cell: (info) =>
+        info.row.original.status === 'APPROVED' ? (
+          <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
+            Approved
+          </Text>
+        ) : info.row.original.status === 'DISAPPROVED' ? (
+          <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
+            Denied
+          </Text>
+        ) : (
+          <Flex h="full" onClick={(e) => e.stopPropagation()}>
+            <Popover placement="bottom-end">
+              <PopoverTrigger>
+                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                  <MdMoreHoriz size="1.25rem" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent w="121px" p="8px">
+                <PopoverArrow />
+                <PopoverBody p="0">
+                  <Flex flexDir="column">
+                    <Button
+                      w="100%"
+                      bg="transparent"
+                      size="small"
+                      p="0"
+                      fontSize="13px"
+                      fontWeight="400"
+                      onClick={() => onApprove({ status: 'Approved', id: info.row.original.id })}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      w="100%"
+                      bg="transparent"
+                      size="small"
+                      p="0"
+                      fontSize="13px"
+                      fontWeight="400"
+                      onClick={() => onApprove({ status: 'Disapproved', id: info.row.original.id })}
+                    >
+                      Deny
+                    </Button>
+                  </Flex>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          </Flex>
+        ),
+      enableSorting: false, // Enable sorting for status
+    };
+
+    return [...otherColumns, statusColumn];
+  }, [tableData]);
+
+  console.log(tableData);
+
+  const openBeneficiaryModal = (beneficiary: Beneficiary) => {
+    setBeneficiary(beneficiary);
+    onOpen();
+  };
 
   return (
     <Flex direction="column" h="full">
@@ -43,260 +208,44 @@ const VerificationPage = () => {
           <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
             Download Report
           </Button>
-          <Button leftIcon={<MdCloudUpload size="0.875rem" />} variant="primary">
-            Upload Selected Data
+          <Button
+            leftIcon={<MdCloudUpload />}
+            variant="primary"
+            size="medium"
+            isLoading={isPending}
+            onClick={uploadData}
+            isDisabled={!isUpload}
+          >
+            Upload Data
           </Button>
         </ButtonGroup>
       </Flex>
-      {data.length < 1 ? (
-        <Flex align="center" justify="center" flex="1">
-          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
-            No data available.
-          </Text>
-        </Flex>
-      ) : (
-        <ReusableTable data={data} columns={columns} onClick={onOpen} selectable />
-      )}
-      <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} initialTab={1} />
+
+      <>
+        <ReusableTable
+          data={tableData}
+          columns={dynamicColumns}
+          onClick={openBeneficiaryModal}
+          selectable
+          isLoading={isLoading || isRefetching}
+          isError={isError || isRefetchError}
+          onRefresh={refetch}
+        />
+        <TablePagination
+          handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+          handlePageChange={(pageNumber) => setPage(pageNumber)}
+          isNextDisabled={page >= totalPages}
+          isPrevDisabled={page <= 1}
+          currentPage={page}
+          totalPages={totalPages}
+          isDisabled={isLoading || isPlaceholderData}
+          display={totalPages > 1 ? 'flex' : 'none'}
+        />
+      </>
+      {beneficiary && <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} beneficiary={beneficiary} />}
     </Flex>
   );
 };
-
-const data = [
-  {
-    beneficiary: 'Gretel Peotz',
-    LGA: 'Minador do Negrão',
-    agent: 'Emelina Dufton',
-    gender: 'Female',
-    age: 33,
-    disabled: true,
-    liberate: true,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Celisse Dable',
-    LGA: 'Rambatan',
-    agent: 'Laney Cardoe',
-    gender: 'Female',
-    age: 37,
-    disabled: true,
-    liberate: true,
-    status: 'Denied',
-  },
-  {
-    beneficiary: 'Rickert McGinlay',
-    LGA: 'Lingyuan',
-    agent: 'Tomlin Scambler',
-    gender: 'Bigender',
-    age: 49,
-    disabled: true,
-    liberate: true,
-    status: 'Verified',
-  },
-  {
-    beneficiary: 'Matilde Menlove',
-    LGA: 'Cisalak',
-    agent: 'Demetra Kippax',
-    gender: 'Female',
-    age: 43,
-    disabled: false,
-    liberate: false,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Brande Kynastone',
-    LGA: 'Kozel’shchyna',
-    agent: 'Erika Twopenny',
-    gender: 'Female',
-    age: 50,
-    disabled: true,
-    liberate: false,
-    status: 'Denied',
-  },
-  {
-    beneficiary: 'Elyn De Roberto',
-    LGA: 'Mó',
-    agent: 'Maryanna Earley',
-    gender: 'Bigender',
-    age: 22,
-    disabled: false,
-    liberate: false,
-    status: 'Verified',
-  },
-  {
-    beneficiary: 'Celine Rowney',
-    LGA: 'Qingtang',
-    agent: 'Thomasine Daout',
-    gender: 'Female',
-    age: 39,
-    disabled: false,
-    liberate: false,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Perri Sprackling',
-    LGA: 'Jembe Timur',
-    agent: 'Belinda Hurworth',
-    gender: 'Female',
-    age: 23,
-    disabled: false,
-    liberate: true,
-    status: 'Verified',
-  },
-  {
-    beneficiary: 'Hansiain Vinnicombe',
-    LGA: 'Lincheng',
-    agent: 'Axe Warne',
-    gender: 'Male',
-    age: 37,
-    disabled: true,
-    liberate: true,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Tabbitha Afonso',
-    LGA: 'El Peñol',
-    agent: 'Johnna Hothersall',
-    gender: 'Female',
-    age: 42,
-    disabled: false,
-    liberate: true,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Case Glancy',
-    LGA: 'Khuzdār',
-    agent: 'Stanfield Martlew',
-    gender: 'Male',
-    age: 52,
-    disabled: false,
-    liberate: true,
-    status: 'Verified',
-  },
-  {
-    beneficiary: 'Ynes Macquire',
-    LGA: 'Ciangir',
-    agent: 'Domini Watts',
-    gender: 'Female',
-    age: 61,
-    disabled: true,
-    liberate: true,
-    status: 'Pending',
-  },
-];
-
-const columns: ColumnDef<(typeof data)[number]>[] = [
-  {
-    header: 'Enumerated Beneficiaries (20,000)',
-    accessorKey: 'beneficiary',
-    cell: (info) => (
-      <Text as="span" variant="Body2Semibold">
-        {info.row.original.beneficiary}
-      </Text>
-    ),
-  },
-  {
-    header: 'LGA',
-    accessorKey: 'LGA',
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.LGA}
-      </Text>
-    ),
-  },
-  {
-    header: 'Agent',
-    accessorKey: 'agent',
-    cell: (info) => (
-      <Text as="span" variant="Body2Semibold">
-        {info.row.original.agent}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Gender
-      </Text>
-    ),
-    accessorKey: 'gender',
-    enableSorting: false,
-    cell: (info) => (
-      <Flex justifyContent="center">
-        <Text as="span" variant="Body2Regular">
-          {info.row.original.gender}
-        </Text>
-      </Flex>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Age
-      </Text>
-    ),
-    accessorKey: 'age',
-    enableSorting: false,
-    cell: (info) => (
-      <Flex justifyContent="center">
-        <Text as="span" variant="Body2Regular">
-          {info.row.original.age}
-        </Text>
-      </Flex>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Disabled
-      </Text>
-    ),
-    accessorKey: 'disabled',
-    enableSorting: false,
-    cell: (info) => (
-      <Flex justifyContent="center">
-        <Text as="span" variant="Body2Regular">
-          {info.row.original.disabled ? 'YES' : 'NO'}
-        </Text>
-      </Flex>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Liberated
-      </Text>
-    ),
-    accessorKey: 'liberate',
-    enableSorting: false,
-    cell: (info) => (
-      <Flex justifyContent="center">
-        <Text as="span" variant="Body2Regular">
-          {info.row.original.liberate ? 'YES' : 'NO'}
-        </Text>
-      </Flex>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" textAlign="center">
-        Status
-      </Text>
-    ),
-    accessorKey: 'status',
-    enableSorting: false,
-    cell: (info) => (
-      <Text
-        as="span"
-        display="block"
-        color={info.getValue() === 'Verified' ? 'green' : info.getValue() === 'Denied' ? 'red' : 'grey.500'}
-        textAlign="center"
-        variant="Body3Semibold"
-      >
-        {info.row.original.status}
-      </Text>
-    ),
-  },
-];
 
 export default VerificationPage;

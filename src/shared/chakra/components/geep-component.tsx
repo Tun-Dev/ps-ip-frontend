@@ -22,22 +22,44 @@ export const GeepComponent = ({ name, logo, count, waveDirection, isActive, ...p
       boxShadow="card"
       overflow="hidden"
       cursor="pointer"
-      bgColor={isActive ? 'primary.150' : 'primary.50'}
-      _hover={{ bgColor: isActive ? 'primary.100' : 'primary.100' }}
+      bgColor={isActive ? 'primary.500' : 'primary.50'}
+      _hover={{ bgColor: isActive ? 'primary.500' : 'primary.100' }}
+      transition="all 0.3s ease-in-out"
       {...props}
     >
       <Stack spacing="3" pos="relative" zIndex="docked">
-        <Text variant="Body2Semibold" color="primary.600">
+        <Text variant="Body2Semibold" color={isActive ? 'white' : 'primary.600'} transition="all 0.3s ease-in-out">
           {count} Modules Available
         </Text>
         <Stack align="center">
-          <Avatar boxSize="6rem" name={name} src={logo} bgColor={isActive ? 'white' : 'primary.200'} color="grey.500" />
-          <Text variant="Body2Semibold" color="grey.500" textTransform="uppercase" textAlign="center">
+          <Avatar
+            boxSize="6rem"
+            name={name}
+            src={logo}
+            bgColor={isActive ? 'white' : 'primary.200'}
+            color="grey.500"
+            transition="all 0.3s ease-in-out"
+          />
+          <Text
+            variant="Body2Semibold"
+            color={isActive ? 'white' : 'grey.500'}
+            textTransform="uppercase"
+            textAlign="center"
+            transition="all 0.3s ease-in-out"
+          >
             {name}
           </Text>
         </Stack>
       </Stack>
-      <Wave pos="absolute" inset="0" zIndex="1" transform="auto" rotate={waveDirection === 'bottom' ? '180deg' : '0'} />
+      <Wave
+        pos="absolute"
+        inset="0"
+        opacity={isActive ? '20%' : '80%'}
+        zIndex="1"
+        transform="auto"
+        rotate={waveDirection === 'bottom' ? '180deg' : '0'}
+        transition="all 0.3s ease-in-out"
+      />
     </Box>
   );
 };

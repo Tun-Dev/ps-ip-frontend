@@ -6,14 +6,14 @@ import { useEffect, useState } from 'react';
 
 import { useCreateForm } from '@/hooks/useCreateForm';
 import { useCreateProgram } from '@/hooks/useCreateProgram';
-import { useGetDataPoints } from '@/hooks/useGetDataPoints';
 import { useGetModules } from '@/hooks/useGetModules';
+import { useGetQuestionTypes } from '@/hooks/useGetQuestionTypes';
 import { useProgramForm } from '@/providers/form-provider';
 import { useProgramStore } from '@/providers/programs-store-provider';
 import { MultiStepHeader } from '@/shared';
 import { FormResponse } from '@/types';
-import { FormHeader } from './components/form-header';
-import { ModulesList } from './components/modules-list';
+import { FormHeader } from '../components/form-header';
+import { ModulesList } from '../components/modules-list';
 
 const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast();
@@ -31,30 +31,38 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const { getValues, trigger, reset: resetForm } = useProgramForm();
 
   const { data: modules } = useGetModules();
-  const { data: dataPoints } = useGetDataPoints({ query: '' });
+  const { data: questionTypes } = useGetQuestionTypes();
   const { mutate: createProgram, isPending } = useCreateProgram();
   const { mutate: createForm } = useCreateForm();
 
   const handleNextStep = async () => {
     if (step === 4) {
-      const isValid = await trigger(['name', 'programTypeId', 'target', 'description', 'logo']);
+      const isNameValid = await trigger('name');
+      const isProgramTypeIdValid = await trigger('programTypeId');
+      const isTargetValid = await trigger('target');
+      const isDescriptionValid = await trigger('description');
+      const isLogoValid = await trigger('logo');
 
       // Force a re-render to ensure errors are updated
       setRender((prev) => !prev);
 
-      if (!isValid) return;
+      if (!isNameValid) return toast({ title: 'Enter a program name', status: 'error' });
+      if (!isProgramTypeIdValid) return toast({ title: 'Select a program type', status: 'error' });
+      if (!isTargetValid) return toast({ title: 'Input a target', status: 'error' });
+      if (!isDescriptionValid) return toast({ title: 'Enter a description', status: 'error' });
+      if (!isLogoValid) return toast({ title: 'Upload a logo for this program', status: 'error' });
 
       const moduleNames = (modules?.body ?? [])
         .filter((module) => selectedModules.ids.has(module.id))
-        .map((module) => module.module);
+        .map((module) => module.name);
 
       // If the selected modules contain Survey or Vetting, create forms first
       if (moduleNames.includes('Survey') || moduleNames.includes('Vetting')) {
         const surveyPayload = getSurveyFormPayload();
         const vettingPayload = getVettingFormPayload();
-        const formsToCreate = [];
+        const formsToCreate: (typeof surveyPayload)[] = [];
 
-        if (moduleNames.includes('Survey')) formsToCreate.push(surveyPayload);
+        if (moduleNames.includes('Survey')) formsToCreate.push(surveyPayload!);
         if (moduleNames.includes('Vetting')) formsToCreate.push(vettingPayload);
 
         createForm(formsToCreate, {
@@ -112,8 +120,6 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
     createProgram(payload, {
       onSuccess: () => {
         toast({ title: 'Program Created successfully', status: 'success' });
-        resetState();
-        resetForm();
         router.push('/super-admin/programs');
       },
     });
@@ -122,7 +128,7 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const getSurveyFormPayload = () => {
     const formValues = getValues();
 
-    const moduleId = modules?.body.find((module) => module.module === 'Survey')?.id ?? 0; // Survey module id
+    const moduleId = modules?.body.find((module) => module.name === 'Survey')?.id ?? 0; // Survey module id
 
     const payload = {
       moduleId: moduleId,
@@ -141,7 +147,7 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const getVettingFormPayload = () => {
     const formValues = getValues();
 
-    const moduleId = modules?.body.find((module) => module.module === 'Vetting')?.id ?? 0; // Vetting module id
+    const moduleId = modules?.body.find((module) => module.name === 'Vetting')?.id ?? 0; // Vetting module id
 
     const manualPayload = {
       moduleId: moduleId,
@@ -156,7 +162,7 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
 
     if (formValues.vettingForm.type === 'manual') return manualPayload;
 
-    const checkboxType = dataPoints?.body.questionType.find((qt) => qt.status === 'CHECKBOX')?.value ?? 0; // Checkbox question type
+    const checkboxType = questionTypes?.body.find((qt) => qt.status === 'CHECKBOX')?.value ?? 0; // Checkbox question type
 
     const automatedPayload = {
       moduleId: moduleId,
@@ -197,23 +203,34 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
             <Box mb="2.94rem" flex="1 1 0%">
               {children}
             </Box>
-            <ButtonGroup size="default" spacing="4" alignSelf="end" justifySelf="end" w="full" maxW="31.25rem">
-              <Button
-                onClick={previousStep}
-                variant="secondary"
-                flex="1"
-                visibility={step > 1 ? 'visible' : 'hidden'}
-                isDisabled={isPending}
-              >
-                Back
-              </Button>
-              <Button onClick={handleNextStep} isLoading={isPending} variant="primary" flex="1">
-                {step === 4 ? 'Create Program' : 'Next'}
-              </Button>
-            </ButtonGroup>
+            <Flex
+              pos="sticky"
+              bottom="0"
+              py="4"
+              borderTop="1px solid"
+              justify="end"
+              borderTopColor="grey.300"
+              bgColor="white"
+            >
+              <ButtonGroup size="default" spacing="4" w="full" maxW="31.25rem">
+                <Button
+                  onClick={previousStep}
+                  variant="secondary"
+                  flex="1"
+                  visibility={step > 1 ? 'visible' : 'hidden'}
+                  isDisabled={isPending}
+                >
+                  Back
+                </Button>
+                <Button onClick={handleNextStep} isLoading={isPending} variant="primary" flex="1">
+                  {step === 4 ? 'Create Program' : 'Next'}
+                </Button>
+              </ButtonGroup>
+            </Flex>
           </Flex>
         )}
       </Stack>
+      {/* Module list */}
       <ModulesList />
     </Flex>
   );

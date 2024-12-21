@@ -3,12 +3,14 @@
 import {
   Button,
   Flex,
+  Grid,
   IconButton,
   Modal,
   ModalBody,
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   Tab,
   TabList,
   TabPanel,
@@ -16,24 +18,40 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { MdClose, MdDownload } from 'react-icons/md';
-import DisbursementTab from './disbursement-tab';
-import EnumerationTab from './enumeration-tab';
-import VerificationTab from './verification-tab';
-import VettingTab from './vetting-tab';
-import WhitelistingTab from './whitelisting-tab';
+
+import { useGetBeneficiaryDetails } from '@/hooks/useGetBeneficiaryDetails';
+import type { Beneficiary, ModuleDetail } from '@/types';
+import ModuleTab from './module-tab';
+import { SummaryTab } from './summary-tab';
 
 type BeneficiaryDetailsModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  initialTab?: number;
+  beneficiary: Beneficiary;
 };
 
-function BeneficiaryDetailsModal({ isOpen, onClose, initialTab }: BeneficiaryDetailsModalProps) {
-  const [tabIndex, setTabIndex] = useState(initialTab ?? 0);
+function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary }: BeneficiaryDetailsModalProps) {
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const { data: beneficiaryDetails, isLoading } = useGetBeneficiaryDetails(beneficiary.id);
 
   const handleTabsChange = (index: number) => setTabIndex(index);
+
+  const getModuleStatus = useCallback(
+    (module: ModuleDetail) =>
+      beneficiaryDetails?.body?.progressLog.find((log) => log.moduleName === module.moduleName)?.status,
+    [beneficiaryDetails]
+  );
+
+  useEffect(() => {
+    if (!beneficiaryDetails || !isOpen) return;
+    const index = beneficiaryDetails.body.moduleDetails.findIndex(
+      (module) => module.moduleName === beneficiary.moduleName
+    );
+    setTabIndex(index === -1 ? 0 : index);
+  }, [beneficiary.moduleName, beneficiaryDetails, isOpen]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -65,43 +83,35 @@ function BeneficiaryDetailsModal({ isOpen, onClose, initialTab }: BeneficiaryDet
         </ModalHeader>
 
         <ModalBody px="3rem" pb="3rem">
-          <Tabs index={tabIndex} onChange={handleTabsChange} variant="unstyled">
-            <TabList>
-              <Tab fontSize="0.8125rem" p="0.25rem 1rem" color="grey.400">
-                Enumeration
-              </Tab>
-              <Tab fontSize="0.8125rem" p="0.25rem 1rem" color="grey.400">
-                Verification
-              </Tab>
-              <Tab fontSize="0.8125rem" p="0.25rem 1rem" color="grey.400">
-                Vetting
-              </Tab>
-              <Tab fontSize="0.8125rem" p="0.25rem 1rem" color="grey.400">
-                Whitelisting
-              </Tab>
-              <Tab fontSize="0.8125rem" p="0.25rem 1rem" color="grey.400">
-                Disbursement
-              </Tab>
-            </TabList>
+          {isLoading ? (
+            <Grid placeItems="center" h="30rem">
+              <Spinner />
+            </Grid>
+          ) : (
+            <Tabs index={tabIndex} onChange={handleTabsChange} variant="unstyled">
+              <TabList>
+                {beneficiaryDetails?.body?.moduleDetails.map((module) => (
+                  <Tab key={module.moduleName} fontSize="0.8125rem" p="0.25rem 1rem" color="grey.400">
+                    {module.moduleName}
+                  </Tab>
+                ))}
+                <Tab fontSize="0.8125rem" p="0.25rem 1rem" color="grey.400">
+                  Summary
+                </Tab>
+              </TabList>
 
-            <TabPanels>
-              <TabPanel px="0" py="1.25rem">
-                <EnumerationTab />
-              </TabPanel>
-              <TabPanel px="0" py="1.25rem">
-                <VerificationTab />
-              </TabPanel>
-              <TabPanel px="0" py="1.25rem">
-                <VettingTab />
-              </TabPanel>
-              <TabPanel px="0" py="1.25rem">
-                <WhitelistingTab />
-              </TabPanel>
-              <TabPanel px="0" py="1.25rem">
-                <DisbursementTab />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+              <TabPanels>
+                {beneficiaryDetails?.body?.moduleDetails.map((module) => (
+                  <TabPanel key={module.moduleName} px="0" py="1.25rem">
+                    <ModuleTab beneficiaryId={beneficiary.id} module={module} status={getModuleStatus(module)} />
+                  </TabPanel>
+                ))}
+                <TabPanel px="0" py="1.25rem">
+                  <SummaryTab progressLog={beneficiaryDetails?.body?.progressLog} />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          )}
         </ModalBody>
       </ModalContent>
     </Modal>

@@ -30,6 +30,19 @@ export type PaginatedResponse<T> = {
   };
 };
 
+export type GroupedPaginatedResponse<T> = {
+  success: boolean;
+  status: number;
+  message: string;
+  body: {
+    total: number;
+    totalPages: number;
+    pageSize: number;
+    currentPage: number;
+    data: T;
+  };
+};
+
 export type User = {
   id: number;
   firstName: string;
@@ -158,6 +171,7 @@ export type Agent = {
 
 export type Module = {
   id: number;
+  name: string;
   module: string;
   formId: null | string;
   order: number;
@@ -189,11 +203,6 @@ export type LGA = {
   stateId: number;
 };
 
-export type DataPointResponse = {
-  dataPoints: DataPoints;
-  questionType: QuestionType[];
-};
-
 export type QuestionType = {
   status: string;
   value: number;
@@ -203,26 +212,26 @@ export type DataPoints = {
   [key: string]: DataPoint[];
 };
 
-export interface DataPoint {
+export type DataPoint = {
   id: string;
   format: Format;
   question: string;
   type: string;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
-export interface Format {
+export type Format = {
   type: string;
   options: Option[];
-}
+};
 
-export interface Option {
+export type Option = {
   id?: string;
   label: string;
   value: string;
   weight?: number;
-}
+};
 
 export type FormResponse = {
   programName: string;
@@ -231,6 +240,7 @@ export type FormResponse = {
 };
 
 export type FormPayload = {
+  id?: string;
   moduleId: number;
   program: string;
   questions: Question[];
@@ -267,6 +277,16 @@ export type Partner = {
 };
 
 export type ProgramDetails = {
+  name: string;
+  logo: string;
+  logoId: number;
+  target: number;
+  description: string;
+  programType: string;
+  programModules: ProgramModulesDetails[];
+};
+
+export type ProgramModulesDetails = {
   form: Form;
   moduleGuidelines: ModuleGuideline[];
   formId: string;
@@ -280,8 +300,72 @@ export type ProgramDetails = {
 export interface Form {
   name: string;
   program: string;
-  questions: Question[];
+  questions: QuestionDetails[];
   createdAt: Date;
   updatedAt: Date;
   id: string;
+  totalFormScore?: number;
+  minVetScore?: number;
 }
+
+export type QuestionDetails = {
+  question: string;
+  type: string;
+  mandatory: boolean;
+  options: Option[];
+  createdAt: Date;
+  updatedAt: Date;
+  id: string;
+  total?: number;
+  dataPoint?: { buffer: string };
+};
+
+export type ApproveBeneficiaryPayload = {
+  status: string;
+  beneficiaryId: number[];
+  moduleId: number;
+  programId: number;
+  vetScore?: number;
+};
+
+export type Beneficiary = {
+  id: number;
+  moduleName: string;
+  status: string;
+  [key: string]: string | number;
+};
+
+export type BeneficiaryDetails = {
+  id: number;
+  email: string;
+  phoneNumber: string;
+  moduleDetails: ModuleDetail[];
+  progressLog: ProgressLog[];
+};
+
+export type ModuleDetail = {
+  moduleName: string;
+  formAnswers: FormAnswer[];
+};
+
+export type FormAnswer = {
+  key: string;
+  value: string;
+};
+
+export type ProgressLog = {
+  agentName: string;
+  date: Date;
+  progress: string;
+  moduleName: string;
+  status: string;
+};
+
+export type ProgramUploadResponse = {
+  description: string;
+  id: number;
+  isActive: boolean;
+  name: string;
+  programTypeId: number;
+  target: number;
+};

@@ -17,9 +17,7 @@ export const withProtectedLoader = <P extends object>(Component: ComponentType<P
 
     useEffect(() => {
       if (!isHydrated || !!user) return;
-      const searchParams = new URLSearchParams();
-      searchParams.set('redirect', window.location.href);
-      router.replace(`/login?${searchParams.toString()}`);
+      router.replace('/login');
     }, [isHydrated, router, user]);
 
     if (!isHydrated || !user)

@@ -1,3 +1,4 @@
+import type { Module } from '@/types';
 import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
 import { ShortAnswerIcon } from '../../public/icons';
 
@@ -11,7 +12,7 @@ export const OPTIONS = [
 
 export type Option = (typeof OPTIONS)[number];
 
-export const ALL_MODULES = [
+export const ALL_MODULES: Module[] = [
   {
     form: {
       name: 'Nomination_Investment in Digital Creative Enterprises Program (iDICE)',
@@ -24,6 +25,7 @@ export const ALL_MODULES = [
     ModuleGuidelines: [],
     formId: '6749aae926f5db219859ef22',
     module: 'Nomination',
+    name: 'Nomination',
     id: 61,
     order: 3,
   },
@@ -46,11 +48,9 @@ export const ALL_MODULES = [
     ],
     formId: '6749aaec26f5db219859ef2d',
     module: 'Vetting',
+    name: 'Vetting',
     id: 62,
     order: 4,
-    isActive: false,
-    isCompleted: false,
-    name: '',
   },
   {
     form: {
@@ -83,11 +83,9 @@ export const ALL_MODULES = [
     ],
     formId: '6749aaed26f5db219859ef34',
     module: 'Disbursement',
+    name: 'Disbursement',
     id: 63,
     order: 5,
-    isActive: false,
-    isCompleted: false,
-    name: '',
   },
   {
     form: {
@@ -108,11 +106,9 @@ export const ALL_MODULES = [
     ],
     formId: '6749aaec26f5db219859ef2d',
     module: 'Whitelisting',
+    name: 'Whitelisting',
     id: 64,
     order: 6,
-    isActive: false,
-    isCompleted: false,
-    name: '',
   },
   {
     form: {
@@ -126,11 +122,9 @@ export const ALL_MODULES = [
     ModuleGuidelines: [],
     formId: '6749aaef26f5db219859ef3d',
     module: 'Survey',
+    name: 'Survey',
     id: 65,
     order: 7,
-    isActive: false,
-    isCompleted: false,
-    name: '',
   },
   {
     form: {
@@ -169,10 +163,9 @@ export const ALL_MODULES = [
     ],
     formId: '675a20e0464c70d54d04ed17',
     module: 'Application',
+    name: 'Application',
     id: 59,
     order: 1,
-    isActive: true,
-    isCompleted: false,
   },
   {
     form: {
@@ -205,11 +198,9 @@ export const ALL_MODULES = [
     ],
     formId: '675a20e1464c70d54d04ed1c',
     module: 'Enumeration',
+    name: 'Enumeration',
     id: 60,
     order: 2,
-    isActive: false,
-    isCompleted: false,
-    name: '',
   },
 ];
 

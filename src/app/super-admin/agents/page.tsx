@@ -17,7 +17,7 @@ const AgentsPage = () => {
   const { isLoading, data } = useGetAggregatorsOverview();
 
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%">
+    <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
       <AggregatorModal isOpen={isOpen} onClose={onClose} />
       <Flex flexDir="column" gap="12px">
         <Flex alignItems="center" justifyContent="space-between">

@@ -62,7 +62,7 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
             </Text>
             <Input
               type="number"
-              min={50}
+              min={0}
               step={50}
               minW="3rem"
               size="sm"
@@ -98,7 +98,7 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
                 </Text>
                 <Input
                   type="number"
-                  min={5}
+                  min={0}
                   step={5}
                   minW="3rem"
                   size="sm"

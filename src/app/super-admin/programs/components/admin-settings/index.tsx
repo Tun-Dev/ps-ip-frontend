@@ -2,8 +2,8 @@ import { Box, Heading, Stack, StackProps, Text } from '@chakra-ui/react';
 
 import { useGetModules } from '@/hooks/useGetModules';
 import { useProgramStore } from '@/providers/programs-store-provider';
-import { SettingsForm } from './settings-form';
 import { renameKey } from '@/utils';
+import { SettingsForm } from './settings-form';
 
 const AdminSettings = (props: StackProps) => {
   const { data: modules } = useGetModules();
@@ -18,8 +18,8 @@ const AdminSettings = (props: StackProps) => {
       {Array.from(selectedModuleIds.ids).map((moduleId, index) => {
         const currentModule = modules?.body.find((module) => module.id === moduleId);
         if (!currentModule) return null;
-        console.log(currentModule);
         const correctModule = renameKey(currentModule, 'name', 'module');
+        const isVettingModule = correctModule.module === 'Vetting';
         return (
           <Box key={moduleId} flex="1" display={activeModuleId === moduleId ? 'block' : 'none'}>
             <Heading variant="Body2Semibold" color="primary.500" mb="4" textTransform="capitalize">
@@ -28,7 +28,7 @@ const AdminSettings = (props: StackProps) => {
               </Box>{' '}
               {correctModule?.module}
             </Heading>
-            {correctModule.ModuleGuidelines.length > 0 ? (
+            {!isVettingModule && correctModule.ModuleGuidelines.length > 0 ? (
               <SettingsForm currentModule={correctModule} />
             ) : (
               <Text variant="Body2Semibold" textAlign="center" color="grey.500">

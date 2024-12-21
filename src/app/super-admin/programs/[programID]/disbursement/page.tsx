@@ -7,7 +7,7 @@ import { MdCloudUpload, MdDownload, MdSearch } from 'react-icons/md';
 
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
-import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
+// import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -19,7 +19,7 @@ const options = [
 type Option = (typeof options)[number];
 
 const DisbursementPage = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { onOpen } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[3]);
 
   return (
@@ -57,7 +57,7 @@ const DisbursementPage = () => {
       ) : (
         <ReusableTable data={data} columns={columns} onClick={onOpen} selectable />
       )}
-      <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} initialTab={4} />
+      {/* <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} initialTab={4} /> */}
     </Flex>
   );
 };

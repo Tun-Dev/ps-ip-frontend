@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useFieldArray, type FieldArrayWithId, type UseFormRegisterReturn } from 'react-hook-form';
 import { MdAddCircle, MdEdit, MdPerson } from 'react-icons/md';
 
-import { useGetDataPoints } from '@/hooks/useGetDataPoints';
+import { useGetQuestionTypes } from '@/hooks/useGetQuestionTypes';
 import { useProgramForm } from '@/providers/form-provider';
 import { Dropdown } from '@/shared/chakra/components';
 import type { DropdownOption } from '@/types';
@@ -34,12 +34,11 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
   const { control, register } = useProgramForm();
   const { fields, remove, append } = useFieldArray({ name: `vettingForm.manualFields.${index}.options`, control });
 
-  const { data, isLoading } = useGetDataPoints({ query: '' });
-  const questionTypes = data?.body.questionType;
+  const { data: questionTypes, isLoading } = useGetQuestionTypes();
 
   const options = useMemo(() => {
     if (!questionTypes) return [];
-    return questionTypes.map((type) => ({
+    return questionTypes.body.map((type) => ({
       label: getDropdownName(type.status),
       value: type.value,
       status: type.status,
@@ -129,7 +128,7 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
                 border="1px dashed"
                 borderColor="grey.300"
                 w="fit-content"
-                {...register(`surveyForm.fields.${index}.options.${idx}.label`)}
+                {...register(`vettingForm.manualFields.${index}.options.${idx}.label`)}
               />
               <Button variant="cancel" size="medium" type="button" onClick={() => remove(idx)}>
                 Delete

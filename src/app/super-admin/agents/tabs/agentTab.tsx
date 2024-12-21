@@ -12,7 +12,6 @@ import {
   PopoverContent,
   PopoverTrigger,
   Select,
-  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -22,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
-import { MdDownload, MdErrorOutline, MdMoreHoriz, MdRefresh, MdSearch } from 'react-icons/md';
+import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetAgents } from '@/hooks/useGetAgents';
@@ -30,7 +29,7 @@ import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Agent } from '@/types';
-import { formatErrorMessage } from '@/utils';
+// import { formatErrorMessage } from '@/utils';
 
 const columns: ColumnDef<Agent>[] = [
   {
@@ -131,7 +130,7 @@ const AgentsTab = () => {
   const total = data?.body.total ?? 0;
 
   return (
-    <Tabs onChange={(index) => setActiveTabIndex(index)} size="sm" variant="unstyled" isLazy>
+    <Tabs onChange={(index) => setActiveTabIndex(index)} size="sm" variant="unstyled" isLazy flex="1 1 0%">
       <TabList>
         <Tab>
           <Flex alignItems="center" gap="4px">
@@ -161,8 +160,8 @@ const AgentsTab = () => {
         </Tab>
       </TabList>
 
-      <TabPanels>
-        <TabPanel px="0">
+      <TabPanels h="100%">
+        <TabPanel px="0" h="100%">
           <AgentPanel
             page={page}
             setPage={setPage}
@@ -172,7 +171,7 @@ const AgentsTab = () => {
             setAggregatorId={setAggregatorId}
           />
         </TabPanel>
-        <TabPanel px="0">
+        <TabPanel px="0" h="100%">
           <AgentPanel
             page={page}
             setPage={setPage}
@@ -199,7 +198,7 @@ type AgentPanelProps = {
 const AgentPanel = ({ page, setPage, debouncedQuery, setQuery, aggregatorId, setAggregatorId }: AgentPanelProps) => {
   const { data: aggregators } = useGetAggregators({ page: 1, pageSize: 10 });
 
-  const { data, isLoading, error, isPlaceholderData, refetch } = useGetAgents({
+  const { data, isLoading, isPlaceholderData, refetch, isError, isRefetchError, isRefetching } = useGetAgents({
     page,
     pageSize: 10,
     query: debouncedQuery === '' ? undefined : debouncedQuery,
@@ -215,7 +214,7 @@ const AgentPanel = ({ page, setPage, debouncedQuery, setQuery, aggregatorId, set
   };
 
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%">
+    <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
       <Flex justifyContent="space-between">
         <Flex gap="8px" alignItems="center">
           <Flex gap="8px" alignItems="center">
@@ -259,47 +258,28 @@ const AgentPanel = ({ page, setPage, debouncedQuery, setQuery, aggregatorId, set
           Download Report
         </Button>
       </Flex>
-      <Stack gap="4" padding="0px 1rem 1rem" boxShadow="card" borderRadius="12px">
-        {!isLoading && error ? (
-          <Stack align="center" justify="center" flex="1" gap="2">
-            <Icon as={MdErrorOutline} color="red" boxSize="5" />
-            <Text variant="Body2Semibold" textAlign="center" color="grey.500">
-              {formatErrorMessage(error)}
-            </Text>
-            <Button
-              size="medium"
-              variant="link"
-              iconSpacing="1"
-              color="secondary.500"
-              rightIcon={<MdRefresh size="1rem" />}
-              onClick={() => refetch()}
-            >
-              Retry
-            </Button>
-          </Stack>
-        ) : !isLoading && agents.length < 1 ? (
-          <Flex align="center" justify="center" flex="1">
-            <Text variant="Body2Semibold" textAlign="center" color="grey.500">
-              No data available.
-            </Text>
-          </Flex>
-        ) : (
-          <>
-            <ReusableTable selectable data={agents} columns={columns} headerBgColor="#F3F9F2" isLoading={isLoading} />
-            <TablePagination
-              handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
-              handlePageChange={(pageNumber) => setPage(pageNumber)}
-              isNextDisabled={page >= totalPages}
-              isPrevDisabled={page <= 1}
-              currentPage={page}
-              totalPages={totalPages}
-              isDisabled={isLoading || isPlaceholderData}
-              display={totalPages > 1 ? 'flex' : 'none'}
-            />
-          </>
-        )}
-      </Stack>
+      <>
+        <ReusableTable
+          selectable
+          data={agents}
+          columns={columns}
+          headerBgColor="#F3F9F2"
+          isLoading={isLoading || isRefetching}
+          isError={isError || isRefetchError}
+          onRefresh={refetch}
+        />
+        <TablePagination
+          handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+          handlePageChange={(pageNumber) => setPage(pageNumber)}
+          isNextDisabled={page >= totalPages}
+          isPrevDisabled={page <= 1}
+          currentPage={page}
+          totalPages={totalPages}
+          isDisabled={isLoading || isPlaceholderData}
+          display={totalPages > 1 ? 'flex' : 'none'}
+        />
+      </>
     </Flex>
   );
 };

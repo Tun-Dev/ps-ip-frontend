@@ -1,7 +1,15 @@
 import type { QueryKey } from '@tanstack/react-query';
 
 import axiosInstance from '@/lib/axios';
-import type { APIResponse, DataPointResponse, Module, ProgramType, State } from '@/types';
+import type {
+  APIResponse,
+  DataPoints,
+  GroupedPaginatedResponse,
+  Module,
+  ProgramType,
+  QuestionType,
+  State,
+} from '@/types';
 
 export const getModules = async () => {
   const response = await axiosInstance.get<APIResponse<Module[]>>('/reference/modules');
@@ -21,6 +29,11 @@ export const getStates = async ({ queryKey }: { queryKey: QueryKey }) => {
 
 export const getDataPoints = async ({ queryKey }: { queryKey: QueryKey }) => {
   const [, params] = queryKey;
-  const response = await axiosInstance.get<APIResponse<DataPointResponse>>('/reference/data-points', { params });
+  const response = await axiosInstance.get<GroupedPaginatedResponse<DataPoints>>('/reference/data-points', { params });
+  return response.data;
+};
+
+export const getQuestionTypes = async () => {
+  const response = await axiosInstance.get<APIResponse<QuestionType[]>>('/reference/question-types');
   return response.data;
 };

@@ -1,9 +1,11 @@
 'use client';
 
+import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useUploadFile } from '@/hooks/useUploadFile';
 import { useProgramForm } from '@/providers/form-provider';
 import { Avatar, Icon, Spinner, Text } from '@chakra-ui/react';
-import { ChangeEvent, useRef, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { MdAddCircle } from 'react-icons/md';
 
 export const ProgramImage = ({ hasError }: { hasError: boolean }) => {
@@ -12,6 +14,12 @@ export const ProgramImage = ({ hasError }: { hasError: boolean }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { mutate: uploadFile, isPending } = useUploadFile();
+  const { programID } = useParams();
+  const { response } = useGetProgramById(programID?.toString());
+
+  useEffect(() => {
+    if (response) setPreview(response.body.logo);
+  }, [response]);
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;

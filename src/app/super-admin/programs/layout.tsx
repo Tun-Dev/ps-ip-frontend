@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Flex, Text } from '@chakra-ui/react';
+import { Button, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Suspense, type PropsWithChildren } from 'react';
 import { MdAddCircle } from 'react-icons/md';
@@ -22,7 +22,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
         alignItems="center"
       >
         <ProgramsBreadcrumbs />
-        {pathname !== '/super-admin/programs/create' && (
+        {pathname !== '/super-admin/programs/create' && !pathname.includes('/super-admin/programs/edit') && (
           <Button variant="primary" gap="8px" onClick={() => router.push('/super-admin/programs/create')}>
             <MdAddCircle />
             <Text>Create New Program</Text>
@@ -30,7 +30,15 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
         )}
       </Flex>
       <Flex flex="1 1 0%" w="100%" h="full">
-        <Suspense>{children}</Suspense>
+        <Suspense
+          fallback={
+            <Grid placeItems="center" boxSize="full">
+              <Spinner />
+            </Grid>
+          }
+        >
+          {children}
+        </Suspense>
       </Flex>
     </Flex>
   );

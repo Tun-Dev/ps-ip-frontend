@@ -3,11 +3,11 @@ import { Box, BoxProps, Heading, Stack, Text } from '@chakra-ui/react';
 import { useGetModules } from '@/hooks/useGetModules';
 import { useProgramForm } from '@/providers/form-provider';
 import { useProgramStore } from '@/providers/programs-store-provider';
+import { renameKey } from '@/utils';
 import { BuilderReview } from './builder-review';
 import { CheckboxFormReview } from './checkbox-form-review';
 import { SettingsReview } from './settings-review';
 import { VettingReview } from './vetting-review';
-import { renameKey } from '@/utils';
 
 const Review = (props: BoxProps) => {
   const { data: modules } = useGetModules();
@@ -30,6 +30,9 @@ const Review = (props: BoxProps) => {
         if (!currentModule) return null;
 
         const correctedModule = renameKey(currentModule, 'name', 'module');
+        const isSurveyModule = correctedModule.module === 'Survey';
+        const isVettingModule = correctedModule.module === 'Vetting';
+        const isFormModule = isSurveyModule || isVettingModule;
 
         return (
           <Box key={moduleId} display={activeModuleId === moduleId ? 'block' : 'none'}>
@@ -48,15 +51,14 @@ const Review = (props: BoxProps) => {
                 <VettingReview fields={vettingForm.automatedFields} />
               )}
               {dataPoints.length > 0 && <CheckboxFormReview dataPoints={dataPoints} />}
-              {correctedModule.ModuleGuidelines.length > 0 && <SettingsReview module={correctedModule} />}
-              {correctedModule.module !== 'Survey' &&
-                correctedModule.module !== 'Vetting' &&
-                dataPoints.length === 0 &&
-                correctedModule.ModuleGuidelines.length === 0 && (
-                  <Text variant="Body2Semibold" textAlign="center" color="grey.500">
-                    No additional review for this module.
-                  </Text>
-                )}
+              {!isVettingModule && correctedModule.ModuleGuidelines.length > 0 && (
+                <SettingsReview module={correctedModule} />
+              )}
+              {!isFormModule && dataPoints.length === 0 && correctedModule.ModuleGuidelines.length === 0 && (
+                <Text variant="Body2Semibold" textAlign="center" color="grey.500">
+                  No additional review for this module.
+                </Text>
+              )}
             </Stack>
           </Box>
         );

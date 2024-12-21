@@ -3,9 +3,11 @@
 import { Checkbox, CheckboxGroup, Stack } from '@chakra-ui/react';
 import { memo, useCallback, useEffect, useState } from 'react';
 
+import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useProgramForm } from '@/providers/form-provider';
 import { useProgramStore } from '@/providers/programs-store-provider';
 import type { Module } from '@/types';
+import { useParams } from 'next/navigation';
 
 type Props = {
   currentModule: Module;
@@ -27,6 +29,15 @@ export const SettingsForm = memo(({ currentModule }: Props) => {
     });
   }, []);
 
+  const { programID } = useParams();
+  const { response: program } = useGetProgramById(programID?.toString());
+
+  useEffect(() => {
+    if (!program) return;
+    const foundModule = program.body.programModules.find((module) => module.module === currentModule.module);
+    if (foundModule) setCheckedGuidelines(foundModule.moduleGuidelines.map((guideline) => guideline.id));
+  }, [currentModule, program]);
+
   useEffect(() => {
     setValue(
       'programModules',
@@ -43,7 +54,7 @@ export const SettingsForm = memo(({ currentModule }: Props) => {
           {currentModule.ModuleGuidelines.map((guideline) => (
             <Checkbox
               key={guideline.id}
-              defaultChecked={checkedGuidelines.includes(guideline.id)}
+              isChecked={checkedGuidelines.includes(guideline.id)}
               onChange={() => handleCheckboxChange(guideline.id)}
             >
               {guideline.name}
