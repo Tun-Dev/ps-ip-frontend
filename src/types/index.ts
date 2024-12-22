@@ -63,10 +63,10 @@ export type Tokens = {
   refreshToken: string;
 };
 
-export type Vendor = {
+export type NewVendor = {
   name: string;
   service: string;
-  item: string;
+  product?: string;
   amount: number;
   scheduledDate: string;
   endDate: string;
@@ -79,6 +79,19 @@ export type Vendor = {
     firstname: string;
     lastname: string;
   };
+};
+
+export type Vendor = {
+  id: string;
+  amount: number;
+  endDate: string;
+  item: string;
+  name: string;
+  numberOfBeneficiaries: number;
+  programName: string;
+  programId: number;
+  scheduledDate: string;
+  product?: string;
 };
 
 export type VendorFilterParams = {
@@ -273,7 +286,18 @@ export type Partner = {
   id: number;
   name: string;
   program: string;
-  service: string;
+};
+
+export type NewPartnerDetails = {
+  password: string;
+  confirmPassword: string;
+  programId: number;
+  amount: number;
+  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactEmail: string;
 };
 
 export type ProgramDetails = {
@@ -326,6 +350,12 @@ export type ApproveBeneficiaryPayload = {
   moduleId: number;
   programId: number;
   vetScore?: number;
+};
+
+export type PartnerFilterParams = {
+  page: number;
+  pageSize: number;
+  query?: string;
 };
 
 export type Beneficiary = {

@@ -1,12 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { getPartners } from '@/services/partners';
+import { PartnerFilterParams } from '@/types';
 
-type Params = Partial<{
-  page: number;
-  pageSize: number;
-}>;
-
-export const useGetPartners = (params: Params) => {
-  return useQuery({ queryKey: ['partners', params], queryFn: getPartners });
+export const useGetPartners = (filterParams: PartnerFilterParams) => {
+  return useQuery({ queryKey: ['partners', filterParams], queryFn: () => getPartners(filterParams) });
 };

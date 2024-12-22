@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Flex,
   Text,
@@ -19,15 +19,19 @@ import {
   PopoverBody,
   useToast,
 } from '@chakra-ui/react';
-import { ReusableTable, AddNewPartnerModal } from '@/shared';
+import { ReusableTable, AddNewPartnerModal, DeleteModal } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
 import { MdSearch, MdVolunteerActivism, MdDownload, MdAddCircle, MdMoreHoriz } from 'react-icons/md';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { useGetPartners } from '@/hooks/useGetPartners';
 import { useDeletePartner } from '@/hooks/useDeletePartner';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { Partner } from '@/types';
 
 const PartnerTab = () => {
   const toast = useToast();
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const {
     data: partners,
     isLoading,
@@ -35,19 +39,22 @@ const PartnerTab = () => {
     isRefetchError,
     isRefetching,
     refetch,
-  } = useGetPartners({ page: 1, pageSize: 10 });
+  } = useGetPartners({ page: 1, pageSize: 10, query: search });
+  const totalPages = partners?.body.total ?? 0;
+  const [selectedPartner, setSelectedPartner] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: deleteModalOnClose } = useDisclosure();
   const { mutate: delPartner, isPending } = useDeletePartner();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleDeletePartner = (id: string) => {
-    delPartner(id, {
+  const handleDeletePartner = () => {
+    delPartner(selectedPartner, {
       onSuccess: () => {
         toast({ title: 'Partner deleted successfully', status: 'success' });
       },
     });
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const columns: ColumnDef<any>[] = useMemo(
+
+  const columns: ColumnDef<Partner>[] = useMemo(
     () => [
       {
         header: () => (
@@ -102,8 +109,8 @@ const PartnerTab = () => {
                       size="small"
                       isLoading={isPending}
                       onClick={() => {
-                        console.log(info.row.original);
-                        handleDeletePartner(info.row.original.id);
+                        setSelectedPartner(info.row.original.id.toString());
+                        onDeleteOpen();
                       }}
                     >
                       Delete Partner
@@ -116,12 +123,19 @@ const PartnerTab = () => {
         ),
       },
     ],
-    [handleDeletePartner, isPending]
+    [isPending, onDeleteOpen]
   );
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
       <AddNewPartnerModal isOpen={isOpen} onClose={onClose} />
+      <DeleteModal
+        isOpen={isDeleteOpen}
+        onClose={deleteModalOnClose}
+        action={handleDeletePartner}
+        isLoading={isPending}
+        text="Are you sure you want to delete this partner. Proceeding will erase this partner data."
+      />
       <Flex flexDir="column" gap="12px">
         <Flex alignItems="center" justifyContent="space-between">
           <Text variant="Body1Semibold" color="grey.400">
@@ -160,7 +174,7 @@ const PartnerTab = () => {
             <InputLeftElement>
               <Icon as={MdSearch} w="12px" h="12px" color="primary.600" />
             </InputLeftElement>
-            <Input variant="primary" placeholder="Search" />
+            <Input variant="primary" placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
           </InputGroup>
         </Flex>
 
@@ -178,6 +192,17 @@ const PartnerTab = () => {
         isLoading={isLoading || isRefetching}
         isError={isError || isRefetchError}
         onRefresh={refetch}
+      />
+      <TablePagination
+        handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+        handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+        handlePageChange={(pageNumber) => setPage(pageNumber)}
+        isNextDisabled={page >= totalPages}
+        isPrevDisabled={page <= 1}
+        currentPage={page}
+        totalPages={totalPages}
+        isDisabled={isLoading}
+        display={totalPages > 1 ? 'flex' : 'none'}
       />
     </Flex>
   );

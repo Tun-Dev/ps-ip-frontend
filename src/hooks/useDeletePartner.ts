@@ -10,7 +10,7 @@ export const useDeletePartner = () => {
   return useMutation({
     mutationFn: deletePartner,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['partners'] });
     },
     onError: (error) => {
       let message = 'An unknown error occurred';

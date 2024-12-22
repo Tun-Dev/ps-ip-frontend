@@ -38,7 +38,16 @@ const DeleteModal = ({
               <Button variant="secondary" width="200px" height="48px" onClick={onClose}>
                 No, Keep
               </Button>
-              <Button variant="cancel" width="200px" height="48px" onClick={action} isLoading={isLoading}>
+              <Button
+                variant="cancel"
+                width="200px"
+                height="48px"
+                onClick={() => {
+                  action();
+                  // onClose();
+                }}
+                isLoading={isLoading}
+              >
                 Yes, Delete
               </Button>
             </Flex>

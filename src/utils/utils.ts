@@ -104,3 +104,21 @@ export function renameKey(obj: any, oldKey: string, newKey: string) {
   delete newObj[oldKey];
   return newObj;
 }
+
+export const formatDateForInput = (isoString: string) => {
+  if (!isoString) return '';
+
+  try {
+    const date = new Date(isoString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+
+    return date.toISOString().split('T')[0];
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return '';
+  }
+};

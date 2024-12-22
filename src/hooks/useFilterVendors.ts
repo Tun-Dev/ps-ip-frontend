@@ -13,6 +13,10 @@ export const useFilterVendors = (filterParams: VendorFilterParams) => {
     data: response,
     isLoading,
     error,
+    refetch,
+    isRefetchError,
+    isRefetching,
+    isError,
   } = useQuery({
     queryKey: ['vendors', filterParams],
     queryFn: () => filterVendors(filterParams),
@@ -26,5 +30,5 @@ export const useFilterVendors = (filterParams: VendorFilterParams) => {
     toast({ title: 'Error', description: message, status: 'error' });
   }, [error, toast]);
 
-  return { response, isLoading, error };
+  return { response, isLoading, error, refetch, isRefetchError, isRefetching, isError };
 };

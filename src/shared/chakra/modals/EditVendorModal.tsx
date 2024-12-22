@@ -14,27 +14,28 @@ import {
   FormLabel,
   FormControl,
   FormErrorMessage,
-  Divider,
   InputGroup,
   InputLeftElement,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dropdown } from '@/shared/chakra/components';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { formatDateForInput } from '@/utils';
-import { useCreateVendor } from '@/hooks/useCreateVendor';
+import { Vendor } from '@/types';
+import { useUpdateVendorById } from '@/hooks/useEditVendorById';
 
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  initialValues?: Partial<Vendor>;
 };
 
-const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
+const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
-  const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
+  const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id.toString() }));
 
   const services = [
     { label: 'Cash', value: 'Cash' },
@@ -44,40 +45,40 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
 
   const [showProductField, setShowProductField] = useState(false);
 
-  const { mutate, isPending } = useCreateVendor(() => {
-    onClose();
-    reset();
+  const {
+    // mutate,
+    isPending,
+  } = useUpdateVendorById(initialValues?.id as string, onClose);
+
+  const Schema = z.object({
+    name: z.string().min(1, 'Name is required'),
+    programName: z.string().optional(),
+    programId: z.coerce.number().min(1, 'Program is required'),
+    amount: z.coerce.number().min(0, 'Amount is required'),
+    numberOfBeneficiaries: z.coerce.number().min(0, 'Number of Beneficiaries is required'),
+    product: z.string().optional(),
+    service: z.string().min(1, 'Services is required'),
+    scheduledDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+      message: 'Scheduled date must be a valid ISO string',
+    }),
+    endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+      message: 'End date must be a valid ISO string',
+    }),
   });
 
-  const Schema = z
-    .object({
-      name: z.string().min(1, 'Name is required'),
-      programId: z.coerce.number().min(1, 'Program is required'),
-      amount: z.coerce.number().min(0, 'Amount is required'),
-      numberOfBeneficiaries: z.coerce.number().min(0, 'Number of Beneficiaries is required'),
-      product: z.string().optional(),
-      service: z.string().min(1, 'Services is required'),
-      scheduledDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-        message: 'Scheduled date must be a valid ISO string',
-      }),
-      endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-        message: 'End date must be a valid ISO string',
-      }),
-
-      firstname: z.string().min(1, 'First name is required'),
-      lastname: z.string().min(1, 'Last name is required'),
-      // corporateEmail: z.string().min(1, 'Corporate Email is required'),
-      email: z.string().min(1, 'Email is required'),
-      password: z.string().min(1, 'Password is required'),
-      confirmPassword: z.string().min(1, 'Confirm password is required'),
-      phoneNumber: z.coerce.number().min(1, 'Phone number is required'),
-    })
-    .refine((value) => value.password === value.confirmPassword, {
-      message: "Passwords don't match",
-      path: ['confirmPassword'],
-    });
-
   type FormValues = z.infer<typeof Schema>;
+
+  const defaultValues: FormValues = {
+    name: initialValues?.name || '',
+    programName: initialValues?.programName || '',
+    programId: initialValues?.programId || 0,
+    amount: initialValues?.amount || 0,
+    numberOfBeneficiaries: initialValues?.numberOfBeneficiaries || 0,
+    product: initialValues?.product || '',
+    service: initialValues?.item || '',
+    scheduledDate: initialValues?.scheduledDate || new Date().toISOString(),
+    endDate: initialValues?.endDate || new Date().toISOString(),
+  };
 
   const {
     register,
@@ -85,27 +86,29 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<FormValues>({ resolver: zodResolver(Schema) });
+  } = useForm<FormValues>({ resolver: zodResolver(Schema), defaultValues });
+
+  useEffect(() => {
+    if (initialValues) {
+      reset(defaultValues);
+    }
+  }, [initialValues, reset]);
 
   const onSubmit = (data: FormValues) => {
-    const vendorData = {
+    const vendorData: Partial<Vendor> = {
       name: data.name,
-      service: data.service,
-      product: data.product,
+      item: data.service,
+      product: data.product ? data.product : undefined,
       amount: data.amount,
       scheduledDate: data.scheduledDate,
       endDate: data.endDate,
       numberOfBeneficiaries: data.numberOfBeneficiaries,
       programId: data.programId,
-      user: {
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-        email: data.email,
-        firstname: data.firstname,
-        lastname: data.lastname,
-      },
+      programName: data.programName,
+      id: initialValues?.id || '',
     };
-    mutate(vendorData);
+    console.log(vendorData);
+    // mutate(vendorData);
   };
 
   return (
@@ -113,7 +116,7 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
       <ModalOverlay />
       <ModalContent as="form" width="498px" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
         <ModalHeader>
-          <Text variant="Body1Semibold">Add New Vendor</Text>
+          <Text variant="Body1Semibold">Edit Vendor</Text>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
@@ -136,20 +139,24 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
               <Controller
                 control={control}
                 name="programId"
-                defaultValue={0}
-                render={({ field: { name, onBlur, onChange, value, disabled } }) => (
-                  <Dropdown
-                    id="programId"
-                    variant="whiteDropdown"
-                    placeholder="Select program"
-                    name={name}
-                    options={options}
-                    value={options?.find((option) => parseInt(option.value) === value)}
-                    onChange={(value) => value && onChange(value.value)}
-                    onBlur={onBlur}
-                    isDisabled={disabled}
-                  />
-                )}
+                defaultValue={initialValues?.programId || 0}
+                render={({ field }) => {
+                  return (
+                    <Dropdown
+                      id="programId"
+                      variant="whiteDropdown"
+                      placeholder="Select program"
+                      options={options}
+                      value={options?.find((option) => parseInt(option.value) === field.value)}
+                      onChange={(option) => {
+                        console.log('Selected:', option);
+                        field.onChange(option ? parseInt(option.value) : 0);
+                      }}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
+                  );
+                }}
               />
               <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
             </FormControl>
@@ -272,84 +279,11 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
                 <FormErrorMessage>{errors.endDate && errors.endDate.message}</FormErrorMessage>
               </FormControl>
             </Grid>
-            {/* <FormControl isInvalid={!!errors.corporateEmail}>
-              <FormLabel htmlFor="corporateEmail">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Corporate Email
-                </Text>
-              </FormLabel>
-              <Input id="corporateEmail" type="email" variant="primary" {...register('corporateEmail')} />
-              <FormErrorMessage>{errors.corporateEmail && errors.corporateEmail.message}</FormErrorMessage>
-            </FormControl> */}
-            <FormControl isInvalid={!!errors.password}>
-              <FormLabel htmlFor="password">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Password
-                </Text>
-              </FormLabel>
-              <Input id="password" type="password" variant="primary" {...register('password')} />
-              <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.confirmPassword}>
-              <FormLabel htmlFor="confirmPassword">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Confirm Password
-                </Text>
-              </FormLabel>
-              <Input id="confirmPassword" type="password" variant="primary" {...register('confirmPassword')} />
-              <FormErrorMessage>{errors.confirmPassword && errors.confirmPassword.message}</FormErrorMessage>
-            </FormControl>
-
-            <Divider orientation="horizontal" />
-
-            <Text variant="Body1Semibold">Contact Information</Text>
-            <FormControl isInvalid={!!errors.firstname}>
-              <FormLabel htmlFor="firstname">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  First Name
-                </Text>
-              </FormLabel>
-              <Input id="firstname" variant="primary" {...register('firstname')} />
-              <FormErrorMessage>{errors.firstname && errors.firstname.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.lastname}>
-              <FormLabel htmlFor="lastname">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Last Name
-                </Text>
-              </FormLabel>
-              <Input id="lastname" variant="primary" {...register('lastname')} />
-              <FormErrorMessage>{errors.lastname && errors.lastname.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.email}>
-              <FormLabel htmlFor="email">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Email
-                </Text>
-              </FormLabel>
-              <Input id="email" type="email" variant="primary" {...register('email')} />
-              <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.phoneNumber}>
-              <FormLabel htmlFor="phoneNumber">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Phone Number
-                </Text>
-              </FormLabel>
-              <Input
-                id="phoneNumber"
-                type="number"
-                placeholder="e.g. 08012345678"
-                variant="primary"
-                {...register('phoneNumber')}
-              />
-              <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
-            </FormControl>
           </Flex>
         </ModalBody>
         <ModalFooter>
           <Button variant="primary" width="402px" height="48px" type="submit" isLoading={isPending}>
-            Add New Vendor
+            Submit
           </Button>
         </ModalFooter>
       </ModalContent>
@@ -357,4 +291,4 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
   );
 };
 
-export { NewVendorModal };
+export { EditVendorModal };
