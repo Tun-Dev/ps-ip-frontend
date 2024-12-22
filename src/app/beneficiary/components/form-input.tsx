@@ -102,7 +102,7 @@ const ImageInput = ({ question, form }: FormInputProps) => {
     e.target.value = '';
 
     uploadFile(
-      { files: [file], type: 'beneficiaryLogo' },
+      { files: [file], type: 'beneficiaryDocs' },
       {
         onSuccess: (data) => form.setValue(question.id, data.body[0].fileName),
       }

@@ -258,7 +258,7 @@ export type Question = {
 
 export type UploadPayload = {
   files: File[];
-  type: 'programLogo' | 'profilePhotos' | 'beneficiaryLogo';
+  type: 'programLogo' | 'profilePhotos' | 'beneficiaryDocs';
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
 };
 
