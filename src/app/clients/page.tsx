@@ -31,7 +31,7 @@ const ClientsDashboard = () => {
       </Flex>
       <Flex flexDir="column" gap="12px">
         <Text variant="Body1Semibold" color="grey.400">
-          Modules In Progress
+          Modules In Progressss
         </Text>
         <Grid gap="1rem" templateColumns={{ base: 'repeat(3, 1fr)', sm: 'repeat(4, 1fr)' }}>
           <ModuleDashboardCard text="Applications" number={150000} image="/icons/Application.svg" />
