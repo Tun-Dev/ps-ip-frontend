@@ -52,8 +52,8 @@ const DataPointSchema = z.object({
   }),
   question: z.string(),
   type: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
   id: z.string(),
 });
 
@@ -253,6 +253,7 @@ export const ProgramFormProvider = ({ children }: { children: ReactNode }) => {
       description: program.description,
       programTypeId: programType?.id,
       programModules: program.programModules.map((module) => ({
+        id: module.id,
         order: module.order,
         formId: module.formId,
         isBase: false,

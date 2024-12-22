@@ -217,8 +217,8 @@ export type DataPoint = {
   format: Format;
   question: string;
   type: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Format = {
@@ -297,24 +297,24 @@ export type ProgramModulesDetails = {
   isCompleted: boolean;
 };
 
-export interface Form {
+export type Form = {
   name: string;
   program: string;
   questions: QuestionDetails[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   id: string;
   totalFormScore?: number;
   minVetScore?: number;
-}
+};
 
 export type QuestionDetails = {
   question: string;
   type: string;
   mandatory: boolean;
   options: Option[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   id: string;
   total?: number;
   dataPoint?: { buffer: string };
@@ -338,6 +338,7 @@ export type Beneficiary = {
 export type BeneficiaryDetails = {
   id: number;
   email: string;
+  date: string;
   phoneNumber: string;
   moduleDetails: ModuleDetail[];
   progressLog: ProgressLog[];
@@ -355,7 +356,7 @@ export type FormAnswer = {
 
 export type ProgressLog = {
   agentName: string;
-  date: Date;
+  date: string;
   progress: string;
   moduleName: string;
   status: string;
@@ -368,4 +369,30 @@ export type ProgramUploadResponse = {
   name: string;
   programTypeId: number;
   target: number;
+};
+
+export type ProgramForm = {
+  form: Form;
+  programId: number;
+  moduleName: string;
+  description: string;
+  logo: string;
+  programType: string;
+  programName: string;
+  availableModules: { module: string; order: number }[];
+};
+
+export type FillFormPayload = {
+  programId: number;
+  agentId?: number;
+  formId: string;
+  moduleName: string;
+  formAnswers: { label: string; value: string; question: string }[];
+};
+
+export type BeneficiaryStatus = {
+  status: string;
+  currentModule: string;
+  programName: string;
+  availableModules: { name: string; order: number }[];
 };

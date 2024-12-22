@@ -74,7 +74,10 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary }: BeneficiaryDe
               <Text variant="Body2Semibold" color="grey.500">
                 Date added:
               </Text>
-              <Text variant="Body1Regular">Nov 1, 2024</Text>
+              <Text variant="Body1Regular">
+                {beneficiaryDetails?.body.date &&
+                  Intl.DateTimeFormat('en-GB').format(new Date(beneficiaryDetails.body.date))}
+              </Text>
             </Flex>
             <Button variant="primary" leftIcon={<MdDownload />} size="medium">
               Download Report

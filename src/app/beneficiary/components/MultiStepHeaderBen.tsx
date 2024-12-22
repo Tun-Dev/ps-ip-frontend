@@ -1,25 +1,31 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
-import React from 'react';
+import { Fragment, useMemo } from 'react';
 
-const MultiStepHeaderBen = ({ activeStep }: { activeStep: number }) => {
+type Props = {
+  availableModules: { module?: string; order: number; name?: string }[];
+  currentModule: string;
+};
+
+export const MultiStepHeaderBen = ({ availableModules, currentModule }: Props) => {
+  const modules = useMemo(() => availableModules.sort((a, b) => a.order - b.order), [availableModules]);
+
+  const activeModuleIndex = modules.findIndex(
+    (module) => module.module === currentModule || module.name === currentModule
+  );
+
   return (
     <Flex justifyContent="center" gap="8px">
-      <StepItem step={1} activeStep={activeStep} label="Application" />
-      <ProgressLine step={1} activeStep={activeStep} />
-      <StepItem step={2} activeStep={activeStep} label="Verification" />
-      <ProgressLine step={2} activeStep={activeStep} />
-      <StepItem step={3} activeStep={activeStep} label="Vetting" />
-      <ProgressLine step={3} activeStep={activeStep} />
-      <StepItem step={4} activeStep={activeStep} label="Whitelisting" />
-      <ProgressLine step={4} activeStep={activeStep} />
-      <StepItem step={5} activeStep={activeStep} label="Disbursement" />
+      {modules.map((module, index) => (
+        <Fragment key={module.module}>
+          <StepItem step={index + 1} activeStep={activeModuleIndex + 1} label={module.module || module.name} />
+          {index < modules.length - 1 && <ProgressLine step={index + 1} activeStep={activeModuleIndex + 1} />}
+        </Fragment>
+      ))}
     </Flex>
   );
 };
 
-export { MultiStepHeaderBen };
-
-const StepItem = ({ step, activeStep, label }: { step: number; activeStep: number; label: string }) => {
+const StepItem = ({ step, activeStep, label }: { step: number; activeStep: number; label?: string }) => {
   const isActive = activeStep === step;
   const isApproved = activeStep > step;
   return (
@@ -30,7 +36,6 @@ const StepItem = ({ step, activeStep, label }: { step: number; activeStep: numbe
         borderRadius="50%"
         border="2px dashed"
         borderColor={isActive ? 'secondary.600' : isApproved ? 'primary.400' : 'grey.300'}
-        // p="8px"
         justifyContent="center"
         alignItems="center"
         transition="all 0.3s ease-in-out"

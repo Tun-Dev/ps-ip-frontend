@@ -147,9 +147,11 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
       <Stack
         spacing="0"
         as={motion.div}
-        pos="absolute"
+        pos="fixed"
+        ml="auto"
+        mr="24px"
         inset="0"
-        w="full"
+        w="calc(100% - 280px)" // Sidebar width
         zIndex={10}
         initial={{ transform: 'translateY(100%)' }}
         exit={{ transform: 'translateY(100%)', transition }}
