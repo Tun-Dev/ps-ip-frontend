@@ -5,8 +5,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 import { MdDownload, MdEmojiEmotions, MdGroupAdd, MdGroups, MdSearch, MdVolunteerActivism } from 'react-icons/md';
 
-import { OverviewCard } from '@/shared/chakra/components/overview';
 import { ReusableTable } from '@/shared';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 
 const ClientsVendorsPage = () => {
   const [selected, setSelected] = useState<'vendors' | 'orders'>('vendors');
@@ -40,10 +40,10 @@ const OrdersTab = () => {
   return (
     <Flex flexDir="column" w="100%" borderTop="1px solid" borderTopColor="grey.200">
       <Flex justifyContent="space-between" py="5">
-        <Flex gap="8px" alignItems="center">
+        <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
             <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-              Sort by
+              Filter by
             </Text>
             <Select
               placeholder="Select..."
@@ -80,10 +80,10 @@ const VendorsTab = () => {
   return (
     <Flex flexDir="column" w="100%" borderTop="1px solid" borderTopColor="grey.200">
       <Flex justifyContent="space-between" py="5">
-        <Flex gap="8px" alignItems="center">
+        <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
             <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-              Sort by
+              Filter by
             </Text>
             <Select
               placeholder="Select..."

@@ -356,6 +356,7 @@ export type PartnerFilterParams = {
   page: number;
   pageSize: number;
   query?: string;
+  programId?: number;
 };
 
 export type Beneficiary = {

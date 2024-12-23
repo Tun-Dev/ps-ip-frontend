@@ -74,6 +74,7 @@ const AutomatedVettingForm = memo(({ display }: { display: string }) => {
             variant="tertiary"
             size="default"
             leftIcon={<MdAddCircle color="var(--chakra-colors-primary-600)" size="1.5rem" />}
+            isDisabled={remainderScore <= 0}
             onClick={() =>
               append({
                 name: 'New Question',

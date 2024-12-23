@@ -18,8 +18,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 import { MdCloudUpload, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
-import { Dropdown } from '@/shared/chakra/components';
 import { ReusableTable } from '@/shared';
+import { Dropdown } from '@/shared/chakra/components';
 
 const options = [
   { label: 'Profession', value: 'Profession' },
@@ -38,7 +38,7 @@ const NominationPage = () => {
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
             <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
-              Sort by
+              Filter by
             </Text>
             <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
           </Flex>

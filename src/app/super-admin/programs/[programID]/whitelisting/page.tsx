@@ -7,17 +7,17 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  Text,
-  useDisclosure,
   Popover,
-  PopoverTrigger,
-  PopoverContent,
   PopoverArrow,
   PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
-import { MdCloudUpload, MdDownload, MdSearch, MdMoreHoriz } from 'react-icons/md';
+import { MdCloudUpload, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
@@ -42,7 +42,7 @@ const WhitelistingPage = () => {
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
             <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
-              Sort by
+              Filter by
             </Text>
             <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
           </Flex>

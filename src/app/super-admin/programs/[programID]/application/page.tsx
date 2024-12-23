@@ -23,15 +23,15 @@ import { MdCloudUpload, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
+import { useUploadProgram } from '@/hooks/useUploadData';
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
 import { useParams } from 'next/navigation';
-import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { useUploadProgram } from '@/hooks/useUploadData';
-import { useGetProgramById } from '@/hooks/useGetProgramById';
-import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -191,7 +191,7 @@ const ApplicationPage = () => {
         <Flex align="center" gap="6">
           <Flex align="center" gap="2" shrink={0}>
             <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
-              Sort by
+              Filter by
             </Text>
             <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
           </Flex>

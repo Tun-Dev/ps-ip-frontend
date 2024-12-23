@@ -1,9 +1,14 @@
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import {
   Box,
+  Button,
   Checkbox,
+  Flex,
   Icon,
   SkeletonText,
+  Spinner,
+  Stack,
+  StackProps,
   Table,
   TableContainer,
   Tbody,
@@ -12,10 +17,6 @@ import {
   Th,
   Thead,
   Tr,
-  Flex,
-  Stack,
-  Spinner,
-  Button,
 } from '@chakra-ui/react';
 import {
   ColumnDef,
@@ -29,7 +30,7 @@ import {
 import React from 'react';
 import { MdSortByAlpha } from 'react-icons/md';
 
-interface ReusableTableProps<T extends object> {
+interface ReusableTableProps<T extends object> extends Omit<StackProps, 'onClick'> {
   data: T[];
   columns: ColumnDef<T>[];
   onClick?: (row: T) => void;
@@ -51,6 +52,7 @@ function ReusableTable<T extends object>({
   isLoading,
   isError,
   onRefresh,
+  ...props
 }: ReusableTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
@@ -141,6 +143,7 @@ function ReusableTable<T extends object>({
           borderRadius="12px"
           border="1px solid"
           borderColor="grey.100"
+          {...props}
         >
           <TableContainer width="100%">
             <Table>

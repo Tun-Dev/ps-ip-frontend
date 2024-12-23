@@ -1,27 +1,27 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { MdOutlineChecklistRtl, MdSearch, MdDownload, MdCloudUpload, MdMoreHoriz } from 'react-icons/md';
+import { ReusableTable } from '@/shared';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import {
-  Flex,
-  Text,
   Box,
-  Select,
-  InputGroup,
-  InputLeftElement,
+  Button,
+  Flex,
+  Grid,
   Icon,
   Input,
-  Button,
-  Grid,
+  InputGroup,
+  InputLeftElement,
   Popover,
-  PopoverTrigger,
-  PopoverContent,
   PopoverArrow,
   PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  Text,
 } from '@chakra-ui/react';
-import { OverviewCard } from '@/shared/chakra/components/overview';
 import { ColumnDef } from '@tanstack/react-table';
-import { ReusableTable } from '@/shared';
+import { useMemo } from 'react';
+import { MdCloudUpload, MdDownload, MdMoreHoriz, MdOutlineChecklistRtl, MdSearch } from 'react-icons/md';
 
 const VettingOfficersVettingPage = () => {
   const cards = [
@@ -311,7 +311,7 @@ const VettingOfficersVettingPage = () => {
           <Flex gap="8px" alignItems="center">
             <Flex gap="8px" alignItems="center">
               <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-                Sort by
+                Filter by
               </Text>
               <Select
                 placeholder="Select..."

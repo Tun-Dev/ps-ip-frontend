@@ -16,8 +16,8 @@ import {
 } from 'react-icons/md';
 
 import { useUserStore } from '@/providers/user-store-provider';
+import { NotificationButton, SideBarItem } from '@/shared/chakra/components';
 import NotificationModal from '@/shared/chakra/modals/notificationModal';
-import { SideBarItem, NotificationButton } from '@/shared/chakra/components';
 
 const sideBarData = [
   { name: 'Dashboard', Icon: MdHome, url: '/super-admin' },
@@ -63,8 +63,16 @@ const Sidebar = () => {
           url="/super-admin/notifications"
           active={pathname.startsWith('/super-admin/notifications')}
         />
-        <Flex flexDir="column" mt="88px" gap="16px">
-          <Flex py="3" px="4" borderRadius="6px" bg="primary.100" alignItems="center" justifyContent="center" gap="8px">
+        <Flex flexDir="column" mt="48px" gap="16px">
+          <Flex
+            py="9px"
+            px="12px"
+            borderRadius="6px"
+            bg="primary.100"
+            alignItems="center"
+            justifyContent="center"
+            gap="8px"
+          >
             <Flex
               boxSize="40px"
               bg="white"

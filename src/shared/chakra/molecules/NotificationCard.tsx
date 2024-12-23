@@ -24,8 +24,8 @@ const NotificationCard = ({ title, time, desc, Icon, boldWord }: NotificationCar
       bg="primary.30"
     >
       <Flex gap="4">
-        <Center h="2rem" w="2rem" bg="primary.100" padding="8px" borderRadius="10px">
-          <Icon color="var(--chakra-colors-primary-600)" />
+        <Center boxSize="24px" bg="primary.100" borderRadius="10px">
+          <Icon color="var(--chakra-colors-primary-600)" size="1rem" />
         </Center>
         <Flex flexDir="column" gap="2">
           <Text display="flex" alignItems="center" gap="2" color="grey.500" variant="Body2Semibold">

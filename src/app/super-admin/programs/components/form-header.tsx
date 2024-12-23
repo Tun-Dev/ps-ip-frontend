@@ -48,6 +48,8 @@ export function FormHeader() {
                   outline: '1px dashed',
                   outlineColor: !!errors.programTypeId ? 'red' : 'grey.300',
                   h: '10',
+                  fontSize: '16px',
+                  _placeholder: { color: 'grey.500' },
                 }),
               }}
               name={name}
@@ -61,6 +63,15 @@ export function FormHeader() {
         />
         <Icon as={MdEdit} aria-label={`Edit`} color="primary.500" boxSize="3" />
       </Flex>
+      <Flex align="center" gap="8px">
+        <Input
+          placeholder="Description"
+          border="1px dashed"
+          borderColor={!!errors.description ? 'red' : 'grey.300'}
+          {...register('description')}
+        />
+        <Icon as={MdEdit} aria-label="Edit" color="primary.500" boxSize="3" />
+      </Flex>
       <Flex align="center" gap="8px" w="fit-content">
         <Input
           placeholder="Target"
@@ -70,15 +81,6 @@ export function FormHeader() {
           {...register('target')}
         />
         <Icon as={MdEdit} aria-label={`Edit`} color="primary.500" boxSize="3" />
-      </Flex>
-      <Flex align="center" gap="8px">
-        <Input
-          placeholder="Description"
-          border="1px dashed"
-          borderColor={!!errors.description ? 'red' : 'grey.300'}
-          {...register('description')}
-        />
-        <Icon as={MdEdit} aria-label="Edit" color="primary.500" boxSize="3" />
       </Flex>
     </Stack>
   );

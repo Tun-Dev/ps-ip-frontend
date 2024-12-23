@@ -70,7 +70,7 @@ const AggregatorTab = () => {
       borderTopColor="grey.200"
     >
       <Flex justifyContent="space-between">
-        <Flex gap="8px" alignItems="center">
+        <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
             <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
               Filter by

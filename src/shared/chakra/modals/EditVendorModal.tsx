@@ -17,7 +17,7 @@ import {
   InputGroup,
   InputLeftElement,
 } from '@chakra-ui/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dropdown } from '@/shared/chakra/components';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { useForm, Controller } from 'react-hook-form';
@@ -45,10 +45,10 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
 
   const [showProductField, setShowProductField] = useState(false);
 
-  const {
-    // mutate,
-    isPending,
-  } = useUpdateVendorById(initialValues?.id as string, onClose);
+  const { mutate, isPending } = useUpdateVendorById(initialValues?.id as string, () => {
+    onClose();
+    reset();
+  });
 
   const Schema = z.object({
     name: z.string().min(1, 'Name is required'),
@@ -68,18 +68,21 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
 
   type FormValues = z.infer<typeof Schema>;
 
-  const defaultValues: FormValues = {
-    name: initialValues?.name || '',
-    programName: initialValues?.programName || '',
-    programId: initialValues?.programId || 0,
-    amount: initialValues?.amount || 0,
-    numberOfBeneficiaries: initialValues?.numberOfBeneficiaries || 0,
-    product: initialValues?.product || '',
-    service: initialValues?.item || '',
-    scheduledDate: initialValues?.scheduledDate || new Date().toISOString(),
-    endDate: initialValues?.endDate || new Date().toISOString(),
-  };
-
+  const defaultValues = useMemo(
+    () => ({
+      name: initialValues?.name || '',
+      programName: initialValues?.programName || '',
+      programId: initialValues?.programId || 0,
+      amount: initialValues?.amount || 0,
+      numberOfBeneficiaries: initialValues?.numberOfBeneficiaries || 0,
+      product: initialValues?.product || '',
+      service: initialValues?.item || '',
+      scheduledDate: initialValues?.scheduledDate || new Date().toISOString(),
+      endDate: initialValues?.endDate || new Date().toISOString(),
+      id: initialValues?.id || '',
+    }),
+    [initialValues]
+  );
   const {
     register,
     control,
@@ -92,7 +95,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
     if (initialValues) {
       reset(defaultValues);
     }
-  }, [initialValues, reset]);
+  }, [defaultValues, initialValues, reset]);
 
   const onSubmit = (data: FormValues) => {
     const vendorData: Partial<Vendor> = {
@@ -108,7 +111,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
       id: initialValues?.id || '',
     };
     console.log(vendorData);
-    // mutate(vendorData);
+    mutate(vendorData);
   };
 
   return (

@@ -216,7 +216,7 @@ const AgentPanel = ({ page, setPage, debouncedQuery, setQuery, aggregatorId, set
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
       <Flex justifyContent="space-between">
-        <Flex gap="8px" alignItems="center">
+        <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
             <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
               Filter by

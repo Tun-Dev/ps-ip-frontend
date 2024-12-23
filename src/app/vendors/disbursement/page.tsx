@@ -1,32 +1,32 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { ReusableTable } from '@/shared';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import {
-  Flex,
-  Text,
   Box,
   Button,
-  InputGroup,
-  InputLeftElement,
+  Flex,
   Icon,
   Input,
+  InputGroup,
+  InputLeftElement,
   Select,
   Tab,
   TabList,
   Tabs,
+  Text,
 } from '@chakra-ui/react';
-import { ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
+import { useMemo, useState } from 'react';
 import {
+  MdAccountBalanceWallet,
+  MdCloudUpload,
+  MdDownload,
+  MdEmojiEmotions,
+  MdLocalShipping,
   MdSearch,
   MdVolunteerActivism,
-  MdDownload,
-  MdLocalShipping,
-  MdAccountBalanceWallet,
-  MdEmojiEmotions,
-  MdCloudUpload,
 } from 'react-icons/md';
-import { OverviewCard } from '@/shared/chakra/components/overview';
 
 const VendorsDisbursementDashboard = () => {
   const [isDisbursed, setIsDisbursed] = useState('pending');
@@ -295,15 +295,17 @@ const VendorsDisbursementDashboard = () => {
         </TabList>
       </Tabs>
       <Flex justifyContent="space-between" alignItems="center">
-        <Flex gap="8px" alignItems="center">
-          <Text variant="Body2Semibold" color="gray.500" whiteSpace="nowrap">
-            Sort by
-          </Text>
-          <Select placeholder="LGA" size="small" defaultValue={'lga'} w="94px" fontSize="13px" fontWeight="600">
-            <option key={'lga'} value={'lga'}>
-              LGA
-            </option>
-          </Select>
+        <Flex gap="24px" alignItems="center">
+          <Flex gap="8px" alignItems="center">
+            <Text variant="Body2Semibold" color="gray.500" whiteSpace="nowrap">
+              Filter by
+            </Text>
+            <Select placeholder="LGA" size="small" defaultValue={'lga'} w="94px" fontSize="13px" fontWeight="600">
+              <option key={'lga'} value={'lga'}>
+                LGA
+              </option>
+            </Select>
+          </Flex>
 
           <InputGroup w="212px" size="sm">
             <InputLeftElement>

@@ -40,7 +40,13 @@ const CheckboxForm = memo(({ moduleId }: { moduleId: number }) => {
         <InputLeftElement pointerEvents="none" color="primary.600">
           {isPlaceholderData ? <Spinner size="xs" /> : <MdSearch />}
         </InputLeftElement>
-        <Input placeholder="Search Program Data point" variant="primary" pl="2.5rem" onChange={handleInputChange} />
+        <Input
+          placeholder="Search Program Data point"
+          variant="primary"
+          pl="2.5rem"
+          fontSize="13px"
+          onChange={handleInputChange}
+        />
       </InputGroup>
       {isLoading ? (
         <LoadingSkeleton />

@@ -51,7 +51,7 @@ const ActivityTable = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
             Enumerated
           </Text>
         ),
@@ -63,6 +63,7 @@ const ActivityTable = () => {
             bg={info.row.original.enumerated / 1000 < 1 ? 'grey.200' : 'primary.100'}
             borderRadius="12px"
             width="fit-content"
+            mx="auto"
           >
             {info.row.original.enumerated}/1000
           </Box>
@@ -92,7 +93,7 @@ const ActivityTable = () => {
           </Link>
         </Flex>
       </Flex>
-      <ReusableTable data={data} columns={columns} headerBgColor="white" />
+      <ReusableTable data={data} columns={columns} headerBgColor="white" p="8px 0px" />
     </Flex>
   );
 };

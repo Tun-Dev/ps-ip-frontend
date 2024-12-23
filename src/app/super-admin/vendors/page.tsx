@@ -1,31 +1,31 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useDeleteVendor } from '@/hooks/useDeleteVendor';
+import { useFilterVendors } from '@/hooks/useFilterVendors';
+import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { DeleteModal, EditVendorModal, ReusableTable } from '@/shared';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { Vendor } from '@/types';
 import {
+  Button,
   Flex,
-  Text,
-  Select,
-  InputGroup,
-  InputLeftElement,
   Icon,
   Input,
-  Button,
+  InputGroup,
+  InputLeftElement,
   Popover,
-  PopoverTrigger,
-  PopoverContent,
   PopoverArrow,
   PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  Text,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { MdSearch, MdDownload, MdMoreHoriz } from 'react-icons/md';
-import { DeleteModal, ReusableTable, EditVendorModal } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
-import { useFilterVendors } from '@/hooks/useFilterVendors';
-import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { Vendor } from '@/types';
-import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { useDeleteVendor } from '@/hooks/useDeleteVendor';
+import { useMemo, useState } from 'react';
+import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 const VendorPage = () => {
   const toast = useToast();
@@ -184,10 +184,10 @@ const VendorPage = () => {
         initialValues={selectedVendor}
       />
       <Flex justifyContent="space-between">
-        <Flex gap="8px" alignItems="center">
+        <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
             <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-              Sort by
+              Filter by
             </Text>
             <Select
               placeholder="Select..."

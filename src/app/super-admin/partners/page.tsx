@@ -1,37 +1,42 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import {
-  Flex,
-  Text,
   Box,
   Button,
-  InputGroup,
-  InputLeftElement,
+  Flex,
   Icon,
   Input,
-  Select,
-  useDisclosure,
+  InputGroup,
+  InputLeftElement,
   Popover,
-  PopoverTrigger,
-  PopoverContent,
   PopoverArrow,
   PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  Text,
+  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { ReusableTable, AddNewPartnerModal, DeleteModal } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
-import { MdSearch, MdVolunteerActivism, MdDownload, MdAddCircle, MdMoreHoriz } from 'react-icons/md';
+import { useMemo, useState } from 'react';
+import { MdAddCircle, MdDownload, MdMoreHoriz, MdSearch, MdVolunteerActivism } from 'react-icons/md';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { useGetPartners } from '@/hooks/useGetPartners';
 import { useDeletePartner } from '@/hooks/useDeletePartner';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Partner } from '@/types';
+import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { AddNewPartnerModal, DeleteModal } from '@/shared/chakra/modals';
+import { ReusableTable } from '@/shared/chakra/organisms';
 
 const PartnerTab = () => {
   const toast = useToast();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [program, setProgram] = useState<number | undefined>(undefined);
+  const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
+  const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
   const {
     data: partners,
     isLoading,
@@ -39,7 +44,7 @@ const PartnerTab = () => {
     isRefetchError,
     isRefetching,
     refetch,
-  } = useGetPartners({ page: 1, pageSize: 10, query: search });
+  } = useGetPartners({ page: 1, pageSize: 10, query: search, programId: program });
   const totalPages = partners?.body.total ?? 0;
   const [selectedPartner, setSelectedPartner] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -155,7 +160,7 @@ const PartnerTab = () => {
       <Flex justifyContent="space-between" alignItems="center">
         <Flex gap="8px" alignItems="center">
           <Text variant="Body2Semibold" color="gray.500" whiteSpace="nowrap">
-            Sort by
+            Filter by
           </Text>
           <Select
             placeholder="Select..."
@@ -164,10 +169,13 @@ const PartnerTab = () => {
             w="94px"
             fontSize="13px"
             fontWeight="600"
+            onChange={(e) => setProgram(Number(e.target.value))}
           >
-            <option key={'program'} value={'program'}>
-              Program
-            </option>
+            {options?.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </Select>
 
           <InputGroup w="212px" size="sm">

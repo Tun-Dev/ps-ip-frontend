@@ -1,27 +1,27 @@
 'use client';
 
-import { useMemo } from 'react';
+import { AddNewAgentModal, ReusableTable } from '@/shared';
+import { OverviewCard } from '@/shared/chakra/components/overview';
 import {
-  Flex,
-  Text,
   Box,
-  Select,
-  InputGroup,
-  InputLeftElement,
+  Button,
+  Flex,
   Icon,
   Input,
-  Button,
+  InputGroup,
+  InputLeftElement,
+  Select,
   Tab,
-  Tabs,
+  TabList,
   TabPanel,
   TabPanels,
-  TabList,
+  Tabs,
+  Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { OverviewCard } from '@/shared/chakra/components/overview';
-import { MdGroups, MdSearch, MdAddCircle, MdDownload, MdEditCalendar } from 'react-icons/md';
-import { AddNewAgentModal, ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
+import { useMemo } from 'react';
+import { MdAddCircle, MdDownload, MdEditCalendar, MdGroups, MdSearch } from 'react-icons/md';
 
 const AgentsTab = () => {
   const agentsData = [
@@ -251,10 +251,10 @@ const AgentsTab = () => {
           <TabPanel>
             <Flex flexDir="column" gap="1.5rem" w="100%">
               <Flex justifyContent="space-between">
-                <Flex gap="8px" alignItems="center">
+                <Flex gap="24px" alignItems="center">
                   <Flex gap="8px" alignItems="center">
                     <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-                      Sort by
+                      Filter by
                     </Text>
                     <Select
                       placeholder="Select..."
@@ -297,10 +297,10 @@ const AgentsTab = () => {
           <TabPanel>
             <Flex flexDir="column" gap="1.5rem" w="100%">
               <Flex justifyContent="space-between">
-                <Flex gap="8px" alignItems="center">
+                <Flex gap="24px" alignItems="center">
                   <Flex gap="8px" alignItems="center">
                     <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-                      Sort by
+                      Filter by
                     </Text>
                     <Select
                       placeholder="Select..."

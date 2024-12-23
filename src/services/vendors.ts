@@ -27,7 +27,7 @@ export const deleteVendor = async (id: string) => {
 };
 
 export const updateVendorById = async (id: string, vendor: Partial<Vendor>) => {
-  const { data } = await axiosInstance.put<APIResponse<Partial<Vendor>>>(`/vendor/${id}`, vendor);
+  const { data } = await axiosInstance.put<APIResponse<Partial<Vendor>>>(`/vendor`, vendor);
   return data;
 };
 

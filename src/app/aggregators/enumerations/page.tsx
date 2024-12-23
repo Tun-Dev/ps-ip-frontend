@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useMemo } from 'react';
-import { Flex, Text, Box, Select, InputGroup, InputLeftElement, Icon, Input, Button } from '@chakra-ui/react';
-import { OverviewCard } from '@/shared/chakra/components/overview';
-import { MdSearch, MdDownload, MdRefresh, MdCheckCircle, MdCloudUpload, MdEdit, MdDelete } from 'react-icons/md';
 import { ReusableTable } from '@/shared';
+import { OverviewCard } from '@/shared/chakra/components/overview';
+import { Box, Button, Flex, Icon, Input, InputGroup, InputLeftElement, Select, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
+import { useMemo } from 'react';
+import { MdCheckCircle, MdCloudUpload, MdDelete, MdDownload, MdEdit, MdRefresh, MdSearch } from 'react-icons/md';
 
 const EnumerationsTable = () => {
   const agentsData = [
@@ -127,10 +127,10 @@ const EnumerationsTable = () => {
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px" borderTop="1px solid" borderTopColor="grey.200">
       <Flex justifyContent="space-between">
-        <Flex gap="8px" alignItems="center">
+        <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
             <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-              Sort by
+              Filter by
             </Text>
             <Select
               placeholder="Select..."

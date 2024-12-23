@@ -9,7 +9,7 @@ export const useUpdateVendorById = (id: string, onClose?: () => void) => {
   const toast = useToast();
 
   return useMutation({
-    mutationFn: (vendor: Vendor) => updateVendorById(id, vendor),
+    mutationFn: (vendor: Partial<Vendor>) => updateVendorById(id, vendor),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       toast({ title: 'Success', status: 'success', description: 'Vendor edited successfully' });

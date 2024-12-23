@@ -27,7 +27,9 @@ export const OverviewCard = ({ title, icon, number, active, iconColor = 'primary
       minW="265px"
     >
       <Flex mb="16px" align="center" gap="8px">
-        <Box
+        <Flex
+          align="center"
+          justify="center"
           backgroundColor={active ? 'primary.100' : 'primary.100'}
           padding="6px"
           borderRadius="10px"
@@ -35,8 +37,8 @@ export const OverviewCard = ({ title, icon, number, active, iconColor = 'primary
           width="32px"
           height="32px"
         >
-          <Icon as={icon} color={iconColor} boxSize="1.25rem" />
-        </Box>
+          <Icon as={icon} color={iconColor} boxSize="20px" />
+        </Flex>
         <Text as="h2" variant="Body1Semibold" color="grey.500">
           {title}
         </Text>
