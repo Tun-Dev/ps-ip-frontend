@@ -17,6 +17,7 @@ import {
   Divider,
   InputGroup,
   InputLeftElement,
+  InputLeftAddon,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { Dropdown } from '@/shared/chakra/components';
@@ -68,9 +69,14 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
       lastname: z.string().min(1, 'Last name is required'),
       // corporateEmail: z.string().min(1, 'Corporate Email is required'),
       email: z.string().min(1, 'Email is required'),
+      contactEmail: z.string().min(1, 'Contact Email is required'),
       password: z.string().min(1, 'Password is required'),
       confirmPassword: z.string().min(1, 'Confirm password is required'),
-      phoneNumber: z.coerce.number().min(1, 'Phone number is required'),
+      contactPhone: z
+        .string()
+        .nonempty('Phone number is required')
+        // Accept only 10 digits, not starting with 0
+        .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits and cannot start with 0'),
     })
     .refine((value) => value.password === value.confirmPassword, {
       message: "Passwords don't match",
@@ -97,6 +103,8 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
       endDate: data.endDate,
       numberOfBeneficiaries: data.numberOfBeneficiaries,
       programId: data.programId,
+      contactEmail: data.email,
+      contactPhone: data.contactPhone,
       user: {
         password: data.password,
         confirmPassword: data.confirmPassword,
@@ -111,12 +119,18 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent as="form" width="498px" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
+      <ModalContent
+        as="form"
+        width="498px"
+        borderRadius="12px"
+        onSubmit={handleSubmit(onSubmit)}
+        maxH="calc(100vh - 10rem)"
+      >
         <ModalHeader>
           <Text variant="Body1Semibold">Add New Vendor</Text>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody overflowY="scroll">
           <Flex direction="column" gap={3}>
             <FormControl isInvalid={!!errors.name}>
               <FormLabel htmlFor="name">
@@ -272,15 +286,15 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
                 <FormErrorMessage>{errors.endDate && errors.endDate.message}</FormErrorMessage>
               </FormControl>
             </Grid>
-            {/* <FormControl isInvalid={!!errors.corporateEmail}>
-              <FormLabel htmlFor="corporateEmail">
+            <FormControl isInvalid={!!errors.email}>
+              <FormLabel htmlFor="email">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Corporate Email
                 </Text>
               </FormLabel>
-              <Input id="corporateEmail" type="email" variant="primary" {...register('corporateEmail')} />
-              <FormErrorMessage>{errors.corporateEmail && errors.corporateEmail.message}</FormErrorMessage>
-            </FormControl> */}
+              <Input id="email" type="email" variant="primary" {...register('email')} />
+              <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
+            </FormControl>
             <FormControl isInvalid={!!errors.password}>
               <FormLabel htmlFor="password">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
@@ -321,29 +335,33 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="lastname" variant="primary" {...register('lastname')} />
               <FormErrorMessage>{errors.lastname && errors.lastname.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.email}>
-              <FormLabel htmlFor="email">
+            <FormControl isInvalid={!!errors.contactEmail}>
+              <FormLabel htmlFor="contactEmail">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Email
                 </Text>
               </FormLabel>
-              <Input id="email" type="email" variant="primary" {...register('email')} />
-              <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
+              <Input id="contactEmail" type="contactEmail" variant="primary" {...register('contactEmail')} />
+              <FormErrorMessage>{errors.contactEmail && errors.contactEmail.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.phoneNumber}>
-              <FormLabel htmlFor="phoneNumber">
+            <FormControl isInvalid={!!errors.contactPhone}>
+              <FormLabel htmlFor="contactPhone">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Phone Number
                 </Text>
               </FormLabel>
-              <Input
-                id="phoneNumber"
-                type="number"
-                placeholder="e.g. 08012345678"
-                variant="primary"
-                {...register('phoneNumber')}
-              />
-              <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
+              <InputGroup>
+                <InputLeftAddon>+234</InputLeftAddon>
+                <Input
+                  id="contactPhone"
+                  type="tel"
+                  placeholder="e.g. 8012345678"
+                  variant="primary"
+                  {...register('contactPhone')}
+                />
+              </InputGroup>
+
+              <FormErrorMessage>{errors.contactPhone && errors.contactPhone.message}</FormErrorMessage>
             </FormControl>
           </Flex>
         </ModalBody>

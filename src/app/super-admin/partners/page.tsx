@@ -55,6 +55,7 @@ const PartnerTab = () => {
     delPartner(selectedPartner, {
       onSuccess: () => {
         toast({ title: 'Partner deleted successfully', status: 'success' });
+        deleteModalOnClose();
       },
     });
   };

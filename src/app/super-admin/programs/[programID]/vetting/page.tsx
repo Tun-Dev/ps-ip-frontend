@@ -32,6 +32,8 @@ import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-deta
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
 import { useParams } from 'next/navigation';
+import { useProcessModule } from '@/hooks/useProcessModule';
+import { AxiosError } from 'axios';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -50,17 +52,18 @@ const VettingPage = () => {
   const [sort, setSort] = useState<Option | null>(options[0]);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
+  const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
   const { mutate: uploadProgram, isPending } = useUploadProgram();
   const { response } = useGetProgramById(programID?.toString());
 
-  const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Application')?.id ?? '';
-
-  console.log(programModuleId);
+  const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Vetting')?.id ?? '';
+  const isProgramCompleted =
+    response?.body?.programModules?.find((module) => module.module === 'Vetting')?.isCompleted ?? true;
 
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
     useGetBeneficiariesById({ page: page, pageSize: 10 }, programID?.toLocaleString(), '3');
 
-  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString());
+  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString(), !isProgramCompleted);
 
   const isUpload = uploadStatus?.body;
 
@@ -74,7 +77,7 @@ const VettingPage = () => {
     const payload = {
       status: status.toUpperCase(),
       beneficiaryId: [id],
-      moduleId: 1,
+      moduleId: 3,
       programId: Number(programID),
     };
 
@@ -86,10 +89,19 @@ const VettingPage = () => {
   };
 
   const uploadData = () => {
-    console.log(programModuleId);
-    uploadProgram(programModuleId.toString(), {
+    processModule(programModuleId.toString(), {
       onSuccess: () => {
-        toast({ title: 'Data uploaded successfully', status: 'success' });
+        uploadProgram(programModuleId.toString(), {
+          onSuccess: () => {
+            toast({ title: 'Data uploaded successfully', status: 'success' });
+          },
+        });
+      },
+      onError: (error) => {
+        let message = 'An unknown error occurred';
+        if (error instanceof Error) message = error.message;
+        if (error instanceof AxiosError) message = error.response?.data.message || message;
+        toast({ title: 'Error', description: message, status: 'error' });
       },
     });
   };
@@ -155,7 +167,7 @@ const VettingPage = () => {
                       fontWeight="400"
                       onClick={() => onApprove({ status: 'Approved', id: info.row.original.id })}
                     >
-                      Approve
+                      Pass
                     </Button>
                     <Button
                       w="100%"
@@ -166,7 +178,7 @@ const VettingPage = () => {
                       fontWeight="400"
                       onClick={() => onApprove({ status: 'Disapproved', id: info.row.original.id })}
                     >
-                      Deny
+                      Fail
                     </Button>
                   </Flex>
                 </PopoverBody>
@@ -210,7 +222,7 @@ const VettingPage = () => {
             leftIcon={<MdCloudUpload />}
             variant="primary"
             size="medium"
-            isLoading={isPending}
+            isLoading={isPending || isProcessModulePending}
             onClick={uploadData}
             isDisabled={!isUpload}
           >

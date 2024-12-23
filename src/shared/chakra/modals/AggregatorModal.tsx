@@ -206,7 +206,13 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
               </FormLabel>
               <InputGroup>
                 <InputLeftAddon>+234</InputLeftAddon>
-                <Input id="contactPhone" type="tel" variant="primary" {...register('contactPhone')} />
+                <Input
+                  id="contactPhone"
+                  type="tel"
+                  placeholder="e.g. 8012345678"
+                  variant="primary"
+                  {...register('contactPhone')}
+                />
               </InputGroup>
               <FormErrorMessage>{errors.contactPhone && errors.contactPhone.message}</FormErrorMessage>
             </FormControl>

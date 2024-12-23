@@ -39,6 +39,7 @@ const VendorPage = () => {
       delVendor(selectedVendor.id, {
         onSuccess: () => {
           toast({ title: 'Partner deleted successfully', status: 'success' });
+          deleteModalOnClose();
         },
       });
     }

@@ -18,6 +18,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
@@ -29,90 +30,7 @@ import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Agent } from '@/types';
-// import { formatErrorMessage } from '@/utils';
-
-const columns: ColumnDef<Agent>[] = [
-  {
-    header: 'Agents',
-    accessorKey: 'firstName',
-    cell: (info) => (
-      <Text variant="Body2Semibold">{`${info.row.original.firstName} ${info.row.original.lastName}`}</Text>
-    ),
-  },
-  {
-    header: 'LGA',
-    accessorKey: 'lga',
-    cell: (info) => <Text variant="Body2Regular">{info.row.original.lga || '----------------'}</Text>,
-  },
-  {
-    header: 'Aggregator',
-    accessorKey: 'aggregator',
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-        Gender
-      </Text>
-    ),
-    accessorKey: 'gender',
-    enableSorting: false,
-    cell: (info) => (
-      <Text variant="Body2Regular" textAlign="center">
-        {info.row.original.gender || 'N/A'}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-        Status
-      </Text>
-    ),
-    accessorKey: 'status',
-    enableSorting: false,
-    cell: () => (
-      <Text variant="Body3Semibold" color="green" textAlign="center">
-        Online{' '}
-        <Text as="span" variant="Body3Semibold" display="inline" color="green">
-          (Active)
-        </Text>
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-        Actions
-      </Text>
-    ),
-    id: 'actions',
-    enableSorting: false,
-    cell: () => (
-      <Flex>
-        <Popover placement="bottom-end">
-          <PopoverTrigger>
-            <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-              <MdMoreHoriz size="1.25rem" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent minW="121px" w="fit-content" p="8px">
-            <PopoverArrow />
-            <PopoverBody p="0">
-              <Flex flexDir="column">
-                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-                  Reassign Agent
-                </Button>
-                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-                  Deactivate Agent
-                </Button>
-              </Flex>
-            </PopoverBody>
-          </PopoverContent>
-        </Popover>
-      </Flex>
-    ),
-  },
-];
+import { useActivateAgent } from '@/hooks/useActivateAgent';
 
 const AgentsTab = () => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
@@ -127,7 +45,9 @@ const AgentsTab = () => {
     query: debouncedQuery === '' ? undefined : debouncedQuery,
     aggregatorId: aggregatorId === '' ? undefined : parseInt(aggregatorId),
   });
-  const total = data?.body.total ?? 0;
+  // const total = data?.body.total ?? 0;
+  const active = data?.body.data.filter((agent) => agent.status === true).length ?? 0;
+  const inactive = data?.body.data.filter((agent) => agent.status === false).length ?? 0;
 
   return (
     <Tabs onChange={(index) => setActiveTabIndex(index)} size="sm" variant="unstyled" isLazy flex="1 1 0%">
@@ -141,7 +61,7 @@ const AgentsTab = () => {
               bg={activeTabIndex === 0 ? 'primary.100' : 'grey.200'}
               color={activeTabIndex === 0 ? 'text' : 'grey.500'}
             >
-              <Text variant="Body3Semibold">{total}</Text>
+              <Text variant="Body3Semibold">{active}</Text>
             </Box>
           </Flex>
         </Tab>
@@ -154,7 +74,7 @@ const AgentsTab = () => {
               bg={activeTabIndex === 1 ? 'primary.100' : 'grey.200'}
               color={activeTabIndex === 1 ? 'text' : 'grey.500'}
             >
-              <Text variant="Body3Semibold">{total}</Text>
+              <Text variant="Body3Semibold">{inactive}</Text>
             </Box>
           </Flex>
         </Tab>
@@ -169,6 +89,7 @@ const AgentsTab = () => {
             setQuery={setQuery}
             aggregatorId={aggregatorId}
             setAggregatorId={setAggregatorId}
+            type="active"
           />
         </TabPanel>
         <TabPanel px="0" h="100%">
@@ -179,6 +100,7 @@ const AgentsTab = () => {
             setQuery={setQuery}
             aggregatorId={aggregatorId}
             setAggregatorId={setAggregatorId}
+            type="inactive"
           />
         </TabPanel>
       </TabPanels>
@@ -193,9 +115,19 @@ type AgentPanelProps = {
   debouncedQuery: string;
   aggregatorId: string;
   setAggregatorId: Dispatch<SetStateAction<string>>;
+  type: 'active' | 'inactive';
 };
 
-const AgentPanel = ({ page, setPage, debouncedQuery, setQuery, aggregatorId, setAggregatorId }: AgentPanelProps) => {
+const AgentPanel = ({
+  page,
+  setPage,
+  debouncedQuery,
+  setQuery,
+  aggregatorId,
+  setAggregatorId,
+  type,
+}: AgentPanelProps) => {
+  const toast = useToast();
   const { data: aggregators } = useGetAggregators({ page: 1, pageSize: 10 });
 
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetchError, isRefetching } = useGetAgents({
@@ -204,7 +136,9 @@ const AgentPanel = ({ page, setPage, debouncedQuery, setQuery, aggregatorId, set
     query: debouncedQuery === '' ? undefined : debouncedQuery,
     aggregatorId: aggregatorId === '' ? undefined : parseInt(aggregatorId),
   });
-  const agents = useMemo(() => data?.body.data ?? [], [data]);
+  const { mutate } = useActivateAgent();
+  const agents = useMemo(() => filterByStatus(data?.body.data || [], type) ?? [], [data, type]);
+
   const totalPages = data?.body.totalPages ?? 1;
 
   const resetFilters = () => {
@@ -212,6 +146,130 @@ const AgentPanel = ({ page, setPage, debouncedQuery, setQuery, aggregatorId, set
     setQuery('');
     setAggregatorId('');
   };
+
+  const handleOnclick = (id: number, status: boolean, programID: number) => {
+    const payload = {
+      agentId: id,
+      isActive: status,
+      programId: programID,
+    };
+
+    console.log(payload);
+    mutate(payload, {
+      onSuccess: () => {
+        toast({ title: `${status !== true ? 'Deactivated' : 'Activated'} agent successfully`, status: 'success' });
+      },
+    });
+  };
+
+  const columns: ColumnDef<Agent>[] = [
+    {
+      header: 'Agents',
+      accessorKey: 'firstName',
+      cell: (info) => (
+        <Text variant="Body2Semibold">{`${info.row.original.firstName} ${info.row.original.lastName}`}</Text>
+      ),
+    },
+    {
+      header: 'LGA',
+      accessorKey: 'lga',
+      cell: (info) => <Text variant="Body2Regular">{info.row.original.lga || '----------------'}</Text>,
+    },
+    {
+      header: 'Aggregator',
+      accessorKey: 'aggregator',
+    },
+    {
+      header: () => (
+        <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+          Gender
+        </Text>
+      ),
+      accessorKey: 'gender',
+      enableSorting: false,
+      cell: (info) => (
+        <Text variant="Body2Regular" textAlign="center">
+          {info.row.original.gender || 'N/A'}
+        </Text>
+      ),
+    },
+    {
+      header: () => (
+        <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+          Status
+        </Text>
+      ),
+      accessorKey: 'status',
+      enableSorting: false,
+      cell: (info) => {
+        return (
+          <>
+            {info.row.original.status === true ? (
+              <Text variant="Body3Semibold" color="green" textAlign="center">
+                Online{' '}
+                <Text as="span" variant="Body3Semibold" display="inline" color="green">
+                  (Active)
+                </Text>
+              </Text>
+            ) : (
+              <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+                Offline{' '}
+                <Text as="span" variant="Body3Semibold" display="inline" color="grey.500">
+                  (Deactivated)
+                </Text>
+              </Text>
+            )}
+          </>
+        );
+      },
+    },
+    {
+      header: () => (
+        <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+          Actions
+        </Text>
+      ),
+      id: 'actions',
+      enableSorting: false,
+      cell: (info) => {
+        // console.log(info.row.original);
+        const { id, status, programId } = info.row.original;
+        return (
+          <Flex>
+            <Popover placement="bottom-end">
+              <PopoverTrigger>
+                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                  <MdMoreHoriz size="1.25rem" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent minW="121px" w="fit-content" p="8px">
+                <PopoverArrow />
+                <PopoverBody p="0">
+                  <Flex flexDir="column">
+                    {/* <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
+                      Reassign Agent
+                    </Button> */}
+                    <Button
+                      w="100%"
+                      bg="transparent"
+                      size="small"
+                      p="0"
+                      fontSize="13px"
+                      fontWeight="400"
+                      px="4px"
+                      onClick={() => handleOnclick(id, !status, programId)}
+                    >
+                      {info.row.original.status === true ? 'Deactivate' : 'Activate'} Agent
+                    </Button>
+                  </Flex>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          </Flex>
+        );
+      },
+    },
+  ];
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
@@ -285,3 +343,9 @@ const AgentPanel = ({ page, setPage, debouncedQuery, setQuery, aggregatorId, set
 };
 
 export default AgentsTab;
+
+function filterByStatus(data: Agent[], status: 'active' | 'inactive') {
+  if (!data) return [];
+  const isActive = status.toLowerCase() === 'active';
+  return data.filter((item) => item.status === isActive);
+}

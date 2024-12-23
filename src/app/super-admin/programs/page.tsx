@@ -11,13 +11,14 @@ import {
   SkeletonText,
   Stack,
   Text,
+  useClipboard,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import { AnimatePresence, motion, type Transition } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { MdArrowRightAlt } from 'react-icons/md';
+import { MdArrowRightAlt, MdLink } from 'react-icons/md';
 
 import { useDeleteProgram } from '@/hooks/useDeleteProgram';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
@@ -112,6 +113,7 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
   const toast = useToast();
   const { isOpen, onOpen, onClose: deleteModalOnClose } = useDisclosure();
   const router = useRouter();
+  const { onCopy } = useClipboard(`${process.env.NEXT_PUBLIC_SHARED_URL}/beneficiary/${program?.id}`);
 
   const { mutate: deleteProgram, isPending } = useDeleteProgram();
 
@@ -187,7 +189,7 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
                 </Text>
               </Flex>
             </Flex>
-            <Flex w="28%" flexDir="column" gap="32px" justifyContent="center">
+            <Flex w="28%" flexDir="column" gap="16px" justifyContent="center">
               <Button
                 variant="primary"
                 h="48px"
@@ -196,6 +198,19 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
               >
                 View More
                 <MdArrowRightAlt style={{ width: '20px', height: '20px', marginLeft: '8px' }} />
+              </Button>
+              <Button
+                variant="secondary"
+                h="32px"
+                w="full"
+                fontSize="13px"
+                onClick={() => {
+                  onCopy();
+                  toast({ title: 'Link copied to clipboard', status: 'success' });
+                }}
+              >
+                <MdLink style={{ width: '14px', height: '14px', marginRight: '8px' }} />
+                Copy Link
               </Button>
               <Flex gap="16px">
                 <Button fontSize="10px" w="full" variant="cancel" onClick={onOpen}>

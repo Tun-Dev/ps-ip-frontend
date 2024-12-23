@@ -33,6 +33,8 @@ import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
+import { useProcessModule } from '@/hooks/useProcessModule';
+import { AxiosError } from 'axios';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -51,17 +53,22 @@ const EnumerationPage = () => {
   const [sort, setSort] = useState<Option | null>(options[0]);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
+  const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
   const { mutate: uploadProgram, isPending } = useUploadProgram();
   const { response } = useGetProgramById(programID?.toString());
 
   const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Enumeration')?.id ?? '';
+  const isProgramCompleted =
+    response?.body?.programModules?.find((module) => module.module === 'Enumeration')?.isCompleted ?? true;
+
+  console.log(isProgramCompleted);
 
   console.log(programModuleId);
 
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
     useGetBeneficiariesById({ page: page, pageSize: 10 }, programID?.toLocaleString(), '4');
 
-  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString());
+  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString(), !isProgramCompleted);
 
   const isUpload = uploadStatus?.body;
 
@@ -87,10 +94,19 @@ const EnumerationPage = () => {
   };
 
   const uploadData = () => {
-    console.log(programModuleId);
-    uploadProgram(programModuleId.toString(), {
+    processModule(programModuleId.toString(), {
       onSuccess: () => {
-        toast({ title: 'Data uploaded successfully', status: 'success' });
+        uploadProgram(programModuleId.toString(), {
+          onSuccess: () => {
+            toast({ title: 'Data uploaded successfully', status: 'success' });
+          },
+        });
+      },
+      onError: (error) => {
+        let message = 'An unknown error occurred';
+        if (error instanceof Error) message = error.message;
+        if (error instanceof AxiosError) message = error.response?.data.message || message;
+        toast({ title: 'Error', description: message, status: 'error' });
       },
     });
   };
@@ -210,7 +226,7 @@ const EnumerationPage = () => {
           <Button
             leftIcon={<MdCloudUpload size="0.875rem" />}
             variant="primary"
-            isLoading={isPending}
+            isLoading={isPending || isProcessModulePending}
             onClick={uploadData}
             isDisabled={!isUpload}
           >

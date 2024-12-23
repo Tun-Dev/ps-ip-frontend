@@ -16,6 +16,7 @@ import {
   FormErrorMessage,
   InputGroup,
   InputLeftElement,
+  InputLeftAddon,
 } from '@chakra-ui/react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Dropdown } from '@/shared/chakra/components';
@@ -34,6 +35,7 @@ type ModalProps = {
 };
 
 const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
+  console.log(initialValues);
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
   const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id.toString() }));
 
@@ -64,6 +66,12 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
     endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
       message: 'End date must be a valid ISO string',
     }),
+    contactEmail: z.string().min(1, 'Contact Email is required'),
+    contactPhone: z
+      .string()
+      .nonempty('Phone number is required')
+      // Accept only 10 digits, not starting with 0
+      .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits and cannot start with 0'),
   });
 
   type FormValues = z.infer<typeof Schema>;
@@ -80,6 +88,8 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
       scheduledDate: initialValues?.scheduledDate || new Date().toISOString(),
       endDate: initialValues?.endDate || new Date().toISOString(),
       id: initialValues?.id || '',
+      contactEmail: initialValues?.contactEmail || '',
+      contactPhone: initialValues?.contactPhone || '',
     }),
     [initialValues]
   );
@@ -109,8 +119,10 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
       programId: data.programId,
       programName: data.programName,
       id: initialValues?.id || '',
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
     };
-    console.log(vendorData);
+    // console.log(vendorData);
     mutate(vendorData);
   };
 
@@ -282,6 +294,34 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
                 <FormErrorMessage>{errors.endDate && errors.endDate.message}</FormErrorMessage>
               </FormControl>
             </Grid>
+            <FormControl isInvalid={!!errors.contactEmail}>
+              <FormLabel htmlFor="contactEmail">
+                <Text as="span" variant="Body2Semibold" color="grey.500">
+                  Contact Email
+                </Text>
+              </FormLabel>
+              <Input id="contactEmail" type="contactEmail" variant="primary" {...register('contactEmail')} />
+              <FormErrorMessage>{errors.contactEmail && errors.contactEmail.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.contactPhone}>
+              <FormLabel htmlFor="contactPhone">
+                <Text as="span" variant="Body2Semibold" color="grey.500">
+                  Phone Number
+                </Text>
+              </FormLabel>
+              <InputGroup>
+                <InputLeftAddon>+234</InputLeftAddon>
+                <Input
+                  id="contactPhone"
+                  type="tel"
+                  placeholder="e.g. 8012345678"
+                  variant="primary"
+                  {...register('contactPhone')}
+                />
+              </InputGroup>
+
+              <FormErrorMessage>{errors.contactPhone && errors.contactPhone.message}</FormErrorMessage>
+            </FormControl>
           </Flex>
         </ModalBody>
         <ModalFooter>

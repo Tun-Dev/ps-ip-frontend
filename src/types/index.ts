@@ -92,6 +92,8 @@ export type Vendor = {
   programId: number;
   scheduledDate: string;
   product?: string;
+  contactEmail: string;
+  contactPhone: string;
 };
 
 export type VendorFilterParams = {
@@ -118,6 +120,8 @@ export type Aggregator = {
   noOfAgents: number;
   maxAgents: number;
   programName: string;
+  contactEmail: string;
+  contactPhone: string;
 };
 
 export type AggregatorOverview = {
@@ -180,6 +184,7 @@ export type Agent = {
   status: boolean;
   lga: string;
   state: string;
+  programId: number;
 };
 
 export type Module = {
@@ -426,4 +431,10 @@ export type BeneficiaryStatus = {
   currentModule: string;
   programName: string;
   availableModules: { name: string; order: number }[];
+};
+
+export type ActivateAgentPayload = {
+  agentId: number;
+  isActive: boolean;
+  programId: number;
 };

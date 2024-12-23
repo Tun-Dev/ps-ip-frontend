@@ -1,7 +1,15 @@
 import type { QueryKey } from '@tanstack/react-query';
 
 import axiosInstance from '@/lib/axios';
-import type { Agent, Aggregator, AggregatorOverview, AggregatorPayload, APIResponse, PaginatedResponse } from '@/types';
+import type {
+  ActivateAgentPayload,
+  Agent,
+  Aggregator,
+  AggregatorOverview,
+  AggregatorPayload,
+  APIResponse,
+  PaginatedResponse,
+} from '@/types';
 
 export const getAggregators = async ({ queryKey }: { queryKey: QueryKey }) => {
   const [, params] = queryKey;
@@ -22,5 +30,21 @@ export const createAggregator = async (data: AggregatorPayload) => {
 export const getAgents = async ({ queryKey }: { queryKey: QueryKey }) => {
   const [, params] = queryKey;
   const response = await axiosInstance.get<PaginatedResponse<Agent>>('/aggregator/agents', { params });
+  return response.data;
+};
+
+export const activateAgent = async (data: ActivateAgentPayload) => {
+  const response = await axiosInstance.put<APIResponse<boolean>>(`/agents/status`, data);
+  return response.data;
+};
+
+export const activateAggregator = async ({ queryKey }: { queryKey: QueryKey }) => {
+  const [, id, status] = queryKey;
+  const response = await axiosInstance.put<APIResponse<Aggregator>>(`/aggregator/activity/${id}/${status}`);
+  return response.data;
+};
+
+export const reassignAggregator = async (data: Partial<Aggregator>) => {
+  const response = await axiosInstance.put<APIResponse<Partial<Aggregator>>>(`/aggregator`, data);
   return response.data;
 };

@@ -11,8 +11,11 @@ import ModuleStatus from '../../components/module-status';
 
 const BeneficiaryApplication = () => {
   const { programId } = useParams();
+  console.log(programId);
   const code = useSearchParams().get('code') || '';
   const { isLoading, error } = useGetProgramForm(programId.toString());
+
+  console.log(code);
 
   if (isLoading)
     return (
@@ -32,7 +35,7 @@ const BeneficiaryApplication = () => {
       </Grid>
     );
 
-  if (statusCode === 404 || code) return <ModuleStatus />;
+  if (statusCode === 404 || (!code && !programId)) return <ModuleStatus />;
 
   return <ModuleForm />;
 };

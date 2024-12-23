@@ -53,14 +53,16 @@ const VerificationPage = () => {
   const { mutate: uploadProgram, isPending } = useUploadProgram();
   const { response } = useGetProgramById(programID?.toString());
 
-  const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Application')?.id ?? '';
+  const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Verification')?.id ?? '';
+  const isProgramCompleted =
+    response?.body?.programModules?.find((module) => module.module === 'Verification')?.isCompleted ?? true;
 
   console.log(programModuleId);
 
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
     useGetBeneficiariesById({ page: page, pageSize: 10 }, programID?.toLocaleString(), '5');
 
-  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString());
+  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString(), !isProgramCompleted);
 
   const isUpload = uploadStatus?.body;
 

@@ -16,6 +16,7 @@ import {
   FormControl,
   FormErrorMessage,
   Divider,
+  InputLeftAddon,
 } from '@chakra-ui/react';
 import { Dropdown } from '@/shared/chakra/components';
 import { useForm, Controller } from 'react-hook-form';
@@ -45,7 +46,11 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
       contactEmail: z.string().min(1, 'Email is required'),
       password: z.string().min(1, 'Password is required'),
       confirmPassword: z.string().min(1, 'Confirm password is required'),
-      contactPhone: z.string().min(1, 'Phone number is required'),
+      contactPhone: z
+        .string()
+        .nonempty('Phone number is required')
+        // Accept only 10 digits, not starting with 0
+        .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits and cannot start with 0'),
     })
     .refine((value) => value.password === value.confirmPassword, {
       message: "Passwords don't match",
@@ -68,7 +73,12 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
   });
 
   const onSubmit = (data: FormValues) => {
-    mutate(data);
+    const formattedData = {
+      ...data,
+      contactPhone: `+234${data.contactPhone}`,
+    };
+
+    mutate(formattedData);
   };
 
   return (
@@ -196,6 +206,16 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
                     Phone number
                   </Text>
                 </FormLabel>
+                <InputGroup>
+                  <InputLeftAddon>+234</InputLeftAddon>
+                  <Input
+                    id="contactPhone"
+                    type="string"
+                    placeholder="e.g. 8012345678"
+                    variant="primary"
+                    {...register('contactPhone')}
+                  />
+                </InputGroup>
                 <Input id="contactPhone" type="string" variant="primary" {...register('contactPhone')} />
                 <FormErrorMessage>{errors.contactPhone && errors.contactPhone.message}</FormErrorMessage>
               </FormControl>

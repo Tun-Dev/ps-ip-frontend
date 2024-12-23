@@ -14,6 +14,7 @@ import {
   PopoverTrigger,
   Select,
   Text,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
@@ -25,6 +26,7 @@ import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import type { Aggregator } from '@/types';
+import { EditAggregatorModal } from '@/shared/chakra/modals/EditAggregatorModal';
 // import { formatErrorMessage } from '@/utils';
 
 const AggregatorTab = () => {
@@ -37,7 +39,11 @@ const AggregatorTab = () => {
   const [agent, setAgent] = useState('');
   const [minAgent, maxAgent] = agent.split('-');
 
+  const [selectedAggregator, setSelectedAggregator] = useState<Aggregator>();
+
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 10 });
+
+  const { onClose, onOpen, isOpen } = useDisclosure();
 
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } = useGetAggregators({
     page,
@@ -59,6 +65,76 @@ const AggregatorTab = () => {
 
   // console.log(data);
 
+  const columns: ColumnDef<Aggregator>[] = [
+    {
+      header: 'Aggregator',
+      accessorKey: 'name',
+    },
+    {
+      header: 'Program',
+      accessorKey: 'programName',
+    },
+    {
+      header: () => (
+        <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+          Agents
+        </Text>
+      ),
+      accessorKey: 'noOfAgents',
+      enableSorting: false,
+      cell: (props) => (
+        <Text variant="Body2Regular" textAlign="center">
+          {props.row.original.noOfAgents}
+        </Text>
+      ),
+    },
+    {
+      header: () => (
+        <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+          Actions
+        </Text>
+      ),
+      id: 'actions',
+      enableSorting: false,
+      cell: (info) => (
+        <Flex>
+          <Popover placement="bottom-end">
+            <PopoverTrigger>
+              <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                <MdMoreHoriz size="1.25rem" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent w="fit-content" minW="121px" p="8px">
+              <PopoverArrow />
+              <PopoverBody p="0">
+                <Flex flexDir="column">
+                  <Button
+                    w="100%"
+                    bg="transparent"
+                    size="small"
+                    p="0"
+                    fontSize="13px"
+                    fontWeight="400"
+                    px="4px"
+                    onClick={() => {
+                      onOpen();
+                      setSelectedAggregator(info.row.original);
+                    }}
+                  >
+                    Reassign Aggregator
+                  </Button>
+                  {/* <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
+                    Deactivate Aggregator
+                  </Button> */}
+                </Flex>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+        </Flex>
+      ),
+    },
+  ];
+
   return (
     <Flex
       flexDir="column"
@@ -69,6 +145,7 @@ const AggregatorTab = () => {
       borderTop="1px solid"
       borderTopColor="grey.200"
     >
+      <EditAggregatorModal isOpen={isOpen} onClose={onClose} initialValues={selectedAggregator} />
       <Flex justifyContent="space-between">
         <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
@@ -154,63 +231,5 @@ const AggregatorTab = () => {
     </Flex>
   );
 };
-
-const columns: ColumnDef<Aggregator>[] = [
-  {
-    header: 'Aggregator',
-    accessorKey: 'name',
-  },
-  {
-    header: 'Program',
-    accessorKey: 'programName',
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-        Agents
-      </Text>
-    ),
-    accessorKey: 'noOfAgents',
-    enableSorting: false,
-    cell: (props) => (
-      <Text variant="Body2Regular" textAlign="center">
-        {props.row.original.noOfAgents}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-        Actions
-      </Text>
-    ),
-    id: 'actions',
-    enableSorting: false,
-    cell: () => (
-      <Flex>
-        <Popover placement="bottom-end">
-          <PopoverTrigger>
-            <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-              <MdMoreHoriz size="1.25rem" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent w="fit-content" minW="121px" p="8px">
-            <PopoverArrow />
-            <PopoverBody p="0">
-              <Flex flexDir="column">
-                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-                  Reassign Aggregator
-                </Button>
-                <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-                  Deactivate Aggregator
-                </Button>
-              </Flex>
-            </PopoverBody>
-          </PopoverContent>
-        </Popover>
-      </Flex>
-    ),
-  },
-];
 
 export default AggregatorTab;
