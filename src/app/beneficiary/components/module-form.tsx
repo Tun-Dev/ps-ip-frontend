@@ -1,8 +1,8 @@
 'use client';
 
-import { Box, Button, Flex, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Stack, Text, useToast, Image, useClipboard } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -11,13 +11,21 @@ import { useGetProgramForm } from '@/hooks/useGetProgramForm';
 import { QuestionDetails } from '@/types';
 import FormInput from './form-input';
 import { MultiStepHeaderBen } from './MultiStepHeaderBen';
+import { MdCheckCircle, MdRefresh } from 'react-icons/md';
+import { MODULE_STATUS } from './module-status';
+import { useEffect, useState } from 'react';
 
 export default function ModuleForm() {
   const toast = useToast();
-  const router = useRouter();
+  // const router = useRouter();
   const { programId } = useParams();
   const { data: programForm } = useGetProgramForm(programId.toString());
   const questions = programForm?.body.form.questions ?? [];
+  const [success, setSuccess] = useState(false);
+  const [code, setCode] = useState('');
+  const { onCopy, setValue } = useClipboard('');
+
+  console.log(programForm);
 
   const Schema = generateSchema(questions);
   type FormValues = z.infer<typeof Schema>;
@@ -50,13 +58,20 @@ export default function ModuleForm() {
         },
       ],
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
+          setCode(response.body[0].code);
+          setValue(response.body[0].code);
+          setSuccess(true);
           toast({ title: 'Success', description: 'Form submitted successfully', status: 'success' });
-          router.push(`/beneficiary/${programId}/verify`);
+          // router.push(`/beneficiary/${programId}/verify`);
         },
       }
     );
   };
+
+  useEffect(() => {
+    console.log(code);
+  }, [code]);
 
   if (!programForm || !programForm.body.form || !questions || questions.length < 0)
     return (
@@ -64,6 +79,8 @@ export default function ModuleForm() {
         No questions found
       </Text>
     );
+
+  const moduleStatus = MODULE_STATUS[programForm.body.moduleName] || MODULE_STATUS.default;
 
   return (
     <Flex flexDir="column" h="full" borderRadius="12px" overflow="hidden">
@@ -82,35 +99,87 @@ export default function ModuleForm() {
           </Text>
         </Flex>
       </Flex>
-      <Flex flexDir="column" p="24px" flex="1 1 0%">
-        <Box borderBottom="1px solid" borderBottomColor="grey.200" pb="24px">
-          <MultiStepHeaderBen
-            currentModule={programForm.body.moduleName}
-            availableModules={programForm.body.availableModules}
-          />
-        </Box>
+      {success ? (
+        <Flex flexDir="column" p="24px" flex="1 1 0%" alignItems="center" justifyContent="center">
+          <Flex mb="16px" alignItems="center" gap="4px">
+            <Text variant="Body1Semibold" color="text">
+              {moduleStatus.status}
+            </Text>
+            <Icon as={MdCheckCircle} boxSize="20px" color="primary.600" />
+          </Flex>
+          <Flex
+            p="12px 16px"
+            bg="primary.50"
+            borderRadius="12px"
+            flexDir="column"
+            w="fit-content"
+            boxShadow="banner"
+            gap="12px"
+            h="176px"
+          >
+            <Flex alignItems="center" gap="4px">
+              <Text variant="Body2Semibold" color="primary.600">
+                {/* {`${programForm.body.moduleName} in Progress`} */}
+                Verification in Progress
+              </Text>
+              <Icon as={MdRefresh} color="secondary.600" boxSize="16px" />
+            </Flex>
 
-        <Flex flex="1 1 0%" mt="24px" mb="48px" flexDir="column">
-          <Stack gap="6" as="form" onSubmit={form.handleSubmit(onSubmit)}>
-            {questions.map((question) => (
-              <FormInput key={question.id} question={question} form={form} />
-            ))}
+            <Flex flex="1 1 0%" justifyContent="center" alignItems="center">
+              <Image src={`/icons/Verification.svg`} alt={programForm.body.moduleName} height="100%" />
+            </Flex>
+          </Flex>
+          <Flex flexDir="column" gap="20px" mt="48px" alignItems="center">
+            <Text variant="Body2Regular" color="grey.500">
+              Please provide this USER Code during your enumeration.
+            </Text>
+
+            <Box bg="primary.150" p="8px 16px" borderRadius="6px">
+              <Text variant="Header1Bold">{code}</Text>
+            </Box>
+
             <Button
-              type="submit"
               variant="primary"
-              size="default"
-              w="full"
-              maxW="20rem"
-              mx="auto"
-              mt="8"
-              isDisabled={hasErrors}
-              isLoading={isPending}
+              onClick={() => {
+                onCopy();
+                toast({ title: 'Link copied to clipboard', status: 'success' });
+              }}
             >
-              Submit
+              Copy code
             </Button>
-          </Stack>
+          </Flex>
         </Flex>
-      </Flex>
+      ) : (
+        <Flex flexDir="column" p="24px" flex="1 1 0%">
+          <Box borderBottom="1px solid" borderBottomColor="grey.200" pb="24px">
+            <MultiStepHeaderBen
+              currentModule={programForm.body.moduleName}
+              availableModules={programForm.body.availableModules}
+            />
+          </Box>
+
+          <Flex flex="1 1 0%" mt="24px" mb="48px" flexDir="column">
+            <Stack gap="6" as="form" onSubmit={form.handleSubmit(onSubmit)}>
+              {questions.map((question) => (
+                <FormInput key={question.id} question={question} form={form} />
+              ))}
+              <Button
+                type="submit"
+                variant="primary"
+                size="default"
+                w="full"
+                maxW="20rem"
+                mx="auto"
+                mt="8"
+                isDisabled={hasErrors}
+                isLoading={isPending}
+              >
+                Submit
+              </Button>
+            </Stack>
+          </Flex>
+        </Flex>
+      )}
     </Flex>
   );
 }

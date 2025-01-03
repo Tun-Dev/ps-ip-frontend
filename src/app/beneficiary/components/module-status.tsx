@@ -12,6 +12,8 @@ export default function ModuleStatus() {
   const code = useSearchParams().get('code') || '';
   const { data: beneficiaryStatus, isLoading, error } = useGetBeneficiaryStatus(code);
 
+  console.log(beneficiaryStatus);
+
   if (!code)
     return (
       <Grid boxSize="full" placeItems="center">
@@ -125,7 +127,7 @@ export default function ModuleStatus() {
   );
 }
 
-const MODULE_STATUS = {
+export const MODULE_STATUS = {
   Application: {
     description: 'The initial step where you submit your information to be considered for the program.',
     status: 'Your application has been submitted.',
