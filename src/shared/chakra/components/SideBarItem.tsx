@@ -35,10 +35,10 @@ const SideBarItem = ({
       transition="all 0.3s ease-in-out"
       bg={active ? 'secondary.500' : ''}
     >
-      <Icon color={active ? 'white' : '#A4A4A4'} size={active ? '20px' : '16px'} />
+      <Icon color={active ? 'white' : 'white'} size={active ? '20px' : '16px'} />
       <Text
         variant={active ? 'Body1Bold' : 'Body2Semibold'}
-        color={active ? 'white' : 'grey.400'}
+        color={active ? 'white' : 'white'}
         transition="all 0.3s ease-in-out"
       >
         {name}

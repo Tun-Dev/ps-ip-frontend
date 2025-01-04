@@ -1,6 +1,6 @@
 'use client';
 
-import { Flex, Image, Text } from '@chakra-ui/react';
+import { Button, Flex, Image, Text } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -45,9 +45,9 @@ const Sidebar = () => {
   return (
     <Flex w="full" flexDir="column">
       <NotificationModal isOpen={isNotfModalOpen} onClose={() => setIsNoftModalOpen((prev) => !prev)} />
-      <Image src="/images/BOI_LOGO.png" alt="" h="36px" w="181px" />
+      <Image src="/images/boi-white.png" alt="" h="52px" w="197px" />
 
-      <Flex flex="1 1 0%" mt="104px" flexDirection="column" gap="10px">
+      <Flex flex="1 1 0%" mt="44px" flexDirection="column" gap="10px">
         {sideBarData.map((item, index) => (
           <SideBarItem
             key={index}
@@ -57,7 +57,7 @@ const Sidebar = () => {
         ))}
       </Flex>
 
-      <Flex flexDir="column">
+      <Flex flexDir="column" mb="68px">
         <NotificationButton
           count={3}
           url="/super-admin/notifications"
@@ -65,13 +65,15 @@ const Sidebar = () => {
         />
         <Flex flexDir="column" mt="48px" gap="16px">
           <Flex
-            py="9px"
+            py="16px"
             px="12px"
-            borderRadius="6px"
-            bg="primary.100"
+            borderRadius="12px"
+            bg="primary.600"
             alignItems="center"
             justifyContent="center"
             gap="8px"
+            h="64px"
+            boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
           >
             <Flex
               boxSize="40px"
@@ -81,21 +83,24 @@ const Sidebar = () => {
               alignItems="center"
               flexShrink={0}
             >
-              <MdPerson size="24px" color="#D7D7D7" />
+              <MdPerson size="24px" color="#A4A4A4" />
             </Flex>
-            <Flex flexDir="column" minW={0}>
+            <Flex flexDir="column" minW={0} color="white">
               <Text variant="Body2Bold">{`${user?.firstName} ${user?.lastName}`}</Text>
               <Text variant="Body3Semibold" isTruncated>
                 {user?.email}
               </Text>
             </Flex>
           </Flex>
-          <Flex gap="8px" align="center" justify="center" cursor="pointer" onClick={handleLogout}>
-            <MdLogout size="16px" color="red" />
-            <Text variant="Body1Bold" color="red">
-              Log out
-            </Text>
-          </Flex>
+          <Button
+            variant="cancel"
+            bg="#FFD6D6"
+            leftIcon={<MdLogout size="16px" color="red" />}
+            w="100%"
+            onClick={handleLogout}
+          >
+            Log out
+          </Button>
         </Flex>
       </Flex>
     </Flex>

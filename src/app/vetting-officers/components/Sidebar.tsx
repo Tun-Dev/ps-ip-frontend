@@ -1,6 +1,6 @@
 'use client';
 
-import { Flex, Image, Text } from '@chakra-ui/react';
+import { Button, Flex, Image, Text } from '@chakra-ui/react';
 import { MdChecklistRtl, MdHome, MdLogout, MdNoteAlt, MdPerson } from 'react-icons/md';
 import { usePathname } from 'next/navigation';
 import NotificationModal from '@/shared/chakra/modals/notificationModal';
@@ -19,9 +19,9 @@ const Sidebar = () => {
   return (
     <Flex w="full" flexDir="column">
       <NotificationModal isOpen={isNotfModalOpen} onClose={() => setIsNoftModalOpen((prev) => !prev)} />
-      <Image src="/images/BOI_LOGO.png" alt="" h="36px" w="181px" />
+      <Image src="/images/boi-white.png" alt="" h="52px" w="197px" />
 
-      <Flex flex="1 1 0%" mt="104px" flexDirection="column" gap="10px">
+      <Flex flex="1 1 0%" mt="44px" flexDirection="column" gap="10px">
         {sideBarData.map((item, index) => (
           <SideBarItem
             key={index}
@@ -34,29 +34,36 @@ const Sidebar = () => {
         ))}
       </Flex>
 
-      <Flex flexDir="column">
+      <Flex flexDir="column" mb="68px">
         <NotificationButton
           count={3}
           url="/vetting-officers/notifications"
           active={pathname.startsWith('/vetting-officers/notifications')}
         />
 
-        <Flex flexDir="column" mt="88px" gap="16px">
-          <Flex h="64px" borderRadius="6px" bg="primary.100" alignItems="center" justifyContent="center" gap="8px">
+        <Flex flexDir="column" mt="48px" gap="16px">
+          <Flex
+            py="16px"
+            px="12px"
+            borderRadius="12px"
+            bg="primary.600"
+            alignItems="center"
+            justifyContent="center"
+            gap="8px"
+            h="64px"
+            boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
+          >
             <Flex boxSize="40px" bg="white" borderRadius="16px" justifyContent="center" alignItems="center">
-              <MdPerson size="24px" color="#D7D7D7" />
+              <MdPerson size="24px" color="#A4A4A4" />
             </Flex>
-            <Flex flexDir="column">
+            <Flex flexDir="column" minW={0} color="white">
               <Text variant="Body2Bold">Chukwuemeka Aliu</Text>
               <Text variant="Body3Semibold">ChukwuAliu@gmail.com</Text>
             </Flex>
           </Flex>
-          <Flex gap="8px" alignItems="center" justifyContent="center" cursor="pointer" onClick={() => {}}>
-            <MdLogout size="16px" color="red" />
-            <Text variant="Body1Bold" color="red">
-              Log out
-            </Text>
-          </Flex>
+          <Button variant="cancel" bg="#FFD6D6" leftIcon={<MdLogout size="16px" color="red" />} w="100%">
+            Log out
+          </Button>
         </Flex>
       </Flex>
     </Flex>

@@ -216,8 +216,6 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
                     {...register('contactPhone')}
                   />
                 </InputGroup>
-                <Input id="contactPhone" type="string" variant="primary" {...register('contactPhone')} />
-                <FormErrorMessage>{errors.contactPhone && errors.contactPhone.message}</FormErrorMessage>
               </FormControl>
             </Flex>
           </ModalBody>
