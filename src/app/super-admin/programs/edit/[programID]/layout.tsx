@@ -99,6 +99,8 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const mapProgramModules = () => {
     const formValues = getValues();
 
+    console.log('formValues', formValues);
+
     const programModules = formValues.programModules.map((module, index) => {
       const moduleData = { ...module, order: index + 1 };
 
@@ -116,6 +118,8 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const handleEditProgram = (forms?: FormResponse[]) => {
     const formValues = getValues();
     const mappedModules = mapProgramModules();
+
+    console.log('mappedModule', mappedModules);
 
     // If forms are provided, map the formId to the programModule
     const programModules = forms

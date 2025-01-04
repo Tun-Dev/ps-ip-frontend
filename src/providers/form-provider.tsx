@@ -213,7 +213,7 @@ const mapDataPoints = (module: ProgramModulesDetails) => {
   if (module.module !== 'Application' && module.module !== 'Enumeration') return [];
   return module.form.questions.map((question) => ({
     dataPoint: {
-      id: question.id,
+      id: question.dataPoint?.buffer,
       format: { options: question.options, type: question.type },
       question: question.question,
       type: question.question,

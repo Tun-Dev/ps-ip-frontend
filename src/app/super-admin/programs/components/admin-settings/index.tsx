@@ -17,7 +17,6 @@ const AdminSettings = (props: StackProps) => {
     <Stack py="6" spacing="2.94rem" {...props}>
       {Array.from(selectedModuleIds.ids).map((moduleId, index) => {
         const currentModule = modules?.body.find((module) => module.id === moduleId);
-        if (!currentModule) return null;
         const correctModule = renameKey(currentModule, 'name', 'module');
         const isVettingModule = correctModule.module === 'Vetting';
         return (
@@ -29,7 +28,7 @@ const AdminSettings = (props: StackProps) => {
               {correctModule?.module}
             </Heading>
             {!isVettingModule && correctModule.ModuleGuidelines.length > 0 ? (
-              <SettingsForm currentModule={correctModule} />
+              <SettingsForm moduleId={moduleId} />
             ) : (
               <Text variant="Body2Semibold" textAlign="center" color="grey.500">
                 No settings for this module.
