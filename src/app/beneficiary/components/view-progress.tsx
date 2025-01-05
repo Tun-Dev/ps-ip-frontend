@@ -23,7 +23,7 @@ import { formatErrorMessage } from '@/utils';
 const Schema = z.object({ code: z.string().min(1, 'User ID is required') });
 type FormValues = z.infer<typeof Schema>;
 
-const BeneficiaryVerification = () => {
+const ViewProgress = () => {
   const router = useRouter();
   const { programId } = useParams();
 
@@ -36,7 +36,7 @@ const BeneficiaryVerification = () => {
   const onSubmit = (data: FormValues) => {
     const searchParams = new URLSearchParams();
     searchParams.set('code', data.code);
-    router.push(`/beneficiary/${programId}/application?${searchParams.toString()}`);
+    router.push(`/beneficiary/${programId}/fill?${searchParams.toString()}`);
   };
 
   if (isLoading)
@@ -103,4 +103,4 @@ const BeneficiaryVerification = () => {
   );
 };
 
-export default BeneficiaryVerification;
+export default ViewProgress;

@@ -5,12 +5,13 @@ import './globals.css';
 import { UserStoreProvider } from '@/providers/user-store-provider';
 import { ClientRootLayout } from '@/shared/chakra/components';
 import ThemedChakraProvider from '@/shared/chakra/ThemedChakraProvider';
+import { siteConfig } from '@/lib/constants';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'PS-IP',
-  description: '',
+  title: { default: siteConfig.title, template: `%s | ${siteConfig.title}` },
+  description: siteConfig.description,
 };
 
 export default function RootLayout({

@@ -1,31 +1,28 @@
 'use client';
 
-import { Box, Button, Flex, Icon, Stack, Text, useToast, Image, useClipboard } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Image, Stack, Text, useClipboard, useToast } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { MdCheckCircle, MdRefresh } from 'react-icons/md';
 import { z } from 'zod';
 
 import { useFillForm } from '@/hooks/useFillForm';
 import { useGetProgramForm } from '@/hooks/useGetProgramForm';
 import { QuestionDetails } from '@/types';
 import FormInput from './form-input';
-import { MultiStepHeaderBen } from './MultiStepHeaderBen';
-import { MdCheckCircle, MdRefresh } from 'react-icons/md';
 import { MODULE_STATUS } from './module-status';
-import { useEffect, useState } from 'react';
+// import { MultiStepHeaderBen } from './MultiStepHeaderBen';
 
 export default function ModuleForm() {
   const toast = useToast();
-  // const router = useRouter();
   const { programId } = useParams();
   const { data: programForm } = useGetProgramForm(programId.toString());
   const questions = programForm?.body.form.questions ?? [];
   const [success, setSuccess] = useState(false);
   const [code, setCode] = useState('');
   const { onCopy, setValue } = useClipboard('');
-
-  console.log(programForm);
 
   const Schema = generateSchema(questions);
   type FormValues = z.infer<typeof Schema>;
@@ -44,8 +41,11 @@ export default function ModuleForm() {
     const formEntries = Object.entries(data);
 
     const formAnswers = formEntries.map(([question, value]) => {
-      const label = questions.find((q) => q.id === question)?.question ?? '';
-      return { value, label, question };
+      const questionInfo = questions.find((q) => q.id === question);
+      if (!questionInfo) return { label: '', value: '', question: '' };
+      const label = questionInfo.question;
+      const type = questionInfo.type;
+      return { label, value: type === 'PHONE_NUMBER' ? `+234${value}` : value, question };
     });
 
     fillForm(
@@ -63,15 +63,10 @@ export default function ModuleForm() {
           setValue(response.body[0].code);
           setSuccess(true);
           toast({ title: 'Success', description: 'Form submitted successfully', status: 'success' });
-          // router.push(`/beneficiary/${programId}/verify`);
         },
       }
     );
   };
-
-  useEffect(() => {
-    console.log(code);
-  }, [code]);
 
   if (!programForm || !programForm.body.form || !questions || questions.length < 0)
     return (
@@ -151,12 +146,12 @@ export default function ModuleForm() {
         </Flex>
       ) : (
         <Flex flexDir="column" p="24px" flex="1 1 0%">
-          <Box borderBottom="1px solid" borderBottomColor="grey.200" pb="24px">
+          {/* <Box borderBottom="1px solid" borderBottomColor="grey.200" pb="24px">
             <MultiStepHeaderBen
               currentModule={programForm.body.moduleName}
               availableModules={programForm.body.availableModules}
             />
-          </Box>
+          </Box> */}
 
           <Flex flex="1 1 0%" mt="24px" mb="48px" flexDir="column">
             <Stack gap="6" as="form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -193,23 +188,35 @@ const generateSchema = (questions: QuestionDetails[]) => {
     switch (question.type) {
       case 'NUMBER':
         fieldSchema = z.coerce.number();
+        break;
+
       case 'KYC':
         fieldSchema = z
           .string()
           .min(11, `${question.question} must be 11 digits`)
           .max(11, `${question.question} must be 11 digits`);
         break;
+
       case 'EMAIL':
-        fieldSchema = z.string().email();
+        fieldSchema = z.string().email().optional();
         break;
+
+      case 'PHONE_NUMBER':
+        fieldSchema = z
+          .string()
+          .min(10, `${question.question} must be at least 10 digits`)
+          .max(11, `${question.question} must be at most 11 digits`);
+        break;
+
       case 'DATE':
         fieldSchema = z.coerce.date();
         break;
+
       default:
-        fieldSchema = question.mandatory ? z.string().min(1, 'This field is required') : z.string();
+        fieldSchema = z.string().min(1, 'This field is required');
     }
 
-    schemaFields[question.id] = question.mandatory ? fieldSchema : fieldSchema.optional();
+    schemaFields[question.id] = question.mandatory ? fieldSchema : fieldSchema.or(z.literal(''));
   });
 
   return z.object(schemaFields);

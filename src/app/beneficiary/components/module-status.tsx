@@ -6,7 +6,7 @@ import { MdCheckCircle, MdRefresh } from 'react-icons/md';
 
 import { useGetBeneficiaryStatus } from '@/hooks/useGetBeneficiaryStatus';
 import { formatErrorMessage } from '@/utils';
-import { MultiStepHeaderBen } from './MultiStepHeaderBen';
+// import { MultiStepHeaderBen } from './MultiStepHeaderBen';
 
 export default function ModuleStatus() {
   const code = useSearchParams().get('code') || '';
@@ -70,12 +70,12 @@ export default function ModuleStatus() {
         </Flex>
       </Flex>
       <Flex flexDir="column" p="24px" flex="1 1 0%">
-        <Box borderBottom="1px solid" borderBottomColor="grey.200" pb="24px">
+        {/* <Box borderBottom="1px solid" borderBottomColor="grey.200" pb="24px">
           <MultiStepHeaderBen
             currentModule={beneficiaryStatus.body.currentModule}
             availableModules={beneficiaryStatus.body.availableModules}
           />
-        </Box>
+        </Box> */}
 
         {/* Content for steps */}
         <Flex flex="1 1 0%" mt="24px" mb="48px" flexDir="column">

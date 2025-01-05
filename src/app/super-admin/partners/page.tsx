@@ -154,7 +154,7 @@ const PartnerTab = () => {
           </Button>
         </Flex>
         <Box w="256px" cursor="pointer">
-          <OverviewCard title="Total Partner" number={partners?.body.total || 0} icon={MdVolunteerActivism} />
+          <OverviewCard title="Total Partner" number={partners?.body.total || 0} icon={MdVolunteerActivism} active />
         </Box>
       </Flex>
 

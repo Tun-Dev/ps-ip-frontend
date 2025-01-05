@@ -43,20 +43,9 @@ const BeneficiaryDashboard = () => {
           top="0"
           left="0"
         />
-        <Flex justifyContent="space-between" alignItems="center" h="fit-content" w="full" zIndex={2}>
-          <Text variant="Header1Bold" color="white">
-            {programForm?.body.programName}
-          </Text>
-          <Button
-            variant="primary"
-            h="48px"
-            w="212px"
-            isDisabled={!isChecked}
-            onClick={() => router.push(`/beneficiary/${programId}/application`)}
-          >
-            Apply
-          </Button>
-        </Flex>
+        <Text variant="Header1Bold" color="white" zIndex={2}>
+          {programForm?.body.programName}
+        </Text>
       </Flex>
       <Flex flexDir="column" gap="16px" padding="24px">
         <Text variant="Body1Regular" color="#343434">
@@ -154,6 +143,19 @@ const BeneficiaryDashboard = () => {
             </TabPanel>
           </TabPanels>
         </Tabs> */}
+
+        <Flex justify="end" mt="1.5rem">
+          <Button
+            w="full"
+            maxW="15rem"
+            h="3rem"
+            variant="primary"
+            isDisabled={!isChecked}
+            onClick={() => router.push(`/beneficiary/${programId}/fill`)}
+          >
+            Apply
+          </Button>
+        </Flex>
       </Flex>
     </Flex>
   );

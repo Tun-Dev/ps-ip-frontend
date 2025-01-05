@@ -35,7 +35,7 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
     <Stack spacing="3" w="full" ref={moduleCardRef} {...rest}>
       <Flex
         h="156px"
-        bg={isDisabled ? 'grey.200' : isActive ? 'primary.200' : 'primary.100'}
+        bg={isDisabled ? 'grey.200' : isActive ? 'primary.500' : 'primary.100'}
         boxShadow="card"
         borderRadius="16px"
         p="12px"

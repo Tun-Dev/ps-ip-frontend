@@ -7,6 +7,7 @@ type Props = {
 };
 
 export const CheckboxFormReview = ({ dataPoints }: Props) => {
+  console.log(dataPoints);
   return (
     <Stack>
       <Text as="h3" variant="Body2Semibold">
@@ -26,6 +27,11 @@ export const CheckboxFormReview = ({ dataPoints }: Props) => {
           >
             <MdCheck color="var(--chakra-colors-primary-500)" />
             {dataPoint.dataPoint.question}
+            {dataPoint.isRequired && (
+              <Text as="span" color="red.500" mt="-6px">
+                *
+              </Text>
+            )}
           </Text>
         ))}
       </Flex>

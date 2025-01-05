@@ -9,6 +9,8 @@ import {
   Icon,
   Image,
   Input,
+  InputGroup,
+  InputLeftAddon,
   Radio,
   RadioGroup,
   Spinner,
@@ -29,7 +31,7 @@ const FormInput = ({ question, form }: FormInputProps) => {
   const InputComponent = getFormInput(question.type);
 
   return (
-    <FormControl isInvalid={!!form.formState.errors[question.id]} maxW="430px">
+    <FormControl isInvalid={!!form.formState.errors[question.id]} isRequired={question.mandatory} maxW="430px">
       <FormLabel htmlFor={question.question}>
         <Text as="span" variant="Body2Semibold" color="grey.500">
           {question.question}
@@ -143,6 +145,20 @@ const ImageInput = ({ question, form }: FormInputProps) => {
   );
 };
 
+const PhoneInput = ({ question, form }: FormInputProps) => {
+  return (
+    <InputGroup>
+      <InputLeftAddon>+234</InputLeftAddon>
+      <Input
+        {...form.register(question.id)}
+        type="number"
+        placeholder="e.g. 8012345678"
+        isRequired={question.mandatory}
+      />
+    </InputGroup>
+  );
+};
+
 const getFormInput = (type: string) => {
   switch (type) {
     case 'LONG_TEXT':
@@ -154,6 +170,8 @@ const getFormInput = (type: string) => {
     case 'CHECKBOX':
     case 'MULTIPLE_CHOICE':
       return RadioInput;
+    case 'PHONE_NUMBER':
+      return PhoneInput;
     default:
       return TextInput;
   }

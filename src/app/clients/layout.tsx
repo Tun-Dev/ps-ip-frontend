@@ -1,8 +1,15 @@
 'use client';
 
+// import type { Metadata } from "next";
 import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
 import { Box, Flex, Image } from '@chakra-ui/react';
 import Sidebar from './components/Sidebar';
+// import { siteConfig } from "@/lib/constants";
+
+// export const metadata: Metadata = {
+//   title: { default: siteConfig.title, template: `%s | ${siteConfig.title}` },
+//   description: siteConfig.description,
+// };
 
 const ClientsLayout = ({ children }: { children: React.ReactNode }) => {
   return (

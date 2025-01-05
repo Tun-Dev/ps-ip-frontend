@@ -113,7 +113,7 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
   const toast = useToast();
   const { isOpen, onOpen, onClose: deleteModalOnClose } = useDisclosure();
   const router = useRouter();
-  const { onCopy } = useClipboard(`${process.env.NEXT_PUBLIC_SHARED_URL}/beneficiary/${program?.id}`);
+  const { onCopy } = useClipboard(`${window.origin}/beneficiary/${program?.id}`);
 
   const { mutate: deleteProgram, isPending } = useDeleteProgram();
 
