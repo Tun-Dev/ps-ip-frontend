@@ -2,7 +2,7 @@ import { Heading, Image, Stack, StackProps, Text } from '@chakra-ui/react';
 
 type Props = {
   text: string;
-  number: number;
+  number: number | string;
   image: string;
 } & StackProps;
 

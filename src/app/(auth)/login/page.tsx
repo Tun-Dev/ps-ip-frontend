@@ -1,12 +1,25 @@
 'use client';
 
-import { Button, Flex, FormControl, FormErrorMessage, FormLabel, Input, Text } from '@chakra-ui/react';
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+} from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useGetUser } from '@/hooks/useGetUser';
 import { useLogin } from '@/hooks/useLogin';
+import { ViewOffIcon, ViewIcon } from '@chakra-ui/icons';
+import { useState } from 'react';
 
 const Schema = z.object({
   email: z.string().min(1, 'Email is required').email('Email is invalid'),
@@ -19,6 +32,9 @@ const SignInPage = () => {
   const { mutate, isPending, isSuccess } = useLogin();
 
   const { isLoading } = useGetUser(isSuccess);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const handleTogglePassword = () => setShowPassword(!showPassword);
 
   const {
     register,
@@ -62,14 +78,24 @@ const SignInPage = () => {
               Password
             </Text>
           </FormLabel>
-          <Input
-            id="password"
-            type="password"
-            variant="primary"
-            placeholder="Input password"
-            autoComplete="current-password"
-            {...register('password')}
-          />
+          <InputGroup>
+            <Input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              variant="primary"
+              placeholder="Input password"
+              autoComplete="current-password"
+              {...register('password')}
+            />
+            <InputRightElement>
+              <IconButton
+                aria-label="Toggle password visibility"
+                icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                onClick={handleTogglePassword}
+                variant="ghost"
+              />
+            </InputRightElement>
+          </InputGroup>
           <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
         </FormControl>
       </Flex>

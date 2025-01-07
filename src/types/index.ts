@@ -438,3 +438,21 @@ export type ActivateAgentPayload = {
   isActive: boolean;
   programId: number;
 };
+
+export type EnumerationsTableData = {
+  name: string;
+  lga: string;
+  enumerated: string;
+};
+
+export type DashboardDataResponse = {
+  runningPrograms: number;
+  totalBeneficiaries: number;
+  beneficiariesDisbursed: number;
+  amountDisbursed: number;
+  applications: number;
+  beneficiariesEnumerated: number;
+  awaitingKYCVerification: number;
+  awaitingDisbursement: number;
+  enumerations: EnumerationsTableData[];
+};

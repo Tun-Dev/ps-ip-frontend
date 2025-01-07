@@ -1,5 +1,6 @@
 'use client';
 
+import { useGetDashboardData } from '@/hooks/useGetDashboardData';
 import { NotificationCard, ReusableTable } from '@/shared';
 import { ModuleDashboardCard } from '@/shared/chakra/components';
 import { OverviewCard } from '@/shared/chakra/components/overview';
@@ -15,19 +16,9 @@ import {
   MdViewList,
   MdVolunteerActivism,
 } from 'react-icons/md';
+import { EnumerationsTableData } from '@/types';
 
-const ActivityTable = () => {
-  type Person = {
-    name: string;
-    lga: number;
-    enumerated: number;
-  };
-  const data: Person[] = [
-    { name: 'John Doe', lga: 30, enumerated: 1000 },
-    { name: 'Jane Smith', lga: 25, enumerated: 300 },
-    { name: 'Bob Johnson', lga: 45, enumerated: 700 },
-  ];
-
+const ActivityTable = ({ data }: { data: EnumerationsTableData[] }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const columns: ColumnDef<any>[] = useMemo(
     () => [
@@ -65,7 +56,7 @@ const ActivityTable = () => {
             width="fit-content"
             mx="auto"
           >
-            {info.row.original.enumerated}/1000
+            {info.row.original.enumerated}
           </Box>
         ),
       },
@@ -83,7 +74,8 @@ const ActivityTable = () => {
     >
       <Flex justifyContent="space-between" alignItems="center">
         <Text variant="Body2Semibold" color="grey.500">
-          Enumeration - iDICE
+          Enumeration
+          {/* - iDICE */}
         </Text>
         <Flex justifyContent="flex-end" color="secondary.500">
           <Link>
@@ -99,6 +91,8 @@ const ActivityTable = () => {
 };
 
 const SuperAdminDashboard = () => {
+  const { data, isLoading } = useGetDashboardData();
+  console.log(data);
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%">
       <Flex flexDir="column" gap="12px">
@@ -106,10 +100,26 @@ const SuperAdminDashboard = () => {
           Overview
         </Text>
         <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(265px, 1fr))">
-          <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
-          <OverviewCard title="Total Beneficiaries" number={500000} icon={MdEmojiEmotions} />
-          <OverviewCard title="Beneficiaries Disbursed" number={15000} icon={MdEmojiEmotions} />
-          <OverviewCard title="Amount Disbursed" number={375000} icon={MdVolunteerActivism} />
+          <OverviewCard
+            title="Running program"
+            number={isLoading ? '...' : (data?.body.runningPrograms ?? 0)}
+            icon={MdViewCarousel}
+          />
+          <OverviewCard
+            title="Total Beneficiaries"
+            number={isLoading ? '...' : (data?.body.totalBeneficiaries ?? 0)}
+            icon={MdEmojiEmotions}
+          />
+          <OverviewCard
+            title="Beneficiaries Disbursed"
+            number={isLoading ? '...' : (data?.body.beneficiariesDisbursed ?? 0)}
+            icon={MdEmojiEmotions}
+          />
+          <OverviewCard
+            title="Amount Disbursed"
+            number={isLoading ? '...' : (data?.body.amountDisbursed ?? 0)}
+            icon={MdVolunteerActivism}
+          />
         </Grid>
       </Flex>
       <Flex flexDir="column" gap="12px">
@@ -117,10 +127,26 @@ const SuperAdminDashboard = () => {
           Modules In Progress
         </Text>
         <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(262px, 1fr))">
-          <ModuleDashboardCard text="Applications" number={300000} image="/icons/Application.svg" />
-          <ModuleDashboardCard text="Beneficiaries Enumerated" number={200000} image="/icons/Enumeration.svg" />
-          <ModuleDashboardCard text="Awaiting KYC Verification" number={150000} image="/icons/Verification.svg" />
-          <ModuleDashboardCard text="Awaiting  Disbursement" number={20000} image="/icons/Disbursement.svg" />
+          <ModuleDashboardCard
+            text="Applications"
+            number={isLoading ? '...' : (data?.body.applications ?? 0)}
+            image="/icons/Application.svg"
+          />
+          <ModuleDashboardCard
+            text="Beneficiaries Enumerated"
+            number={isLoading ? '...' : (data?.body.beneficiariesEnumerated ?? 0)}
+            image="/icons/Enumeration.svg"
+          />
+          <ModuleDashboardCard
+            text="Awaiting KYC Verification"
+            number={isLoading ? '...' : (data?.body.awaitingKYCVerification ?? 0)}
+            image="/icons/Verification.svg"
+          />
+          <ModuleDashboardCard
+            text="Awaiting  Disbursement"
+            number={isLoading ? '...' : (data?.body.awaitingDisbursement ?? 0)}
+            image="/icons/Disbursement.svg"
+          />
         </Grid>
       </Flex>
       <Flex flexDir="column" gap="12px">
@@ -138,9 +164,9 @@ const SuperAdminDashboard = () => {
           Recent Activities
         </Text>
         <Grid gap="20px" templateColumns="repeat(auto-fit, minmax(360px, 1fr))">
-          <ActivityTable />
-          <ActivityTable />
-          <ActivityTable />
+          <ActivityTable data={data?.body.enumerations ?? []} />
+          <ActivityTable data={data?.body.enumerations ?? []} />
+          <ActivityTable data={data?.body.enumerations ?? []} />
         </Grid>
       </Flex>
     </Flex>
