@@ -19,6 +19,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (process.env.NODE_ENV === 'production') {
+    console.log = () => {};
+    console.error = () => {};
+    console.debug = () => {};
+  }
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body>
