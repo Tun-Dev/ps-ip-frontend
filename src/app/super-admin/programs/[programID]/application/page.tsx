@@ -34,6 +34,7 @@ import { Beneficiary } from '@/types';
 import { useParams } from 'next/navigation';
 import { useProcessModule } from '@/hooks/useProcessModule';
 import { AxiosError } from 'axios';
+import { format, parseISO } from 'date-fns';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -120,10 +121,13 @@ const ApplicationPage = () => {
         ),
         accessorKey: key,
         cell: (info) => {
+          console.log(key);
           const value = info.getValue() as string | number | undefined;
+          const realValue =
+            key === 'Date of Birth' ? format(parseISO(value as string), 'dd/MM/yyyy') : value?.toString();
           return (
             <Text as="span" textAlign="left" display="block" variant="Body2Regular">
-              {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
+              {info.getValue() !== null && value !== undefined ? realValue : 'N/A'}
             </Text>
           );
         },

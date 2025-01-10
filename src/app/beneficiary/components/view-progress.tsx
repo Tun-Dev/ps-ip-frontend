@@ -84,12 +84,12 @@ const ViewProgress = () => {
       >
         <Flex flexDir="column" gap="4px">
           <Text variant="Body1Semibold">View Progress</Text>
-          <Text>Welcome back. Please input your User ID.</Text>
+          <Text>Welcome back. Please input your User Code.</Text>
         </Flex>
         <FormControl isInvalid={!!form.formState.errors.code} maxW="430px">
           <FormLabel htmlFor="code">
             <Text as="span" variant="Body2Semibold">
-              User ID
+              User Code
             </Text>
           </FormLabel>
           <Input id="code" {...form.register('code')} isRequired />

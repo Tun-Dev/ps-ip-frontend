@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { MdCheckCircle, MdRefresh } from 'react-icons/md';
+import { MdCheckCircle } from 'react-icons/md';
 import { z } from 'zod';
 
 import { useFillForm } from '@/hooks/useFillForm';
@@ -111,14 +111,15 @@ export default function ModuleForm() {
             boxShadow="banner"
             gap="12px"
             h="176px"
+            width="200px"
           >
-            <Flex alignItems="center" gap="4px">
+            {/* <Flex alignItems="center" gap="4px">
               <Text variant="Body2Semibold" color="primary.600">
-                {/* {`${programForm.body.moduleName} in Progress`} */}
+                {`${programForm.body.moduleName} in Progress`}
                 Verification in Progress
               </Text>
               <Icon as={MdRefresh} color="secondary.600" boxSize="16px" />
-            </Flex>
+            </Flex> */}
 
             <Flex flex="1 1 0%" justifyContent="center" alignItems="center">
               <Image src={`/icons/Verification.svg`} alt={programForm.body.moduleName} height="100%" />
@@ -137,7 +138,7 @@ export default function ModuleForm() {
               variant="primary"
               onClick={() => {
                 onCopy();
-                toast({ title: 'Link copied to clipboard', status: 'success' });
+                toast({ title: 'Code copied to clipboard', status: 'success' });
               }}
             >
               Copy code

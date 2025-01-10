@@ -29,6 +29,7 @@
     "axios": "^1.7.8",
     "chakra-react-select": "^4.9.2",
     "chart.js": "^4.4.5",
+    "date-fns": "^4.1.0",
     "eslint-config-prettier": "^9.1.0",
     "framer-motion": "^11.7.0",
     "next": "14.2.13",

@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetModules } from '@/hooks/useGetModules';
 import type { ModuleDetail } from '@/types';
+import { parseISO, format } from 'date-fns';
 
 type Props = {
   module: ModuleDetail;
@@ -35,14 +36,17 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
   return (
     <Box>
       <Grid templateColumns="1fr 1fr" columnGap="4.5rem" rowGap="1.5rem" mb="4rem">
-        {module?.formAnswers?.map((answer) => (
-          <Box key={answer.key}>
-            <Text variant="Body2Semibold" color="grey.500" mb="2">
-              {answer.key}
-            </Text>
-            <Text variant="Body1Regular">{answer.value}</Text>
-          </Box>
-        ))}
+        {module?.formAnswers?.map((answer) => {
+          const value = answer.key === 'Date of Birth' ? format(parseISO(answer.value), 'dd/MM/yyyy') : answer.value;
+          return (
+            <Box key={answer.key}>
+              <Text variant="Body2Semibold" color="grey.500" mb="2">
+                {answer.key}
+              </Text>
+              <Text variant="Body1Regular">{value}</Text>
+            </Box>
+          );
+        })}
       </Grid>
       {status === 'PENDING' && (
         <Grid templateColumns="1fr 1fr" gap="6">
