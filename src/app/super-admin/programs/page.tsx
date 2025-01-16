@@ -16,6 +16,7 @@ const ProgramsFolderPage = () => {
   const toast = useToast();
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
   const { data: groups } = useGetGroup({ page: 1, pageSize: 10 });
 
   const [selectedGroup, setSelectedGroup] = useState<GroupEditPayload>();
@@ -64,14 +65,14 @@ const ProgramsFolderPage = () => {
               onAdd={() => router.push(`/super-admin/programs/${item.id}/create`)}
               onEdit={() => {
                 setSelectedGroup({ name: item.name, id: item.id });
-                onOpen();
+                onOpenEdit();
               }}
             />
           ))}
         </SimpleGrid>
       </Stack>
       <CreateFileModal onClose={onClose} isOpen={isOpen} />
-      <EditFileModal onClose={onClose} isOpen={isOpen} initialValues={selectedGroup} />
+      <EditFileModal onClose={onCloseEdit} isOpen={isOpenEdit} initialValues={selectedGroup} />
     </>
   );
 };
