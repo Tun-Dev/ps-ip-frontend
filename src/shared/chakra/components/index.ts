@@ -7,3 +7,4 @@ export { ModuleProgressCard } from './module-progress-card';
 export { ClientRootLayout } from './QueryWrapper';
 export { SideBarItem } from './SideBarItem';
 export { NotificationButton } from './NotificationButton';
+export * from './small-overview';

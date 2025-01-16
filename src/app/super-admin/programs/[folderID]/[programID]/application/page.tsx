@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
-import { MdCloudUpload, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
+import { MdArrowRightAlt, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
@@ -223,14 +223,14 @@ const ApplicationPage = () => {
             Download Report
           </Button>
           <Button
-            leftIcon={<MdCloudUpload />}
+            rightIcon={<MdArrowRightAlt />}
             variant="primary"
             size="medium"
             isLoading={isPending || isProcessModulePending}
             onClick={uploadData}
             isDisabled={!isUpload}
           >
-            Upload Data
+            Proceed to next Module
           </Button>
         </Flex>
       </Flex>

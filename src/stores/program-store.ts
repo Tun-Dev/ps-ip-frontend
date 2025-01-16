@@ -18,7 +18,7 @@ export type ProgramActions = {
 export type ProgramStore = ProgramState & ProgramActions;
 
 const MIN_STEP = 1;
-const MAX_STEP = 4;
+const MAX_STEP = 5;
 
 export const defaultProgramState: ProgramState = {
   step: MIN_STEP,

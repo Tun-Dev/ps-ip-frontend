@@ -77,9 +77,15 @@ const programSchema = z.object({
   target: z.coerce.number().min(1, 'Target is required'),
   description: z.string().min(1, 'Description is required'),
   programTypeId: z.coerce.number().min(1, 'Program type is required'),
+  coverPhotoID: z.number().min(1, 'Cover Photo is Required'),
+  eligibilityCriteria: z.array(z.string()).min(1, 'At least one eligibility criterion is required'),
   programModules: z.array(programModuleSchema),
   surveyForm: surveyFormSchema,
   vettingForm: vettingFormSchema,
+
+  // To keep the images from one step to another but we not submitting it
+  logoFile: z.string().optional(),
+  coverPhotoFile: z.string().optional(),
 });
 
 type ProgramSchema = z.infer<typeof programSchema>;
@@ -252,6 +258,10 @@ export const ProgramFormProvider = ({ children }: { children: ReactNode }) => {
       target: program.target,
       description: program.description,
       programTypeId: programType?.id,
+      coverPhotoID: 0,
+      eligibilityCriteria: program.eligibilityCriteria,
+      logoFile: program.logo,
+      coverPhotoFile: program.coverPhoto,
       programModules: program.programModules.map((module) => ({
         id: module.id,
         order: module.order,

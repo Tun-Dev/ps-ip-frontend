@@ -1,14 +1,14 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { AxiosError } from 'axios';
-import { deleteProgram } from '@/services/programs';
+import { deleteGroup } from '@/services/group';
 
-export const useDeleteProgram = () => {
+export const useDeleteGroup = () => {
   const queryClient = useQueryClient();
   const toast = useToast();
 
   return useMutation({
-    mutationFn: deleteProgram,
+    mutationFn: deleteGroup,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group'] });
     },

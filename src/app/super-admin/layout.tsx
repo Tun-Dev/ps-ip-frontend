@@ -19,7 +19,7 @@ const SuperAdminLayout = ({ children }: { children: React.ReactNode }) => {
           <Image
             src="/images/bg-image.png"
             alt=""
-            pos="absolute"
+            pos="fixed"
             top="0px"
             left="0px"
             w="100%"

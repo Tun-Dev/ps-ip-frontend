@@ -22,12 +22,12 @@ export function ModulesList() {
 
   const programModules = useMemo(() => {
     if (!modules) return [];
-    if (step === 1) return modules.body;
+    if (step === 2) return modules.body;
     return Array.from(selectedModuleIds.ids).map((id) => modules.body.find((module) => module.id === id)) ?? [];
   }, [modules, selectedModuleIds, step]);
 
   const handleModuleClick = (module: Module, isSelected: boolean) => {
-    if (step !== 1) setActiveModuleId(module.id);
+    if (step !== 2) setActiveModuleId(module.id);
     else if (!isSelected) {
       setSelectedModuleIds({ ids: new Set(selectedModuleIds.ids.add(module.id)) });
 
@@ -37,9 +37,9 @@ export function ModulesList() {
   };
 
   const isDisabled = (module: Module) =>
-    (step === 2 && !EDITABLE_MODULES.includes(module.module)) ||
-    (step === 3 && module.ModuleGuidelines.length < 1) ||
-    (step === 3 && module.module === 'Vetting');
+    (step === 3 && !EDITABLE_MODULES.includes(module.module)) ||
+    (step === 4 && module.ModuleGuidelines.length < 1) ||
+    (step === 4 && module.module === 'Vetting');
 
   return (
     <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200" h="100%" ml="5">
@@ -58,8 +58,8 @@ export function ModulesList() {
                   key={module.id}
                   module={correctedModule}
                   number={index + 1}
-                  status={step !== 1 ? 'Edit' : isSelected ? 'Selected' : 'Select'}
-                  isActive={step === 1 ? undefined : activeModuleId === correctedModule.id}
+                  status={step !== 2 ? 'Edit' : isSelected ? 'Selected' : 'Select'}
+                  isActive={step === 2 ? undefined : activeModuleId === correctedModule.id}
                   disabled={isDisabled(correctedModule)}
                   onClick={() => handleModuleClick(module, isSelected)}
                 />

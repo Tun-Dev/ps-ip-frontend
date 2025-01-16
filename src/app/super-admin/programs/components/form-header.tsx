@@ -1,20 +1,20 @@
 'use client';
 
-import { Flex, Icon, Input, Stack } from '@chakra-ui/react';
-import { MdEdit } from 'react-icons/md';
+import { Flex, Stack, Text } from '@chakra-ui/react';
 
 import { useGetProgramTypes } from '@/hooks/useGetProgramTypes';
 import { useProgramForm } from '@/providers/form-provider';
-import { Dropdown } from '@/shared/chakra/components';
-import { useMemo } from 'react';
-import { Controller } from 'react-hook-form';
+// import { Dropdown } from '@/shared/chakra/components';
+import { ReactNode, useMemo } from 'react';
+// import { Controller } from 'react-hook-form';
 import { ProgramImage } from './program-image';
 
 export function FormHeader() {
   const {
-    register,
-    control,
+    // register,
+    // control,
     formState: { errors },
+    getValues,
   } = useProgramForm();
   const { data: programTypes } = useGetProgramTypes();
 
@@ -23,65 +23,49 @@ export function FormHeader() {
     [programTypes]
   );
 
+  console.log(getValues());
+
+  const name = getValues('name');
+  const type = options?.find((item) => item.value === getValues('programTypeId'));
+  const desc = getValues('description');
+  const target = getValues('target');
+
   return (
     <Stack spacing="3">
       <Flex align="center" gap="3">
-        <ProgramImage hasError={!!errors.logo} />
-        <Input
-          placeholder="Program Name"
-          border="1px dashed"
-          borderColor={!!errors.name ? 'red' : 'grey.300'}
-          {...register('name')}
-        />
-        <Controller
-          control={control}
-          name="programTypeId"
-          defaultValue={0}
-          render={({ field: { name, onBlur, onChange, value, disabled } }) => (
-            <Dropdown
-              id="programTypeId"
-              variant="whiteDropdown"
-              placeholder="Program Type"
-              chakraStyles={{
-                control: (styles) => ({
-                  ...styles,
-                  outline: '1px dashed',
-                  outlineColor: !!errors.programTypeId ? 'red' : 'grey.300',
-                  h: '10',
-                  fontSize: '16px',
-                  _placeholder: { color: 'grey.500' },
-                }),
-              }}
-              name={name}
-              options={options}
-              value={options?.find((option) => option.value === value)}
-              onChange={(value) => value && onChange(value.value)}
-              onBlur={onBlur}
-              isDisabled={disabled}
-            />
-          )}
-        />
-        <Icon as={MdEdit} aria-label={`Edit`} color="primary.500" boxSize="3" />
+        <ProgramImage hasError={!!errors.logo} isReadOnly />
+        <Wrapper title="Program Name:">
+          <Text>{name}</Text>
+        </Wrapper>
+        <Wrapper title="Program Type:">
+          <Text>{type?.label}</Text>
+        </Wrapper>
       </Flex>
-      <Flex align="center" gap="8px">
-        <Input
-          placeholder="Description"
-          border="1px dashed"
-          borderColor={!!errors.description ? 'red' : 'grey.300'}
-          {...register('description')}
-        />
-        <Icon as={MdEdit} aria-label="Edit" color="primary.500" boxSize="3" />
-      </Flex>
-      <Flex align="center" gap="8px" w="fit-content">
-        <Input
-          placeholder="Target"
-          type="number"
-          border="1px dashed"
-          borderColor={!!errors.target ? 'red' : 'grey.300'}
-          {...register('target')}
-        />
-        <Icon as={MdEdit} aria-label={`Edit`} color="primary.500" boxSize="3" />
-      </Flex>
+      <Wrapper title="Description:">
+        <Text>{desc}</Text>
+      </Wrapper>
+      <Wrapper title="Target:">
+        <Text>{target}</Text>
+      </Wrapper>
     </Stack>
   );
 }
+
+const Wrapper = ({ children, title }: { children: ReactNode; title: string }) => {
+  return (
+    <Flex
+      border="1px dashed"
+      borderColor="#D7D7D7"
+      gap="8px"
+      alignItems="center"
+      p="8px 12px"
+      borderRadius="8px"
+      w="100%"
+    >
+      <Text variant="Body3Semibold" color="#7D7D7D">
+        {title}
+      </Text>
+      {children}
+    </Flex>
+  );
+};

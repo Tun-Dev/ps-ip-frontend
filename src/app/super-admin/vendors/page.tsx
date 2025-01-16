@@ -169,7 +169,7 @@ const VendorPage = () => {
   const totalPages = data?.body.totalPages ?? 0;
 
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px" borderTop="1px solid" borderTopColor="grey.200">
+    <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px">
       <DeleteModal
         isOpen={isDeleteOpen}
         onClose={deleteModalOnClose}

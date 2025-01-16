@@ -21,10 +21,10 @@ const NotificationCard = ({ title, time, desc, Icon, boldWord }: NotificationCar
       boxShadow="card"
       borderRadius="12px"
       padding="10px 12px"
-      bg="primary.30"
+      bg="primary.100"
     >
       <Flex gap="4">
-        <Center boxSize="24px" bg="primary.100" borderRadius="10px">
+        <Center boxSize="32px" bg="primary.200" borderRadius="10px">
           <Icon color="var(--chakra-colors-primary-600)" size="1rem" />
         </Center>
         <Flex flexDir="column" gap="2">

@@ -313,6 +313,8 @@ export type ProgramDetails = {
   description: string;
   programType: string;
   programModules: ProgramModulesDetails[];
+  coverPhoto: string;
+  eligibilityCriteria: string[];
 };
 
 export type ProgramModulesDetails = {
@@ -455,4 +457,38 @@ export type DashboardDataResponse = {
   awaitingKYCVerification: number;
   awaitingDisbursement: number;
   enumerations: EnumerationsTableData[];
+};
+
+export type GroupPayload = {
+  name: string;
+};
+
+export type GroupEditPayload = {
+  name: string;
+  id?: string;
+};
+
+export type GroupPayloadResponse = {
+  id: string;
+  logo: string;
+  name: string;
+};
+
+export type AddProgramToGroupPayload = {
+  id: string;
+  programIds: string[];
+};
+
+export type GroupResponse = {
+  id: string;
+  name: string;
+  programCount: number;
+};
+
+export type GroupDetailsResponse = {
+  id: string;
+  logo: string;
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  programs: any[];
 };

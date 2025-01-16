@@ -1,59 +1,58 @@
 import { Box, Flex, Heading, Icon, Text } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
-import { MdArrowOutward } from 'react-icons/md';
 
 type OverviewCardProps = {
   title: string;
   icon: IconType;
   number: number | string;
-  active?: boolean;
   stat?: number;
   iconColor?: string;
 };
 
-export const OverviewCard = ({ title, icon, number, active, iconColor = 'primary.500', stat }: OverviewCardProps) => {
+export const SmallOverviewCard = ({ title, icon, number, iconColor = 'primary.500' }: OverviewCardProps) => {
   return (
     <Box
-      padding="16px"
+      padding="8px 12px"
       h="full"
       display="flex"
       flexDirection="column"
       justifyContent="space-between"
       borderRadius="12px"
       border="1px solid"
-      backgroundColor={active ? 'primary.500' : 'primary.100'}
+      backgroundColor={'primary.100'}
       borderColor="grey.100"
       boxShadow="card"
-      minW="265px"
+      minW="258px"
+      gap="8px"
     >
-      <Flex mb="16px" align="center" gap="8px">
+      <Flex align="center" gap="8px">
         <Flex
           align="center"
           justify="center"
-          backgroundColor={active ? 'white' : 'primary.200'}
+          backgroundColor={'primary.200'}
           padding="6px"
           borderRadius="10px"
           gap="8px"
-          width="32px"
-          height="32px"
+          width="26px"
+          height="26px"
         >
-          <Icon as={icon} color={iconColor} boxSize="20px" />
+          <Icon as={icon} color={iconColor} boxSize="14px" />
         </Flex>
-        <Text as="h2" variant="Body1Semibold" color={active ? 'white' : 'gray.500'}>
+        <Text as="h2" variant="Body2Semibold" color={'gray.500'}>
           {title}
         </Text>
       </Flex>
       <Flex gap="4" alignItems="center">
-        <Heading as="p" variant="Header2Bold" color={active ? 'white' : 'inherit'}>
+        <Heading as="p" variant="Header1Bold" color={'inherit'}>
           {number.toLocaleString()}
         </Heading>
-        {stat && (
+        {/* {stat && (
           <Box p="2px 4px" h="fit-content" bg="green/10" borderRadius="8px">
             <Text variant="Body2Semibold" color="green" display="flex" alignItems="center" gap=".25rem">
               <MdArrowOutward /> {stat}%
             </Text>
           </Box>
-        )}
+        )} */}
       </Flex>
     </Box>
   );

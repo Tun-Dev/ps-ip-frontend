@@ -1,21 +1,22 @@
 'use client';
 
-import { Box, Button, ButtonGroup, Flex, Grid, Stack, Text, useToast } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
+import { Box, Button, ButtonGroup, Flex, Grid, Spinner, Stack, Text, useToast } from '@chakra-ui/react';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { useCreateForm } from '@/hooks/useCreateForm';
-import { useCreateProgram } from '@/hooks/useCreateProgram';
+import { useEditForm } from '@/hooks/useEditForm';
+import { useEditProgram } from '@/hooks/useEditProgram';
 import { useGetModules } from '@/hooks/useGetModules';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useGetQuestionTypes } from '@/hooks/useGetQuestionTypes';
 import { useProgramForm } from '@/providers/form-provider';
 import { useProgramStore } from '@/providers/programs-store-provider';
 import { MultiStepHeader } from '@/shared';
 import { FormResponse } from '@/types';
-import { FormHeader } from '../components/form-header';
-import { ModulesList } from '../components/modules-list';
+import { FormHeader } from '../../../components/form-header';
+import { ModulesList } from '../../../components/modules-list';
 
-const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
+const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast();
   const router = useRouter();
   const [, setRender] = useState(false);
@@ -27,16 +28,33 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const activeModuleId = useProgramStore((state) => state.activeModuleId);
   const setActiveModuleId = useProgramStore((state) => state.setActiveModuleId);
   const selectedModules = useProgramStore((state) => state.selectedModules);
+  const setSelectedModules = useProgramStore((state) => state.setSelectedModules);
 
   const { getValues, trigger, reset: resetForm } = useProgramForm();
 
-  const { data: modules } = useGetModules();
+  const { data: modules, isLoading: isModuleLoading } = useGetModules();
   const { data: questionTypes } = useGetQuestionTypes();
-  const { mutate: createProgram, isPending } = useCreateProgram();
-  const { mutate: createForm } = useCreateForm();
+  const { mutate: editProgram, isPending } = useEditProgram();
+  const { mutate: editForm } = useEditForm();
+  const { programID } = useParams();
+  const { response: program, isLoading } = useGetProgramById(programID?.toString());
+
+  useEffect(() => {
+    if (!program || !modules) return;
+
+    const selectedModulesSet = new Set<number>();
+
+    program.body.programModules
+      .sort((a, b) => a.order - b.order)
+      .forEach((module) => {
+        const currentModule = modules.body.find((md) => md.name === module.module);
+        if (currentModule) selectedModulesSet.add(currentModule.id);
+      });
+    setSelectedModules({ ids: selectedModulesSet });
+  }, [setSelectedModules, program, modules]);
 
   const handleNextStep = async () => {
-    if (step === 4) {
+    if (step === 5) {
       const isNameValid = await trigger('name');
       const isProgramTypeIdValid = await trigger('programTypeId');
       const isTargetValid = await trigger('target');
@@ -60,17 +78,17 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
       if (moduleNames.includes('Survey') || moduleNames.includes('Vetting')) {
         const surveyPayload = getSurveyFormPayload();
         const vettingPayload = getVettingFormPayload();
-        const formsToCreate: (typeof surveyPayload)[] = [];
+        const formsToEdit: (typeof surveyPayload)[] = [];
 
-        if (moduleNames.includes('Survey')) formsToCreate.push(surveyPayload!);
-        if (moduleNames.includes('Vetting')) formsToCreate.push(vettingPayload);
+        if (moduleNames.includes('Survey')) formsToEdit.push(surveyPayload);
+        if (moduleNames.includes('Vetting')) formsToEdit.push(vettingPayload);
 
-        createForm(formsToCreate, {
+        editForm(formsToEdit, {
           onSuccess: (response) => {
-            handleCreateProgram(response.body);
+            handleEditProgram(response.body);
           },
         });
-      } else handleCreateProgram();
+      } else handleEditProgram();
     } else {
       const firstModuleId = selectedModules.ids.values().next().value ?? 0;
       if (!activeModuleId || !selectedModules.ids.has(activeModuleId)) setActiveModuleId(firstModuleId);
@@ -80,6 +98,8 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
 
   const mapProgramModules = () => {
     const formValues = getValues();
+
+    console.log('formValues', formValues);
 
     const programModules = formValues.programModules.map((module, index) => {
       const moduleData = { ...module, order: index + 1 };
@@ -95,9 +115,12 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
     return programModules;
   };
 
-  const handleCreateProgram = (forms?: FormResponse[]) => {
+  const handleEditProgram = (forms?: FormResponse[]) => {
     const formValues = getValues();
+    console.log(formValues);
     const mappedModules = mapProgramModules();
+
+    console.log('mappedModule', mappedModules);
 
     // If forms are provided, map the formId to the programModule
     const programModules = forms
@@ -109,17 +132,20 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
       : mappedModules;
 
     const payload = {
+      id: programID,
       name: formValues.name,
       description: formValues.description,
       logo: formValues.logo,
       target: Number(formValues.target),
       programTypeId: Number(formValues.programTypeId),
       programModules: programModules,
+      coverPhoto: Number(formValues.coverPhotoID),
+      eligibilityCriteria: formValues.eligibilityCriteria,
     };
 
-    createProgram(payload, {
+    editProgram(payload, {
       onSuccess: () => {
-        toast({ title: 'Program Created successfully', status: 'success' });
+        toast({ title: 'Changes saved', status: 'success' });
         router.push('/super-admin/programs');
       },
     });
@@ -131,6 +157,7 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
     const moduleId = modules?.body.find((module) => module.name === 'Survey')?.id ?? 0; // Survey module id
 
     const payload = {
+      id: formValues.surveyForm.id,
       moduleId: moduleId,
       program: formValues.name,
       questions: formValues.surveyForm.fields.map((field) => ({
@@ -150,6 +177,7 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
     const moduleId = modules?.body.find((module) => module.name === 'Vetting')?.id ?? 0; // Vetting module id
 
     const manualPayload = {
+      id: formValues.vettingForm.id,
       moduleId: moduleId,
       program: formValues.name,
       questions: formValues.vettingForm.manualFields.map((field) => ({
@@ -165,6 +193,7 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
     const checkboxType = questionTypes?.body.find((qt) => qt.status === 'CHECKBOX')?.value ?? 0; // Checkbox question type
 
     const automatedPayload = {
+      id: formValues.vettingForm.id,
       moduleId: moduleId,
       program: formValues.name,
       totalFormScore: Number(formValues.vettingForm.totalScore),
@@ -189,12 +218,19 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
     };
   }, [resetState, resetForm]);
 
+  if (isLoading || isModuleLoading)
+    return (
+      <Flex boxSize="full" align="center" justify="center">
+        <Spinner />
+      </Flex>
+    );
+
   return (
     <Flex h="100%" w="full">
       <Stack spacing="0" flex="1 1 0%">
         <Flex pt="20px" pb="5" gap="24px" flexDir="column" borderBottom="1px solid" borderColor="grey.200">
           <MultiStepHeader activeStep={step} />
-          <FormHeader />
+          {step > 1 && <FormHeader />}
         </Flex>
         {selectedModules.ids.size < 1 ? (
           <EmptyState />
@@ -223,15 +259,14 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
                   Back
                 </Button>
                 <Button onClick={handleNextStep} isLoading={isPending} variant="primary" flex="1">
-                  {step === 4 ? 'Create Program' : 'Next'}
+                  {step === 4 ? 'Save Changes' : 'Next'}
                 </Button>
               </ButtonGroup>
             </Flex>
           </Flex>
         )}
       </Stack>
-      {/* Module list */}
-      <ModulesList />
+      {step > 1 && <ModulesList />}
     </Flex>
   );
 };
@@ -247,4 +282,4 @@ const EmptyState = () => (
   </Grid>
 );
 
-export default CreateProgramLayout;
+export default EditProgramLayout;

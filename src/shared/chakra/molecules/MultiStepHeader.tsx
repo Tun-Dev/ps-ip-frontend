@@ -3,13 +3,15 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 const MultiStepHeader = ({ activeStep }: { activeStep: number }) => {
   return (
     <Flex justifyContent="center" gap="8px">
-      <StepItem step={1} activeStep={activeStep} label="Select Modules" />
+      <StepItem step={1} activeStep={activeStep} label="Program Details" />
       <ProgressLine step={1} activeStep={activeStep} />
-      <StepItem step={2} activeStep={activeStep} label="Edit Modules" />
+      <StepItem step={2} activeStep={activeStep} label="Select Modules" />
       <ProgressLine step={2} activeStep={activeStep} />
-      <StepItem step={3} activeStep={activeStep} label="Admin Settings" />
+      <StepItem step={3} activeStep={activeStep} label="Edit Modules" />
       <ProgressLine step={3} activeStep={activeStep} />
-      <StepItem step={4} activeStep={activeStep} label="Review" />
+      <StepItem step={4} activeStep={activeStep} label="Admin Settings" />
+      <ProgressLine step={4} activeStep={activeStep} />
+      <StepItem step={5} activeStep={activeStep} label="Review" />
     </Flex>
   );
 };

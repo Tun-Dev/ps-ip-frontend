@@ -12,6 +12,7 @@ import {
 import { NewVendorModal } from '@/shared';
 import { useGetVendorOverview } from '@/hooks/useGetVendorOverview';
 import { usePathname, useRouter } from 'next/navigation';
+import { SmallOverviewCard } from '@/shared/chakra/components';
 
 const VendorLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -36,6 +37,9 @@ const VendorLayout = ({ children }: { children: React.ReactNode }) => {
       identifier: '/super-admin/vendors/orders',
       clickable: true,
     },
+  ];
+
+  const metrics = [
     {
       name: 'Amount Disbursed',
       icon: MdVolunteerActivism,
@@ -73,7 +77,13 @@ const VendorLayout = ({ children }: { children: React.ReactNode }) => {
             <Text> Add New Vendor</Text>
           </Button>
         </Flex>
-        <Grid gap="6" templateColumns="repeat(auto-fit, minmax(265px, 1fr))">
+        <Grid
+          gap="6"
+          templateColumns="repeat(4, minmax(265px, 1fr))"
+          borderBottom="1px solid"
+          borderBottomColor="grey.200"
+          pb="24px"
+        >
           {cards.map((card, index) => (
             <Box
               key={index}
@@ -89,6 +99,23 @@ const VendorLayout = ({ children }: { children: React.ReactNode }) => {
             </Box>
           ))}
         </Grid>
+
+        <Grid gap="6" templateColumns="repeat(4, minmax(258px, 1fr))">
+          {metrics.map((card, index) => (
+            <Box
+              key={index}
+              onClick={card.clickable ? () => router.push(card.identifier) : () => {}}
+              cursor={card.clickable ? 'pointer' : 'default'}
+            >
+              <SmallOverviewCard
+                title={card.name}
+                number={isLoading ? '...' : card.value}
+                icon={card.icon}
+                iconColor="primary.600"
+              />
+            </Box>
+          ))}
+        </Grid>
       </Flex>
       {children}
     </Flex>
@@ -96,3 +123,4 @@ const VendorLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default VendorLayout;
+//

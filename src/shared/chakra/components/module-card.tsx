@@ -31,6 +31,8 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
       moduleCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [module, pathname, scroll]);
 
+  console.log(status);
+
   return (
     <Stack spacing="3" w="full" ref={moduleCardRef} {...rest}>
       <Flex
@@ -61,7 +63,10 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
                 {number}
               </Text>
             </Flex>
-            <Text variant={isActive ? 'Body2Bold' : 'Body2Semibold'} color={isDisabled ? 'grey.500' : 'primary.500'}>
+            <Text
+              variant={isActive ? 'Body2Bold' : 'Body2Semibold'}
+              color={isActive ? 'white' : isDisabled ? 'grey.500' : 'primary.500'}
+            >
               {module.module}
             </Text>
           </Flex>
@@ -85,13 +90,27 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
         <Flex justifyContent="flex-end" align="center" gap="2px">
           {status === 'Edit' && (
             <MdEdit
-              color={isDisabled ? 'var(--chakra-colors-grey-400)' : 'var(--chakra-colors-primary-500)'}
+              color={
+                isDisabled
+                  ? 'var(--chakra-colors-grey-400)'
+                  : isActive
+                    ? 'var(--chakra-colors-white)'
+                    : 'var(--chakra-colors-primary-500)'
+              }
               size="0.75rem"
             />
           )}
           <Text
             variant={isActive ? 'Body3Regular' : 'Body3Regular'}
-            color={isDisabled ? 'grey.500' : status === 'In progress' ? 'secondary.500' : 'primary.500'}
+            color={
+              isDisabled
+                ? 'grey.500'
+                : status === 'In progress'
+                  ? 'white'
+                  : status === 'Edit' && isActive
+                    ? 'white'
+                    : 'primary.500'
+            }
           >
             {status}
           </Text>
@@ -106,7 +125,7 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
                 isDisabled
                   ? 'var(--chakra-colors-grey-400)'
                   : status === 'In progress'
-                    ? 'var(--chakra-colors-secondary-500)'
+                    ? 'var(--chakra-colors-white)'
                     : 'var(--chakra-colors-primary-500)'
               }
               size="0.75rem"

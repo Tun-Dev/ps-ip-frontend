@@ -16,7 +16,7 @@ export const ModuleDashboardCard = ({ text, number, image, ...props }: Props) =>
       rounded="xl"
       boxShadow="card"
       {...props}
-      bg="primary.30"
+      bg="primary.100"
     >
       <Heading as="p" variant="Header2Bold">
         {number.toLocaleString()}

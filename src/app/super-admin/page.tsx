@@ -70,7 +70,7 @@ const ActivityTable = ({ data }: { data: EnumerationsTableData[] }) => {
       padding="10px"
       borderRadius="12px"
       boxShadow="0px 4px 6px -1px rgba(3, 48, 0, 0.04), 0px 2px 4px -1px rgba(3, 48, 0, 0.04)"
-      bg="primary.30"
+      bg="primary.100"
     >
       <Flex justifyContent="space-between" alignItems="center">
         <Text variant="Body2Semibold" color="grey.500">
