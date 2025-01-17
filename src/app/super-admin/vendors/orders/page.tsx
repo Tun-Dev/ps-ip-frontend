@@ -17,56 +17,56 @@ import { ReusableTable } from '@/shared';
 import { ColumnDef } from '@tanstack/react-table';
 
 const OrderPage = () => {
-  const data = [
-    {
-      vendor: 'PAYSTACK',
-      program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAMME',
-      product_service_offered: 'Loan',
-      schedule_date: 'Dec. 20',
-      end_date: 'Dec. 20',
-      amount_disbursable: '₦ 50,000,000.00',
-    },
-    {
-      vendor: 'SOVALABS',
-      program: 'INVESTMENT IN DIGITAL CREATIVE ENTERPRISES PROGRAMME',
-      product_service_offered: 'Tech Skills',
-      schedule_date: 'Dec. 20',
-      end_date: 'Dec. 20',
-      amount_disbursable: '750 beneficiaries',
-    },
-    {
-      vendor: 'DANGOTE GROUP',
-      program: 'ALIKO DANGOTE FOUNDATION FUND',
-      product_service_offered: 'Skill Development',
-      schedule_date: 'Dec. 20',
-      end_date: 'Dec. 20',
-      amount_disbursable: '₦ 50,000,000.00',
-    },
-    {
-      vendor: 'PAYSTACK',
-      program: 'CBN BACKWARD INTEGRATION FUND',
-      product_service_offered: 'Loan',
-      schedule_date: 'Dec. 20',
-      end_date: 'Dec. 20',
-      amount_disbursable: '₦ 50,000,000.00',
-    },
-    {
-      vendor: 'PAYSTACK',
-      program: 'CBN BACKWARD INTEGRATION FUND',
-      product_service_offered: 'Loan',
-      schedule_date: 'Dec. 20',
-      end_date: 'Dec. 20',
-      amount_disbursable: '₦ 50,000,000.00',
-    },
-    {
-      vendor: 'PAYSTACK',
-      program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAMME',
-      product_service_offered: 'Loan',
-      schedule_date: 'Dec. 20',
-      end_date: 'Dec. 20',
-      amount_disbursable: '₦ 50,000,000.00',
-    },
-  ];
+  // const data = [
+  //   {
+  //     vendor: 'PAYSTACK',
+  //     program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAMME',
+  //     product_service_offered: 'Loan',
+  //     schedule_date: 'Dec. 20',
+  //     end_date: 'Dec. 20',
+  //     amount_disbursable: '₦ 50,000,000.00',
+  //   },
+  //   {
+  //     vendor: 'SOVALABS',
+  //     program: 'INVESTMENT IN DIGITAL CREATIVE ENTERPRISES PROGRAMME',
+  //     product_service_offered: 'Tech Skills',
+  //     schedule_date: 'Dec. 20',
+  //     end_date: 'Dec. 20',
+  //     amount_disbursable: '750 beneficiaries',
+  //   },
+  //   {
+  //     vendor: 'DANGOTE GROUP',
+  //     program: 'ALIKO DANGOTE FOUNDATION FUND',
+  //     product_service_offered: 'Skill Development',
+  //     schedule_date: 'Dec. 20',
+  //     end_date: 'Dec. 20',
+  //     amount_disbursable: '₦ 50,000,000.00',
+  //   },
+  //   {
+  //     vendor: 'PAYSTACK',
+  //     program: 'CBN BACKWARD INTEGRATION FUND',
+  //     product_service_offered: 'Loan',
+  //     schedule_date: 'Dec. 20',
+  //     end_date: 'Dec. 20',
+  //     amount_disbursable: '₦ 50,000,000.00',
+  //   },
+  //   {
+  //     vendor: 'PAYSTACK',
+  //     program: 'CBN BACKWARD INTEGRATION FUND',
+  //     product_service_offered: 'Loan',
+  //     schedule_date: 'Dec. 20',
+  //     end_date: 'Dec. 20',
+  //     amount_disbursable: '₦ 50,000,000.00',
+  //   },
+  //   {
+  //     vendor: 'PAYSTACK',
+  //     program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAMME',
+  //     product_service_offered: 'Loan',
+  //     schedule_date: 'Dec. 20',
+  //     end_date: 'Dec. 20',
+  //     amount_disbursable: '₦ 50,000,000.00',
+  //   },
+  // ];
 
   const columns: ColumnDef<any>[] = useMemo(
     () => [
@@ -173,7 +173,11 @@ const OrderPage = () => {
     []
   );
 
-  return <ReusableTable selectable data={data} columns={columns} />;
+  return (
+    <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px">
+      <ReusableTable selectable data={[]} columns={columns} />{' '}
+    </Flex>
+  );
 };
 
 export default OrderPage;

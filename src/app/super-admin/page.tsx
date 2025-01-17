@@ -101,7 +101,7 @@ const SuperAdminDashboard = () => {
         </Text>
         <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(265px, 1fr))">
           <OverviewCard
-            title="Running program"
+            title="Running programs"
             number={isLoading ? '...' : (data?.body.runningPrograms ?? 0)}
             icon={MdViewCarousel}
           />
