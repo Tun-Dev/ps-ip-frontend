@@ -7,6 +7,8 @@ import { useProgramForm } from '@/providers/form-provider';
 import { Sortable } from '@/shared/chakra/components/form-builder/sortable';
 import type { DropdownOption } from '@/types';
 import { SurveyFormField } from './survey-form-field';
+import { verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 type Item = {
   name: string;
@@ -43,6 +45,8 @@ const SurveyForm = memo(() => {
           }, []);
           replace(updatedFields);
         }}
+        sortingStrategy={verticalListSortingStrategy}
+        modifiers={[restrictToVerticalAxis]}
       >
         <Stack spacing="8">
           <Stack spacing="6">

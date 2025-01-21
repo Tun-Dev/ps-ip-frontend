@@ -7,6 +7,8 @@ import { useProgramForm } from '@/providers/form-provider';
 import { Sortable } from '@/shared/chakra/components/form-builder/sortable';
 import type { DropdownOption } from '@/types';
 import { ManualVettingField } from './manual-vetting-field';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 type Item = {
   name: string;
@@ -42,6 +44,8 @@ const ManualVettingForm = memo(({ display }: { display: string }) => {
           }, []);
           replace(updatedFields);
         }}
+        sortingStrategy={verticalListSortingStrategy}
+        modifiers={[restrictToVerticalAxis]}
       >
         <Stack spacing="8">
           <Stack spacing="6">

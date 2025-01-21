@@ -175,10 +175,10 @@ const AgentPanel = ({
       accessorKey: 'lga',
       cell: (info) => <Text variant="Body2Regular">{info.row.original.lga || '----------------'}</Text>,
     },
-    {
-      header: 'Aggregator',
-      accessorKey: 'aggregator',
-    },
+    // {
+    //   header: 'Aggregator',
+    //   accessorKey: 'aggregator',
+    // },
     {
       header: () => (
         <Text variant="Body3Semibold" color="grey.500" textAlign="center">

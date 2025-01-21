@@ -6,6 +6,8 @@ import { MdAddCircle } from 'react-icons/md';
 import { useProgramForm } from '@/providers/form-provider';
 import { Sortable } from '@/shared/chakra/components/form-builder/sortable';
 import { AutomatedVettingField } from './automated-vetting-field';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 type Item = {
   name: string;
@@ -62,6 +64,8 @@ const AutomatedVettingForm = memo(({ display }: { display: string }) => {
           }, []);
           replace(updatedFields);
         }}
+        sortingStrategy={verticalListSortingStrategy}
+        modifiers={[restrictToVerticalAxis]}
       >
         <Stack spacing="8">
           <Stack spacing="0">

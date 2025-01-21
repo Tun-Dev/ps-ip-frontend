@@ -50,6 +50,9 @@ export const GeepComponent = ({ name, logo, count, waveDirection, isActive, ...p
             {name}
           </Text>
         </Stack>
+        {/* <Text alignSelf="flex-end" variant="Body2Semibold" color={isActive ? 'white' : '#338359'}>
+          {type} Program
+        </Text> */}
       </Stack>
       <Wave
         pos="absolute"

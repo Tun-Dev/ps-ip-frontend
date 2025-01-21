@@ -8,7 +8,6 @@ import {
   useSensors,
   type UniqueIdentifier,
 } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
@@ -21,9 +20,12 @@ type SortableProps = {
   children?: React.ReactNode;
   items: UniqueIdentifier[];
   setItems: (items: UniqueIdentifier[]) => void;
+  sortingStrategy?: typeof verticalListSortingStrategy;
+  modifiers: ComponentProps<typeof DndContext>['modifiers'];
+  disabled?: boolean;
 } & ComponentProps<typeof DndContext>;
 
-export function Sortable({ children, items, setItems, ...props }: SortableProps) {
+export function Sortable({ children, items, setItems, sortingStrategy, modifiers, disabled, ...props }: SortableProps) {
   const sensors = useSensors(
     useSensor(MouseSensor),
     useSensor(TouchSensor),
@@ -34,19 +36,23 @@ export function Sortable({ children, items, setItems, ...props }: SortableProps)
 
   return (
     <DndContext
-      sensors={sensors}
+      sensors={disabled ? [] : sensors}
       collisionDetection={closestCenter}
-      modifiers={[restrictToVerticalAxis]}
-      onDragEnd={({ active, over }) => {
-        if (over && active.id !== over.id) {
-          const activeIndex = items.indexOf(active.id);
-          const overIndex = items.indexOf(over.id);
-          if (activeIndex !== overIndex) setItems(arrayMove(items, activeIndex, overIndex));
-        }
-      }}
+      modifiers={disabled ? [] : modifiers}
+      onDragEnd={
+        disabled
+          ? undefined
+          : ({ active, over }) => {
+              if (over && active.id !== over.id) {
+                const activeIndex = items.indexOf(active.id);
+                const overIndex = items.indexOf(over.id);
+                if (activeIndex !== overIndex) setItems(arrayMove(items, activeIndex, overIndex));
+              }
+            }
+      }
       {...props}
     >
-      <SortableContext items={items} strategy={verticalListSortingStrategy}>
+      <SortableContext items={items} strategy={sortingStrategy}>
         {children}
       </SortableContext>
     </DndContext>

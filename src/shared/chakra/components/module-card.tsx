@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Flex, Image, Stack, StackProps, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Image, Stack, StackProps, Text } from '@chakra-ui/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { memo, MouseEvent, useEffect, useRef } from 'react';
 import { MdArrowForward, MdCheckCircle, MdEdit, MdRefresh } from 'react-icons/md';
@@ -16,10 +16,11 @@ type ModuleCardProps = {
   disabled?: boolean;
   onRemove?: (e: MouseEvent<HTMLButtonElement>) => void;
   status: 'Select' | 'Selected' | 'Completed' | 'In progress' | 'Pending' | 'Edit';
+  isDragging?: boolean;
 } & StackProps;
 
 export const ModuleCard = memo((props: ModuleCardProps) => {
-  const { number, module, status, scroll, route, isActive, disabled, onRemove, onClick, ...rest } = props;
+  const { number, module, status, scroll, route, isActive, disabled, onRemove, onClick, isDragging, ...rest } = props;
 
   const router = useRouter();
   const pathname = usePathname();
@@ -70,15 +71,35 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
               {module.module}
             </Text>
           </Flex>
-          <Flex
-            boxSize="20px"
-            bg={isDisabled ? 'grey.400' : 'primary.100'}
-            borderRadius="100%"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <MdArrowForward color={isDisabled ? 'white' : 'var(--chakra-colors-primary-500)'} />
-          </Flex>
+          {isDragging ? (
+            <Grid
+              // ref={setActivatorNodeRef}
+              // {...listeners}
+              as="button"
+              type="button"
+              cursor="grab"
+              gridTemplateColumns="auto auto"
+              gap="1"
+              outlineColor="transparent"
+              _focus={{ boxShadow: 'outline' }}
+              style={{ touchAction: 'none' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {Array.from(Array(6).keys()).map((index) => (
+                <Box key={index} bg="primary.400" boxSize="1" />
+              ))}
+            </Grid>
+          ) : (
+            <Flex
+              boxSize="20px"
+              bg={isDisabled ? 'grey.400' : 'primary.100'}
+              borderRadius="100%"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <MdArrowForward color={isDisabled ? 'white' : 'var(--chakra-colors-primary-500)'} />
+            </Flex>
+          )}
         </Flex>
         <Flex flex="1" justifyContent="center">
           <Image
