@@ -4,12 +4,13 @@ import { Avatar, Box, Icon, Stack, Text } from '@chakra-ui/react';
 type Props = {
   name: string;
   logo?: string;
-  count: number;
+  count: number | string;
   waveDirection?: 'top' | 'bottom';
   isActive?: boolean;
+  programType?: string;
 } & ButtonProps;
 
-export const GeepComponent = ({ name, logo, count, waveDirection, isActive, ...props }: Props) => {
+export const GeepComponent = ({ name, logo, count, waveDirection, isActive, programType, ...props }: Props) => {
   return (
     <Box
       pos="relative"
@@ -22,33 +23,45 @@ export const GeepComponent = ({ name, logo, count, waveDirection, isActive, ...p
       boxShadow="card"
       overflow="hidden"
       cursor="pointer"
-      bgColor={isActive ? 'primary.500' : 'primary.50'}
-      _hover={{ bgColor: isActive ? 'primary.500' : 'primary.100' }}
+      bgColor={isActive ? 'primary.500' : 'primary.100'}
+      _hover={{ bgColor: isActive ? 'primary.500' : 'primary.200' }}
       transition="all 0.3s ease-in-out"
       {...props}
     >
       <Stack spacing="3" pos="relative" zIndex="docked">
-        <Text variant="Body2Semibold" color={isActive ? 'white' : 'primary.600'} transition="all 0.3s ease-in-out">
-          {count} Modules Available
+        <Text variant="Body2Semibold" color={isActive ? 'white' : 'primary.800'} transition="all 0.3s ease-in-out">
+          {typeof count === 'number' ? `${count} Modules Available` : count}
         </Text>
-        <Stack align="center">
-          <Avatar
-            boxSize="6rem"
-            name={name}
-            src={logo}
-            bgColor={isActive ? 'white' : 'primary.200'}
-            color="grey.500"
-            transition="all 0.3s ease-in-out"
-          />
-          <Text
-            variant="Body2Semibold"
-            color={isActive ? 'white' : 'grey.500'}
-            textTransform="uppercase"
-            textAlign="center"
-            transition="all 0.3s ease-in-out"
-          >
-            {name}
-          </Text>
+        <Stack>
+          <Stack align="center">
+            <Avatar
+              boxSize="6rem"
+              name={name}
+              src={logo}
+              bgColor={isActive ? 'white' : 'primary.200'}
+              color="grey.500"
+              transition="all 0.3s ease-in-out"
+            />
+            <Text
+              variant="Body2Semibold"
+              color={isActive ? 'white' : 'text'}
+              textTransform="uppercase"
+              textAlign="center"
+              transition="all 0.3s ease-in-out"
+            >
+              {name}
+            </Text>
+          </Stack>
+          {programType && (
+            <Text
+              alignSelf="end"
+              variant="Body2Semibold"
+              color={isActive ? 'white' : 'primary.800'}
+              transition="all 0.3s ease-in-out"
+            >
+              {programType} Program
+            </Text>
+          )}
         </Stack>
         {/* <Text alignSelf="flex-end" variant="Body2Semibold" color={isActive ? 'white' : '#338359'}>
           {type} Program

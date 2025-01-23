@@ -1,22 +1,34 @@
 'use client';
 
+import { useUserStore } from '@/providers/user-store-provider';
+import { NotificationButton, SideBarItem } from '@/shared/chakra/components';
+import NotificationModal from '@/shared/chakra/modals/notificationModal';
 import { Button, Flex, Image, Text } from '@chakra-ui/react';
-import { MdGroups, MdHome, MdLogout, MdNoteAlt, MdPerson, MdViewList } from 'react-icons/md';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import NotificationModal from '@/shared/chakra/modals/notificationModal';
-import { NotificationButton, SideBarItem } from '@/shared/chakra/components';
+import { MdGroups, MdHome, MdLogout, MdNoteAlt, MdPerson, MdViewCarousel } from 'react-icons/md';
 
 const sideBarData = [
   { name: 'Dashboard', Icon: MdHome, url: '/aggregators' },
-  { name: 'Enumerations', Icon: MdViewList, url: '/aggregators/enumerations' },
+  { name: 'Programs', Icon: MdViewCarousel, url: '/aggregators/programs' },
   { name: 'Agents', Icon: MdGroups, url: '/aggregators/agents' },
   { name: 'Reports', Icon: MdNoteAlt, url: '/aggregators/reports' },
 ];
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const [isNotfModalOpen, setIsNoftModalOpen] = useState(false);
+  const user = useUserStore((state) => state.user);
+  const logout = useUserStore((state) => state.logout);
+
+  const handleLogout = () => {
+    queryClient.invalidateQueries();
+    queryClient.clear();
+    logout();
+  };
+
   return (
     <Flex w="full" flexDir="column">
       <NotificationModal isOpen={isNotfModalOpen} onClose={() => setIsNoftModalOpen((prev) => !prev)} />
@@ -50,15 +62,30 @@ const Sidebar = () => {
             h="64px"
             boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
           >
-            <Flex boxSize="40px" bg="white" borderRadius="16px" justifyContent="center" alignItems="center">
+            <Flex
+              boxSize="40px"
+              bg="white"
+              borderRadius="16px"
+              justifyContent="center"
+              alignItems="center"
+              flexShrink={0}
+            >
               <MdPerson size="24px" color="#A4A4A4" />
             </Flex>
             <Flex flexDir="column" minW={0} color="white">
-              <Text variant="Body2Bold">Chukwuemeka Aliu</Text>
-              <Text variant="Body3Semibold">ChukwuAliu@gmail.com</Text>
+              <Text variant="Body2Bold">{`${user?.firstName} ${user?.lastName}`}</Text>
+              <Text variant="Body3Semibold" isTruncated>
+                {user?.email}
+              </Text>
             </Flex>
           </Flex>
-          <Button variant="cancel" bg="#FFD6D6" leftIcon={<MdLogout size="16px" color="red" />} w="100%">
+          <Button
+            variant="cancel"
+            bg="#FFD6D6"
+            leftIcon={<MdLogout size="16px" color="red" />}
+            w="100%"
+            onClick={handleLogout}
+          >
             Log out
           </Button>
         </Flex>

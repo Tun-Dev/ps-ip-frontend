@@ -1,11 +1,11 @@
 'use client';
 
-import { Flex, Text, Grid, Box, Link, Icon } from '@chakra-ui/react';
-import { OverviewCard } from '@/shared/chakra/components/overview';
-import { MdOutlineChecklistRtl, MdViewCarousel, MdOpenInNew } from 'react-icons/md';
 import { NotificationCard, ReusableTable } from '@/shared';
+import { OverviewCard } from '@/shared/chakra/components/overview';
+import { Box, Flex, Grid, Icon, Link, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
+import { MdOpenInNew, MdOutlineChecklistRtl, MdViewCarousel } from 'react-icons/md';
 
 const ActivityTable = () => {
   type Person = {
@@ -63,14 +63,7 @@ const ActivityTable = () => {
     []
   );
   return (
-    <Flex
-      gap="4px"
-      flexDirection="column"
-      padding="10px"
-      borderRadius="12px"
-      boxShadow="0px 4px 6px -1px rgba(3, 48, 0, 0.04), 0px 2px 4px -1px rgba(3, 48, 0, 0.04)"
-      bg="primary.30"
-    >
+    <Flex gap="4px" flexDirection="column" padding="10px" borderRadius="12px" boxShadow="card" bg="primary.30">
       <Flex justifyContent="space-between" alignItems="center">
         <Text variant="Body2Semibold" color="grey.500">
           Enumeration - iDICE

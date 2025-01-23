@@ -4,6 +4,7 @@ import { useGetDashboardData } from '@/hooks/useGetDashboardData';
 import { NotificationCard, ReusableTable } from '@/shared';
 import { ModuleDashboardCard } from '@/shared/chakra/components';
 import { OverviewCard } from '@/shared/chakra/components/overview';
+import { EnumerationsTableData } from '@/types';
 import { Box, Flex, Grid, Icon, Link, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
@@ -16,7 +17,6 @@ import {
   MdViewList,
   MdVolunteerActivism,
 } from 'react-icons/md';
-import { EnumerationsTableData } from '@/types';
 
 const ActivityTable = ({ data }: { data: EnumerationsTableData[] }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,14 +64,7 @@ const ActivityTable = ({ data }: { data: EnumerationsTableData[] }) => {
     []
   );
   return (
-    <Flex
-      gap="4px"
-      flexDirection="column"
-      padding="10px"
-      borderRadius="12px"
-      boxShadow="0px 4px 6px -1px rgba(3, 48, 0, 0.04), 0px 2px 4px -1px rgba(3, 48, 0, 0.04)"
-      bg="primary.100"
-    >
+    <Flex gap="4px" flexDirection="column" padding="10px" borderRadius="12px" boxShadow="card" bg="primary.100">
       <Flex justifyContent="space-between" alignItems="center">
         <Text variant="Body2Semibold" color="grey.500">
           Enumeration

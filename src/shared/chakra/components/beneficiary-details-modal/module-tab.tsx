@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetModules } from '@/hooks/useGetModules';
 import type { ModuleDetail } from '@/types';
-import { parseISO, format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 type Props = {
   module: ModuleDetail;
@@ -24,7 +24,7 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
 
     if (!moduleId) return toast({ title: 'Module not found', status: 'error' });
 
-    const payload = { status, moduleId, programId: Number(programID), beneficiaryId: [beneficiaryId] };
+    const payload = { status, moduleId, programId: programID.toString(), beneficiaryId: [beneficiaryId] };
 
     approveBeneficiary(payload, {
       onSuccess: () => {

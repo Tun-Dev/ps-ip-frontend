@@ -24,13 +24,13 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
+import { useActivateAgent } from '@/hooks/useActivateAgent';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetAgents } from '@/hooks/useGetAgents';
 import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Agent } from '@/types';
-import { useActivateAgent } from '@/hooks/useActivateAgent';
 
 const AgentsTab = () => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
@@ -147,7 +147,7 @@ const AgentPanel = ({
     setAggregatorId('');
   };
 
-  const handleOnclick = (id: number, status: boolean, programID: number) => {
+  const handleOnclick = (id: string, status: boolean, programID: string) => {
     const payload = {
       agentId: id,
       isActive: status,

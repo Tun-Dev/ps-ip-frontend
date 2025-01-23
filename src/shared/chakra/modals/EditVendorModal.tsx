@@ -1,32 +1,32 @@
+import { useUpdateVendorById } from '@/hooks/useEditVendorById';
+import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { Dropdown } from '@/shared/chakra/components';
+import { Vendor } from '@/types';
+import { formatDateForInput } from '@/utils';
 import {
-  Text,
-  Input,
   Button,
   Flex,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Grid,
-  FormLabel,
   FormControl,
   FormErrorMessage,
+  FormLabel,
+  Grid,
+  Input,
   InputGroup,
-  InputLeftElement,
   InputLeftAddon,
+  InputLeftElement,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
 } from '@chakra-ui/react';
-import React, { useState, useEffect, useMemo } from 'react';
-import { Dropdown } from '@/shared/chakra/components';
-import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { formatDateForInput } from '@/utils';
-import { Vendor } from '@/types';
-import { useUpdateVendorById } from '@/hooks/useEditVendorById';
 
 type ModalProps = {
   isOpen: boolean;
@@ -55,7 +55,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
   const Schema = z.object({
     name: z.string().min(1, 'Name is required'),
     programName: z.string().optional(),
-    programId: z.coerce.number().min(1, 'Program is required'),
+    programId: z.string().min(1, 'Program is required'),
     amount: z.coerce.number().min(0, 'Amount is required'),
     numberOfBeneficiaries: z.coerce.number().min(0, 'Number of Beneficiaries is required'),
     product: z.string().optional(),
@@ -80,7 +80,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
     () => ({
       name: initialValues?.name || '',
       programName: initialValues?.programName || '',
-      programId: initialValues?.programId || 0,
+      programId: initialValues?.programId || '',
       amount: initialValues?.amount || 0,
       numberOfBeneficiaries: initialValues?.numberOfBeneficiaries || 0,
       product: initialValues?.product || '',
@@ -154,7 +154,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
               <Controller
                 control={control}
                 name="programId"
-                defaultValue={initialValues?.programId || 0}
+                defaultValue={initialValues?.programId}
                 render={({ field }) => {
                   return (
                     <Dropdown
@@ -162,7 +162,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
                       variant="whiteDropdown"
                       placeholder="Select program"
                       options={options}
-                      value={options?.find((option) => parseInt(option.value) === field.value)}
+                      value={options?.find((option) => option.value === field.value)}
                       onChange={(option) => {
                         console.log('Selected:', option);
                         field.onChange(option ? parseInt(option.value) : 0);

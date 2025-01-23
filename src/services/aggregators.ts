@@ -5,8 +5,13 @@ import type {
   ActivateAgentPayload,
   Agent,
   Aggregator,
+  AggregatorAgent,
+  AggregatorAnalytics,
   AggregatorOverview,
   AggregatorPayload,
+  AggregatorProgram,
+  AggregatorProgramGroups,
+  AggregatorProgramsParams,
   APIResponse,
   PaginatedResponse,
 } from '@/types';
@@ -46,5 +51,46 @@ export const activateAggregator = async ({ queryKey }: { queryKey: QueryKey }) =
 
 export const reassignAggregator = async (data: Partial<Aggregator>) => {
   const response = await axiosInstance.put<APIResponse<Partial<Aggregator>>>(`/aggregator`, data);
+  return response.data;
+};
+
+export const getAggregatorAgents = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, params] = queryKey;
+  const response = await axiosInstance.get<PaginatedResponse<AggregatorAgent>>('/aggregator/dashboard/agents', {
+    params,
+    signal,
+  });
+  return response.data;
+};
+
+export const getAggregatorAnalytics = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, programId] = queryKey;
+  const response = await axiosInstance.get<APIResponse<AggregatorAnalytics>>(
+    `/aggregator/dashboard/beneficiaries/analytics/${programId}`,
+    { signal }
+  );
+  return response.data;
+};
+
+export const getAggregatorProgramGroups = async ({ signal }: { signal: AbortSignal }) => {
+  const response = await axiosInstance.get<APIResponse<AggregatorProgramGroups>>(`/aggregator/list/programGroups`, {
+    signal,
+  });
+  return response.data;
+};
+
+export const getAggregatorPrograms = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const { folderId, ...params } = queryKey[1] as AggregatorProgramsParams;
+  const response = await axiosInstance.get<PaginatedResponse<AggregatorProgram>>(`/program-group/list/${folderId}`, {
+    params,
+    signal,
+  });
+  return response.data;
+};
+
+export const getAllAggregatorPrograms = async ({ signal }: { signal: AbortSignal }) => {
+  const response = await axiosInstance.get<APIResponse<{ id: string; name: string }[]>>('/aggregator/program', {
+    signal,
+  });
   return response.data;
 };

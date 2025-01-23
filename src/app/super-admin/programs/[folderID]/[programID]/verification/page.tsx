@@ -77,7 +77,7 @@ const VerificationPage = () => {
       status: status.toUpperCase(),
       beneficiaryId: [id],
       moduleId: 5,
-      programId: Number(programID),
+      programId: programID.toString(),
     };
 
     approveBeneficiary(payload, {

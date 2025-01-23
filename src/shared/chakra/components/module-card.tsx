@@ -60,7 +60,11 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
               alignItems="center"
               justifyContent="center"
             >
-              <Text variant={isActive ? 'Body2Bold' : 'Body2Semibold'} color={isDisabled ? 'white' : 'primary.500'}>
+              <Text
+                variant={isActive ? 'Body2Bold' : 'Body2Semibold'}
+                color={isDisabled ? 'white' : 'primary.500'}
+                lineHeight={1}
+              >
                 {number}
               </Text>
             </Flex>
@@ -137,7 +141,9 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
           </Text>
           {status === 'Completed' || status === 'Selected' ? (
             <MdCheckCircle
-              color={isDisabled ? 'var(--chakra-colors-grey-400)' : 'var(--chakra-colors-primary-500)'}
+              color={
+                isDisabled ? 'var(--chakra-colors-grey-400)' : isActive ? 'white' : 'var(--chakra-colors-primary-500)'
+              }
               size="0.75rem"
             />
           ) : status === 'Pending' || status === 'In progress' ? (

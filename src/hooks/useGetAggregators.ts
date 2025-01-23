@@ -7,7 +7,7 @@ import { getAggregators } from '@/services/aggregators';
 type Params = Partial<{
   page: number;
   pageSize: number;
-  program: number;
+  program: string;
   query: string;
   minAgent: number;
   maxAgent: number;

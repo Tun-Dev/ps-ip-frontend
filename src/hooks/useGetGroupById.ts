@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { getGroupById } from '@/services/group';
 import { useToast } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { getGroupById } from '@/services/group';
+import { useEffect } from 'react';
 
 export const useGetGroupById = (id: string) => {
   const toast = useToast();
@@ -13,7 +13,7 @@ export const useGetGroupById = (id: string) => {
     data: response,
     isLoading,
     error,
-  } = useQuery({ queryKey: ['programs', id], queryFn: getGroupById, enabled: !!id });
+  } = useQuery({ queryKey: ['group', id], queryFn: getGroupById, enabled: !!id });
 
   useEffect(() => {
     if (!error) return;

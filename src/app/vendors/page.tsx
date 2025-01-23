@@ -1,19 +1,19 @@
 'use client';
 
-import { useMemo } from 'react';
-import { Flex, Text, Box, Icon, Grid, Link } from '@chakra-ui/react';
 import { NotificationCard, ReusableTable } from '@/shared';
+import { OverviewCard } from '@/shared/chakra/components/overview';
+import { Box, Flex, Grid, Icon, Link, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
+import { useMemo } from 'react';
 import {
-  MdVolunteerActivism,
-  MdOpenInNew,
-  MdLocalShipping,
   MdAccountBalanceWallet,
   MdEmojiEmotions,
-  MdViewList,
+  MdLocalShipping,
+  MdOpenInNew,
   MdStickyNote2,
+  MdViewList,
+  MdVolunteerActivism,
 } from 'react-icons/md';
-import { OverviewCard } from '@/shared/chakra/components/overview';
 
 const NOTIFICATION_DATA = [
   {
@@ -140,13 +140,7 @@ const VendorDashboard = () => {
           Recent Activities
         </Text>
 
-        <Flex
-          gap="4px"
-          flexDirection="column"
-          padding="10px"
-          borderRadius="12px"
-          boxShadow="0px 4px 6px -1px rgba(3, 48, 0, 0.04), 0px 2px 4px -1px rgba(3, 48, 0, 0.04)"
-        >
+        <Flex gap="4px" flexDirection="column" padding="10px" borderRadius="12px" boxShadow="card">
           <Flex justifyContent="space-between" alignItems="center">
             <Text variant="Body2Semibold" color="gray.500">
               Disbursement-IDICE

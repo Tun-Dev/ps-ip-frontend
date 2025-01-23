@@ -1,29 +1,29 @@
+import { useCreatePartner } from '@/hooks/useCreatePartner';
+import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { Dropdown } from '@/shared/chakra/components';
 import {
-  Text,
-  Input,
   Button,
+  Divider,
   Flex,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  InputGroup,
-  InputLeftElement,
-  FormLabel,
   FormControl,
   FormErrorMessage,
-  Divider,
+  FormLabel,
+  Input,
+  InputGroup,
   InputLeftAddon,
+  InputLeftElement,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
 } from '@chakra-ui/react';
-import { Dropdown } from '@/shared/chakra/components';
-import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { useCreatePartner } from '@/hooks/useCreatePartner';
 
 type ModalProps = {
   isOpen: boolean;
@@ -37,7 +37,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
   const Schema = z
     .object({
       name: z.string().min(1, 'Name is required'),
-      programId: z.coerce.number().min(1, 'Program is required'),
+      programId: z.string().min(1, 'Program is required'),
       amount: z.coerce.number().min(0, 'Amount is required'),
 
       firstName: z.string().min(1, 'First name is required'),
@@ -111,7 +111,6 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
                 <Controller
                   control={control}
                   name="programId"
-                  defaultValue={0}
                   render={({ field: { name, onBlur, onChange, value, disabled } }) => (
                     <Dropdown
                       id="programId"
@@ -119,7 +118,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
                       placeholder="Select program"
                       name={name}
                       options={options}
-                      value={options?.find((option) => parseInt(option.value) === value)}
+                      value={options?.find((option) => option.value === value)}
                       onChange={(value) => value && onChange(value.value)}
                       onBlur={onBlur}
                       isDisabled={disabled}

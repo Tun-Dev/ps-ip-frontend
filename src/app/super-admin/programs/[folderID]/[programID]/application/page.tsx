@@ -25,16 +25,16 @@ import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
+import { useProcessModule } from '@/hooks/useProcessModule';
 import { useUploadProgram } from '@/hooks/useUploadData';
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { useParams } from 'next/navigation';
-import { useProcessModule } from '@/hooks/useProcessModule';
 import { AxiosError } from 'axios';
 import { format, parseISO } from 'date-fns';
+import { useParams } from 'next/navigation';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -79,7 +79,7 @@ const ApplicationPage = () => {
       status: status.toUpperCase(),
       beneficiaryId: [id],
       moduleId: 1,
-      programId: Number(programID),
+      programId: programID.toString(),
     };
 
     approveBeneficiary(payload, {

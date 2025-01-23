@@ -27,13 +27,13 @@ import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
+import { useProcessModule } from '@/hooks/useProcessModule';
 import { useUploadProgram } from '@/hooks/useUploadData';
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { useProcessModule } from '@/hooks/useProcessModule';
 import { AxiosError } from 'axios';
 
 const options = [
@@ -83,7 +83,7 @@ const EnumerationPage = () => {
       status: status.toUpperCase(),
       beneficiaryId: [id],
       moduleId: 4,
-      programId: Number(programID),
+      programId: programID.toString(),
     };
 
     approveBeneficiary(payload, {

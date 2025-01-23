@@ -1,11 +1,14 @@
 'use client';
 
 import { useUserStore } from '@/providers/user-store-provider';
+import { getDashboardRoute } from '@/utils';
 import { Flex, Spinner } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { ComponentType, useEffect, useState } from 'react';
 
-export const withProtectedLoader = <P extends object>(Component: ComponentType<P>) => {
+type Role = 'Super Admin' | 'Program Administrator' | 'Aggregator' | 'Agent' | 'Partner';
+
+export const withProtectedLoader = <P extends object>(Component: ComponentType<P>, role: Role) => {
   const WrappedComponent = (props: P) => {
     const router = useRouter();
     const user = useUserStore((state) => state.user);
@@ -16,11 +19,11 @@ export const withProtectedLoader = <P extends object>(Component: ComponentType<P
     }, []);
 
     useEffect(() => {
-      if (!isHydrated || !!user) return;
-      router.replace('/login');
+      if (!isHydrated) return;
+      if (!user || !user.roles.includes(role)) router.replace(getDashboardRoute(user));
     }, [isHydrated, router, user]);
 
-    if (!isHydrated || !user)
+    if (!isHydrated || !user || !user.roles.includes(role))
       return (
         <Flex h="100dvh" alignItems="center" justifyContent="center">
           <Spinner size="xl" />

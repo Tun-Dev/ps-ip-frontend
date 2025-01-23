@@ -25,9 +25,8 @@ import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import type { Aggregator } from '@/types';
 import { EditAggregatorModal } from '@/shared/chakra/modals/EditAggregatorModal';
-// import { formatErrorMessage } from '@/utils';
+import type { Aggregator } from '@/types';
 
 const AggregatorTab = () => {
   const [page, setPage] = useState(1);
@@ -48,7 +47,7 @@ const AggregatorTab = () => {
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } = useGetAggregators({
     page,
     pageSize: 10,
-    program: programId === '' ? undefined : parseInt(programId),
+    program: programId === '' ? undefined : programId,
     query: debouncedQuery === '' ? undefined : debouncedQuery,
     minAgent: agent === '' ? undefined : parseInt(minAgent),
     maxAgent: agent === '' ? undefined : parseInt(maxAgent),
@@ -62,8 +61,6 @@ const AggregatorTab = () => {
     setAgent('');
     setQuery('');
   };
-
-  // console.log(data);
 
   const columns: ColumnDef<Aggregator>[] = [
     {

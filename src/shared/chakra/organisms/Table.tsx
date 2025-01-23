@@ -122,18 +122,15 @@ function ReusableTable<T extends object>({
           <Spinner size="xl" />
         </Flex>
       ) : data.length === 0 || isError ? (
-        <Flex flex="1 1 0%" flexDir="column" alignItems="center" justifyContent="center" gap="24px">
+        <Flex flex="1 1 0%" flexDir="column" alignItems="center" justifyContent="center" gap="4" p="6">
           <Text variant="Body2Semibold" color="grey.500">
-            No data Available.
+            No data available
           </Text>
-          <Button
-            variant="tertiary"
-            border="1px solid"
-            borderColor="secondary.500"
-            onClick={onRefresh ? onRefresh : undefined}
-          >
-            Refresh
-          </Button>
+          {!!onRefresh && (
+            <Button variant="tertiary" border="1px solid" borderColor="secondary.500" onClick={onRefresh} size="medium">
+              Refresh
+            </Button>
+          )}
         </Flex>
       ) : (
         <Stack

@@ -1,6 +1,6 @@
 'use client';
 
-import { Flex, Icon } from '@chakra-ui/react';
+import { Flex, Icon, Text } from '@chakra-ui/react';
 import { Select, components } from 'chakra-react-select';
 import { MdArrowDropDown } from 'react-icons/md';
 
@@ -44,6 +44,12 @@ const OptionComponent = <Option, IsMulti extends boolean = false, Group extends 
   );
 };
 
+const formatGroupLabel = <Option,>(data: GroupBase<Option>) => (
+  <Text as="span" variant="Body3Semibold" color="grey.400" textTransform="uppercase">
+    {data.label}
+  </Text>
+);
+
 const getStyles = (variant: string, isSelected: boolean, isFocused: boolean) => {
   if (variant === 'whiteDropdown') {
     if (isSelected) return { optionBg: colors.primary[500], hoverBg: colors.primary[500] };
@@ -77,6 +83,7 @@ export const Dropdown = <Option, IsMulti extends boolean = false, Group extends 
         container: (styles) => ({ ...styles, w: 'full' }),
         ...chakraStyles,
       }}
+      formatGroupLabel={formatGroupLabel}
       styles={{
         option: (styles, { isSelected, isFocused }) => {
           const { optionBg, hoverBg } = getStyles(variant, isSelected, isFocused);

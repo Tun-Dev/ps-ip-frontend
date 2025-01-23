@@ -46,4 +46,4 @@ const SuperAdminLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default withDesktopOnlyOverlay(withProtectedLoader(SuperAdminLayout));
+export default withDesktopOnlyOverlay(withProtectedLoader(SuperAdminLayout, 'Super Admin'));

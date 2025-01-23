@@ -26,19 +26,19 @@ import {
   MdSearch,
 } from 'react-icons/md';
 
-import { ReusableTable } from '@/shared';
-import { Dropdown } from '@/shared/chakra/components';
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { ReusableTable } from '@/shared';
+import { Dropdown } from '@/shared/chakra/components';
 // import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
 // import { useProcessModule } from '@/hooks/useProcessModule';
 // import { useUploadProgram } from '@/hooks/useUploadData';
 import { Beneficiary } from '@/types';
 // import { AxiosError } from 'axios';
-import { useParams } from 'next/navigation';
-import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { useParams } from 'next/navigation';
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -83,7 +83,7 @@ const DisbursementPage = () => {
       status: status.toUpperCase(),
       beneficiaryId: [id],
       moduleId: 7,
-      programId: Number(programID),
+      programId: programID.toString(),
     };
 
     approveBeneficiary(payload, {

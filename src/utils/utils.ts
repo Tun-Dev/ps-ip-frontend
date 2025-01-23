@@ -1,3 +1,4 @@
+import type { User } from '@/types';
 import { AxiosError } from 'axios';
 import {
   MdArrowDropDown,
@@ -120,5 +121,23 @@ export const formatDateForInput = (isoString: string) => {
   } catch (error) {
     console.error('Error formatting date:', error);
     return '';
+  }
+};
+
+export const getDashboardRoute = (user: User | null) => {
+  if (!user || !user.roles || user.roles.length < 1) return '/login';
+  switch (user.roles[0]) {
+    case 'Super Admin':
+      return '/super-admin';
+    case 'Program Administrator':
+      return '/vendors';
+    case 'Aggregator':
+      return '/aggregators';
+    case 'Agent':
+      return '/aggregators';
+    case 'Partner':
+      return '/clients';
+    default:
+      return '/login';
   }
 };

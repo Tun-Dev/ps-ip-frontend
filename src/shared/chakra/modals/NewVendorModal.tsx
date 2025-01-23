@@ -1,32 +1,32 @@
+import { useCreateVendor } from '@/hooks/useCreateVendor';
+import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { Dropdown } from '@/shared/chakra/components';
+import { formatDateForInput } from '@/utils';
 import {
-  Text,
-  Input,
   Button,
+  Divider,
   Flex,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Grid,
-  FormLabel,
   FormControl,
   FormErrorMessage,
-  Divider,
+  FormLabel,
+  Grid,
+  Input,
   InputGroup,
-  InputLeftElement,
   InputLeftAddon,
+  InputLeftElement,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import { Dropdown } from '@/shared/chakra/components';
-import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { formatDateForInput } from '@/utils';
-import { useCreateVendor } from '@/hooks/useCreateVendor';
 
 type ModalProps = {
   isOpen: boolean;
@@ -53,7 +53,7 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
   const Schema = z
     .object({
       name: z.string().min(1, 'Name is required'),
-      programId: z.coerce.number().min(1, 'Program is required'),
+      programId: z.string().min(1, 'Program is required'),
       amount: z.coerce.number().min(0, 'Amount is required'),
       numberOfBeneficiaries: z.coerce.number().min(0, 'Number of Beneficiaries is required'),
       product: z.string().optional(),
@@ -130,7 +130,7 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
           <Text variant="Body1Semibold">Add New Vendor</Text>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody overflowY="scroll">
+        <ModalBody overflowY="auto">
           <Flex direction="column" gap={3}>
             <FormControl isInvalid={!!errors.name}>
               <FormLabel htmlFor="name">
@@ -150,7 +150,6 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
               <Controller
                 control={control}
                 name="programId"
-                defaultValue={0}
                 render={({ field: { name, onBlur, onChange, value, disabled } }) => (
                   <Dropdown
                     id="programId"
@@ -158,7 +157,7 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
                     placeholder="Select program"
                     name={name}
                     options={options}
-                    value={options?.find((option) => parseInt(option.value) === value)}
+                    value={options?.find((option) => option.value === value)}
                     onChange={(value) => value && onChange(value.value)}
                     onBlur={onBlur}
                     isDisabled={disabled}

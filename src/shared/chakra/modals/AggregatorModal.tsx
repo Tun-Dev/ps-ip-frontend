@@ -1,9 +1,12 @@
 import {
   Button,
+  Divider,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
+  InputGroup,
+  InputLeftAddon,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,9 +16,6 @@ import {
   ModalOverlay,
   Stack,
   Text,
-  Divider,
-  InputLeftAddon,
-  InputGroup,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
@@ -34,7 +34,7 @@ const Schema = z
   .object({
     name: z.string().min(1, 'Name is required'),
     maxAgents: z.coerce.number().min(1),
-    programId: z.coerce.number().min(1, 'Program is required'),
+    programId: z.string().min(1, 'Program is required'),
     firstname: z.string().min(1, 'First name is required'),
     lastname: z.string().min(1, 'Last name is required'),
     contactEmail: z.string().min(1, 'Corporate Email is required'),
@@ -73,7 +73,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
   const onSubmit = (data: FormValues) => {
     const formattedData = {
       ...data,
-      phoneNumber: `+234${data.contactPhone}`,
+      contactPhone: `+234${data.contactPhone}`,
     };
 
     mutate(formattedData);
@@ -93,7 +93,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
           <Text variant="Body1Semibold">Add New Aggregator</Text>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody overflowY="scroll">
+        <ModalBody overflowY="auto">
           <Stack spacing="5">
             <Text variant="Body1Semibold">Corporate Details</Text>
             <FormControl isInvalid={!!errors.name}>
@@ -123,7 +123,6 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
               <Controller
                 control={control}
                 name="programId"
-                defaultValue={0}
                 render={({ field: { name, onBlur, onChange, value, disabled } }) => (
                   <Dropdown
                     id="programId"
@@ -131,7 +130,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
                     placeholder="Select program"
                     name={name}
                     options={options}
-                    value={options?.find((option) => parseInt(option.value) === value)}
+                    value={options?.find((option) => option.value === value)}
                     onChange={(value) => value && onChange(value.value)}
                     onBlur={onBlur}
                     isDisabled={disabled}

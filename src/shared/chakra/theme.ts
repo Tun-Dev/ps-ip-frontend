@@ -13,7 +13,7 @@ const extendedConfig: ThemeOverride = {
   },
   semanticTokens: {
     colors: {
-      red: '#FF0000',
+      red: '#E30614',
       green: '#00A75B',
     },
   },

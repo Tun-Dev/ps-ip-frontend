@@ -20,10 +20,10 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { useReassignAggregator } from '@/hooks/useReassignAggregator';
 import { Dropdown } from '@/shared/chakra/components';
 import { Aggregator } from '@/types';
 import { useEffect, useMemo } from 'react';
-import { useReassignAggregator } from '@/hooks/useReassignAggregator';
 
 type ModalProps = {
   isOpen: boolean;
@@ -42,7 +42,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
   const Schema = z.object({
     name: z.string().min(1, 'Name is required'),
     // maxAgents: z.coerce.number().min(1),
-    programId: z.coerce.number().min(1, 'Program is required'),
+    programId: z.string().min(1, 'Program is required'),
   });
 
   type FormValues = z.infer<typeof Schema>;
@@ -51,7 +51,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
     () => ({
       name: initialValues?.name || '',
       //   maxAgents: Number(initialValues?.maxAgents) || 0,
-      programId: Number(initialValues?.programId) || 0,
+      programId: initialValues?.programId || '',
     }),
     [initialValues]
   );
@@ -102,7 +102,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
           <Text variant="Body1Semibold">Reassign Aggregator</Text>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody overflowY="scroll">
+        <ModalBody overflowY="auto">
           <Stack spacing="5">
             <FormControl isInvalid={!!errors.name}>
               <FormLabel htmlFor="name">
@@ -138,7 +138,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
                     placeholder="Select program"
                     name={name}
                     options={options}
-                    value={options?.find((option) => parseInt(option.value) === value)}
+                    value={options?.find((option) => option.value === value)}
                     onChange={(value) => value && onChange(value.value)}
                     onBlur={onBlur}
                     isDisabled={disabled}

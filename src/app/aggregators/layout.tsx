@@ -1,12 +1,13 @@
 'use client';
 
 import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
+import { withProtectedLoader } from '@/shared/chakra/components/protected-route-loader';
 import { Box, Flex, Image } from '@chakra-ui/react';
 import Sidebar from './components/Sidebar';
 
 const AggregatorsLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Flex w="full" minH="100dvh" bg="primary.500" p="24px" gap="24px" position="relative" minW="1000px">
+    <Flex w="full" minH="100dvh" bg="primary.500" p="24px" gap="24px" position="relative">
       <Image
         src="/images/bg-image.png"
         alt=""
@@ -27,4 +28,4 @@ const AggregatorsLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default withDesktopOnlyOverlay(AggregatorsLayout);
+export default withDesktopOnlyOverlay(withProtectedLoader(AggregatorsLayout, 'Aggregator'));

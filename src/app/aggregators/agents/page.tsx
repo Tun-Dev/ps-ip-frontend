@@ -1,7 +1,12 @@
 'use client';
 
+import { useDebounce } from '@/hooks/useDebounce';
+import { useGetAggregatorAgents } from '@/hooks/useGetAggregatorAgents';
+import { useGetAggregatorDashboard } from '@/hooks/useGetAggregatorDashboard';
 import { AddNewAgentModal, ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import type { AggregatorAgent } from '@/types';
 import {
   Box,
   Button,
@@ -10,7 +15,13 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Select,
+  SimpleGrid,
   Tab,
   TabList,
   TabPanel,
@@ -20,340 +31,15 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useMemo } from 'react';
-import { MdAddCircle, MdDownload, MdEditCalendar, MdGroups, MdSearch } from 'react-icons/md';
-
-const AgentsTab = () => {
-  const agentsData = [
-    { agent: 'Usman Ola', lga: 'Ikeja', aggregator: 'NURTW', gender: 'Female', status: 'Online' },
-    { agent: 'Oluwaseun Chukwu', lga: 'Agege', aggregator: 'NURTW', gender: 'Male', status: 'Offline' },
-    { agent: 'Chukwudi Abubakar', lga: 'Badagry', aggregator: 'NURTW', gender: 'Male', status: 'Online' },
-    { agent: 'Amina Adewale', lga: 'Ikorodu', aggregator: 'NURTW', gender: 'Female', status: 'Online' },
-    { agent: 'Chukwudi Abubakar', aggregator: 'NURTW', gender: 'Male', status: 'Online' },
-    { agent: 'Oluwaseun Chukwu', lga: 'Ajeromi-Ifelodun', aggregator: 'NURTW', gender: 'Female', status: 'Online' },
-    { agent: 'Usman Ola', lga: 'Gwagwalada', aggregator: 'NURTW', gender: 'Male', status: 'Online' },
-  ];
-
-  const inactiveAgentsData = [
-    { agent: 'Usman Ola', lga: 'Ikeja', aggregator: 'NURTW', gender: 'Female', status: 'Online' },
-    { agent: 'Oluwaseun Chukwu', lga: 'Agege', aggregator: 'NURTW', gender: 'Male', status: 'Offline' },
-    { agent: 'Chukwudi Abubakar', lga: 'Badagry', aggregator: 'NURTW', gender: 'Male', status: 'Online' },
-    { agent: 'Amina Adewale', lga: 'Ikorodu', aggregator: 'NURTW', gender: 'Female', status: 'Online' },
-    { agent: 'Chukwudi Abubakar', aggregator: 'NURTW', gender: 'Male', status: 'Online' },
-    { agent: 'Oluwaseun Chukwu', lga: 'Ajeromi-Ifelodun', aggregator: 'NURTW', gender: 'Female', status: 'Online' },
-    { agent: 'Usman Ola', lga: 'Gwagwalada', aggregator: 'NURTW', gender: 'Male', status: 'Online' },
-  ];
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const columns: ColumnDef<any>[] = useMemo(
-    () => [
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            Agent
-          </Text>
-        ),
-        accessorKey: 'agent',
-        enableSorting: false,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            LGA
-          </Text>
-        ),
-        accessorKey: 'lga',
-        enableSorting: false,
-        cell: (info) => <>{info.row.original.lga ? info.row.original.lga : '----------------'}</>,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            Gender
-          </Text>
-        ),
-        accessorKey: 'gender',
-        enableSorting: false,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            Status
-          </Text>
-        ),
-        accessorKey: 'status',
-        enableSorting: false,
-        cell: (info) => (
-          <Text variant="Body3Semibold" color={info.row.original.status === 'Online' ? 'green' : 'grey.500'}>
-            {info.row.original.status}
-          </Text>
-        ),
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-            Last Active
-          </Text>
-        ),
-        accessorKey: 'aggregator',
-        enableSorting: false,
-        cell: () => <Text variant="Body2Semibold">Dec. 20, 4:00pm</Text>,
-      },
-      {
-        header: () => <p></p>,
-        accessorKey: 'amount',
-        enableSorting: false,
-        cell: () => (
-          <Flex justifyContent="center" alignItems="center" gap="8px">
-            <Text variant="Body3Semibold" color="grey.500">
-              Assigned
-            </Text>
-            <Button variant="secondary" size="small">
-              Reassign
-            </Button>
-          </Flex>
-        ),
-      },
-      {
-        header: () => (
-          <Button variant="cancel" size="small">
-            Deactivate Agent
-          </Button>
-        ),
-        accessorKey: 'deactivate',
-        enableSorting: false,
-        cell: () => (
-          <Button variant="cancel" size="small">
-            Deactivate Agent
-          </Button>
-        ),
-      },
-    ],
-    []
-  );
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const inactiveColumns: ColumnDef<any>[] = useMemo(
-    () => [
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            Agent
-          </Text>
-        ),
-        accessorKey: 'agent',
-        enableSorting: false,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            LGA
-          </Text>
-        ),
-        accessorKey: 'lga',
-        enableSorting: false,
-        cell: (info) => <>{info.row.original.lga ? info.row.original.lga : '----------------'}</>,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            Gender
-          </Text>
-        ),
-        accessorKey: 'gender',
-        enableSorting: false,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            Status
-          </Text>
-        ),
-        accessorKey: 'status',
-        enableSorting: false,
-        cell: (info) => (
-          <Text variant="Body3Semibold" color={info.row.original.status === 'Online' ? 'green' : 'grey.500'}>
-            {info.row.original.status}
-          </Text>
-        ),
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-            Last Active
-          </Text>
-        ),
-        accessorKey: 'aggregator',
-        enableSorting: false,
-        cell: () => <Text variant="Body2Semibold">Dec. 20, 4:00pm</Text>,
-      },
-      {
-        header: () => <p></p>,
-        accessorKey: 'assigned',
-        enableSorting: false,
-        cell: () => (
-          <Flex justifyContent="center" alignItems="center" gap="8px">
-            <Text variant="Body3Semibold" color="grey.500">
-              Assigned
-            </Text>
-            <Button variant="secondary" size="small">
-              Reassign
-            </Button>
-          </Flex>
-        ),
-      },
-      {
-        header: () => (
-          <Button variant="secondary" size="small">
-            Activate
-          </Button>
-        ),
-        accessorKey: 'activate',
-        enableSorting: false,
-        cell: () => (
-          <Flex justifyContent="center" alignItems="center" gap="8px">
-            <Text variant="Body3Semibold" color="red">
-              Deactivated
-            </Text>
-            <Button variant="secondary" size="small">
-              Activate
-            </Button>
-          </Flex>
-        ),
-      },
-    ],
-    []
-  );
-
-  return (
-    <>
-      <Tabs size="sm" variant="unstyled">
-        <TabList>
-          <Tab>
-            <Flex alignItems="center" gap="4px">
-              <Text variant="Body2Semibold">Active</Text>
-              <Box p={'2px 4px'} borderRadius="8px" bg="gray.200">
-                <Text variant="Body3Semibold">200</Text>
-              </Box>
-            </Flex>
-          </Tab>
-          <Tab>
-            <Flex alignItems="center" gap="4px">
-              <Text variant="Body2Semibold">Inactive</Text>
-              <Box p={'2px 4px'} borderRadius="8px" bg="gray.200">
-                <Text variant="Body3Semibold">200</Text>
-              </Box>
-            </Flex>
-          </Tab>
-        </TabList>
-
-        <TabPanels>
-          <TabPanel>
-            <Flex flexDir="column" gap="1.5rem" w="100%">
-              <Flex justifyContent="space-between">
-                <Flex gap="24px" alignItems="center">
-                  <Flex gap="8px" alignItems="center">
-                    <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-                      Filter by
-                    </Text>
-                    <Select
-                      placeholder="Select..."
-                      size="small"
-                      defaultValue={'program'}
-                      w="94px"
-                      fontSize="13px"
-                      fontWeight="600"
-                    >
-                      <option key={'program'} value={'program'}>
-                        Program
-                      </option>
-                    </Select>
-                  </Flex>
-                  <InputGroup w="212px" size="sm">
-                    <InputLeftElement>
-                      <Icon as={MdSearch} w="12px" h="12px" color="primary.600" />
-                    </InputLeftElement>
-                    <Input variant="primary" fontSize="10px" placeholder="Search" />
-                  </InputGroup>
-                </Flex>
-                <Flex gap={2}>
-                  <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="10px">
-                    Download Report
-                  </Button>
-                  <Button leftIcon={<MdEditCalendar />} variant="primary" size="medium" borderRadius="10px">
-                    Schedule Activation
-                  </Button>
-                </Flex>
-              </Flex>
-              <Box
-                padding="0px 1rem 1rem"
-                boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
-                borderRadius="12px"
-              >
-                <ReusableTable selectable data={agentsData} columns={columns} />
-              </Box>
-            </Flex>
-          </TabPanel>
-          <TabPanel>
-            <Flex flexDir="column" gap="1.5rem" w="100%">
-              <Flex justifyContent="space-between">
-                <Flex gap="24px" alignItems="center">
-                  <Flex gap="8px" alignItems="center">
-                    <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-                      Filter by
-                    </Text>
-                    <Select
-                      placeholder="Select..."
-                      size="small"
-                      defaultValue={'program'}
-                      w="94px"
-                      fontSize="13px"
-                      fontWeight="600"
-                    >
-                      <option key={'program'} value={'program'}>
-                        Program
-                      </option>
-                    </Select>
-                  </Flex>
-                  <InputGroup w="212px" size="sm">
-                    <InputLeftElement>
-                      <Icon as={MdSearch} w="12px" h="12px" color="primary.600" />
-                    </InputLeftElement>
-                    <Input variant="primary" fontSize="10px" placeholder="Search" />
-                  </InputGroup>
-                </Flex>
-
-                <Flex gap={2}>
-                  <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="10px">
-                    Download Report
-                  </Button>
-                  <Button leftIcon={<MdEditCalendar />} variant="primary" size="medium" borderRadius="10px">
-                    Schedule Activation
-                  </Button>
-                </Flex>
-              </Flex>
-              <Box
-                padding="0px 1rem 1rem"
-                boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
-                borderRadius="12px"
-              >
-                <ReusableTable selectable data={inactiveAgentsData} columns={inactiveColumns} />
-              </Box>
-            </Flex>
-          </TabPanel>
-          <TabPanel>
-            <p>three!</p>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-    </>
-  );
-};
+import { useState } from 'react';
+import { MdAddCircle, MdDownload, MdEditCalendar, MdGroups, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 const AggregatorsAgentsDashboard = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const { data, isPending, isError } = useGetAggregatorDashboard();
+
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%">
+    <Flex flexDir="column" gap="1.5rem" boxSize="full">
       <AddNewAgentModal isOpen={isOpen} onClose={onClose} />
       <Flex flexDir="column" gap="12px">
         <Flex justifyContent="space-between" alignItems="center">
@@ -364,21 +50,281 @@ const AggregatorsAgentsDashboard = () => {
             Add New Agent
           </Button>
         </Flex>
-        <Flex gap="1rem">
-          <Box w="265px" cursor="pointer">
-            <OverviewCard title="Total Agents" number={20} icon={MdGroups} />
-          </Box>
-          <Box w="265px" cursor="pointer">
-            <OverviewCard title="Agents Active" number={20} icon={MdGroups} />
-          </Box>
-          <Box w="265px" cursor="pointer">
-            <OverviewCard title="Agents Online" number={20} icon={MdGroups} />
-          </Box>
-        </Flex>
+        <SimpleGrid columns={{ base: 3, xl: 4 }} spacing="4">
+          <OverviewCard
+            title="Total Agents"
+            number={isPending || isError ? '...' : data.body.totalAgents}
+            icon={MdGroups}
+            minW="unset"
+          />
+          <OverviewCard
+            title="Agents Active"
+            number={isPending || isError ? '...' : data.body.totalAgents}
+            icon={MdGroups}
+            minW="unset"
+          />
+          <OverviewCard
+            title="Agents Online"
+            number={isPending || isError ? '...' : data.body.agentsOnline}
+            icon={MdGroups}
+            minW="unset"
+          />
+        </SimpleGrid>
       </Flex>
       <AgentsTab />
     </Flex>
   );
 };
+
+const AgentsTab = () => {
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+
+  const { data: activeAgents } = useGetAggregatorAgents({ page: 1, pageSize: 10, active: true });
+  const { data: inactiveAgents } = useGetAggregatorAgents({ page: 1, pageSize: 10, active: false });
+
+  return (
+    <Tabs onChange={(index) => setActiveTabIndex(index)} size="sm" variant="unstyled" isLazy flex="1 1 0%">
+      <TabList>
+        <Tab>
+          <Flex alignItems="center" gap="4px">
+            <Text variant={activeTabIndex === 1 ? 'Body2Bold' : 'Body2Semibold'}>Active</Text>
+            <Box
+              p={'2px 4px'}
+              borderRadius="8px"
+              bg={activeTabIndex === 0 ? 'primary.100' : 'grey.200'}
+              color={activeTabIndex === 0 ? 'text' : 'grey.500'}
+            >
+              <Text variant="Body3Semibold">{activeAgents?.body.total ?? 0}</Text>
+            </Box>
+          </Flex>
+        </Tab>
+        <Tab>
+          <Flex alignItems="center" gap="4px">
+            <Text variant={activeTabIndex === 1 ? 'Body2Bold' : 'Body2Semibold'}>Inactive</Text>
+            <Box
+              p={'2px 4px'}
+              borderRadius="8px"
+              bg={activeTabIndex === 1 ? 'primary.100' : 'grey.200'}
+              color={activeTabIndex === 1 ? 'text' : 'grey.500'}
+            >
+              <Text variant="Body3Semibold">{inactiveAgents?.body.total ?? 0}</Text>
+            </Box>
+          </Flex>
+        </Tab>
+      </TabList>
+
+      <TabPanels h="100%">
+        <TabPanel px="0" h="100%">
+          <AgentPanel type="active" />
+        </TabPanel>
+        <TabPanel px="0" h="100%">
+          <AgentPanel type="inactive" />
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
+  );
+};
+
+type AgentPanelProps = {
+  type: 'active' | 'inactive';
+};
+
+const AgentPanel = ({ type }: AgentPanelProps) => {
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState('');
+  const debouncedQuery = useDebounce(query);
+
+  const { data, isLoading, isPlaceholderData, refetch, isError, isRefetchError, isRefetching } = useGetAggregatorAgents(
+    {
+      page,
+      pageSize: 10,
+      query: debouncedQuery === '' ? undefined : debouncedQuery,
+      active: type === 'active',
+    }
+  );
+
+  const totalPages = data?.body.totalPages ?? 1;
+
+  const resetFilters = () => {
+    setPage(1);
+    setQuery('');
+  };
+
+  return (
+    <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
+      <Flex justifyContent="space-between">
+        <Flex gap="24px" alignItems="center">
+          <Flex gap="8px" alignItems="center">
+            <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
+              Filter by
+            </Text>
+            <Select
+              size="small"
+              variant="white"
+              w="94px"
+              fontSize="13px"
+              fontWeight="600"
+              placeholder="Status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="Online">Online</option>
+              <option value="Offline">Offline</option>
+            </Select>
+          </Flex>
+          <InputGroup w="212px" size="sm">
+            <InputLeftElement>
+              <Icon as={MdSearch} w="12px" h="12px" color="primary.600" />
+            </InputLeftElement>
+            <Input
+              variant="primary"
+              fontSize="10px"
+              placeholder="Search"
+              onChange={(e) => {
+                // Reset filters when search query changes
+                resetFilters();
+                setQuery(e.target.value);
+              }}
+            />
+          </InputGroup>
+        </Flex>
+        <Flex gap={2}>
+          <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="10px">
+            Download Report
+          </Button>
+          <Button leftIcon={<MdEditCalendar />} variant="primary" size="medium" borderRadius="10px">
+            Schedule Activation
+          </Button>
+        </Flex>
+      </Flex>
+      <ReusableTable
+        selectable
+        data={data?.body.data ?? []}
+        columns={columns}
+        headerBgColor="#F3F9F2"
+        isLoading={isLoading || isRefetching}
+        isError={isError || isRefetchError}
+        onRefresh={refetch}
+      />
+      <TablePagination
+        handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+        handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+        handlePageChange={(pageNumber) => setPage(pageNumber)}
+        isNextDisabled={page >= totalPages}
+        isPrevDisabled={page <= 1}
+        currentPage={page}
+        totalPages={totalPages}
+        isDisabled={isLoading || isPlaceholderData}
+        display={totalPages > 1 ? 'flex' : 'none'}
+      />
+    </Flex>
+  );
+};
+
+const columns: ColumnDef<AggregatorAgent>[] = [
+  {
+    header: 'Agents',
+    accessorKey: 'firstName',
+    cell: (info) => (
+      <Text variant="Body2Semibold">{`${info.row.original.firstName} ${info.row.original.lastName}`}</Text>
+    ),
+  },
+  {
+    header: 'Program',
+    accessorKey: 'aggregator',
+  },
+  {
+    header: 'LGA',
+    accessorKey: 'lga',
+    cell: (info) => <Text variant="Body2Regular">{info.row.original.lga || '----------------'}</Text>,
+  },
+  {
+    header: () => (
+      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+        Gender
+      </Text>
+    ),
+    accessorKey: 'gender',
+    enableSorting: false,
+    cell: (info) => (
+      <Text variant="Body2Regular" textAlign="center">
+        {info.row.original.gender || 'N/A'}
+      </Text>
+    ),
+  },
+  {
+    header: () => (
+      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+        Status
+      </Text>
+    ),
+    accessorKey: 'status',
+    enableSorting: false,
+    cell: (info) => {
+      return (
+        <>
+          {info.row.original.status === true ? (
+            <Text variant="Body3Semibold" color="green" textAlign="center">
+              Online{' '}
+              <Text as="span" variant="Body3Semibold" display="inline" color="green">
+                (Active)
+              </Text>
+            </Text>
+          ) : (
+            <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+              Offline{' '}
+              <Text as="span" variant="Body3Semibold" display="inline" color="grey.500">
+                (Deactivated)
+              </Text>
+            </Text>
+          )}
+        </>
+      );
+    },
+  },
+  {
+    header: () => (
+      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+        Actions
+      </Text>
+    ),
+    id: 'actions',
+    enableSorting: false,
+    cell: (info) => {
+      // const { id, status, programId } = info.row.original;
+      return (
+        <Flex>
+          <Popover placement="bottom-end">
+            <PopoverTrigger>
+              <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
+                <MdMoreHoriz size="1.25rem" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent minW="121px" w="fit-content" p="8px">
+              <PopoverArrow />
+              <PopoverBody p="0">
+                <Flex flexDir="column">
+                  <Button
+                    w="100%"
+                    bg="transparent"
+                    size="small"
+                    p="0"
+                    fontSize="13px"
+                    fontWeight="400"
+                    px="4px"
+                    // onClick={() => handleOnclick(id, !status, programId)}
+                  >
+                    {info.row.original.status === true ? 'Deactivate' : 'Activate'} Agent
+                  </Button>
+                </Flex>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+        </Flex>
+      );
+    },
+  },
+];
 
 export default AggregatorsAgentsDashboard;
