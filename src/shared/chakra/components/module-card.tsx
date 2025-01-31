@@ -6,8 +6,9 @@ import { memo, MouseEvent, useEffect, useRef } from 'react';
 import { MdArrowForward, MdCheckCircle, MdEdit, MdRefresh } from 'react-icons/md';
 
 import type { Module } from '@/types';
+import { DndHandleProps } from '@/app/super-admin/programs/components/select-modules';
 
-type ModuleCardProps = {
+type ModuleCardProps = DndHandleProps & {
   number: number;
   module: Module;
   scroll?: boolean;
@@ -20,7 +21,20 @@ type ModuleCardProps = {
 } & StackProps;
 
 export const ModuleCard = memo((props: ModuleCardProps) => {
-  const { number, module, status, scroll, route, isActive, disabled, onRemove, onClick, isDragging, ...rest } = props;
+  const {
+    number,
+    module,
+    status,
+    scroll,
+    route,
+    isActive,
+    disabled,
+    onRemove,
+    onClick,
+    dragHandleProps,
+    isDragging,
+    ...rest
+  } = props;
 
   const router = useRouter();
   const pathname = usePathname();
@@ -88,6 +102,7 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
               _focus={{ boxShadow: 'outline' }}
               style={{ touchAction: 'none' }}
               onClick={(e) => e.stopPropagation()}
+              {...dragHandleProps}
             >
               {Array.from(Array(6).keys()).map((index) => (
                 <Box key={index} bg="primary.400" boxSize="1" />

@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, BoxProps, Heading, SimpleGrid } from '@chakra-ui/react';
-import { memo } from 'react';
+import React, { memo } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -14,8 +14,17 @@ import { useProgramStore } from '@/providers/programs-store-provider';
 import { rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { useParams, usePathname } from 'next/navigation';
 
-function SortableItem({ id, children }: { id: number; children: React.ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+export interface DndHandleProps {
+  dragHandleProps?: React.HTMLAttributes<HTMLElement> & {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ref?: React.Ref<any>;
+  };
+}
+
+function SortableItem({ id, children }: { id: number; children: React.ReactElement<DndHandleProps> }) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -24,8 +33,16 @@ function SortableItem({ id, children }: { id: number; children: React.ReactNode 
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {children}
+    <div ref={setNodeRef} style={style}>
+      {React.isValidElement(children)
+        ? React.cloneElement(children, {
+            dragHandleProps: {
+              ref: setActivatorNodeRef,
+              ...listeners,
+              ...attributes,
+            },
+          })
+        : children}
     </div>
   );
 }

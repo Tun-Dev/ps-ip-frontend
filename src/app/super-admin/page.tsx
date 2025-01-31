@@ -94,7 +94,7 @@ const SuperAdminDashboard = () => {
         </Text>
         <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(265px, 1fr))">
           <OverviewCard
-            title="Running programs"
+            title="Programs"
             number={isLoading ? '...' : (data?.body.runningPrograms ?? 0)}
             icon={MdViewCarousel}
           />
@@ -126,17 +126,17 @@ const SuperAdminDashboard = () => {
             image="/icons/Application.svg"
           />
           <ModuleDashboardCard
-            text="Beneficiaries Enumerated"
+            text="Enumerated"
             number={isLoading ? '...' : (data?.body.beneficiariesEnumerated ?? 0)}
             image="/icons/Enumeration.svg"
           />
           <ModuleDashboardCard
-            text="Awaiting KYC Verification"
+            text="Verified"
             number={isLoading ? '...' : (data?.body.awaitingKYCVerification ?? 0)}
             image="/icons/Verification.svg"
           />
           <ModuleDashboardCard
-            text="Awaiting  Disbursement"
+            text="Disbursed"
             number={isLoading ? '...' : (data?.body.awaitingDisbursement ?? 0)}
             image="/icons/Disbursement.svg"
           />

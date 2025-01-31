@@ -16,7 +16,7 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isAtStart, setIsAtStart] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
-  const { programID } = useParams();
+  const { programID, folderID } = useParams();
 
   const { response, isLoading } = useGetProgramById(programID?.toString());
 
@@ -100,7 +100,7 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
                 maxW="242px"
                 flexShrink={0}
                 number={item.order}
-                route={`/super-admin/programs/${programID}/${item.module.toLowerCase()}`}
+                route={`/super-admin/programs/${folderID}/${programID}/${item.module.toLowerCase()}`}
                 isActive={pathname.endsWith(item.module.toLowerCase())}
                 scroll
                 scrollSnapAlign="start"
