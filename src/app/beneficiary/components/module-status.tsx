@@ -12,8 +12,6 @@ export default function ModuleStatus() {
   const code = useSearchParams().get('code') || '';
   const { data: beneficiaryStatus, isLoading, error } = useGetBeneficiaryStatus(code);
 
-  console.log(beneficiaryStatus);
-
   if (!code)
     return (
       <Grid boxSize="full" placeItems="center">

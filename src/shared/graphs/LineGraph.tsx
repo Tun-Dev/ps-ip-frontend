@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Chart as ChartJS,
-  LinearScale,
-  CategoryScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Legend,
-  Tooltip,
-  LineController,
   BarController,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineController,
+  LineElement,
+  PointElement,
+  Tooltip,
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 
@@ -74,8 +74,6 @@ const data = {
 };
 
 const LineGraphCard = () => {
-  // console.log(graphData);
-
   const datasets = data?.datasets.map((dataset: any, index: number) => ({
     type: 'line' as const,
     label: dataset.label,
@@ -99,7 +97,6 @@ const LineGraphCard = () => {
     datasets: datasets || [],
   };
 
-  // console.log(chartData);
   return (
     <Chart
       type="line"

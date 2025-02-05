@@ -80,20 +80,14 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
       <ModalOverlay />
-      <ModalContent
-        as="form"
-        onSubmit={handleSubmit(onSubmit)}
-        minH="35rem"
-        maxH="calc(100vh - 10rem)"
-        borderRadius="12px"
-      >
+      <ModalContent as="form" onSubmit={handleSubmit(onSubmit)} borderRadius="12px">
         <ModalHeader>
           <Text variant="Body1Semibold">Add New Aggregator</Text>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody overflowY="auto">
+        <ModalBody>
           <Stack spacing="5">
             <Text variant="Body1Semibold">Corporate Details</Text>
             <FormControl isInvalid={!!errors.name}>

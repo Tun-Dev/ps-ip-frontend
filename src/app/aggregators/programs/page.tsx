@@ -18,7 +18,7 @@ const ProgramsFolderPage = () => {
 
   return (
     <Stack pos="relative" overflow="hidden" spacing="6" boxSize="full">
-      <SimpleGrid columns={{ base: 3, xl: 4 }}>
+      <SimpleGrid columns={{ base: 3, xl: 4 }} spacingY="6" spacingX="5">
         <OverviewCard minW="unset" title="Programs" number={isLoading ? '...' : programCount} icon={MdViewCarousel} />
       </SimpleGrid>
       <Divider borderColor="grey.200" opacity={1} />
@@ -63,7 +63,6 @@ const EmptyState = () => (
       <Image src="/icons/Blank.svg" alt="" />
     </Flex>
     <Text variant="Body2Semibold">No Folders Available.</Text>
-    <Text variant="Body2Semibold">Please create a folder.</Text>
   </Grid>
 );
 

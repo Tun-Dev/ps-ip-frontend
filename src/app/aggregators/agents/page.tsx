@@ -1,25 +1,27 @@
 'use client';
 
+import { useActivateAgent } from '@/hooks/useActivateAgent';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetAggregatorAgents } from '@/hooks/useGetAggregatorAgents';
 import { useGetAggregatorDashboard } from '@/hooks/useGetAggregatorDashboard';
 import { AddNewAgentModal, ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { ReassignAgentModal } from '@/shared/chakra/modals/ReassignAgentModal';
 import type { AggregatorAgent } from '@/types';
 import {
   Box,
   Button,
   Flex,
   Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Select,
   SimpleGrid,
   Tab,
@@ -29,9 +31,10 @@ import {
   Tabs,
   Text,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { MdAddCircle, MdDownload, MdEditCalendar, MdGroups, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 const AggregatorsAgentsDashboard = () => {
@@ -130,11 +133,15 @@ type AgentPanelProps = {
 };
 
 const AgentPanel = ({ type }: AgentPanelProps) => {
+  const toast = useToast();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('');
   const debouncedQuery = useDebounce(query);
+  const { onClose, onOpen, isOpen } = useDisclosure();
+  const [selectedAgent, setSelectedAgent] = useState<AggregatorAgent>();
 
+  const { mutate: activateAgent } = useActivateAgent();
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetchError, isRefetching } = useGetAggregatorAgents(
     {
       page,
@@ -151,8 +158,123 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
     setQuery('');
   };
 
+  const handleAgentActivation = useCallback(
+    (id: string, status: boolean) => {
+      const payload = {
+        agentId: id,
+        isActive: status,
+      };
+
+      activateAgent(payload, {
+        onSuccess: () => {
+          toast({ title: `${status !== true ? 'Deactivated' : 'Activated'} agent successfully`, status: 'success' });
+        },
+      });
+    },
+    [activateAgent, toast]
+  );
+
+  const columns: ColumnDef<AggregatorAgent>[] = useMemo(
+    () => [
+      {
+        header: 'Agents',
+        accessorKey: 'firstName',
+        cell: (info) => (
+          <Text variant="Body2Semibold">{`${info.row.original.firstName} ${info.row.original.lastName}`}</Text>
+        ),
+      },
+      {
+        header: 'Program',
+        accessorKey: 'programName',
+        cell: (info) => `${info.row.original.programName} - ${info.row.original.programType}`,
+      },
+      {
+        header: 'LGA',
+        accessorKey: 'lga',
+        cell: (info) => <Text variant="Body2Regular">{info.row.original.lga || '----------------'}</Text>,
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+            Status
+          </Text>
+        ),
+        accessorKey: 'status',
+        enableSorting: false,
+        cell: (info) => {
+          return (
+            <>
+              {info.row.original.status === true ? (
+                <Text variant="Body3Semibold" color="green" textAlign="center">
+                  Online{' '}
+                  <Text as="span" variant="Body3Semibold" display="inline" color="green">
+                    (Active)
+                  </Text>
+                </Text>
+              ) : (
+                <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+                  Offline{' '}
+                  <Text as="span" variant="Body3Semibold" display="inline" color="grey.500">
+                    (Deactivated)
+                  </Text>
+                </Text>
+              )}
+            </>
+          );
+        },
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+            Actions
+          </Text>
+        ),
+        id: 'actions',
+        enableSorting: false,
+        cell: (info) => (
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              aria-label="Actions"
+              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              h="auto"
+              mx="auto"
+              display="flex"
+              p="1"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <MenuList>
+              <MenuItem
+                onClick={() => {
+                  onOpen();
+                  setSelectedAgent(info.row.original);
+                }}
+              >
+                <Text as="span" variant="Body2Regular">
+                  Reassign Agent
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleAgentActivation(info.row.original.id, !info.row.original.status);
+                }}
+              >
+                <Text as="span" variant="Body2Regular">
+                  {info.row.original.status === true ? 'Deactivate' : 'Activate'} Agent
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        ),
+      },
+    ],
+    [handleAgentActivation, onOpen]
+  );
+
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
+      {selectedAgent && <ReassignAgentModal isOpen={isOpen} onClose={onClose} agent={selectedAgent} />}
       <Flex justifyContent="space-between">
         <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
@@ -202,7 +324,6 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
         selectable
         data={data?.body.data ?? []}
         columns={columns}
-        headerBgColor="#F3F9F2"
         isLoading={isLoading || isRefetching}
         isError={isError || isRefetchError}
         onRefresh={refetch}
@@ -221,110 +342,5 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
     </Flex>
   );
 };
-
-const columns: ColumnDef<AggregatorAgent>[] = [
-  {
-    header: 'Agents',
-    accessorKey: 'firstName',
-    cell: (info) => (
-      <Text variant="Body2Semibold">{`${info.row.original.firstName} ${info.row.original.lastName}`}</Text>
-    ),
-  },
-  {
-    header: 'Program',
-    accessorKey: 'aggregator',
-  },
-  {
-    header: 'LGA',
-    accessorKey: 'lga',
-    cell: (info) => <Text variant="Body2Regular">{info.row.original.lga || '----------------'}</Text>,
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-        Gender
-      </Text>
-    ),
-    accessorKey: 'gender',
-    enableSorting: false,
-    cell: (info) => (
-      <Text variant="Body2Regular" textAlign="center">
-        {info.row.original.gender || 'N/A'}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-        Status
-      </Text>
-    ),
-    accessorKey: 'status',
-    enableSorting: false,
-    cell: (info) => {
-      return (
-        <>
-          {info.row.original.status === true ? (
-            <Text variant="Body3Semibold" color="green" textAlign="center">
-              Online{' '}
-              <Text as="span" variant="Body3Semibold" display="inline" color="green">
-                (Active)
-              </Text>
-            </Text>
-          ) : (
-            <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-              Offline{' '}
-              <Text as="span" variant="Body3Semibold" display="inline" color="grey.500">
-                (Deactivated)
-              </Text>
-            </Text>
-          )}
-        </>
-      );
-    },
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-        Actions
-      </Text>
-    ),
-    id: 'actions',
-    enableSorting: false,
-    cell: (info) => {
-      // const { id, status, programId } = info.row.original;
-      return (
-        <Flex>
-          <Popover placement="bottom-end">
-            <PopoverTrigger>
-              <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                <MdMoreHoriz size="1.25rem" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent minW="121px" w="fit-content" p="8px">
-              <PopoverArrow />
-              <PopoverBody p="0">
-                <Flex flexDir="column">
-                  <Button
-                    w="100%"
-                    bg="transparent"
-                    size="small"
-                    p="0"
-                    fontSize="13px"
-                    fontWeight="400"
-                    px="4px"
-                    // onClick={() => handleOnclick(id, !status, programId)}
-                  >
-                    {info.row.original.status === true ? 'Deactivate' : 'Activate'} Agent
-                  </Button>
-                </Flex>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </Flex>
-      );
-    },
-  },
-];
 
 export default AggregatorsAgentsDashboard;

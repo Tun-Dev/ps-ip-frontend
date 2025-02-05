@@ -3,6 +3,7 @@ import { ThemeComponents } from '@chakra-ui/react';
 import buttonTheme from './buttonTheme';
 import { checkboxTheme } from './checkbox';
 import Input from './input';
+import { menuTheme } from './menu';
 import { radioTheme } from './radio';
 import Select from './select';
 import { switchTheme } from './switch';
@@ -19,6 +20,7 @@ const components: ThemeComponents = {
   Switch: switchTheme,
   Checkbox: checkboxTheme,
   Radio: radioTheme,
+  Menu: menuTheme,
 };
 
 export default components;

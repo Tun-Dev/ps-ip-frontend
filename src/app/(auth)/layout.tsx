@@ -19,7 +19,8 @@ function AuthLayout({ children }: PropsWithChildren) {
         bg="white"
         zIndex={1}
         borderRadius="32px"
-        h="78%"
+        minH="80%"
+        py="12"
       >
         {children}
       </Flex>

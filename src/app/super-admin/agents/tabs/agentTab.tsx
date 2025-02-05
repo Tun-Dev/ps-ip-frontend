@@ -3,14 +3,14 @@ import {
   Button,
   Flex,
   Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Select,
   Tab,
   TabList,
@@ -154,7 +154,6 @@ const AgentPanel = ({
       programId: programID,
     };
 
-    console.log(payload);
     mutate(payload, {
       onSuccess: () => {
         toast({ title: `${status !== true ? 'Deactivated' : 'Activated'} agent successfully`, status: 'success' });
@@ -232,40 +231,34 @@ const AgentPanel = ({
       id: 'actions',
       enableSorting: false,
       cell: (info) => {
-        // console.log(info.row.original);
         const { id, status, programId } = info.row.original;
         return (
-          <Flex>
-            <Popover placement="bottom-end">
-              <PopoverTrigger>
-                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                  <MdMoreHoriz size="1.25rem" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent minW="121px" w="fit-content" p="8px">
-                <PopoverArrow />
-                <PopoverBody p="0">
-                  <Flex flexDir="column">
-                    {/* <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-                      Reassign Agent
-                    </Button> */}
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      p="0"
-                      fontSize="13px"
-                      fontWeight="400"
-                      px="4px"
-                      onClick={() => handleOnclick(id, !status, programId)}
-                    >
-                      {info.row.original.status === true ? 'Deactivate' : 'Activate'} Agent
-                    </Button>
-                  </Flex>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </Flex>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              aria-label="Actions"
+              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              minW="0"
+              h="auto"
+              mx="auto"
+              display="flex"
+              p="1"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <MenuList>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOnclick(id, !status, programId);
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  {info.row.original.status === true ? 'Deactivate' : 'Activate'} Agent
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
         );
       },
     },
@@ -321,7 +314,6 @@ const AgentPanel = ({
           selectable
           data={agents}
           columns={columns}
-          headerBgColor="#F3F9F2"
           isLoading={isLoading || isRefetching}
           isError={isError || isRefetchError}
           onRefresh={refetch}

@@ -10,14 +10,14 @@ import {
   Button,
   Flex,
   Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Select,
   Text,
   useDisclosure,
@@ -102,44 +102,44 @@ const VendorPage = () => {
         accessorKey: 'deactivate',
         enableSorting: false,
         cell: (info) => (
-          <Flex>
-            <Popover placement="bottom-end">
-              <PopoverTrigger>
-                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                  <MdMoreHoriz size="1.25rem" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent w="fit-content">
-                <PopoverArrow />
-                <PopoverBody>
-                  <Flex flexDir="column">
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      onClick={() => {
-                        setSelectedVendor(info.row.original);
-                        onDeleteOpen();
-                      }}
-                    >
-                      Delete Vendor
-                    </Button>
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      onClick={() => {
-                        onEditOpen();
-                        setSelectedVendor(info.row.original);
-                      }}
-                    >
-                      Edit
-                    </Button>
-                  </Flex>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </Flex>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              aria-label="Actions"
+              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              minW="0"
+              h="auto"
+              mx="auto"
+              display="flex"
+              p="1"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <MenuList>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedVendor(info.row.original);
+                  onDeleteOpen();
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Delete Vendor
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedVendor(info.row.original);
+                  onEditOpen();
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Edit
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
         ),
       },
     ],

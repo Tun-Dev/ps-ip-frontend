@@ -16,13 +16,11 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isAtStart, setIsAtStart] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
-  const { programID, folderID } = useParams();
+  const { folderID, programID } = useParams();
 
   const { response, isLoading } = useGetProgramById(programID?.toString());
 
   const modules = reorderDescending(response?.body.programModules) ?? [];
-
-  console.log(modules);
 
   const handleScroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -91,7 +89,7 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
             isDisabled={isAtStart}
           />
           {modules.map((item) => {
-            const newItem = renameKey(item, 'moduleGuidelines', 'ModuleGuidelines');
+            const newItem = renameKey(item, 'moduleGuidelines', 'moduleGuidelines');
             return (
               <ModuleCard
                 key={item.id}

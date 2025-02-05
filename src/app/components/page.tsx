@@ -33,7 +33,6 @@ import { ReusableTable } from '@/shared';
 import colors from '@/shared/chakra/colors';
 import { Dropdown, GeepComponent, ModuleDashboardCard, ModuleProgressCard } from '@/shared/chakra/components';
 import { OverviewCard } from '@/shared/chakra/components/overview';
-import NotificationModal from '@/shared/chakra/modals/notificationModal';
 import { Text as typography } from '@/shared/chakra/themes/typography';
 
 import { NotificationCard } from '@/shared';
@@ -55,7 +54,6 @@ export default function ComponentPage() {
             <OverviewCard title="Total Partners" number={10} icon={MdVolunteerActivism} />
             <OverviewCard title="Running program" number={20} icon={MdViewCarousel} />
           </Flex>
-          <NotificationModal isOpen={false} onClose={() => {}} />
           <Table />
           <ModuleDashboardCardSection />
           <GeepComponents />

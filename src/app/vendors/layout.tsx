@@ -1,6 +1,7 @@
 'use client';
 
 import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
+import { withProtectedLoader } from '@/shared/chakra/components/protected-route-loader';
 import { Box, Flex, Image } from '@chakra-ui/react';
 import Sidebar from './components/Sidebar';
 
@@ -27,4 +28,4 @@ const VendorsLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default withDesktopOnlyOverlay(VendorsLayout);
+export default withDesktopOnlyOverlay(withProtectedLoader(VendorsLayout, 'Vendor'));

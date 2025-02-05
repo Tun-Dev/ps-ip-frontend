@@ -3,7 +3,6 @@
 import { Button, Flex, Image, Text } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
 import {
   MdGroups,
   MdHome,
@@ -17,7 +16,6 @@ import {
 
 import { useUserStore } from '@/providers/user-store-provider';
 import { NotificationButton, SideBarItem } from '@/shared/chakra/components';
-import NotificationModal from '@/shared/chakra/modals/notificationModal';
 
 const sideBarData = [
   { name: 'Dashboard', Icon: MdHome, url: '/super-admin' },
@@ -31,7 +29,6 @@ const sideBarData = [
 const Sidebar = () => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
-  const [isNotfModalOpen, setIsNoftModalOpen] = useState(false);
   const user = useUserStore((state) => state.user);
   const logout = useUserStore((state) => state.logout);
   // const router = useRouter();
@@ -44,9 +41,7 @@ const Sidebar = () => {
 
   return (
     <Flex w="full" flexDir="column">
-      <NotificationModal isOpen={isNotfModalOpen} onClose={() => setIsNoftModalOpen((prev) => !prev)} />
       <Image src="/images/boi-white.png" alt="" h="52px" w="197px" />
-
       <Flex flex="1 1 0%" mt="44px" flexDirection="column" gap="10px">
         {sideBarData.map((item, index) => (
           <SideBarItem

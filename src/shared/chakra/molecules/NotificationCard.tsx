@@ -8,9 +8,10 @@ interface NotificationCardProps {
   desc: string;
   Icon: IconType;
   boldWord?: string;
+  iconSize?: string;
 }
 
-const NotificationCard = ({ title, time, desc, Icon, boldWord }: NotificationCardProps) => {
+const NotificationCard = ({ title, time, desc, Icon, boldWord, iconSize = '1rem' }: NotificationCardProps) => {
   const parts = boldWord ? desc.split(boldWord) : [desc];
 
   return (
@@ -25,7 +26,7 @@ const NotificationCard = ({ title, time, desc, Icon, boldWord }: NotificationCar
     >
       <Flex gap="4">
         <Center boxSize="8" bg="primary.200" borderRadius="10px" flexShrink={0}>
-          <Icon color="var(--chakra-colors-primary-600)" size="1rem" />
+          <Icon color="var(--chakra-colors-primary-500)" size={iconSize} />
         </Center>
         <Flex flexDir="column" gap="2">
           <Text display="flex" alignItems="center" gap="2" color="grey.500" variant="Body2Semibold">

@@ -23,8 +23,6 @@ export function FormHeader() {
     [programTypes]
   );
 
-  console.log(getValues());
-
   const name = getValues('name');
   const type = options?.find((item) => item.value === getValues('programTypeId'));
   const desc = getValues('description');

@@ -75,7 +75,7 @@ export const Dropdown = <Option, IsMulti extends boolean = false, Group extends 
       }}
       variant={variant}
       instanceId="dropdown"
-      // menuPosition="fixed"
+      menuPosition="fixed"
       chakraStyles={{
         menuList: (styles) => ({ ...styles, bgColor: variant === 'whiteDropdown' ? 'white' : 'primary.50' }),
         inputContainer: (styles) => ({ ...styles, py: '0.25rem' }),

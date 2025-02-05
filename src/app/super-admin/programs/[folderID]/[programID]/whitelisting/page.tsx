@@ -5,14 +5,15 @@ import {
   Button,
   ButtonGroup,
   Flex,
+  Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Text,
   useDisclosure,
   useToast,
@@ -147,44 +148,32 @@ const WhitelistingPage = () => {
             Denied
           </Text>
         ) : (
-          <Flex h="full" onClick={(e) => e.stopPropagation()}>
-            <Popover placement="bottom-end">
-              <PopoverTrigger>
-                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                  <MdMoreHoriz size="1.25rem" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent w="121px" p="8px">
-                <PopoverArrow />
-                <PopoverBody p="0">
-                  <Flex flexDir="column">
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      p="0"
-                      fontSize="13px"
-                      fontWeight="400"
-                      onClick={() => onApprove({ status: 'Approved', id: info.row.original.id })}
-                    >
-                      Whitelist
-                    </Button>
-                    {/* <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      p="0"
-                      fontSize="13px"
-                      fontWeight="400"
-                      onClick={() => onApprove({ status: 'Disapproved', id: info.row.original.id })}
-                    >
-                      Fail
-                    </Button> */}
-                  </Flex>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </Flex>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              aria-label="Actions"
+              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              minW="0"
+              h="auto"
+              mx="auto"
+              display="flex"
+              p="1"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <MenuList>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onApprove({ status: 'Approved', id: info.row.original.id });
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Whitelist
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
         ),
       enableSorting: false, // Enable sorting for status
     };
@@ -256,138 +245,5 @@ const WhitelistingPage = () => {
     </Flex>
   );
 };
-
-// const columns: ColumnDef<(typeof data)[number]>[] = [
-//   {
-//     header: 'Enumerated Beneficiaries (20,000)',
-//     accessorKey: 'beneficiary',
-//     cell: (info) => (
-//       <Text as="span" variant="Body2Semibold">
-//         {info.row.original.beneficiary}
-//       </Text>
-//     ),
-//   },
-//   {
-//     header: 'LGA',
-//     accessorKey: 'LGA',
-//     cell: (info) => (
-//       <Text as="span" variant="Body2Regular">
-//         {info.row.original.LGA}
-//       </Text>
-//     ),
-//   },
-//   {
-//     header: 'Agent',
-//     accessorKey: 'agent',
-//     cell: (info) => (
-//       <Text as="span" variant="Body2Semibold">
-//         {info.row.original.agent}
-//       </Text>
-//     ),
-//   },
-//   {
-//     header: () => (
-//       <Text variant="Body3Semibold" textAlign="center">
-//         Gender
-//       </Text>
-//     ),
-//     accessorKey: 'gender',
-//     enableSorting: false,
-//     cell: (info) => (
-//       <Text as="span" textAlign="center" display="block" variant="Body2Regular">
-//         {info.row.original.gender}
-//       </Text>
-//     ),
-//   },
-//   {
-//     header: () => (
-//       <Text variant="Body3Semibold" textAlign="center">
-//         Age
-//       </Text>
-//     ),
-//     accessorKey: 'age',
-//     enableSorting: false,
-//     cell: (info) => (
-//       <Text as="span" textAlign="center" display="block" variant="Body2Regular">
-//         {info.row.original.age}
-//       </Text>
-//     ),
-//   },
-//   {
-//     header: () => (
-//       <Text variant="Body3Semibold" textAlign="center">
-//         Disabled
-//       </Text>
-//     ),
-//     accessorKey: 'disabled',
-//     enableSorting: false,
-//     cell: (info) => (
-//       <Text as="span" textAlign="center" display="block" variant="Body2Regular">
-//         {info.row.original.disabled ? 'YES' : 'NO'}
-//       </Text>
-//     ),
-//   },
-//   {
-//     header: () => (
-//       <Text variant="Body3Semibold" textAlign="center">
-//         Liberate
-//       </Text>
-//     ),
-//     accessorKey: 'liberate',
-//     enableSorting: false,
-//     cell: (info) => (
-//       <Text as="span" textAlign="center" display="block" variant="Body2Regular">
-//         {info.row.original.liberate ? 'YES' : 'NO'}
-//       </Text>
-//     ),
-//   },
-//   {
-//     header: () => (
-//       <Text variant="Body3Semibold" textAlign="center">
-//         Vetting Score
-//       </Text>
-//     ),
-//     accessorKey: 'score',
-//     enableSorting: false,
-//     cell: (info) => (
-//       <Text as="span" textAlign="center" display="block" variant="Body1Bold" color="green">
-//         {info.row.original.score}%
-//       </Text>
-//     ),
-//   },
-//   {
-//     header: () => (
-//       <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-//         Actions/Status
-//       </Text>
-//     ),
-//     accessorKey: 'actions',
-//     enableSorting: false,
-//     cell: () => (
-//       <Flex onClick={(e) => e.stopPropagation()}>
-//         <Popover placement="bottom-end">
-//           <PopoverTrigger>
-//             <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-//               <MdMoreHoriz size="1.25rem" />
-//             </Button>
-//           </PopoverTrigger>
-//           <PopoverContent minW="121px" w="fit-content" p="8px">
-//             <PopoverArrow />
-//             <PopoverBody p="0px">
-//               <Flex flexDir="column">
-//                 <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
-//                   Approve
-//                 </Button>
-//                 <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-//                   Remove Candidate
-//                 </Button>
-//               </Flex>
-//             </PopoverBody>
-//           </PopoverContent>
-//         </Popover>
-//       </Flex>
-//     ),
-//   },
-// ];
 
 export default WhitelistingPage;

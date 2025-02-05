@@ -5,8 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { memo, MouseEvent, useEffect, useRef } from 'react';
 import { MdArrowForward, MdCheckCircle, MdEdit, MdRefresh } from 'react-icons/md';
 
-import type { Module } from '@/types';
 import { DndHandleProps } from '@/app/super-admin/programs/components/select-modules';
+import type { Module } from '@/types';
 
 type ModuleCardProps = DndHandleProps & {
   number: number;
@@ -45,8 +45,6 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
     if (scroll && pathname.includes(module.module.toLowerCase()) && moduleCardRef.current)
       moduleCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [module, pathname, scroll]);
-
-  console.log(status);
 
   return (
     <Stack spacing="3" w="full" ref={moduleCardRef} {...rest}>
@@ -93,8 +91,6 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
             <Grid
               // ref={setActivatorNodeRef}
               // {...listeners}
-              as="button"
-              type="button"
               cursor="grab"
               gridTemplateColumns="auto auto"
               gap="1"

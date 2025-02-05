@@ -1,26 +1,33 @@
 'use client';
 
-import { Button, Flex, Image, Text } from '@chakra-ui/react';
-import { MdChecklistRtl, MdHome, MdLogout, MdNoteAlt, MdPerson } from 'react-icons/md';
-import { usePathname } from 'next/navigation';
-import NotificationModal from '@/shared/chakra/modals/notificationModal';
-import { useState } from 'react';
+import { useUserStore } from '@/providers/user-store-provider';
 import { NotificationButton, SideBarItem } from '@/shared/chakra/components';
+import { Button, Flex, Image, Text } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePathname } from 'next/navigation';
+import { MdHome, MdLogout, MdNoteAlt, MdPerson, MdViewCarousel } from 'react-icons/md';
 
 const sideBarData = [
   { name: 'Dashboard', Icon: MdHome, url: '/vetting-officers' },
-  { name: 'Vetting', Icon: MdChecklistRtl, url: '/vetting-officers/vetting' },
+  { name: 'Programs', Icon: MdViewCarousel, url: '/vetting-officers/programs' },
   { name: 'Reports', Icon: MdNoteAlt, url: '/vetting-officers/reports' },
 ];
 
 const Sidebar = () => {
   const pathname = usePathname();
-  const [isNotfModalOpen, setIsNoftModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const user = useUserStore((state) => state.user);
+  const logout = useUserStore((state) => state.logout);
+
+  const handleLogout = () => {
+    queryClient.invalidateQueries();
+    queryClient.clear();
+    logout();
+  };
+
   return (
     <Flex w="full" flexDir="column">
-      <NotificationModal isOpen={isNotfModalOpen} onClose={() => setIsNoftModalOpen((prev) => !prev)} />
       <Image src="/images/boi-white.png" alt="" h="52px" w="197px" />
-
       <Flex flex="1 1 0%" mt="44px" flexDirection="column" gap="10px">
         {sideBarData.map((item, index) => (
           <SideBarItem
@@ -53,15 +60,30 @@ const Sidebar = () => {
             h="64px"
             boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
           >
-            <Flex boxSize="40px" bg="white" borderRadius="16px" justifyContent="center" alignItems="center">
+            <Flex
+              boxSize="40px"
+              bg="white"
+              borderRadius="16px"
+              justifyContent="center"
+              alignItems="center"
+              flexShrink={0}
+            >
               <MdPerson size="24px" color="#A4A4A4" />
             </Flex>
             <Flex flexDir="column" minW={0} color="white">
-              <Text variant="Body2Bold">Chukwuemeka Aliu</Text>
-              <Text variant="Body3Semibold">ChukwuAliu@gmail.com</Text>
+              <Text variant="Body2Bold">{`${user?.firstName} ${user?.lastName}`}</Text>
+              <Text variant="Body3Semibold" isTruncated>
+                {user?.email}
+              </Text>
             </Flex>
           </Flex>
-          <Button variant="cancel" bg="#FFD6D6" leftIcon={<MdLogout size="16px" color="red" />} w="100%">
+          <Button
+            variant="cancel"
+            bg="#FFD6D6"
+            leftIcon={<MdLogout size="16px" color="red" />}
+            w="100%"
+            onClick={handleLogout}
+          >
             Log out
           </Button>
         </Flex>

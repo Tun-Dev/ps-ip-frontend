@@ -78,14 +78,14 @@ const ActivityTable = ({ data }: { data: EnumerationsTableData[] }) => {
           </Link>
         </Flex>
       </Flex>
-      <ReusableTable data={data} columns={columns} headerBgColor="white" p="8px 0px" />
+      <ReusableTable data={data} columns={columns} p="8px 0px" />
     </Flex>
   );
 };
 
 const SuperAdminDashboard = () => {
   const { data, isLoading } = useGetDashboardData();
-  console.log(data);
+
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%">
       <Flex flexDir="column" gap="12px">

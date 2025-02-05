@@ -4,6 +4,7 @@ import { Box, Button, ButtonGroup, Flex, Grid, Stack, Text, useToast } from '@ch
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { useAddProgramToGroup } from '@/hooks/useAddProgramToGroup';
 import { useCreateForm } from '@/hooks/useCreateForm';
 import { useCreateProgram } from '@/hooks/useCreateProgram';
 import { useGetModules } from '@/hooks/useGetModules';
@@ -14,14 +15,12 @@ import { MultiStepHeader } from '@/shared';
 import { FormResponse, Program } from '@/types';
 import { FormHeader } from '../../components/form-header';
 import { ModulesList } from '../../components/modules-list';
-import { useAddProgramToGroup } from '@/hooks/useAddProgramToGroup';
 
 const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast();
   const router = useRouter();
   const [, setRender] = useState(false);
   const { folderID } = useParams();
-  console.log(folderID);
 
   const step = useProgramStore((state) => state.step);
   const nextStep = useProgramStore((state) => state.nextStep);
@@ -123,8 +122,6 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
       programModules: programModules,
     };
 
-    console.log(payload);
-
     createProgram(payload, {
       onSuccess: (response) => {
         handleAddProgramToGroup(response.body);
@@ -209,9 +206,6 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
       resetForm();
     };
   }, [resetState, resetForm]);
-
-  const data = getValues();
-  console.log(data);
 
   return (
     <Flex h="100%" w="full">

@@ -73,8 +73,6 @@ export type NewVendor = {
   numberOfBeneficiaries: number;
   programId: string;
   user: {
-    password: string;
-    confirmPassword: string;
     email: string;
     firstname: string;
     lastname: string;
@@ -122,6 +120,8 @@ export type Aggregator = {
   programName: string;
   contactEmail: string;
   contactPhone: string;
+  totalAgents: string;
+  programCount: string;
 };
 
 export type AggregatorOverview = {
@@ -195,7 +195,7 @@ export type Module = {
   module: string;
   formId: null | string;
   order: number;
-  ModuleGuidelines: ModuleGuideline[];
+  moduleGuidelines: ModuleGuideline[];
   form: Form;
 };
 
@@ -440,7 +440,7 @@ export type BeneficiaryStatus = {
 export type ActivateAgentPayload = {
   agentId: string;
   isActive: boolean;
-  programId: string;
+  programId?: string;
 };
 
 export type EnumerationsTableData = {
@@ -462,6 +462,7 @@ export type DashboardDataResponse = {
 };
 
 export type AggregatorDashboard = {
+  programCount: number;
   totalAgents: number;
   agentsOnline: number;
   totalEnumerations: number;
@@ -502,6 +503,9 @@ export type AggregatorAgent = {
   lga: string;
   status: boolean;
   lastActive: string;
+  programId: string;
+  programName: string;
+  programType: string;
 };
 
 export type AggregatorAgentsParams = Partial<{
@@ -515,20 +519,27 @@ export type AggregatorAgentsParams = Partial<{
 export type AgentPayload = {
   aggregatorId: string;
   agents: {
-    programmeId: string;
     firstName: string;
     lastName: string;
-    dob: string;
+    phoneNumber: string;
     email: string;
-    password: string;
-    confirmPassword: string;
-    programDetails?: {
-      activationTime: string;
-      programId: string;
-      objective: number;
-      lgaId: number;
-    };
+    programDetails?: AgentProgramDetails;
   }[];
+};
+
+export type ReassignAgentPayload = {
+  aggregatorId: string;
+  agents: {
+    agentId: string;
+    aggregatorId: string;
+    programDetails: AgentProgramDetails;
+  }[];
+};
+
+export type AgentProgramDetails = {
+  programId: string;
+  objective?: number;
+  lgaId?: number;
 };
 
 export type GroupPayload = {
@@ -564,7 +575,7 @@ export type GroupDetailsResponse = {
   programs: Program[];
 };
 
-export type AggregatorProgramGroups = {
+export type DashboardProgramGroups = {
   programCount: number;
   programGroups: { id: string; name: string; programCount: number }[];
 };
@@ -594,7 +605,7 @@ export type CurrentUser = {
   phoneNumber: string;
   roles: RoleElement[];
   agent: [];
-  aggregator: AggregatorUser[];
+  aggregator: AggregatorUser;
 };
 
 export type AggregatorUser = {
@@ -616,4 +627,58 @@ export type Role = {
   id: number;
   name: string;
   description: string;
+};
+
+export type AgentSignUpPayload = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  stateOfOrigin: number;
+  LGAOfResidence: number;
+};
+
+export type VendorDashboard = {
+  programs: number;
+  orders: number;
+  amountDisbursed: number;
+  amountDisburseable: number;
+  beneficiariesDisbursed: number;
+  activities: VendorActivity;
+};
+
+export type VendorActivity = {
+  programName: string;
+  module: string;
+  beneficiaries: VendorActivityBeneficiary[];
+};
+
+export type VendorActivityBeneficiary = {
+  name: string;
+  status: string;
+};
+
+export type VendorProgram = {
+  id: string;
+  moduleName: string;
+  logo: string;
+  name: string;
+  type: string;
+};
+
+export type VendorBeneficiary = {
+  id: string;
+  moduleName: string;
+  status: string;
+  email?: string;
+  phoneNumber?: string;
+  formAnswers?: { key: string; value: unknown }[];
+  verifications?: { type: string; value: string; status: boolean }[];
+};
+
+export type AggregatorDetails = {
+  name: string;
+  agents: number;
+  aggregatorProgramId: string;
+  programName: string;
+  programType: string;
 };

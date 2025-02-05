@@ -1,5 +1,16 @@
 import axiosInstance from '@/lib/axios';
-import { APIResponse, NewVendor, PaginatedResponse, Vendor, VendorFilterParams, VendorOverview } from '@/types';
+import {
+  APIResponse,
+  Beneficiary,
+  DashboardProgramGroups,
+  NewVendor,
+  PaginatedResponse,
+  Vendor,
+  VendorFilterParams,
+  VendorOverview,
+  VendorProgram,
+} from '@/types';
+import type { QueryKey } from '@tanstack/react-query';
 
 export const getDisbursements = async () => {
   const { data } = await axiosInstance.get<APIResponse<Vendor[]>>('/vendor/disbursements');
@@ -39,6 +50,33 @@ export const getVendorOverview = async () => {
 export const filterVendors = async (filterParams: VendorFilterParams) => {
   const { data } = await axiosInstance.get<PaginatedResponse<Vendor>>('/vendor/filter', {
     params: filterParams,
+  });
+  return data;
+};
+
+export const getVendorProgramGroups = async ({ signal }: { signal: AbortSignal }) => {
+  const { data } = await axiosInstance.get<APIResponse<DashboardProgramGroups>>('/vendor/dashboard/program-group', {
+    signal,
+  });
+  return data;
+};
+
+export const getVendorPrograms = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, programGroupId, params] = queryKey;
+
+  const { data } = await axiosInstance.get<APIResponse<VendorProgram[]>>(`/vendor/dashboard/${programGroupId}`, {
+    params,
+    signal,
+  });
+  return data;
+};
+
+export const getVendorBeneficiaries = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, params] = queryKey;
+
+  const { data } = await axiosInstance.get<PaginatedResponse<Beneficiary>>('/vendor/dashboard/beneficiaries/all', {
+    params,
+    signal,
   });
   return data;
 };

@@ -7,12 +7,13 @@ import type {
   Aggregator,
   AggregatorAgent,
   AggregatorAnalytics,
+  AggregatorDetails,
   AggregatorOverview,
   AggregatorPayload,
   AggregatorProgram,
-  AggregatorProgramGroups,
   AggregatorProgramsParams,
   APIResponse,
+  DashboardProgramGroups,
   PaginatedResponse,
 } from '@/types';
 
@@ -73,7 +74,7 @@ export const getAggregatorAnalytics = async ({ queryKey, signal }: { queryKey: Q
 };
 
 export const getAggregatorProgramGroups = async ({ signal }: { signal: AbortSignal }) => {
-  const response = await axiosInstance.get<APIResponse<AggregatorProgramGroups>>(`/aggregator/list/programGroups`, {
+  const response = await axiosInstance.get<APIResponse<DashboardProgramGroups>>(`/aggregator/list/programGroups`, {
     signal,
   });
   return response.data;
@@ -92,5 +93,18 @@ export const getAllAggregatorPrograms = async ({ signal }: { signal: AbortSignal
   const response = await axiosInstance.get<APIResponse<{ id: string; name: string }[]>>('/aggregator/program', {
     signal,
   });
+  return response.data;
+};
+
+export const getAggregatorById = async ({ queryKey }: { queryKey: string[] }) => {
+  const id = queryKey[1];
+  const { data } = await axiosInstance.get<APIResponse<AggregatorDetails[]>>(`/aggregator/${id}/programs`);
+  return data;
+};
+
+export const deleteAggregatorFromProgram = async (data: { programId: string; aggregatorId: string }) => {
+  const response = await axiosInstance.delete<APIResponse<boolean>>(
+    `/aggregator/program/${data.programId}/${data.aggregatorId}`
+  );
   return response.data;
 };

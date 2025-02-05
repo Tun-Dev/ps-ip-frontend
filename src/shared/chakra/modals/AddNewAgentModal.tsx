@@ -1,9 +1,12 @@
 import {
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
+  InputGroup,
+  InputLeftAddon,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -11,20 +14,20 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  SimpleGrid,
   Stack,
   Text,
   useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm } from 'react-hook-form';
+import { Fragment, useCallback, useMemo } from 'react';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useCreateAgent } from '@/hooks/useCreateAgent';
 import { useGetAllAggregatorPrograms } from '@/hooks/useGetAllAggregatorPrograms';
 import { useGetCurrentUser } from '@/hooks/useGetCurrentUser';
 import { useGetStates } from '@/hooks/useGetStates';
-import { useCallback, useMemo } from 'react';
+import { AgentProgramDetails } from '@/types';
 import { Dropdown } from '../components';
 
 type ModalProps = {
@@ -32,36 +35,29 @@ type ModalProps = {
   onClose: () => void;
 };
 
-const Schema = z
-  .object({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    dob: z.string().min(1, 'Date of birth is required'),
-    email: z.string().min(1, 'Email is required'),
-    programId: z.string().min(1, 'Program is required'),
-    interval: z.string().min(1, 'Interval is required'),
-    objective: z.coerce.number().min(1),
-    activationTime: z.string().min(1, 'Activation time is required'),
-    lgaId: z.coerce.number().min(1, 'LGA is required'),
-    password: z.string().min(1, 'Password is required'),
-    confirmPassword: z.string().min(1, 'Confirm password is required'),
-  })
-  .refine((value) => value.password === value.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
+const Schema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  phoneNumber: z
+    .string()
+    .min(1, 'Phone number is required')
+    // Accept only 10 digits, not starting with 0
+    .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits and cannot start with 0'),
+  email: z.string().min(1, 'Email is required'),
+  programDetails: z.array(
+    z.object({
+      programId: z.string().min(1, 'Program is required'),
+      objective: z.coerce.number().min(1),
+      lgaId: z.coerce.number().min(1, 'LGA is required'),
+    })
+  ),
+});
 
 type FormValues = z.infer<typeof Schema>;
 
-const INTERVALS = [
-  { label: 'Daily', value: 'daily' },
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'Monthly', value: 'monthly' },
-];
-
 export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
   const toast = useToast();
-  const { mutate, isPending } = useCreateAgent(onClose);
+  const { mutate, isPending } = useCreateAgent(onSuccess);
   const { data: currentUser } = useGetCurrentUser();
   const { data: programs } = useGetAllAggregatorPrograms(isOpen);
   const { data: states } = useGetStates(isOpen);
@@ -89,12 +85,15 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormValues>({ resolver: zodResolver(Schema) });
+
+  const { fields, append, remove } = useFieldArray({ name: 'programDetails', control });
 
   const hasErrors = Object.keys(errors).length > 0;
 
   const onSubmit = (data: FormValues) => {
-    const aggregatorId = getAggregatorId(data.programId);
+    const aggregatorId = getAggregatorId(data.programDetails);
 
     if (!aggregatorId) return toast({ status: 'error', title: 'Aggregator not found' });
 
@@ -102,51 +101,49 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
       aggregatorId,
       agents: [
         {
-          programmeId: data.programId,
           firstName: data.firstName,
           lastName: data.lastName,
-          dob: data.dob,
+          phoneNumber: `+234${data.phoneNumber}`,
           email: data.email,
-          password: data.password,
-          confirmPassword: data.confirmPassword,
-          programDetails: {
-            activationTime: data.activationTime,
-            programId: data.programId,
-            objective: data.objective,
-            lgaId: data.lgaId,
-          },
+          // TODO: Remove the spread operator and use the commented line below
+          ...(data.programDetails && data.programDetails.length > 0 ? { programDetails: data.programDetails[0] } : {}),
         },
       ],
     });
   };
 
-  const getAggregatorId = (programId: string) => {
-    if (!currentUser) return null;
-    let aggregatorId = '';
-    currentUser.body.aggregator.forEach((aggregator) => {
-      const aggregatorProgram = aggregator.aggregatorPrograms.find((program) => program.programId === programId);
-      if (aggregatorProgram) aggregatorId = aggregatorProgram.id;
-    });
-    return aggregatorId;
+  const getAggregatorId = (programDetails: AgentProgramDetails[]) => {
+    if (!currentUser || !currentUser.body.aggregator) return null;
+
+    const aggregatorPrograms = currentUser.body.aggregator.aggregatorPrograms;
+
+    if (aggregatorPrograms.length < 1) return null;
+
+    if (programDetails.length < 1) return aggregatorPrograms[0].id;
+
+    const aggregatorProgram = aggregatorPrograms.find((program) => program.programId === programDetails[0].programId);
+
+    if (aggregatorProgram) return aggregatorProgram.id;
+
+    return null;
   };
 
+  function onSuccess() {
+    onClose();
+    reset();
+  }
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
       <ModalOverlay />
-      <ModalContent
-        as="form"
-        onSubmit={handleSubmit(onSubmit)}
-        maxH="calc(100% - 3rem)"
-        maxW="42.375rem"
-        borderRadius="12px"
-      >
+      <ModalContent as="form" onSubmit={handleSubmit(onSubmit)} maxW="42.375rem" borderRadius="12px">
         <ModalHeader>
           <Text variant="Body1Semibold">Add New Agent</Text>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody overflowY="auto">
+        <ModalBody>
           <Stack spacing="5">
-            <FormControl isInvalid={!!errors.firstName}>
+            <FormControl isInvalid={!!errors.firstName} isRequired>
               <FormLabel htmlFor="firstName">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   First Name
@@ -155,7 +152,7 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="firstName" variant="primary" {...register('firstName')} />
               <FormErrorMessage>{errors.firstName && errors.firstName.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.lastName}>
+            <FormControl isInvalid={!!errors.lastName} isRequired>
               <FormLabel htmlFor="lastName">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Last Name
@@ -164,95 +161,7 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="lastName" variant="primary" {...register('lastName')} />
               <FormErrorMessage>{errors.lastName && errors.lastName.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.programId}>
-              <FormLabel htmlFor="programId">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Assign Program
-                </Text>
-              </FormLabel>
-              <Controller
-                control={control}
-                name="programId"
-                render={({ field: { name, onBlur, onChange, value, disabled } }) => (
-                  <Dropdown
-                    id="programId"
-                    variant="whiteDropdown"
-                    placeholder="Select program"
-                    name={name}
-                    options={programOptions}
-                    value={programOptions?.find((option) => option.value === value)}
-                    onChange={(value) => value && onChange(value.value)}
-                    onBlur={onBlur}
-                    isDisabled={disabled}
-                  />
-                )}
-              />
-              <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.lgaId}>
-              <FormLabel htmlFor="lgaId">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Local Government Area to Enumerate
-                </Text>
-              </FormLabel>
-              <Controller
-                control={control}
-                name="lgaId"
-                render={({ field: { name, onBlur, onChange, value, disabled } }) => (
-                  <Dropdown
-                    id="lgaId"
-                    variant="whiteDropdown"
-                    placeholder="Select LGA"
-                    name={name}
-                    options={stateOptions}
-                    value={currentLGA(value)}
-                    onChange={(selected) => selected && onChange(selected.value)}
-                    onBlur={onBlur}
-                    isDisabled={disabled}
-                  />
-                )}
-              />
-              <FormErrorMessage>{errors.lgaId && errors.lgaId.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.objective}>
-              <FormLabel htmlFor="objective">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Set Objective
-                </Text>
-              </FormLabel>
-              <Input id="objective" variant="primary" type="number" placeholder="300" {...register('objective')} />
-              <FormErrorMessage>{errors.objective && errors.objective.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.activationTime}>
-              <FormLabel htmlFor="activationTime">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Schedule Activation
-                </Text>
-              </FormLabel>
-              <SimpleGrid columns={2} alignItems="center" spacing="4">
-                <Controller
-                  control={control}
-                  name="interval"
-                  defaultValue="daily"
-                  render={({ field: { name, onBlur, onChange, value, disabled } }) => (
-                    <Dropdown
-                      id="interval"
-                      variant="whiteDropdown"
-                      placeholder="Select program"
-                      name={name}
-                      options={INTERVALS}
-                      value={INTERVALS?.find((option) => option.value === value)}
-                      onChange={(value) => value && onChange(value.value)}
-                      onBlur={onBlur}
-                      isDisabled={disabled}
-                    />
-                  )}
-                />
-                <Input id="activationTime" variant="primary" type="time" {...register('activationTime')} />
-              </SimpleGrid>
-              <FormErrorMessage>{errors.activationTime && errors.activationTime.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.email}>
+            <FormControl isInvalid={!!errors.email} isRequired>
               <FormLabel htmlFor="email">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Email
@@ -261,36 +170,126 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="email" type="email" variant="primary" {...register('email')} />
               <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.dob}>
-              <FormLabel htmlFor="dob">
+            <FormControl isInvalid={!!errors.phoneNumber} isRequired>
+              <FormLabel htmlFor="phoneNumber">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Date of birth
+                  Phone number
                 </Text>
               </FormLabel>
-              <Input id="dob" type="date" variant="primary" {...register('dob')} />
-              <FormErrorMessage>{errors.dob && errors.dob.message}</FormErrorMessage>
+              <InputGroup>
+                <InputLeftAddon>+234</InputLeftAddon>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="e.g. 8012345678"
+                  variant="primary"
+                  {...register('phoneNumber')}
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.password}>
-              <FormLabel htmlFor="password">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Password
-                </Text>
-              </FormLabel>
-              <Input id="password" type="password" variant="primary" {...register('password')} />
-              <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.confirmPassword}>
-              <FormLabel htmlFor="confirmPassword">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Confirm Password
-                </Text>
-              </FormLabel>
-              <Input id="confirmPassword" type="password" variant="primary" {...register('confirmPassword')} />
-              <FormErrorMessage>{errors.confirmPassword && errors.confirmPassword.message}</FormErrorMessage>
-            </FormControl>
+            {fields.map((field, index) => (
+              <Fragment key={field.id}>
+                <FormControl isInvalid={!!errors.programDetails?.[index]?.programId}>
+                  <Flex align="center" justify="space-between">
+                    <FormLabel htmlFor={`programId-${field.id}`}>
+                      <Text as="span" variant="Body2Semibold" color="grey.500">
+                        {index === 0 ? 'Assign' : 'Additional'} Program
+                      </Text>
+                    </FormLabel>
+                    <Button
+                      type="button"
+                      variant="link"
+                      fontWeight="500"
+                      fontSize="0.8125rem"
+                      color="red"
+                      onClick={() => remove(index)}
+                    >
+                      Remove Program
+                    </Button>
+                  </Flex>
+                  <Controller
+                    control={control}
+                    name={`programDetails.${index}.programId`}
+                    render={({ field: { name, onBlur, onChange, value, disabled } }) => (
+                      <Dropdown
+                        id={`programId-${field.id}`}
+                        variant="whiteDropdown"
+                        placeholder="Select program"
+                        name={name}
+                        options={programOptions}
+                        value={programOptions?.find((option) => option.value === value)}
+                        onChange={(value) => value && onChange(value.value)}
+                        onBlur={onBlur}
+                        isDisabled={disabled}
+                      />
+                    )}
+                  />
+                  <FormErrorMessage>
+                    {errors.programDetails?.[index]?.programId && errors.programDetails?.[index]?.programId.message}
+                  </FormErrorMessage>
+                </FormControl>
+                <FormControl isInvalid={!!errors.programDetails?.[index]?.lgaId}>
+                  <FormLabel htmlFor={`lgaId-${field.id}`}>
+                    <Text as="span" variant="Body2Semibold" color="grey.500">
+                      Local Government Area to Enumerate
+                    </Text>
+                  </FormLabel>
+                  <Controller
+                    control={control}
+                    name={`programDetails.${index}.lgaId`}
+                    render={({ field: { name, onBlur, onChange, value, disabled } }) => (
+                      <Dropdown
+                        id={`lgaId-${field.id}`}
+                        variant="whiteDropdown"
+                        placeholder="Select LGA"
+                        name={name}
+                        options={stateOptions}
+                        value={currentLGA(value)}
+                        onChange={(selected) => selected && onChange(selected.value)}
+                        onBlur={onBlur}
+                        isDisabled={disabled}
+                      />
+                    )}
+                  />
+                  <FormErrorMessage>
+                    {errors.programDetails?.[index]?.lgaId && errors.programDetails?.[index]?.lgaId.message}
+                  </FormErrorMessage>
+                </FormControl>
+                <FormControl isInvalid={!!errors.programDetails?.[index]?.objective}>
+                  <FormLabel htmlFor={`objective-${field.id}`}>
+                    <Text as="span" variant="Body2Semibold" color="grey.500">
+                      Set Objective
+                    </Text>
+                  </FormLabel>
+                  <Input
+                    id={`objective-${field.id}`}
+                    variant="primary"
+                    type="number"
+                    placeholder="300"
+                    {...register(`programDetails.${index}.objective`)}
+                  />
+                  <FormErrorMessage>
+                    {errors.programDetails?.[index]?.objective && errors.programDetails?.[index]?.objective.message}
+                  </FormErrorMessage>
+                </FormControl>
+              </Fragment>
+            ))}
+            <Button
+              type="button"
+              variant="link"
+              fontWeight="500"
+              fontSize="0.8125rem"
+              color="grey.500"
+              display="inline-block"
+              ml="auto"
+              onClick={() => append({ programId: '', objective: 0, lgaId: 0 })}
+            >
+              {fields.length < 1 ? 'Assign Program' : 'Add Additional Program'}
+            </Button>
           </Stack>
         </ModalBody>
-        <ModalFooter display="flex" justifyContent="center">
+        <ModalFooter display="flex" justifyContent="center" mt="3rem">
           <Button
             type="submit"
             variant="primary"

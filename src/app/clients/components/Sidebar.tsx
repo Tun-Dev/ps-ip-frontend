@@ -1,11 +1,9 @@
 'use client';
 
-import { Button, Flex, Image, Text } from '@chakra-ui/react';
-import { MdGroups, MdHome, MdLocalShipping, MdLogout, MdNoteAlt, MdPerson, MdViewCarousel } from 'react-icons/md';
-import { usePathname } from 'next/navigation';
-import NotificationModal from '@/shared/chakra/modals/notificationModal';
-import { useState } from 'react';
 import { NotificationButton, SideBarItem } from '@/shared/chakra/components';
+import { Button, Flex, Image, Text } from '@chakra-ui/react';
+import { usePathname } from 'next/navigation';
+import { MdGroups, MdHome, MdLocalShipping, MdLogout, MdNoteAlt, MdPerson, MdViewCarousel } from 'react-icons/md';
 
 const sideBarData = [
   { name: 'Dashboard', Icon: MdHome, url: '/clients' },
@@ -17,12 +15,9 @@ const sideBarData = [
 
 const Sidebar = () => {
   const pathname = usePathname();
-  const [isNotfModalOpen, setIsNoftModalOpen] = useState(false);
   return (
     <Flex w="full" flexDir="column">
-      <NotificationModal isOpen={isNotfModalOpen} onClose={() => setIsNoftModalOpen((prev) => !prev)} />
       <Image src="/images/boi-white.png" alt="" h="52px" w="197px" />
-
       <Flex flex="1 1 0%" mt="44px" flexDirection="column" gap="10px">
         {sideBarData.map((item, index) => (
           <SideBarItem

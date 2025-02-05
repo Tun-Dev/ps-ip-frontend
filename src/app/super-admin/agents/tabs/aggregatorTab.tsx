@@ -4,14 +4,14 @@ import {
   Button,
   Flex,
   Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Select,
   Text,
   useDisclosure,
@@ -23,7 +23,7 @@ import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { ReusableTable } from '@/shared';
+import { AggregatorDetailsModal, ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { EditAggregatorModal } from '@/shared/chakra/modals/EditAggregatorModal';
 import type { Aggregator } from '@/types';
@@ -38,11 +38,14 @@ const AggregatorTab = () => {
   const [agent, setAgent] = useState('');
   const [minAgent, maxAgent] = agent.split('-');
 
+  const [aggregatorsDetails, setAggregatorsDetails] = useState<Aggregator | null>(null);
+
   const [selectedAggregator, setSelectedAggregator] = useState<Aggregator>();
 
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 10 });
 
   const { onClose, onOpen, isOpen } = useDisclosure();
+  const { onClose: onCloseDetails, onOpen: onOpenDetails, isOpen: isOpenDetails } = useDisclosure();
 
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } = useGetAggregators({
     page,
@@ -54,6 +57,8 @@ const AggregatorTab = () => {
   });
   const aggregators = useMemo(() => data?.body.data ?? [], [data]);
   const totalPages = data?.body.totalPages ?? 1;
+
+  console.log('aggregators', aggregators);
 
   const resetFilters = () => {
     setPage(1);
@@ -68,8 +73,18 @@ const AggregatorTab = () => {
       accessorKey: 'name',
     },
     {
-      header: 'Program',
-      accessorKey: 'programName',
+      header: () => (
+        <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+          Program
+        </Text>
+      ),
+      accessorKey: 'programCount',
+      enableSorting: false,
+      cell: (props) => (
+        <Text variant="Body2Regular" textAlign="center">
+          {props.row.original.programCount}
+        </Text>
+      ),
     },
     {
       header: () => (
@@ -77,11 +92,11 @@ const AggregatorTab = () => {
           Agents
         </Text>
       ),
-      accessorKey: 'noOfAgents',
+      accessorKey: 'totalAgents',
       enableSorting: false,
       cell: (props) => (
         <Text variant="Body2Regular" textAlign="center">
-          {props.row.original.noOfAgents}
+          {props.row.original.totalAgents}
         </Text>
       ),
     },
@@ -94,43 +109,41 @@ const AggregatorTab = () => {
       id: 'actions',
       enableSorting: false,
       cell: (info) => (
-        <Flex>
-          <Popover placement="bottom-end">
-            <PopoverTrigger>
-              <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                <MdMoreHoriz size="1.25rem" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent w="fit-content" minW="121px" p="8px">
-              <PopoverArrow />
-              <PopoverBody p="0">
-                <Flex flexDir="column">
-                  <Button
-                    w="100%"
-                    bg="transparent"
-                    size="small"
-                    p="0"
-                    fontSize="13px"
-                    fontWeight="400"
-                    px="4px"
-                    onClick={() => {
-                      onOpen();
-                      setSelectedAggregator(info.row.original);
-                    }}
-                  >
-                    Reassign Aggregator
-                  </Button>
-                  {/* <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400" px="4px">
-                    Deactivate Aggregator
-                  </Button> */}
-                </Flex>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </Flex>
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            variant="ghost"
+            aria-label="Actions"
+            icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+            minW="0"
+            h="auto"
+            mx="auto"
+            display="flex"
+            p="1"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <MenuList>
+            <MenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpen();
+                setSelectedAggregator(info.row.original);
+              }}
+            >
+              <Text as="span" variant="Body2Regular" w="full">
+                Reassign Aggregator
+              </Text>
+            </MenuItem>
+          </MenuList>
+        </Menu>
       ),
     },
   ];
+
+  const openAggregatorDetailsModal = (aggregator: Aggregator) => {
+    setAggregatorsDetails(aggregator);
+    onOpenDetails();
+  };
 
   return (
     <Flex
@@ -207,8 +220,8 @@ const AggregatorTab = () => {
         <ReusableTable
           selectable
           data={aggregators}
+          onClick={openAggregatorDetailsModal}
           columns={columns}
-          headerBgColor="#F3F9F2"
           isLoading={isLoading || isRefetching}
           isError={isError || isRefetchError}
           onRefresh={refetch}
@@ -225,6 +238,9 @@ const AggregatorTab = () => {
           display={totalPages > 1 ? 'flex' : 'none'}
         />
       </>
+      {aggregatorsDetails && (
+        <AggregatorDetailsModal isOpen={isOpenDetails} onClose={onCloseDetails} aggregator={aggregatorsDetails} />
+      )}
     </Flex>
   );
 };

@@ -6,7 +6,7 @@ import { Flex, Spinner } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { ComponentType, useEffect, useState } from 'react';
 
-type Role = 'Super Admin' | 'Program Administrator' | 'Aggregator' | 'Agent' | 'Partner';
+type Role = 'Super Admin' | 'Program Administrator' | 'Aggregator' | 'Agent' | 'Partner' | 'Vendor';
 
 export const withProtectedLoader = <P extends object>(Component: ComponentType<P>, role: Role) => {
   const WrappedComponent = (props: P) => {

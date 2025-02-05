@@ -65,7 +65,6 @@ const EmptyState = () => (
       <Image src="/icons/Blank.svg" alt="" />
     </Flex>
     <Text variant="Body2Semibold">No Programs Available.</Text>
-    <Text variant="Body2Semibold">Please create a new program.</Text>
   </Grid>
 );
 

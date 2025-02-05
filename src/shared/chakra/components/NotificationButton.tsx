@@ -1,27 +1,20 @@
 'use client';
 
 import { Flex, Text } from '@chakra-ui/react';
-import React from 'react';
+import Link from 'next/link';
 import { MdNotifications } from 'react-icons/md';
-import { useRouter } from 'next/navigation';
 
 const NotificationButton = ({ count, url, active }: { count: number; url: string; active?: boolean }) => {
-  const router = useRouter();
   return (
     <Flex
+      as={Link}
+      href={url}
       alignItems="center"
       justifyContent="space-between"
       cursor="pointer"
       h="36px"
       p="8px"
       borderRadius="6px"
-      onClick={(e) => {
-        if (e.ctrlKey || e.metaKey) {
-          window.open(url, '_blank');
-        } else {
-          router.push(url);
-        }
-      }}
       bg={active ? 'secondary.500' : ''}
       transition="all 0.3s ease-in-out"
     >

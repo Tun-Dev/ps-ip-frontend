@@ -20,7 +20,7 @@ export const SettingsReview = ({ module }: Props) => {
         Admin Settings
       </Text>
       <Stack spacing="4" align="start">
-        {module.ModuleGuidelines.map((guideline) => (
+        {module.moduleGuidelines.map((guideline) => (
           <Text
             key={guideline.id}
             display="inline-flex"

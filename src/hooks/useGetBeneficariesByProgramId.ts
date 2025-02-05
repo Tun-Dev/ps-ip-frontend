@@ -12,6 +12,6 @@ export const useGetBeneficiariesById = (params: Params, programId: string, modul
   return useQuery({
     queryKey: ['beneficiaries', programId, moduleId, params],
     queryFn: getBeneficiaries,
-    enabled: !!programId && !!moduleId,
+    enabled: !!programId && !!parseInt(moduleId),
   });
 };

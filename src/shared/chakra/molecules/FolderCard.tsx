@@ -1,16 +1,4 @@
-import {
-  Button,
-  Flex,
-  FlexProps,
-  Icon,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Flex, FlexProps, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Text } from '@chakra-ui/react';
 import { MdFolder, MdMoreVert } from 'react-icons/md';
 
 type FolderCardProps = {
@@ -22,8 +10,6 @@ type FolderCardProps = {
 } & FlexProps;
 
 const FolderCard = ({ name, count, onDelete, onAdd, onEdit, ...rest }: FolderCardProps) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
   return (
     <Flex p="16px" borderRadius="16px" bg="primary.100" flexDir="column" gap="12px" cursor="pointer" {...rest}>
       <Flex justifyContent="space-between">
@@ -38,61 +24,57 @@ const FolderCard = ({ name, count, onDelete, onAdd, onEdit, ...rest }: FolderCar
           <Icon as={MdFolder} color="primary.500" boxSize="48px" />
         </Flex>
         {(onEdit || onDelete || onAdd) && (
-          <Flex boxSize="24px" cursor="pointer" onClick={(e) => e.stopPropagation()}>
-            <Popover placement="bottom-end" isOpen={isOpen} onClose={onClose}>
-              <PopoverTrigger>
-                <Button margin="0 auto" bg="transparent" boxSize="24px" minW={0} h="auto" p="0" onClick={onOpen}>
-                  <Icon as={MdMoreVert} color="primary.500" boxSize="100%" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent w="129px" p="8px">
-                <PopoverArrow />
-                <PopoverBody p="0">
-                  <Flex flexDir="column">
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      p="0"
-                      fontSize="13px"
-                      fontWeight="400"
-                      onClick={onAdd}
-                    >
-                      Add New Program
-                    </Button>
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      p="0"
-                      fontSize="13px"
-                      fontWeight="400"
-                      onClick={() => {
-                        onDelete?.();
-                        onClose();
-                      }}
-                    >
-                      Delete Folder
-                    </Button>
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      p="0"
-                      fontSize="13px"
-                      fontWeight="400"
-                      onClick={() => {
-                        onEdit?.();
-                        onClose();
-                      }}
-                    >
-                      Edit Name
-                    </Button>
-                  </Flex>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </Flex>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              _hover={{ bgColor: 'primary.200' }}
+              aria-label="Actions"
+              icon={<Icon as={MdMoreVert} boxSize="1.5rem" color="primary.500" />}
+              minW="0"
+              h="fit-content"
+              p="0"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <MenuList>
+              {!!onAdd && (
+                <MenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAdd();
+                  }}
+                >
+                  <Text as="span" variant="Body2Regular" w="full">
+                    Add New Program
+                  </Text>
+                </MenuItem>
+              )}
+              {!!onDelete && (
+                <MenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                >
+                  <Text as="span" variant="Body2Regular" w="full">
+                    Delete Folder
+                  </Text>
+                </MenuItem>
+              )}
+              {!!onEdit && (
+                <MenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                >
+                  <Text as="span" variant="Body2Regular" w="full">
+                    Edit Name
+                  </Text>
+                </MenuItem>
+              )}
+            </MenuList>
+          </Menu>
         )}
       </Flex>
       <Flex flexDir="column" gap="6px">

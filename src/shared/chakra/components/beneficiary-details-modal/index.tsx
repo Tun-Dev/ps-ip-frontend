@@ -54,7 +54,7 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary }: BeneficiaryDe
   }, [beneficiary.moduleName, beneficiaryDetails, isOpen]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent p="0" maxW="57.5rem">
         <ModalHeader p="0" mb="6">

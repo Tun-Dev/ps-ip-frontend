@@ -5,14 +5,15 @@ import {
   Button,
   ButtonGroup,
   Flex,
+  Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Text,
   useDisclosure,
   useToast,
@@ -57,8 +58,6 @@ const VerificationPage = () => {
   const isProgramCompleted =
     response?.body?.programModules?.find((module) => module.module === 'Verification')?.isCompleted ?? true;
 
-  console.log(programModuleId);
-
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
     useGetBeneficiariesById({ page: page, pageSize: 10 }, programID?.toLocaleString(), '5');
 
@@ -88,7 +87,6 @@ const VerificationPage = () => {
   };
 
   const uploadData = () => {
-    console.log(programModuleId);
     uploadProgram(programModuleId.toString(), {
       onSuccess: () => {
         toast({ title: 'Data uploaded successfully', status: 'success' });
@@ -137,52 +135,48 @@ const VerificationPage = () => {
             Denied
           </Text>
         ) : (
-          <Flex h="full" onClick={(e) => e.stopPropagation()}>
-            <Popover placement="bottom-end">
-              <PopoverTrigger>
-                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                  <MdMoreHoriz size="1.25rem" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent w="121px" p="8px">
-                <PopoverArrow />
-                <PopoverBody p="0">
-                  <Flex flexDir="column">
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      p="0"
-                      fontSize="13px"
-                      fontWeight="400"
-                      onClick={() => onApprove({ status: 'Approved', id: info.row.original.id })}
-                    >
-                      Approve
-                    </Button>
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      p="0"
-                      fontSize="13px"
-                      fontWeight="400"
-                      onClick={() => onApprove({ status: 'Disapproved', id: info.row.original.id })}
-                    >
-                      Deny
-                    </Button>
-                  </Flex>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </Flex>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              aria-label="Actions"
+              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              minW="0"
+              h="auto"
+              mx="auto"
+              display="flex"
+              p="1"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <MenuList>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onApprove({ status: 'Approved', id: info.row.original.id });
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Approve
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onApprove({ status: 'Disapproved', id: info.row.original.id });
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Deny
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
         ),
       enableSorting: false, // Enable sorting for status
     };
 
     return [...otherColumns, statusColumn];
   }, [tableData]);
-
-  console.log(tableData);
 
   const openBeneficiaryModal = (beneficiary: Beneficiary) => {
     setBeneficiary(beneficiary);

@@ -4,14 +4,15 @@ import {
   Button,
   ButtonGroup,
   Flex,
+  Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Text,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
@@ -276,31 +277,32 @@ const columns: ColumnDef<(typeof data)[number]>[] = [
           Nominated
         </Text>
       ) : (
-        // <Button variant="accept" size="small">
-        //   Nominate
-        // </Button>
-        <Flex h="full" onClick={(e) => e.stopPropagation()}>
-          <Popover placement="bottom-end">
-            <PopoverTrigger>
-              <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                <MdMoreHoriz size="1.25rem" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent w="121px" p="8px">
-              <PopoverArrow />
-              <PopoverBody p="0">
-                <Flex flexDir="column">
-                  <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
-                    Approve
-                  </Button>
-                  <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
-                    Deny
-                  </Button>
-                </Flex>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </Flex>
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            variant="ghost"
+            aria-label="Actions"
+            icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+            minW="0"
+            h="auto"
+            mx="auto"
+            display="flex"
+            p="1"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <MenuList>
+            <MenuItem>
+              <Text as="span" variant="Body2Regular" w="full">
+                Approve
+              </Text>
+            </MenuItem>
+            <MenuItem>
+              <Text as="span" variant="Body2Regular" w="full">
+                Deny
+              </Text>
+            </MenuItem>
+          </MenuList>
+        </Menu>
       ),
   },
 ];

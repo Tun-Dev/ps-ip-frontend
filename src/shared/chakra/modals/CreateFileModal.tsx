@@ -1,25 +1,24 @@
+import { useCreateGroup } from '@/hooks/useCreateGroup';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  Flex,
-  Input,
-  ModalFooter,
   Button,
-  Text,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
   useToast,
 } from '@chakra-ui/react';
-import React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useCreateGroup } from '@/hooks/useCreateGroup';
 
 type ModalProps = {
   isOpen: boolean;
@@ -43,7 +42,6 @@ const CreateFileModal = ({ isOpen, onClose }: ModalProps) => {
   } = useForm<FormValues>({ resolver: zodResolver(Schema) });
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
     const payload = {
       name: data.name,
     };
@@ -59,7 +57,7 @@ const CreateFileModal = ({ isOpen, onClose }: ModalProps) => {
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
         <ModalOverlay />
         <ModalContent as="form" width="498px" height="756px" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>

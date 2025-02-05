@@ -1,18 +1,26 @@
 'use client';
 
+import { useDeletePartner } from '@/hooks/useDeletePartner';
+import { useGetPartners } from '@/hooks/useGetPartners';
+import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { OverviewCard } from '@/shared/chakra/components/overview';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { AddNewPartnerModal, DeleteModal } from '@/shared/chakra/modals';
+import { ReusableTable } from '@/shared/chakra/organisms';
+import { Partner } from '@/types';
 import {
   Box,
   Button,
   Flex,
   Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Select,
   Text,
   useDisclosure,
@@ -21,14 +29,6 @@ import {
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { MdAddCircle, MdDownload, MdMoreHoriz, MdSearch, MdVolunteerActivism } from 'react-icons/md';
-import { OverviewCard } from '@/shared/chakra/components/overview';
-import { useGetPartners } from '@/hooks/useGetPartners';
-import { useDeletePartner } from '@/hooks/useDeletePartner';
-import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { Partner } from '@/types';
-import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { AddNewPartnerModal, DeleteModal } from '@/shared/chakra/modals';
-import { ReusableTable } from '@/shared/chakra/organisms';
 
 const PartnerTab = () => {
   const toast = useToast();
@@ -98,34 +98,34 @@ const PartnerTab = () => {
         accessorKey: 'deactivate',
         enableSorting: false,
         cell: (info) => (
-          <Flex>
-            <Popover placement="bottom-end">
-              <PopoverTrigger>
-                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                  <MdMoreHoriz size="1.25rem" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent w="fit-content">
-                <PopoverArrow />
-                <PopoverBody>
-                  <Flex flexDir="column">
-                    <Button
-                      w="100%"
-                      bg="transparent"
-                      size="small"
-                      isLoading={isPending}
-                      onClick={() => {
-                        setSelectedPartner(info.row.original.id.toString());
-                        onDeleteOpen();
-                      }}
-                    >
-                      Delete Partner
-                    </Button>
-                  </Flex>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </Flex>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              aria-label="Actions"
+              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              minW="0"
+              h="auto"
+              mx="auto"
+              display="flex"
+              p="1"
+              onClick={(e) => e.stopPropagation()}
+              isLoading={isPending}
+            />
+            <MenuList>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedPartner(info.row.original.id.toString());
+                  onDeleteOpen();
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Delete Partner
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
         ),
       },
     ],

@@ -7,7 +7,6 @@ type Props = {
 };
 
 export const CheckboxFormReview = ({ dataPoints }: Props) => {
-  console.log(dataPoints);
   return (
     <Stack>
       <Text as="h3" variant="Body2Semibold">

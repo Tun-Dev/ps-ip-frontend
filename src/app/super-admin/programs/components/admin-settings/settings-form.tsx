@@ -51,7 +51,7 @@ export const SettingsForm = memo(({ moduleId }: Props) => {
     <Stack>
       <CheckboxGroup>
         <Stack spacing="5" align="start">
-          {currentModule?.ModuleGuidelines.map((guideline) => (
+          {currentModule?.moduleGuidelines.map((guideline) => (
             <Checkbox
               key={guideline.id}
               isChecked={checkedGuidelines.includes(guideline.id)}

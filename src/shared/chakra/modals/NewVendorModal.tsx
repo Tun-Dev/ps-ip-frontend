@@ -50,38 +50,30 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
     reset();
   });
 
-  const Schema = z
-    .object({
-      name: z.string().min(1, 'Name is required'),
-      programId: z.string().min(1, 'Program is required'),
-      amount: z.coerce.number().min(0, 'Amount is required'),
-      numberOfBeneficiaries: z.coerce.number().min(0, 'Number of Beneficiaries is required'),
-      product: z.string().optional(),
-      service: z.string().min(1, 'Services is required'),
-      scheduledDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-        message: 'Scheduled date must be a valid ISO string',
-      }),
-      endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-        message: 'End date must be a valid ISO string',
-      }),
+  const Schema = z.object({
+    name: z.string().min(1, 'Name is required'),
+    programId: z.string().min(1, 'Program is required'),
+    amount: z.coerce.number().min(0, 'Amount is required'),
+    numberOfBeneficiaries: z.coerce.number().min(0, 'Number of Beneficiaries is required'),
+    product: z.string().optional(),
+    service: z.string().min(1, 'Services is required'),
+    scheduledDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+      message: 'Scheduled date must be a valid ISO string',
+    }),
+    endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+      message: 'End date must be a valid ISO string',
+    }),
 
-      firstname: z.string().min(1, 'First name is required'),
-      lastname: z.string().min(1, 'Last name is required'),
-      // corporateEmail: z.string().min(1, 'Corporate Email is required'),
-      email: z.string().min(1, 'Email is required'),
-      contactEmail: z.string().min(1, 'Contact Email is required'),
-      password: z.string().min(1, 'Password is required'),
-      confirmPassword: z.string().min(1, 'Confirm password is required'),
-      contactPhone: z
-        .string()
-        .nonempty('Phone number is required')
-        // Accept only 10 digits, not starting with 0
-        .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits and cannot start with 0'),
-    })
-    .refine((value) => value.password === value.confirmPassword, {
-      message: "Passwords don't match",
-      path: ['confirmPassword'],
-    });
+    firstname: z.string().min(1, 'First name is required'),
+    lastname: z.string().min(1, 'Last name is required'),
+    email: z.string().min(1, 'Email is required').email('Invalid email'),
+    contactEmail: z.string().min(1, 'Contact Email is required').email('Invalid email'),
+    contactPhone: z
+      .string()
+      .nonempty('Phone number is required')
+      // Accept only 10 digits, not starting with 0
+      .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits and cannot start with 0'),
+  });
 
   type FormValues = z.infer<typeof Schema>;
 
@@ -103,11 +95,9 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
       endDate: data.endDate,
       numberOfBeneficiaries: data.numberOfBeneficiaries,
       programId: data.programId,
-      contactEmail: data.email,
+      contactEmail: data.contactEmail,
       contactPhone: data.contactPhone,
       user: {
-        password: data.password,
-        confirmPassword: data.confirmPassword,
         email: data.email,
         firstname: data.firstname,
         lastname: data.lastname,
@@ -117,20 +107,14 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
       <ModalOverlay />
-      <ModalContent
-        as="form"
-        width="498px"
-        borderRadius="12px"
-        onSubmit={handleSubmit(onSubmit)}
-        maxH="calc(100vh - 10rem)"
-      >
+      <ModalContent as="form" width="498px" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
         <ModalHeader>
           <Text variant="Body1Semibold">Add New Vendor</Text>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody overflowY="auto">
+        <ModalBody>
           <Flex direction="column" gap={3}>
             <FormControl isInvalid={!!errors.name}>
               <FormLabel htmlFor="name">
@@ -293,24 +277,6 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
               </FormLabel>
               <Input id="email" type="email" variant="primary" {...register('email')} />
               <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.password}>
-              <FormLabel htmlFor="password">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Password
-                </Text>
-              </FormLabel>
-              <Input id="password" type="password" variant="primary" {...register('password')} />
-              <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.confirmPassword}>
-              <FormLabel htmlFor="confirmPassword">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Confirm Password
-                </Text>
-              </FormLabel>
-              <Input id="confirmPassword" type="password" variant="primary" {...register('confirmPassword')} />
-              <FormErrorMessage>{errors.confirmPassword && errors.confirmPassword.message}</FormErrorMessage>
             </FormControl>
 
             <Divider orientation="horizontal" />

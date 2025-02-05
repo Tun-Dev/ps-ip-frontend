@@ -6,6 +6,7 @@ import {
   Button,
   Flex,
   Grid,
+  Image,
   SimpleGrid,
   SkeletonCircle,
   SkeletonText,
@@ -14,7 +15,6 @@ import {
   useClipboard,
   useDisclosure,
   useToast,
-  Image,
 } from '@chakra-ui/react';
 import { AnimatePresence, motion, type Transition } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
@@ -26,18 +26,16 @@ import { useDeleteProgram } from '@/hooks/useDeleteProgram';
 import { DeleteModal } from '@/shared';
 import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
 // import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { Program, ProgramModules } from '@/types';
 import { useGetGroupById } from '@/hooks/useGetGroupById';
+import { Program, ProgramModules } from '@/types';
 
 const ProgramsPage = () => {
   const [selectedId, setSelectedId] = useState('');
   // const [page, setPage] = useState(1);
   const { folderID } = useParams();
-  console.log(folderID);
 
   // const { data: programs, isLoading, isPlaceholderData } = useGetPrograms({ page, pageSize: 10 });
   const { response, isLoading } = useGetGroupById(folderID.toString());
-  console.log(response);
 
   const programCount = response?.body.programs.length ?? 0;
   const programList = response?.body.programs ?? [];
@@ -124,7 +122,6 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
   const router = useRouter();
   const { onCopy } = useClipboard(`${window.origin}/beneficiary/${program?.id}`);
   const { folderID } = useParams();
-  console.log(folderID);
 
   const { mutate: deleteProgram, isPending } = useDeleteProgram();
 
@@ -133,7 +130,6 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
   };
 
   const handleDelete = () => {
-    console.log(program.id);
     deleteProgram(program.id, {
       onSuccess: () => {
         toast({ title: 'Program deleted successfully', status: 'success' });

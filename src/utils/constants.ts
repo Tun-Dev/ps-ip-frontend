@@ -22,7 +22,7 @@ export const ALL_MODULES: Module[] = [
       updatedAt: `${new Date()}`,
       id: '6749aae926f5db219859ef22',
     },
-    ModuleGuidelines: [],
+    moduleGuidelines: [],
     formId: '6749aae926f5db219859ef22',
     module: 'Nomination',
     name: 'Nomination',
@@ -38,7 +38,7 @@ export const ALL_MODULES: Module[] = [
       updatedAt: `${new Date()}`,
       id: '6749aaec26f5db219859ef2d',
     },
-    ModuleGuidelines: [
+    moduleGuidelines: [
       {
         id: 131,
         name: 'Allow manual vetting',
@@ -61,7 +61,7 @@ export const ALL_MODULES: Module[] = [
       updatedAt: `${new Date()}`,
       id: '6749aaed26f5db219859ef34',
     },
-    ModuleGuidelines: [
+    moduleGuidelines: [
       {
         id: 137,
         name: 'Allow beneficiaries enjoy multiple disbursement',
@@ -96,7 +96,7 @@ export const ALL_MODULES: Module[] = [
       updatedAt: `${new Date()}`,
       id: '6749aaec26f5db219859ef2d',
     },
-    ModuleGuidelines: [
+    moduleGuidelines: [
       {
         id: 136,
         name: 'Allow manual whitelisting',
@@ -119,7 +119,7 @@ export const ALL_MODULES: Module[] = [
       updatedAt: `${new Date()}`,
       id: '6749aaef26f5db219859ef3d',
     },
-    ModuleGuidelines: [],
+    moduleGuidelines: [],
     formId: '6749aaef26f5db219859ef3d',
     module: 'Survey',
     name: 'Survey',
@@ -135,7 +135,7 @@ export const ALL_MODULES: Module[] = [
       updatedAt: `${new Date()}`,
       id: '675a20e0464c70d54d04ed17',
     },
-    ModuleGuidelines: [
+    moduleGuidelines: [
       {
         id: 126,
         name: 'Allow multiple responses by one beneficiary',
@@ -176,7 +176,7 @@ export const ALL_MODULES: Module[] = [
       updatedAt: `${new Date()}`,
       id: '675a20e1464c70d54d04ed1c',
     },
-    ModuleGuidelines: [
+    moduleGuidelines: [
       {
         id: 133,
         name: 'Agent assisted enumeration',

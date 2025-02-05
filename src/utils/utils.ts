@@ -129,7 +129,7 @@ export const getDashboardRoute = (user: User | null) => {
   switch (user.roles[0]) {
     case 'Super Admin':
       return '/super-admin';
-    case 'Program Administrator':
+    case 'Vendor':
       return '/vendors';
     case 'Aggregator':
       return '/aggregators';

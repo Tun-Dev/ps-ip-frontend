@@ -38,7 +38,7 @@ export function ModulesList() {
 
   const isDisabled = (module: Module) =>
     (step === 3 && !EDITABLE_MODULES.includes(module.module)) ||
-    (step === 4 && module.ModuleGuidelines.length < 1) ||
+    (step === 4 && module.moduleGuidelines.length < 1) ||
     (step === 4 && module.module === 'Vetting');
 
   return (

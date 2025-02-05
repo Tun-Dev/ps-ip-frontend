@@ -1,16 +1,20 @@
 'use client';
 
-import { Box, Flex, Grid, Icon, SimpleGrid, Skeleton, Text } from '@chakra-ui/react';
+import { Box, Flex, Grid, Icon, SimpleGrid, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { MdGroups, MdOpenInNew, MdRefresh, MdViewCarousel, MdViewList } from 'react-icons/md';
 
 import { useGetAggregatorDashboard } from '@/hooks/useGetAggregatorDashboard';
 import { NotificationCard, ReusableTable } from '@/shared';
+import { ActivityTableSkeleton } from '@/shared/chakra/components/activity-table-skeleton';
+import { NotificationCardSkeleton } from '@/shared/chakra/components/notification-card-skeleton';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import type { AggregatorActivity, AggregatorActivityTable } from '@/types';
-import Link from 'next/link';
 
 const AggregatorsDashboard = () => {
+  const router = useRouter();
   const { data, isPending, isError } = useGetAggregatorDashboard();
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%">
@@ -22,14 +26,18 @@ const AggregatorsDashboard = () => {
           <OverviewCard
             minW="unset"
             title="Programs"
-            number={isPending || isError ? '...' : data.body.totalAgents}
+            number={isPending || isError ? '...' : data.body.programCount}
             icon={MdViewCarousel}
+            cursor="pointer"
+            onClick={() => router.push('/aggregators/programs')}
           />
           <OverviewCard
             minW="unset"
             title="Total Agents"
             number={isPending || isError ? '...' : data.body.totalAgents}
             icon={MdGroups}
+            cursor="pointer"
+            onClick={() => router.push('/aggregators/agents')}
           />
           <OverviewCard
             minW="unset"
@@ -83,14 +91,14 @@ const ActivityTable = ({ activity }: { activity: AggregatorActivity }) => {
           {activity.program}
         </Text>
         <Flex justifyContent="flex-end" color="primary.500">
-          <Link href="/aggregators/enumerations">
+          <Link href="/aggregators/programs">
             <Text display="flex" alignItems="center" gap="1" variant="Body3Semibold" color="secondary.500">
               View details <Icon as={MdOpenInNew} />
             </Text>
           </Link>
         </Flex>
       </Flex>
-      <ReusableTable data={activity.activity} columns={columns} headerBgColor="white" p="8px 0px" />
+      <ReusableTable data={activity.activity} columns={columns} p="8px 0px" />
     </Flex>
   );
 };
@@ -153,57 +161,6 @@ const columns: ColumnDef<AggregatorActivityTable>[] = [
     },
   },
 ];
-
-const ActivityTableSkeleton = () => {
-  return (
-    <Flex gap="4px" flexDirection="column" padding="10px" borderRadius="12px" boxShadow="card" bgColor="primary.30">
-      <Flex justifyContent="space-between" alignItems="center" h="5">
-        <Skeleton height="2" width="150px" />
-        <Skeleton height="2" width="100px" />
-      </Flex>
-      <Box mt="4">
-        {Array.from(Array(5).keys()).map((index) => (
-          <SimpleGrid
-            key={index}
-            h="7"
-            gap="4"
-            columns={3}
-            placeItems="center"
-            borderBottom="1px solid"
-            borderColor="gray.100"
-          >
-            <Skeleton h="2" w="full" />
-            <Skeleton h="2" w="full" />
-            <Skeleton h="2" w="full" />
-          </SimpleGrid>
-        ))}
-      </Box>
-    </Flex>
-  );
-};
-
-const NotificationCardSkeleton = () => {
-  return (
-    <Flex
-      flexDir="column"
-      justifyContent="space-between"
-      h="7rem"
-      boxShadow="card"
-      borderRadius="12px"
-      padding="10px 12px"
-      bg="primary.30"
-    >
-      <Flex gap="4">
-        <Skeleton boxSize="8" borderRadius="10px" />
-        <Flex direction="column" gap="2" flex="1">
-          <Skeleton h="2" w="120px" />
-          <Skeleton h="2" w="full" />
-        </Flex>
-      </Flex>
-      <Skeleton h="2" w="60px" ml="auto" />
-    </Flex>
-  );
-};
 
 const NotificationData = [
   {

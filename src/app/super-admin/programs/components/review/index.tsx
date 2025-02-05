@@ -51,10 +51,10 @@ const Review = (props: BoxProps) => {
                 <VettingReview fields={vettingForm.automatedFields} />
               )}
               {dataPoints.length > 0 && <CheckboxFormReview dataPoints={dataPoints} />}
-              {!isVettingModule && correctedModule.ModuleGuidelines.length > 0 && (
+              {!isVettingModule && correctedModule.moduleGuidelines.length > 0 && (
                 <SettingsReview module={correctedModule} />
               )}
-              {!isFormModule && dataPoints.length === 0 && correctedModule.ModuleGuidelines.length === 0 && (
+              {!isFormModule && dataPoints.length === 0 && correctedModule.moduleGuidelines.length === 0 && (
                 <Text variant="Body2Semibold" textAlign="center" color="grey.500">
                   No additional review for this module.
                 </Text>

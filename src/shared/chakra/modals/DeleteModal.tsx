@@ -1,5 +1,4 @@
-import { Modal, ModalOverlay, ModalContent, ModalBody, Flex, Text, Icon, Button } from '@chakra-ui/react';
-import React from 'react';
+import { Button, Flex, Icon, Modal, ModalBody, ModalContent, ModalOverlay, Text } from '@chakra-ui/react';
 import { MdWarning } from 'react-icons/md';
 
 const DeleteModal = ({
@@ -16,7 +15,7 @@ const DeleteModal = ({
   isLoading?: boolean;
 }) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside" isCentered>
       <ModalOverlay />
       <ModalContent maxWidth="606px" borderRadius="12px" padding="0" gap="10px">
         <ModalBody padding="40px 89px">

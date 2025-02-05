@@ -27,7 +27,7 @@ const AdminSettings = (props: StackProps) => {
               </Box>{' '}
               {correctModule?.module}
             </Heading>
-            {!isVettingModule && correctModule.ModuleGuidelines.length > 0 ? (
+            {!isVettingModule && correctModule.moduleGuidelines.length > 0 ? (
               <SettingsForm moduleId={moduleId} />
             ) : (
               <Text variant="Body2Semibold" textAlign="center" color="grey.500">

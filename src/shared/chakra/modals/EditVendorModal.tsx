@@ -35,7 +35,6 @@ type ModalProps = {
 };
 
 const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
-  console.log(initialValues);
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
   const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id.toString() }));
 
@@ -122,12 +121,11 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
       contactEmail: data.contactEmail,
       contactPhone: data.contactPhone,
     };
-    // console.log(vendorData);
     mutate(vendorData);
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent as="form" width="498px" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
         <ModalHeader>
@@ -164,7 +162,6 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
                       options={options}
                       value={options?.find((option) => option.value === field.value)}
                       onChange={(option) => {
-                        console.log('Selected:', option);
                         field.onChange(option ? parseInt(option.value) : 0);
                       }}
                       onBlur={field.onBlur}

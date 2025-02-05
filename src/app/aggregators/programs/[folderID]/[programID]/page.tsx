@@ -1,39 +1,48 @@
 'use client';
 
+import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetAggregatorAnalytics } from '@/hooks/useGetAggregatorAnalytics';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetModules } from '@/hooks/useGetModules';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
+import { useProcessModule } from '@/hooks/useProcessModule';
+import { useUploadProgram } from '@/hooks/useUploadData';
 import { ReusableTable } from '@/shared';
+import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
+import { formatErrorMessage } from '@/utils';
 import {
   Button,
   Divider,
   Flex,
   Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Select,
   SimpleGrid,
   Stack,
   Text,
+  useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   MdAccessTimeFilled,
+  MdArrowRightAlt,
   MdCancel,
   MdCheckCircle,
-  MdCloudUpload,
   MdDownload,
   MdMoreHoriz,
   MdRefresh,
@@ -110,18 +119,32 @@ const AggregatorsEnumerationDashboard = () => {
   );
 };
 
+const MODULE = 'Enumeration';
+
 const EnumerationsTable = () => {
+  const toast = useToast();
   const { programID } = useParams();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [page, setPage] = useState(1);
 
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
 
   const [status, setStatus] = useState('');
+  const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
+
+  const { response } = useGetProgramById(programID?.toString());
+  const programModule = response?.body.programModules.find((module) => module.module === MODULE);
+  const programModuleId = programModule?.id ?? 0;
+  const isProgramCompleted = programModule?.isCompleted ?? true;
+
+  const { mutate: approveBeneficiary } = useApproveBeneficiary();
+  const { mutate: uploadProgram, isPending } = useUploadProgram();
+  const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
+  const { data: uploadStatus } = useGetUploadStatus(programModuleId.toString(), !isProgramCompleted);
 
   const { data: modules } = useGetModules();
-  const enumerationModuleId = modules?.body.find((module) => module.name === 'Enumeration')?.id ?? 0;
-
+  const enumerationModuleId = modules?.body.find((module) => module.name === MODULE)?.id ?? 0;
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } =
     useGetBeneficiariesById(
       {
@@ -139,6 +162,44 @@ const EnumerationsTable = () => {
     setPage(1);
     setStatus('');
     setQuery('');
+  };
+
+  const onApprove = useCallback(
+    ({ status, id }: { status: string; id: number }) => {
+      const payload = {
+        status: status.toUpperCase(),
+        beneficiaryId: [id],
+        moduleId: enumerationModuleId,
+        programId: programID.toString(),
+      };
+
+      approveBeneficiary(payload, {
+        onSuccess: () => {
+          toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
+        },
+      });
+    },
+    [approveBeneficiary, enumerationModuleId, programID, toast]
+  );
+
+  const openBeneficiaryModal = (beneficiary: Beneficiary) => {
+    setBeneficiary(beneficiary);
+    onOpen();
+  };
+
+  const uploadData = () => {
+    processModule(programModuleId.toString(), {
+      onSuccess: () => {
+        uploadProgram(programModuleId.toString(), {
+          onSuccess: () => {
+            toast({ title: 'Data uploaded successfully', status: 'success' });
+          },
+        });
+      },
+      onError: (error) => {
+        toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });
+      },
+    });
   };
 
   const columns: ColumnDef<Beneficiary>[] = useMemo(() => {
@@ -182,34 +243,48 @@ const EnumerationsTable = () => {
             Denied
           </Text>
         ) : (
-          <Flex h="full" onClick={(e) => e.stopPropagation()}>
-            <Popover placement="bottom-end">
-              <PopoverTrigger>
-                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                  <MdMoreHoriz size="1.25rem" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent w="121px" p="8px">
-                <PopoverArrow />
-                <PopoverBody p="0">
-                  <Flex flexDir="column">
-                    <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
-                      Pass
-                    </Button>
-                    <Button w="100%" bg="transparent" size="small" p="0" fontSize="13px" fontWeight="400">
-                      Fail
-                    </Button>
-                  </Flex>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </Flex>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              aria-label="Actions"
+              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              minW="0"
+              h="auto"
+              mx="auto"
+              display="flex"
+              p="1"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <MenuList>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onApprove({ status: 'Approved', id: info.row.original.id });
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Approve
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onApprove({ status: 'Disapproved', id: info.row.original.id });
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Deny
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
         ),
       enableSorting: false, // Enable sorting for status
     };
 
     return [...otherColumns, statusColumn];
-  }, [tableData]);
+  }, [onApprove, tableData]);
 
   return (
     <Flex flexDir="column" gap="1.5rem" boxSize="full">
@@ -249,12 +324,20 @@ const EnumerationsTable = () => {
             />
           </InputGroup>
         </Flex>
-        <Flex gap="8px" alignItems="center">
+        <Flex gap="4" alignItems="center">
           <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="10px">
             Download Report
           </Button>
-          <Button leftIcon={<MdCloudUpload />} variant="primary" size="medium" borderRadius="10px">
-            Upload Selected Data
+          <Button
+            rightIcon={<MdArrowRightAlt />}
+            variant="primary"
+            size="medium"
+            borderRadius="10px"
+            isLoading={isPending || isProcessModulePending}
+            onClick={uploadData}
+            isDisabled={!uploadStatus?.body}
+          >
+            Proceed to next Module
           </Button>
         </Flex>
       </Flex>
@@ -263,7 +346,7 @@ const EnumerationsTable = () => {
         selectable
         data={tableData}
         columns={columns}
-        headerBgColor="#F3F9F2"
+        onClick={openBeneficiaryModal}
         isLoading={isLoading || isRefetching}
         isError={isError || isRefetchError}
         onRefresh={refetch}
@@ -279,6 +362,7 @@ const EnumerationsTable = () => {
         isDisabled={isLoading || isPlaceholderData}
         display={totalPages > 1 ? 'flex' : 'none'}
       />
+      {beneficiary && <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} beneficiary={beneficiary} />}
     </Flex>
   );
 };

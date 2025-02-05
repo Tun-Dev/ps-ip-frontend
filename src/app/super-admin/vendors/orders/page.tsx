@@ -1,20 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useMemo } from 'react';
-import {
-  Flex,
-  Text,
-  Button,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverArrow,
-  PopoverBody,
-} from '@chakra-ui/react';
-import { MdMoreHoriz } from 'react-icons/md';
 import { ReusableTable } from '@/shared';
+import { Flex, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
+import { useMemo } from 'react';
+import { MdMoreHoriz } from 'react-icons/md';
 
 const OrderPage = () => {
   // const data = [
@@ -148,25 +139,27 @@ const OrderPage = () => {
         accessorKey: 'deactivate',
         enableSorting: false,
         cell: () => (
-          <Flex>
-            <Popover placement="bottom-end">
-              <PopoverTrigger>
-                <Button margin="0 auto" bg="transparent" size="small" minW={0} h="auto" p="0">
-                  <MdMoreHoriz size="1.25rem" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent w="fit-content">
-                <PopoverArrow />
-                <PopoverBody>
-                  <Flex flexDir="column">
-                    <Button w="100%" bg="transparent" size="small">
-                      Stop Order
-                    </Button>
-                  </Flex>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </Flex>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              aria-label="Actions"
+              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              minW="0"
+              h="auto"
+              mx="auto"
+              display="flex"
+              p="1"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <MenuList>
+              <MenuItem>
+                <Text as="span" variant="Body2Regular" w="full">
+                  Stop Order
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
         ),
       },
     ],

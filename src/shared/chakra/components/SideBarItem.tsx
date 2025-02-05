@@ -1,7 +1,7 @@
 'use client';
 
 import { Flex, Text } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { MdHome } from 'react-icons/md';
 
 const SideBarItem = ({
@@ -15,9 +15,10 @@ const SideBarItem = ({
   url: string;
   active?: boolean;
 }) => {
-  const router = useRouter();
   return (
     <Flex
+      as={Link}
+      href={url}
       w="full"
       h="40px"
       alignItems="center"
@@ -25,13 +26,6 @@ const SideBarItem = ({
       gap="8px"
       borderRadius="6px"
       cursor="pointer"
-      onClick={(e) => {
-        if (e.ctrlKey || e.metaKey) {
-          window.open(url, '_blank');
-        } else {
-          router.push(url);
-        }
-      }}
       transition="all 0.3s ease-in-out"
       bg={active ? 'secondary.500' : ''}
     >

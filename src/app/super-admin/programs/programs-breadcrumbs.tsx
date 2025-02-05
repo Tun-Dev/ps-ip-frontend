@@ -4,10 +4,10 @@ import { Link } from '@chakra-ui/next-js';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react';
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
 
+import { useGetGroup } from '@/hooks/useGetGroup';
 import { useGetModules } from '@/hooks/useGetModules';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useProgramStore } from '@/providers/programs-store-provider';
-import { useGetGroup } from '@/hooks/useGetGroup';
 
 const ProgramsBreadcrumbs = () => {
   const pathname = usePathname();
@@ -15,7 +15,6 @@ const ProgramsBreadcrumbs = () => {
   const { programID, folderID } = useParams();
   const segments = pathname.split('/');
   const currentModule = segments[segments.length - 1];
-  console.log(currentModule);
   const step = useProgramStore((state) => state.step);
   const activeModuleId = useProgramStore((state) => state.activeModuleId);
   const { data: modules } = useGetModules(!!activeModuleId);
@@ -23,11 +22,8 @@ const ProgramsBreadcrumbs = () => {
 
   const { data: groups } = useGetGroup({ page: 1, pageSize: 10 });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = groups?.body.data ?? [];
   const folderName = data.find((item) => item.id === folderID);
-
-  // console.log(folderID);
 
   const { response } = useGetProgramById(programID?.toString());
   const programName = response?.body.name ?? '...';
@@ -45,10 +41,10 @@ const ProgramsBreadcrumbs = () => {
       </BreadcrumbItem>
       {!!folderID && (
         <BreadcrumbItem
-          isCurrentPage={!!folderID && !!programID}
-          color={!!folderID && !!programID ? 'primary.600' : 'inherit'}
+          isCurrentPage={!!folderID && !programID}
+          color={!!folderID && !programID ? 'primary.600' : 'inherit'}
         >
-          <BreadcrumbLink as={!!folderID && !!programID ? 'span' : Link} href={`/super-admin/programs/${folderID}`}>
+          <BreadcrumbLink as={!!folderID && !programID ? 'span' : Link} href={`/super-admin/programs/${folderID}`}>
             {folderName?.name}
           </BreadcrumbLink>
         </BreadcrumbItem>

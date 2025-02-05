@@ -22,8 +22,8 @@ const VettingForm = memo(() => {
 
         if (!vettingModule) return module;
 
-        const manual = vettingModule.ModuleGuidelines.find((guideline) => guideline.identifier === 'MANUAL');
-        const automatic = vettingModule.ModuleGuidelines.find((guideline) => guideline.identifier === 'AUTOMATIC');
+        const manual = vettingModule.moduleGuidelines.find((guideline) => guideline.identifier === 'MANUAL');
+        const automatic = vettingModule.moduleGuidelines.find((guideline) => guideline.identifier === 'AUTOMATIC');
 
         if (!manual || !automatic) return module;
 

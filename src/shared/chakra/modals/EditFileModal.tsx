@@ -1,27 +1,27 @@
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  Flex,
-  Input,
-  ModalFooter,
   Button,
-  Text,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
   useToast,
 } from '@chakra-ui/react';
-import React, { useEffect, useMemo } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 // import { useCreateGroup } from '@/hooks/useCreateGroup';
-import { GroupEditPayload } from '@/types';
 import { useEditGroup } from '@/hooks/useEditGroup';
+import { GroupEditPayload } from '@/types';
 
 type ModalProps = {
   isOpen: boolean;
@@ -75,7 +75,7 @@ const EditFileModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
         <ModalOverlay />
         <ModalContent as="form" width="498px" height="756px" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>
@@ -96,9 +96,14 @@ const EditFileModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
             </Flex>
           </ModalBody>
           <ModalFooter>
-            <Button variant="primary" width="402px" height="48px" type="submit" isLoading={isPending}>
-              Save
-            </Button>
+            <Flex width="100%" gap="16px">
+              <Button variant="cancel" width="402px" height="48px" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button variant="primary" width="402px" height="48px" type="submit" isLoading={isPending}>
+                Save
+              </Button>
+            </Flex>
           </ModalFooter>
         </ModalContent>
       </Modal>
