@@ -21,13 +21,15 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { MdArrowRightAlt, MdLink } from 'react-icons/md';
 
-import { useDeleteProgram } from '@/hooks/useDeleteProgram';
+// import { useDeleteProgram } from '@/hooks/useDeleteProgram';
 // import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { DeleteModal } from '@/shared';
 import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
 // import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { useGetGroupById } from '@/hooks/useGetGroupById';
 import { Program, ProgramModules } from '@/types';
+import { useDeleteProgramFromGroup } from '@/hooks/useDeleteProgramFromGroup';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ProgramsPage = () => {
   const [selectedId, setSelectedId] = useState('');
@@ -122,16 +124,18 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
   const router = useRouter();
   const { onCopy } = useClipboard(`${window.origin}/beneficiary/${program?.id}`);
   const { folderID } = useParams();
+  const queryClient = useQueryClient();
 
-  const { mutate: deleteProgram, isPending } = useDeleteProgram();
+  const { mutate: deleProgramFromGroup, isPending } = useDeleteProgramFromGroup();
 
   const handleEdit = (itemId: string) => {
     router.push(`/super-admin/programs/${folderID}/edit/${itemId}`);
   };
 
   const handleDelete = () => {
-    deleteProgram(program.id, {
+    deleProgramFromGroup([program.id], {
       onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['group', folderID] });
         toast({ title: 'Program deleted successfully', status: 'success' });
         onClose();
       },

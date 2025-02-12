@@ -92,6 +92,7 @@ export type Vendor = {
   product?: string;
   contactEmail: string;
   contactPhone: string;
+  programCount: number;
 };
 
 export type VendorFilterParams = {
@@ -173,6 +174,12 @@ export type AggregatorPayload = {
   confirmPassword: string;
   contactEmail: string;
   contactPhone: string;
+};
+
+export type AddAggregatorToProgram = {
+  id: string;
+  programId: string;
+  maxAgents: number;
 };
 
 export type Agent = {
@@ -523,16 +530,16 @@ export type AgentPayload = {
     lastName: string;
     phoneNumber: string;
     email: string;
-    programDetails?: AgentProgramDetails;
+    programDetails?: AgentProgramDetails[];
   }[];
 };
 
 export type ReassignAgentPayload = {
-  aggregatorId: string;
-  agents: {
+  aggregatorProgramId: string;
+  programs: {
     agentId: string;
     aggregatorId: string;
-    programDetails: AgentProgramDetails;
+    programDetails: { programId: string; objective: number; lgaId: number };
   }[];
 };
 
@@ -658,11 +665,12 @@ export type VendorActivityBeneficiary = {
 };
 
 export type VendorProgram = {
-  id: string;
+  programId: string;
   moduleName: string;
   logo: string;
   name: string;
   type: string;
+  vendorProgramId: string;
 };
 
 export type VendorBeneficiary = {

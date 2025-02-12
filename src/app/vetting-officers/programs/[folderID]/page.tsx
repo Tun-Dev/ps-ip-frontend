@@ -43,7 +43,7 @@ const ProgramsPage = () => {
               // count={item.moduleName}
               count={'Vetting'}
               waveDirection={index % 2 === 0 ? 'bottom' : 'top'}
-              onClick={() => router.push(`/vetting-officers/programs/${folderID}/${item.id}`)}
+              onClick={() => router.push(`/vetting-officers/programs/${folderID}/${item.programId}`)}
             />
           ))}
         </SimpleGrid>

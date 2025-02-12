@@ -43,8 +43,7 @@ export const addProgramToGroup = async (group: AddProgramToGroupPayload) => {
   return data;
 };
 
-export const deleteProgramFromGroup = async ({ queryKey }: { queryKey: QueryKey }) => {
-  const [, id, group] = queryKey;
-  const { data } = await axiosInstance.put<APIResponse<any>>(`/program-group/remove-program/${id}`, group);
+export const deleteProgramFromGroup = async (group: string[]) => {
+  const { data } = await axiosInstance.put<APIResponse<any>>(`/program-group/remove-program`, group);
   return data;
 };

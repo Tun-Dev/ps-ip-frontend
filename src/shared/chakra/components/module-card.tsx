@@ -82,7 +82,7 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
             </Flex>
             <Text
               variant={isActive ? 'Body2Bold' : 'Body2Semibold'}
-              color={isActive ? 'white' : isDisabled ? 'grey.500' : 'primary.500'}
+              color={isDisabled ? 'grey.500' : isActive ? 'white' : 'primary.500'}
             >
               {module.module}
             </Text>
@@ -138,15 +138,7 @@ export const ModuleCard = memo((props: ModuleCardProps) => {
           )}
           <Text
             variant={isActive ? 'Body3Regular' : 'Body3Regular'}
-            color={
-              isDisabled
-                ? 'grey.500'
-                : status === 'In progress'
-                  ? 'white'
-                  : status === 'Edit' && isActive
-                    ? 'white'
-                    : 'primary.500'
-            }
+            color={isDisabled ? 'grey.500' : isActive ? 'white' : 'primary.500'}
           >
             {status}
           </Text>

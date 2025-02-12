@@ -37,7 +37,7 @@ const ProgramsPage = () => {
               name={item.name}
               logo={item.logo}
               programType={item.programType}
-              count={item.currentModule}
+              count="Enumeration"
               waveDirection={Number(item.id) % 2 === 0 ? 'bottom' : 'top'}
               onClick={() => router.push(`/aggregators/programs/${folderID}/${item.id}`)}
             />

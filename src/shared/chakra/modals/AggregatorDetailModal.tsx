@@ -10,10 +10,12 @@ import {
   Flex,
   Grid,
   Spinner,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { Aggregator } from '@/types';
 import { useGetAggregatorsByID } from '@/hooks/useGetAggregatorByID';
 import { useEffect } from 'react';
+import AssignNewProgram from './AssignNewProgram';
 
 type ModalProps = {
   isOpen: boolean;
@@ -30,60 +32,70 @@ const AggregatorDetailsModal = ({ isOpen, onClose, aggregator }: ModalProps) => 
   useEffect(() => {
     if (!response?.body || !isOpen) return;
   }, [response, isOpen]);
+
+  const { onClose: onCloseAssign, onOpen: onOpenAssign, isOpen: isOpenAssign } = useDisclosure();
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent
-        // onSubmit={handleSubmit(onSubmit)}
-        minH="45rem"
-        maxH="calc(100vh - 10rem)"
-        borderRadius="12px"
-        maxW="42.375rem"
-      >
-        {/* <ModalHeader>
+    <>
+      <AssignNewProgram isOpen={isOpenAssign} onClose={onCloseAssign} aggregator={aggregator} />
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent
+          // onSubmit={handleSubmit(onSubmit)}
+          minH="45rem"
+          maxH="calc(100vh - 10rem)"
+          borderRadius="12px"
+          maxW="42.375rem"
+        >
+          {/* <ModalHeader>
           <Text variant="Body1Semibold">Add New Aggregator</Text>
         </ModalHeader> */}
-        <ModalCloseButton />
-        <ModalBody overflowY="auto" display="flex">
-          <Flex flexDir="column" gap="16px" flex="1 1 0%" mt="48px">
-            {isLoading ? (
-              <Grid placeItems="center" h="30rem">
-                <Spinner />
-              </Grid>
-            ) : (
-              data &&
-              data?.map((item, index) => (
-                <Item
-                  key={index}
-                  programName={item.programName}
-                  programType={item.programType}
-                  aggregator={item.name}
-                  agents={item.agents}
-                />
-              ))
-            )}
-            {}
-          </Flex>
-        </ModalBody>
-        <ModalFooter>
-          <Flex width="100%" gap="16px">
-            <Button type="submit" variant="cancel" width="402px" height="48px" onClick={onClose}>
-              Close
-            </Button>{' '}
-            <Button
-              type="submit"
-              variant="primary"
-              width="402px"
-              height="48px"
-              // isDisabled={hasErrors}
-              // isLoading={isPending}
-            >
-              Assign Program
-            </Button>
-          </Flex>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+          <ModalCloseButton />
+          <ModalBody overflowY="auto" display="flex">
+            <Flex flexDir="column" gap="16px" flex="1 1 0%" mt="48px">
+              {isLoading ? (
+                <Grid placeItems="center" h="30rem">
+                  <Spinner />
+                </Grid>
+              ) : (
+                data &&
+                data?.map((item, index) => (
+                  <Item
+                    key={index}
+                    programName={item.programName}
+                    programType={item.programType}
+                    aggregator={item.name}
+                    agents={item.agents}
+                  />
+                ))
+              )}
+              {}
+            </Flex>
+          </ModalBody>
+          <ModalFooter>
+            <Flex width="100%" gap="16px">
+              <Button type="submit" variant="cancel" width="402px" height="48px" onClick={onClose}>
+                Close
+              </Button>{' '}
+              <Button
+                type="submit"
+                variant="primary"
+                width="402px"
+                height="48px"
+                onClick={() => {
+                  onOpenAssign();
+                  // onClose();
+                }}
+                // isDisabled={hasErrors}
+                // isLoading={isPending}
+              >
+                Assign Program
+              </Button>
+            </Flex>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 

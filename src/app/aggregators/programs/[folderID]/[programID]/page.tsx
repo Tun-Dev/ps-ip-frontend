@@ -40,9 +40,9 @@ import { useParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import {
   MdAccessTimeFilled,
-  MdArrowRightAlt,
   MdCancel,
   MdCheckCircle,
+  MdCloudUpload,
   MdDownload,
   MdMoreHoriz,
   MdRefresh,
@@ -325,19 +325,19 @@ const EnumerationsTable = () => {
           </InputGroup>
         </Flex>
         <Flex gap="4" alignItems="center">
-          <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="10px">
+          <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="0.375rem">
             Download Report
           </Button>
           <Button
-            rightIcon={<MdArrowRightAlt />}
+            rightIcon={<MdCloudUpload />}
             variant="primary"
             size="medium"
-            borderRadius="10px"
+            borderRadius="0.375rem"
             isLoading={isPending || isProcessModulePending}
             onClick={uploadData}
             isDisabled={!uploadStatus?.body}
           >
-            Proceed to next Module
+            Upload Data
           </Button>
         </Flex>
       </Flex>

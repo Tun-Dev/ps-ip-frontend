@@ -13,7 +13,7 @@ export const signUpAgent = async (payload: AgentSignUpPayload) => {
 };
 
 export const reassignAgent = async (payload: ReassignAgentPayload) => {
-  const { aggregatorId, agents } = payload;
-  const response = await axiosInstance.put<APIResponse<Agent>>(`/agents/${aggregatorId}`, agents);
+  const { aggregatorProgramId, programs } = payload;
+  const response = await axiosInstance.put<APIResponse<Agent>>(`/agents/${aggregatorProgramId}`, programs);
   return response.data;
 };

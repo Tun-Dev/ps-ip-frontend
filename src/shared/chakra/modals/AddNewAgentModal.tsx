@@ -105,8 +105,7 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
           lastName: data.lastName,
           phoneNumber: `+234${data.phoneNumber}`,
           email: data.email,
-          // TODO: Remove the spread operator and use the commented line below
-          ...(data.programDetails && data.programDetails.length > 0 ? { programDetails: data.programDetails[0] } : {}),
+          programDetails: data.programDetails,
         },
       ],
     });

@@ -2,12 +2,16 @@
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
 import { useGetVendorBeneficiaries } from '@/hooks/useGetVendorBeneficiaries';
+import { useProcessModule } from '@/hooks/useProcessModule';
+import { useUploadProgram } from '@/hooks/useUploadData';
 import { ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, formatErrorMessage } from '@/utils';
 import {
   Box,
   Button,
@@ -48,10 +52,10 @@ const VendorsDisbursementDashboard = () => {
   return (
     <Flex flexDir="column" gap="1.5rem" boxSize="full">
       <SimpleGrid columns={{ base: 3, sm: 4 }} gap="4">
-        <OverviewCard title="Orders Pending" number={5000} icon={MdLocalShipping} />
-        <OverviewCard title="Amount Disbursed" number={formatCurrency(37500000)} icon={MdVolunteerActivism} />
-        <OverviewCard title="Amount Disbursable" number={formatCurrency(12500000)} icon={MdAccountBalanceWallet} />
-        <OverviewCard title="Candidates Disbursed" number={15000} icon={MdEmojiEmotions} />
+        <OverviewCard title="Orders Pending" number={0} icon={MdLocalShipping} />
+        <OverviewCard title="Amount Disbursed" number={formatCurrency(0)} icon={MdVolunteerActivism} />
+        <OverviewCard title="Amount Disbursable" number={formatCurrency(0)} icon={MdAccountBalanceWallet} />
+        <OverviewCard title="Candidates Disbursed" number={0} icon={MdEmojiEmotions} />
       </SimpleGrid>
       <VendorTab />
     </Flex>
@@ -133,7 +137,16 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
 
+  const { response } = useGetProgramById(programID?.toString());
+  const programModule = response?.body.programModules.find((module) => module.module === 'Disbursement');
+  const programModuleId = programModule?.id ?? 0;
+  const isProgramCompleted = programModule?.isCompleted ?? true;
+
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
+  const { mutate: uploadProgram, isPending } = useUploadProgram();
+  const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
+  const { data: uploadStatus } = useGetUploadStatus(programModuleId.toString(), !isProgramCompleted);
+
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } =
     useGetVendorBeneficiaries({
       page,
@@ -168,6 +181,21 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
     },
     [approveBeneficiary, programID, toast]
   );
+
+  const uploadData = () => {
+    processModule(programModuleId.toString(), {
+      onSuccess: () => {
+        uploadProgram(programModuleId.toString(), {
+          onSuccess: () => {
+            toast({ title: 'Data uploaded successfully', status: 'success' });
+          },
+        });
+      },
+      onError: (error) => {
+        toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });
+      },
+    });
+  };
 
   const columns = useMemo(() => {
     if (!tableData || tableData.length === 0) return [];
@@ -262,7 +290,15 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
           <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="0.375rem">
             Download Report
           </Button>
-          <Button leftIcon={<MdCloudUpload />} variant="primary" size="medium" borderRadius="0.375rem">
+          <Button
+            leftIcon={<MdCloudUpload />}
+            variant="primary"
+            size="medium"
+            borderRadius="0.375rem"
+            isLoading={isPending || isProcessModulePending}
+            onClick={uploadData}
+            isDisabled={!uploadStatus?.body}
+          >
             Upload data
           </Button>
         </Flex>

@@ -58,41 +58,46 @@ const VendorPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
             Program
           </Text>
         ),
-        accessorKey: 'programName',
-        enableSorting: false,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500" display="block" textAlign="center">
-            Product/Service Offered
-          </Text>
-        ),
-        accessorKey: 'product_service_offered',
+        accessorKey: 'programCount',
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
-            {info.row.original.item}
+            {info.row.original.programCount}
           </Text>
         ),
       },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500" align="center">
-            Scheduled Date
-          </Text>
-        ),
-        accessorKey: 'scheduledDate',
-        enableSorting: false,
-        cell: (info) => (
-          <Text variant="Body2Semibold" align="center">
-            {new Date(info.row.original.scheduledDate).toDateString()}
-          </Text>
-        ),
-      },
+      // {
+      //   header: () => (
+      //     <Text variant="Body3Semibold" color="gray.500" display="block" textAlign="center">
+      //       Product/Service Offered
+      //     </Text>
+      //   ),
+      //   accessorKey: 'product_service_offered',
+      //   enableSorting: false,
+      //   cell: (info) => (
+      //     <Text variant="Body2Semibold" align="center">
+      //       {info.row.original.item}
+      //     </Text>
+      //   ),
+      // },
+      // {
+      //   header: () => (
+      //     <Text variant="Body3Semibold" color="gray.500" align="center">
+      //       Scheduled Date
+      //     </Text>
+      //   ),
+      //   accessorKey: 'scheduledDate',
+      //   enableSorting: false,
+      //   cell: (info) => (
+      //     <Text variant="Body2Semibold" align="center">
+      //       {new Date(info.row.original.scheduledDate).toDateString()}
+      //     </Text>
+      //   ),
+      // },
       {
         header: () => (
           <Text variant="Body3Semibold" color="gray.500" textAlign="center">
@@ -167,6 +172,8 @@ const VendorPage = () => {
   });
   const vendors = useMemo(() => data?.body.data ?? [], [data]);
   const totalPages = data?.body.totalPages ?? 0;
+
+  console.log(vendors);
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px">

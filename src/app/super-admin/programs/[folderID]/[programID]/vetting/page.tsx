@@ -32,6 +32,7 @@ import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import VettingModal from '@/shared/chakra/components/vetting-modal';
 import { Beneficiary } from '@/types';
 import { AxiosError } from 'axios';
 import { useParams } from 'next/navigation';
@@ -50,6 +51,7 @@ const VettingPage = () => {
   const [page, setPage] = useState(1);
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isVettingOpen, onOpen: onVettingOpen, onClose: onVettingClose } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[0]);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
@@ -165,6 +167,17 @@ const VettingPage = () => {
               <MenuItem
                 onClick={(e) => {
                   e.stopPropagation();
+                  setBeneficiary(info.row.original);
+                  onVettingOpen();
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  View Scores
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
                   onApprove({ status: 'Approved', id: info.row.original.id });
                 }}
               >
@@ -252,6 +265,7 @@ const VettingPage = () => {
         />
       </>
       {beneficiary && <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} beneficiary={beneficiary} />}
+      {beneficiary && <VettingModal isOpen={isVettingOpen} onClose={onVettingClose} beneficiary={beneficiary} />}
     </Flex>
   );
 };

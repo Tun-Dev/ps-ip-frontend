@@ -3,6 +3,7 @@ import type { QueryKey } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axios';
 import type {
   ActivateAgentPayload,
+  AddAggregatorToProgram,
   Agent,
   Aggregator,
   AggregatorAgent,
@@ -106,5 +107,11 @@ export const deleteAggregatorFromProgram = async (data: { programId: string; agg
   const response = await axiosInstance.delete<APIResponse<boolean>>(
     `/aggregator/program/${data.programId}/${data.aggregatorId}`
   );
+  return response.data;
+};
+
+export const addAggregatorToProgram = async (data: AddAggregatorToProgram) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const response = await axiosInstance.put<APIResponse<any>>('/aggregator/add/program', data);
   return response.data;
 };
