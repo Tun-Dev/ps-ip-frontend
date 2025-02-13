@@ -25,7 +25,7 @@ import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { AggregatorDetailsModal, ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { EditAggregatorModal } from '@/shared/chakra/modals/EditAggregatorModal';
+// import { EditAggregatorModal } from '@/shared/chakra/modals/EditAggregatorModal';
 import type { Aggregator } from '@/types';
 
 const AggregatorTab = () => {
@@ -40,11 +40,11 @@ const AggregatorTab = () => {
 
   const [aggregatorsDetails, setAggregatorsDetails] = useState<Aggregator | null>(null);
 
-  const [selectedAggregator, setSelectedAggregator] = useState<Aggregator>();
+  // const [selectedAggregator, setSelectedAggregator] = useState<Aggregator>();
 
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 10 });
 
-  const { onClose, onOpen, isOpen } = useDisclosure();
+  // const { onClose, onOpen, isOpen } = useDisclosure();
   const { onClose: onCloseDetails, onOpen: onOpenDetails, isOpen: isOpenDetails } = useDisclosure();
 
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } = useGetAggregators({
@@ -67,6 +67,11 @@ const AggregatorTab = () => {
     setQuery('');
   };
 
+  const openAggregatorDetailsModal = (aggregator: Aggregator) => {
+    setAggregatorsDetails(aggregator);
+    onOpenDetails();
+  };
+
   const columns: ColumnDef<Aggregator>[] = [
     {
       header: 'Aggregator',
@@ -75,7 +80,7 @@ const AggregatorTab = () => {
     {
       header: () => (
         <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-          Program
+          No. of Program
         </Text>
       ),
       accessorKey: 'programCount',
@@ -89,7 +94,7 @@ const AggregatorTab = () => {
     {
       header: () => (
         <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-          Agents
+          No. of Agents
         </Text>
       ),
       accessorKey: 'totalAgents',
@@ -126,12 +131,11 @@ const AggregatorTab = () => {
             <MenuItem
               onClick={(e) => {
                 e.stopPropagation();
-                onOpen();
-                setSelectedAggregator(info.row.original);
+                openAggregatorDetailsModal(info.row.original);
               }}
             >
               <Text as="span" variant="Body2Regular" w="full">
-                Reassign Aggregator
+                Manage Aggregator
               </Text>
             </MenuItem>
           </MenuList>
@@ -139,11 +143,6 @@ const AggregatorTab = () => {
       ),
     },
   ];
-
-  const openAggregatorDetailsModal = (aggregator: Aggregator) => {
-    setAggregatorsDetails(aggregator);
-    onOpenDetails();
-  };
 
   return (
     <Flex
@@ -155,7 +154,7 @@ const AggregatorTab = () => {
       borderTop="1px solid"
       borderTopColor="grey.200"
     >
-      <EditAggregatorModal isOpen={isOpen} onClose={onClose} initialValues={selectedAggregator} />
+      {/* <EditAggregatorModal isOpen={isOpen} onClose={onClose} initialValues={selectedAggregator} /> */}
       <Flex justifyContent="space-between">
         <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
@@ -220,7 +219,7 @@ const AggregatorTab = () => {
         <ReusableTable
           selectable
           data={aggregators}
-          onClick={openAggregatorDetailsModal}
+          // onClick={openAggregatorDetailsModal}
           columns={columns}
           isLoading={isLoading || isRefetching}
           isError={isError || isRefetchError}

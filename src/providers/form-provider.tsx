@@ -219,7 +219,7 @@ const mapDataPoints = (module: ProgramModulesDetails) => {
   if (module.module !== 'Application' && module.module !== 'Enumeration') return [];
   return module.form.questions.map((question) => ({
     dataPoint: {
-      id: question.dataPoint?.buffer,
+      id: question.dataPoint,
       format: { options: question.options, type: question.type },
       question: question.question,
       type: question.question,
@@ -252,6 +252,8 @@ export const ProgramFormProvider = ({ children }: { children: ReactNode }) => {
     const isManualVetting = vettingModule?.form.minVetScore === undefined;
     const programType = programTypes?.body.find((type) => type.type === program.programType);
 
+    console.log(response);
+
     form.reset({
       name: program.name,
       logo: program.logoId,
@@ -259,7 +261,7 @@ export const ProgramFormProvider = ({ children }: { children: ReactNode }) => {
       description: program.description,
       programTypeId: programType?.id,
       coverPhotoID: 0,
-      eligibilityCriteria: program.eligibilityCriteria,
+      eligibilityCriteria: program.eligibilityCriteria.map((item) => item.criteria),
       logoFile: program.logo,
       coverPhotoFile: program.coverPhoto,
       programModules: program.programModules.map((module) => ({

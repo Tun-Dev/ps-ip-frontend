@@ -10,7 +10,7 @@ import AgentsTab from './tabs/agentTab';
 import AggregatorTab from './tabs/aggregatorTab';
 
 const AgentsPage = () => {
-  const [selected, setSelected] = useState<'agents' | 'aggregators'>('agents');
+  const [selected, setSelected] = useState<'agents' | 'aggregators'>('aggregators');
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -33,20 +33,20 @@ const AgentsPage = () => {
           )}
         </Flex>
         <Flex gap="1rem">
-          <Box w="265px" onClick={() => setSelected('agents')} cursor="pointer">
-            <OverviewCard
-              title="Total Agents"
-              number={isLoading ? '...' : (data?.body.totalAgents ?? 0)}
-              icon={MdGroups}
-              active={selected === 'agents'}
-            />
-          </Box>
           <Box w="265px" onClick={() => setSelected('aggregators')} cursor="pointer">
             <OverviewCard
               title="Total Aggregators"
               number={isLoading ? '...' : (data?.body.totalAggregators ?? 0)}
               icon={MdGroupAdd}
               active={selected === 'aggregators'}
+            />
+          </Box>
+          <Box w="265px" onClick={() => setSelected('agents')} cursor="pointer">
+            <OverviewCard
+              title="Total Agents"
+              number={isLoading ? '...' : (data?.body.totalAgents ?? 0)}
+              icon={MdGroups}
+              active={selected === 'agents'}
             />
           </Box>
         </Flex>

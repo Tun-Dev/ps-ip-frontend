@@ -13,6 +13,8 @@ export function BulletPointTextArea() {
   const initial = getValues('eligibilityCriteria');
   const [text, setText] = useState('');
 
+  console.log(initial);
+
   useEffect(() => {
     if (initial && initial.length > 0) {
       const bulletText = initial.map((item) => `• ${item}`).join('\n');

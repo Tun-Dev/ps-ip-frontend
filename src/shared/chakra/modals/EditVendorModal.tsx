@@ -2,7 +2,7 @@ import { useUpdateVendorById } from '@/hooks/useEditVendorById';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { Dropdown } from '@/shared/chakra/components';
 import { Vendor } from '@/types';
-import { formatDateForInput } from '@/utils';
+import { formatDateForInput, SERVICES } from '@/utils';
 import {
   Button,
   Flex,
@@ -37,12 +37,6 @@ type ModalProps = {
 const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
   const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id.toString() }));
-
-  const services = [
-    { label: 'Cash', value: 'Cash' },
-    { label: 'Physical Item', value: 'Physical Item' },
-    { label: 'Capacity Building', value: 'Capacity Building' },
-  ];
 
   const [showProductField, setShowProductField] = useState(false);
 
@@ -188,8 +182,8 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
                     placeholder="Select program"
                     name={name}
                     id="service"
-                    options={services}
-                    value={services.find((service) => service.value === value)}
+                    options={SERVICES}
+                    value={SERVICES.find((service) => service.value === value)}
                     onChange={(selected) => {
                       const serviceValue = selected?.value || '';
                       onChange(serviceValue);

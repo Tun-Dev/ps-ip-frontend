@@ -27,7 +27,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
           !pathname.includes(`/super-admin/programs/${folderID}/edit`) && (
             <Button variant="primary" gap="8px" onClick={() => router.push(`/super-admin/programs/${folderID}/create`)}>
               <MdAddCircle />
-              <Text>Create New Program</Text>
+              <Text>Create New Product</Text>
             </Button>
           )}
       </Flex>

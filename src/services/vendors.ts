@@ -6,9 +6,11 @@ import {
   NewVendor,
   PaginatedResponse,
   Vendor,
+  VendorDetails,
   VendorFilterParams,
   VendorOverview,
   VendorProgram,
+  VendorProgramPayload,
 } from '@/types';
 import type { QueryKey } from '@tanstack/react-query';
 
@@ -78,5 +80,22 @@ export const getVendorBeneficiaries = async ({ queryKey, signal }: { queryKey: Q
     params,
     signal,
   });
+  return data;
+};
+
+export const getVendorDetails = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, vendorId] = queryKey;
+
+  const { data } = await axiosInstance.get<APIResponse<VendorDetails[]>>(`/vendor/programs/${vendorId}`, { signal });
+  return data;
+};
+
+export const removeVendorProgram = async (vendorProgramId: number) => {
+  const { data } = await axiosInstance.delete<APIResponse<boolean>>(`/vendor/${vendorProgramId}/remove`);
+  return data;
+};
+
+export const addVendorToProgram = async (payload: VendorProgramPayload) => {
+  const { data } = await axiosInstance.put<APIResponse<boolean>>('/vendor/program/add', payload);
   return data;
 };

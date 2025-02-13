@@ -5,16 +5,11 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useGetAggregatorAnalytics } from '@/hooks/useGetAggregatorAnalytics';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetModules } from '@/hooks/useGetModules';
-import { useGetProgramById } from '@/hooks/useGetProgramById';
-import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
-import { useProcessModule } from '@/hooks/useProcessModule';
-import { useUploadProgram } from '@/hooks/useUploadData';
 import { ReusableTable } from '@/shared';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { formatErrorMessage } from '@/utils';
 import {
   Button,
   Divider,
@@ -42,7 +37,6 @@ import {
   MdAccessTimeFilled,
   MdCancel,
   MdCheckCircle,
-  MdCloudUpload,
   MdDownload,
   MdMoreHoriz,
   MdRefresh,
@@ -119,8 +113,6 @@ const AggregatorsEnumerationDashboard = () => {
   );
 };
 
-const MODULE = 'Enumeration';
-
 const EnumerationsTable = () => {
   const toast = useToast();
   const { programID } = useParams();
@@ -133,18 +125,10 @@ const EnumerationsTable = () => {
   const [status, setStatus] = useState('');
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
 
-  const { response } = useGetProgramById(programID?.toString());
-  const programModule = response?.body.programModules.find((module) => module.module === MODULE);
-  const programModuleId = programModule?.id ?? 0;
-  const isProgramCompleted = programModule?.isCompleted ?? true;
-
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
-  const { mutate: uploadProgram, isPending } = useUploadProgram();
-  const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
-  const { data: uploadStatus } = useGetUploadStatus(programModuleId.toString(), !isProgramCompleted);
 
   const { data: modules } = useGetModules();
-  const enumerationModuleId = modules?.body.find((module) => module.name === MODULE)?.id ?? 0;
+  const enumerationModuleId = modules?.body.find((module) => module.name === 'Enumeration')?.id ?? 0;
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } =
     useGetBeneficiariesById(
       {
@@ -185,21 +169,6 @@ const EnumerationsTable = () => {
   const openBeneficiaryModal = (beneficiary: Beneficiary) => {
     setBeneficiary(beneficiary);
     onOpen();
-  };
-
-  const uploadData = () => {
-    processModule(programModuleId.toString(), {
-      onSuccess: () => {
-        uploadProgram(programModuleId.toString(), {
-          onSuccess: () => {
-            toast({ title: 'Data uploaded successfully', status: 'success' });
-          },
-        });
-      },
-      onError: (error) => {
-        toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });
-      },
-    });
   };
 
   const columns: ColumnDef<Beneficiary>[] = useMemo(() => {
@@ -324,22 +293,9 @@ const EnumerationsTable = () => {
             />
           </InputGroup>
         </Flex>
-        <Flex gap="4" alignItems="center">
-          <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="0.375rem">
-            Download Report
-          </Button>
-          <Button
-            rightIcon={<MdCloudUpload />}
-            variant="primary"
-            size="medium"
-            borderRadius="0.375rem"
-            isLoading={isPending || isProcessModulePending}
-            onClick={uploadData}
-            isDisabled={!uploadStatus?.body}
-          >
-            Upload Data
-          </Button>
-        </Flex>
+        <Button leftIcon={<MdDownload />} variant="primary" size="medium" borderRadius="0.375rem">
+          Download Report
+        </Button>
       </Flex>
 
       <ReusableTable

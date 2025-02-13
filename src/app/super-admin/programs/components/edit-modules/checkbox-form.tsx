@@ -100,10 +100,10 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
       if (!foundModule || !foundModule.form || isInvalidModule) return newMap;
 
       foundModule.form.questions.forEach((question) => {
-        if (question.dataPoint?.buffer)
-          newMap.set(question.dataPoint.buffer, {
+        if (question.dataPoint)
+          newMap.set(question.dataPoint, {
             dataPoint: {
-              id: question.dataPoint.buffer,
+              id: question.dataPoint,
               format: { options: question.options, type: question.type },
               question: question.question,
               type: question.question,

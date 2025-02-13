@@ -13,13 +13,12 @@ import { useGetProgramForm } from '@/hooks/useGetProgramForm';
 import { QuestionDetails } from '@/types';
 import FormInput from './form-input';
 import { MODULE_STATUS } from './module-status';
-// import { MultiStepHeaderBen } from './MultiStepHeaderBen';
 
 export default function ModuleForm() {
   const toast = useToast();
   const { programId } = useParams();
   const { data: programForm } = useGetProgramForm(programId.toString());
-  const questions = programForm?.body.form.questions ?? [];
+  const questions = programForm?.body.form?.questions ?? [];
   const [success, setSuccess] = useState(false);
   const [code, setCode] = useState('');
   const { onCopy, setValue } = useClipboard('');
@@ -36,7 +35,7 @@ export default function ModuleForm() {
   const { mutate: fillForm, isPending } = useFillForm();
 
   const onSubmit = (data: FormValues) => {
-    if (!programForm) return;
+    if (!programForm || !programForm.body.form) return;
 
     const formEntries = Object.entries(data);
 
@@ -113,14 +112,6 @@ export default function ModuleForm() {
             h="176px"
             width="200px"
           >
-            {/* <Flex alignItems="center" gap="4px">
-              <Text variant="Body2Semibold" color="primary.600">
-                {`${programForm.body.moduleName} in Progress`}
-                Verification in Progress
-              </Text>
-              <Icon as={MdRefresh} color="secondary.600" boxSize="16px" />
-            </Flex> */}
-
             <Flex flex="1 1 0%" justifyContent="center" alignItems="center">
               <Image src={`/icons/Verification.svg`} alt={programForm.body.moduleName} height="100%" />
             </Flex>
@@ -147,13 +138,6 @@ export default function ModuleForm() {
         </Flex>
       ) : (
         <Flex flexDir="column" p="24px" flex="1 1 0%">
-          {/* <Box borderBottom="1px solid" borderBottomColor="grey.200" pb="24px">
-            <MultiStepHeaderBen
-              currentModule={programForm.body.moduleName}
-              availableModules={programForm.body.availableModules}
-            />
-          </Box> */}
-
           <Flex flex="1 1 0%" mt="24px" mb="48px" flexDir="column">
             <Stack gap="6" as="form" onSubmit={form.handleSubmit(onSubmit)}>
               {questions.map((question) => (

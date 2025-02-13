@@ -2,16 +2,12 @@
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useGetProgramById } from '@/hooks/useGetProgramById';
-import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
 import { useGetVendorBeneficiaries } from '@/hooks/useGetVendorBeneficiaries';
-import { useProcessModule } from '@/hooks/useProcessModule';
-import { useUploadProgram } from '@/hooks/useUploadData';
 import { ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { formatCurrency, formatErrorMessage } from '@/utils';
+import { formatCurrency } from '@/utils';
 import {
   Box,
   Button,
@@ -39,7 +35,6 @@ import { useParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import {
   MdAccountBalanceWallet,
-  MdCloudUpload,
   MdDownload,
   MdEmojiEmotions,
   MdLocalShipping,
@@ -137,15 +132,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
 
-  const { response } = useGetProgramById(programID?.toString());
-  const programModule = response?.body.programModules.find((module) => module.module === 'Disbursement');
-  const programModuleId = programModule?.id ?? 0;
-  const isProgramCompleted = programModule?.isCompleted ?? true;
-
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
-  const { mutate: uploadProgram, isPending } = useUploadProgram();
-  const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
-  const { data: uploadStatus } = useGetUploadStatus(programModuleId.toString(), !isProgramCompleted);
 
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } =
     useGetVendorBeneficiaries({
@@ -181,21 +168,6 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
     },
     [approveBeneficiary, programID, toast]
   );
-
-  const uploadData = () => {
-    processModule(programModuleId.toString(), {
-      onSuccess: () => {
-        uploadProgram(programModuleId.toString(), {
-          onSuccess: () => {
-            toast({ title: 'Data uploaded successfully', status: 'success' });
-          },
-        });
-      },
-      onError: (error) => {
-        toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });
-      },
-    });
-  };
 
   const columns = useMemo(() => {
     if (!tableData || tableData.length === 0) return [];
@@ -286,22 +258,9 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
             }}
           />
         </InputGroup>
-        <Flex gap="4" alignItems="center">
-          <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="0.375rem">
-            Download Report
-          </Button>
-          <Button
-            leftIcon={<MdCloudUpload />}
-            variant="primary"
-            size="medium"
-            borderRadius="0.375rem"
-            isLoading={isPending || isProcessModulePending}
-            onClick={uploadData}
-            isDisabled={!uploadStatus?.body}
-          >
-            Upload data
-          </Button>
-        </Flex>
+        <Button leftIcon={<MdDownload />} variant="primary" size="medium" borderRadius="0.375rem">
+          Download Report
+        </Button>
       </Flex>
       <ReusableTable
         selectable

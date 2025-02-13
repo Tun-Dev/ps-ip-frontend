@@ -15,6 +15,7 @@ const ProgramDetails = memo((props: BoxProps) => {
     control,
     formState: { errors },
     getValues,
+    // register,
   } = useProgramForm();
   const { data: programTypes } = useGetProgramTypes();
 
@@ -38,7 +39,7 @@ const ProgramDetails = memo((props: BoxProps) => {
           border="1px dashed"
           borderColor={!!errors.name ? 'red' : 'grey.300'}
           onChange={(e) => setValue('name', e.target.value)}
-          value={getValues('name')}
+          defaultValue={getValues('name')}
         />
       </Wrapper>
 
@@ -81,7 +82,7 @@ const ProgramDetails = memo((props: BoxProps) => {
           border="1px dashed"
           borderColor={!!errors.description ? 'red' : 'grey.300'}
           onChange={(e) => setValue('description', e.target.value)}
-          value={getValues('description')}
+          defaultValue={getValues('description')}
         />
       </Wrapper>
       <Wrapper title="Target" icon>
@@ -91,7 +92,7 @@ const ProgramDetails = memo((props: BoxProps) => {
           border="1px dashed"
           borderColor={!!errors.target ? 'red' : 'grey.300'}
           onChange={(e) => setValue('target', Number(e.target.value))}
-          value={getValues('target')}
+          defaultValue={getValues('target')}
         />
       </Wrapper>
       <Wrapper title="Eligibility Criteria" icon>

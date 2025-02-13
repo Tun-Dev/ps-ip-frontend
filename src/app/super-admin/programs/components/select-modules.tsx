@@ -55,6 +55,7 @@ const SelectModules = memo((props: BoxProps) => {
   const setActiveModuleId = useProgramStore((state) => state.setActiveModuleId);
   const setStep = useProgramStore((state) => state.setStep);
   const { getValues, setValue, control } = useProgramForm();
+  console.log(getValues());
 
   const isEditing = pathname === `/super-admin/programs/${folderID}/edit/${programID}`;
 

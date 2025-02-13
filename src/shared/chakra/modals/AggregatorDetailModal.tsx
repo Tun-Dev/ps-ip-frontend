@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Modal,
@@ -14,8 +16,9 @@ import {
 } from '@chakra-ui/react';
 import { Aggregator } from '@/types';
 import { useGetAggregatorsByID } from '@/hooks/useGetAggregatorByID';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import AssignNewProgram from './AssignNewProgram';
+import { useDeleteAggregatorFromProgram } from '@/hooks/useDeleteAggregatorFromProgram';
 
 type ModalProps = {
   isOpen: boolean;
@@ -35,10 +38,24 @@ const AggregatorDetailsModal = ({ isOpen, onClose, aggregator }: ModalProps) => 
 
   const { onClose: onCloseAssign, onOpen: onOpenAssign, isOpen: isOpenAssign } = useDisclosure();
 
+  const { mutate, isPending } = useDeleteAggregatorFromProgram(`${aggregator?.id}`);
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const onDelete = (id: string) => {
+    // Set the current deleting id
+    setDeletingId(id);
+    // Call mutate with callbacks to reset the deletingId when finished
+    mutate(id, {
+      onSuccess: () => setDeletingId(null),
+      onError: () => setDeletingId(null),
+    });
+  };
+
   return (
     <>
       <AssignNewProgram isOpen={isOpenAssign} onClose={onCloseAssign} aggregator={aggregator} />
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
         <ModalOverlay />
         <ModalContent
           // onSubmit={handleSubmit(onSubmit)}
@@ -66,6 +83,10 @@ const AggregatorDetailsModal = ({ isOpen, onClose, aggregator }: ModalProps) => 
                     programType={item.programType}
                     aggregator={item.name}
                     agents={item.agents}
+                    isLoading={isPending && deletingId === item.aggregatorProgramId}
+                    onClick={() => {
+                      onDelete(item.aggregatorProgramId);
+                    }}
                   />
                 ))
               )}
@@ -106,9 +127,11 @@ interface ItemProps {
   programType: string;
   aggregator: string;
   agents: number;
+  isLoading?: boolean;
+  onClick: () => void;
 }
 
-const Item = ({ programName, programType, aggregator, agents }: ItemProps) => {
+const Item = ({ programName, programType, aggregator, agents, isLoading, onClick }: ItemProps) => {
   return (
     <Flex border="1px solid" borderColor="grey.200" borderRadius="12px" p="16px" flexDir="column">
       <Flex pb="8px" justifyContent="space-between" borderBottom="1px solid" borderBottomColor="grey.200">
@@ -133,7 +156,7 @@ const Item = ({ programName, programType, aggregator, agents }: ItemProps) => {
             <Text variant="Body1Semibold">{agents}</Text>
           </Flex>
         </Flex>
-        <Button w="156px" h="32px" variant="cancel">
+        <Button w="156px" h="32px" variant="cancel" isLoading={isLoading} onClick={onClick}>
           <Text fontSize="10px" fontWeight="600">
             Remove Program
           </Text>

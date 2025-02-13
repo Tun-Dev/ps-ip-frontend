@@ -323,7 +323,12 @@ export type ProgramDetails = {
   programType: string;
   programModules: ProgramModulesDetails[];
   coverPhoto: string;
-  eligibilityCriteria: string[];
+  eligibilityCriteria: EligibilityCriteriaType[];
+};
+
+export type EligibilityCriteriaType = {
+  id: number;
+  criteria: string;
 };
 
 export type ProgramModulesDetails = {
@@ -357,7 +362,7 @@ export type QuestionDetails = {
   updatedAt: string;
   id: string;
   total?: number;
-  dataPoint?: { buffer: string };
+  dataPoint?: string;
 };
 
 export type ApproveBeneficiaryPayload = {
@@ -419,7 +424,7 @@ export type ProgramUploadResponse = {
 };
 
 export type ProgramForm = {
-  form: Form;
+  form?: Form;
   programId: string;
   moduleName: string;
   description: string;
@@ -689,4 +694,22 @@ export type AggregatorDetails = {
   aggregatorProgramId: string;
   programName: string;
   programType: string;
+};
+
+export type VendorDetails = {
+  vendorProgramId: number;
+  name: string;
+  productOrServices: string;
+  scheduledDate: string;
+  endDate: string;
+  programName: string;
+  programType: string;
+  programId: string;
+};
+
+export type VendorProgramPayload = {
+  id: string;
+  programId: string;
+  scheduledDate: string;
+  endDate: string;
 };

@@ -5,6 +5,7 @@ import { useFilterVendors } from '@/hooks/useFilterVendors';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { DeleteModal, EditVendorModal, ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { ManageVendorModal } from '@/shared/chakra/modals/manage-vendor-modal';
 import { Vendor } from '@/types';
 import {
   Button,
@@ -30,6 +31,7 @@ import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 const VendorPage = () => {
   const toast = useToast();
   const [page, setPage] = useState(1);
+  const { isOpen: isManageOpen, onOpen: onManageOpen, onClose: manageModalOnClose } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: deleteModalOnClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: editModalOnClose } = useDisclosure();
   const [selectedVendor, setSelectedVendor] = useState<Vendor>();
@@ -59,7 +61,7 @@ const VendorPage = () => {
       {
         header: () => (
           <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-            Program
+            No. of Program
           </Text>
         ),
         accessorKey: 'programCount',
@@ -70,34 +72,6 @@ const VendorPage = () => {
           </Text>
         ),
       },
-      // {
-      //   header: () => (
-      //     <Text variant="Body3Semibold" color="gray.500" display="block" textAlign="center">
-      //       Product/Service Offered
-      //     </Text>
-      //   ),
-      //   accessorKey: 'product_service_offered',
-      //   enableSorting: false,
-      //   cell: (info) => (
-      //     <Text variant="Body2Semibold" align="center">
-      //       {info.row.original.item}
-      //     </Text>
-      //   ),
-      // },
-      // {
-      //   header: () => (
-      //     <Text variant="Body3Semibold" color="gray.500" align="center">
-      //       Scheduled Date
-      //     </Text>
-      //   ),
-      //   accessorKey: 'scheduledDate',
-      //   enableSorting: false,
-      //   cell: (info) => (
-      //     <Text variant="Body2Semibold" align="center">
-      //       {new Date(info.row.original.scheduledDate).toDateString()}
-      //     </Text>
-      //   ),
-      // },
       {
         header: () => (
           <Text variant="Body3Semibold" color="gray.500" textAlign="center">
@@ -125,6 +99,17 @@ const VendorPage = () => {
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedVendor(info.row.original);
+                  onManageOpen();
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Manage Vendor
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedVendor(info.row.original);
                   onDeleteOpen();
                 }}
               >
@@ -140,7 +125,7 @@ const VendorPage = () => {
                 }}
               >
                 <Text as="span" variant="Body2Regular" w="full">
-                  Edit
+                  Edit Vendor
                 </Text>
               </MenuItem>
             </MenuList>
@@ -148,7 +133,7 @@ const VendorPage = () => {
         ),
       },
     ],
-    [onDeleteOpen, onEditOpen]
+    [onDeleteOpen, onEditOpen, onManageOpen]
   );
 
   const [program, setProgram] = useState<number | undefined>(undefined);
@@ -173,8 +158,6 @@ const VendorPage = () => {
   const vendors = useMemo(() => data?.body.data ?? [], [data]);
   const totalPages = data?.body.totalPages ?? 0;
 
-  console.log(vendors);
-
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px">
       <DeleteModal
@@ -184,6 +167,9 @@ const VendorPage = () => {
         isLoading={isPending}
         text="Are you sure you want to delete this vendor. Proceeding will erase this vendor data."
       />
+      {selectedVendor && (
+        <ManageVendorModal isOpen={isManageOpen} onClose={manageModalOnClose} vendor={selectedVendor} />
+      )}
       <EditVendorModal
         isOpen={isEditOpen}
         onClose={() => {

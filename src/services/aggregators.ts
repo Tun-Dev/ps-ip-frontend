@@ -111,7 +111,12 @@ export const deleteAggregatorFromProgram = async (data: { programId: string; agg
 };
 
 export const addAggregatorToProgram = async (data: AddAggregatorToProgram) => {
+  const response = await axiosInstance.put<APIResponse<boolean>>('/aggregator/add/program', data);
+  return response.data;
+};
+
+export const removeAggregatorFromProgram = async (id: string) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await axiosInstance.put<APIResponse<any>>('/aggregator/add/program', data);
+  const response = await axiosInstance.delete<APIResponse<any>>(`/aggregator/${id}/remove/programs`);
   return response.data;
 };

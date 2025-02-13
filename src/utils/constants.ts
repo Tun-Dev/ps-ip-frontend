@@ -292,3 +292,9 @@ export const MONTHS = [
 ];
 
 export const CURRENT_MONTH = new Date().toLocaleString('en-US', { month: 'long' });
+
+export const SERVICES = [
+  { label: 'Cash', value: 'Cash' },
+  { label: 'Physical Item', value: 'Physical Item' },
+  { label: 'Capacity Building', value: 'Capacity Building' },
+];

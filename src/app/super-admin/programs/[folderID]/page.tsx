@@ -89,8 +89,8 @@ const EmptyState = () => (
     <Flex width="193px" height="182px" borderRadius="12px" bg="primary.200" p="16px 24px">
       <Image src="/icons/Blank.svg" alt="" />
     </Flex>
-    <Text variant="Body2Semibold">No Programs Available.</Text>
-    <Text variant="Body2Semibold">Please create a new program.</Text>
+    <Text variant="Body2Semibold">No Products Available.</Text>
+    <Text variant="Body2Semibold">Please create a new product.</Text>
   </Grid>
 );
 
@@ -227,10 +227,10 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
               </Button>
               <Flex gap="16px">
                 <Button fontSize="10px" w="full" variant="cancel" onClick={onOpen}>
-                  Delete Program
+                  Delete Product
                 </Button>
                 <Button fontSize="10px" w="full" variant="accept" onClick={() => handleEdit(program.id)}>
-                  Edit Program
+                  Edit Product
                 </Button>
               </Flex>
             </Flex>
