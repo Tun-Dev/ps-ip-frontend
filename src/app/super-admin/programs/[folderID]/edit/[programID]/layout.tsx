@@ -254,7 +254,7 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
                   Back
                 </Button>
                 <Button onClick={handleNextStep} isLoading={isPending} variant="primary" flex="1">
-                  {step === 4 ? 'Save Changes' : 'Next'}
+                  {step === 5 ? 'Save Changes' : 'Next'}
                 </Button>
               </ButtonGroup>
             </Flex>

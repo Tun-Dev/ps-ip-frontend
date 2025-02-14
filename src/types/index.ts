@@ -323,6 +323,7 @@ export type ProgramDetails = {
   programType: string;
   programModules: ProgramModulesDetails[];
   coverPhoto: string;
+  coverPhotoId: number;
   eligibilityCriteria: EligibilityCriteriaType[];
 };
 

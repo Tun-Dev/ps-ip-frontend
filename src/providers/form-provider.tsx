@@ -260,7 +260,7 @@ export const ProgramFormProvider = ({ children }: { children: ReactNode }) => {
       target: program.target,
       description: program.description,
       programTypeId: programType?.id,
-      coverPhotoID: 0,
+      coverPhotoID: program.coverPhotoId,
       eligibilityCriteria: program.eligibilityCriteria.map((item) => item.criteria),
       logoFile: program.logo,
       coverPhotoFile: program.coverPhoto,
