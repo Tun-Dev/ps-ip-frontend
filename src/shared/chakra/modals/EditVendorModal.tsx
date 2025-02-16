@@ -12,7 +12,6 @@ import {
   Grid,
   Input,
   InputGroup,
-  InputLeftAddon,
   InputLeftElement,
   Modal,
   ModalBody,
@@ -24,9 +23,11 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { PhoneNumberInput } from '../components/phone-number-input';
 
 type ModalProps = {
   isOpen: boolean;
@@ -61,10 +62,8 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
     }),
     contactEmail: z.string().min(1, 'Contact Email is required'),
     contactPhone: z
-      .string()
-      .nonempty('Phone number is required')
-      // Accept only 10 digits, not starting with 0
-      .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits and cannot start with 0'),
+      .string({ invalid_type_error: 'Phone number is required' })
+      .refine(isValidPhoneNumber, 'Invalid phone number'),
   });
 
   type FormValues = z.infer<typeof Schema>;
@@ -217,7 +216,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
                 <InputLeftElement>
                   <Text>₦</Text>
                 </InputLeftElement>
-                <Input type="number" id="amount" placeholder="50,000,000" {...register('amount')}></Input>
+                <Input type="number" id="amount" placeholder="50000000" {...register('amount')}></Input>
               </InputGroup>
               <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
             </FormControl>
@@ -300,17 +299,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
                   Phone Number
                 </Text>
               </FormLabel>
-              <InputGroup>
-                <InputLeftAddon>+234</InputLeftAddon>
-                <Input
-                  id="contactPhone"
-                  type="tel"
-                  placeholder="e.g. 8012345678"
-                  variant="primary"
-                  {...register('contactPhone')}
-                />
-              </InputGroup>
-
+              <PhoneNumberInput id="contactPhone" name="contactPhone" control={control} />
               <FormErrorMessage>{errors.contactPhone && errors.contactPhone.message}</FormErrorMessage>
             </FormControl>
           </Flex>

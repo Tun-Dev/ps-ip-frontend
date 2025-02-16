@@ -9,26 +9,28 @@ import {
   Icon,
   Image,
   Input,
-  InputGroup,
-  InputLeftAddon,
   Radio,
   RadioGroup,
   Spinner,
   Text,
   Textarea,
+  useToast,
 } from '@chakra-ui/react';
-import { ChangeEvent, HTMLInputTypeAttribute, useRef, useState } from 'react';
+import { ChangeEvent, HTMLInputTypeAttribute, useEffect, useRef, useState } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
 import { MdInfo, MdOutlineAddCircle } from 'react-icons/md';
 
 import { useUploadFile } from '@/hooks/useUploadFile';
 import { Dropdown } from '@/shared/chakra/components';
+import { PhoneNumberInput } from '@/shared/chakra/components/phone-number-input';
 import { QuestionDetails } from '@/types';
 
 type FormInputProps = { question: QuestionDetails; form: UseFormReturn };
 
 const FormInput = ({ question, form }: FormInputProps) => {
   const InputComponent = getFormInput(question.type);
+
+  if (question.type === 'GPS') return <GPSInput question={question} form={form} />;
 
   return (
     <FormControl isInvalid={!!form.formState.errors[question.id]} isRequired={question.mandatory} maxW="430px">
@@ -146,17 +148,24 @@ const ImageInput = ({ question, form }: FormInputProps) => {
 };
 
 const PhoneInput = ({ question, form }: FormInputProps) => {
-  return (
-    <InputGroup>
-      <InputLeftAddon>+234</InputLeftAddon>
-      <Input
-        {...form.register(question.id)}
-        type="number"
-        placeholder="e.g. 8012345678"
-        isRequired={question.mandatory}
-      />
-    </InputGroup>
-  );
+  return <PhoneNumberInput name={question.id} control={form.control} isRequired={question.mandatory} />;
+};
+
+const GPSInput = ({ question, form }: FormInputProps) => {
+  const toast = useToast();
+
+  useEffect(() => {
+    if (!navigator) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        form.setValue(question.id, `${position.coords.latitude},${position.coords.longitude}`);
+      },
+      () => toast({ status: 'error', title: 'Error', description: 'Please allow location access to proceed' })
+    );
+  }, [toast, form, question]);
+
+  return <Input type="hidden" {...form.register(question.id)} />;
 };
 
 const getFormInput = (type: string) => {

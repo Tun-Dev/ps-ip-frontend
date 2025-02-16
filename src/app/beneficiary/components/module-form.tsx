@@ -3,7 +3,7 @@
 import { Box, Button, Flex, Icon, Image, Stack, Text, useClipboard, useToast } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { MdCheckCircle } from 'react-icons/md';
 import { z } from 'zod';
@@ -11,22 +11,27 @@ import { z } from 'zod';
 import { useFillForm } from '@/hooks/useFillForm';
 import { useGetProgramForm } from '@/hooks/useGetProgramForm';
 import { QuestionDetails } from '@/types';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 import FormInput from './form-input';
 import { MODULE_STATUS } from './module-status';
 
 export default function ModuleForm() {
   const toast = useToast();
   const { programId } = useParams();
-  const { data: programForm } = useGetProgramForm(programId.toString());
-  const questions = programForm?.body.form?.questions ?? [];
   const [success, setSuccess] = useState(false);
   const [code, setCode] = useState('');
   const { onCopy, setValue } = useClipboard('');
 
+  const { data: programForm } = useGetProgramForm(programId.toString());
+  const questions = useMemo(() => programForm?.body.form?.questions ?? [], [programForm]);
+
   const Schema = generateSchema(questions);
   type FormValues = z.infer<typeof Schema>;
 
-  const defaultValues = questions.reduce((acc, question) => ({ ...acc, [question.id]: '' }), {} as FormValues);
+  const defaultValues = useMemo(
+    () => questions.reduce((acc, question) => ({ ...acc, [question.id]: '' }), {} as FormValues),
+    [questions]
+  );
 
   const form = useForm<FormValues>({ resolver: zodResolver(Schema), defaultValues });
 
@@ -43,8 +48,7 @@ export default function ModuleForm() {
       const questionInfo = questions.find((q) => q.id === question);
       if (!questionInfo) return { label: '', value: '', question: '' };
       const label = questionInfo.question;
-      const type = questionInfo.type;
-      return { label, value: type === 'PHONE_NUMBER' ? `+234${value}` : value, question };
+      return { label, value, question };
     });
 
     fillForm(
@@ -187,10 +191,15 @@ const generateSchema = (questions: QuestionDetails[]) => {
         break;
 
       case 'PHONE_NUMBER':
-        fieldSchema = z
-          .string()
-          .min(10, `${question.question} must be at least 10 digits`)
-          .max(11, `${question.question} must be at most 11 digits`);
+        if (question.mandatory)
+          fieldSchema = z
+            .string({ invalid_type_error: 'Phone number is required' })
+            .refine(isValidPhoneNumber, 'Invalid phone number');
+        else
+          fieldSchema = z
+            .string()
+            .nullable()
+            .refine((value) => (value && value !== '+234' ? isValidPhoneNumber(value) : true), 'Invalid phone number');
         break;
 
       case 'DATE':

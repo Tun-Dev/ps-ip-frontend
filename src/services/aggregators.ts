@@ -97,9 +97,11 @@ export const getAllAggregatorPrograms = async ({ signal }: { signal: AbortSignal
   return response.data;
 };
 
-export const getAggregatorById = async ({ queryKey }: { queryKey: string[] }) => {
-  const id = queryKey[1];
-  const { data } = await axiosInstance.get<APIResponse<AggregatorDetails[]>>(`/aggregator/${id}/programs`);
+export const getAggregatorById = async ({ queryKey, signal }: { queryKey: string[]; signal: AbortSignal }) => {
+  const [, aggregatorId] = queryKey;
+  const { data } = await axiosInstance.get<APIResponse<AggregatorDetails[]>>(`/aggregator/${aggregatorId}/programs`, {
+    signal,
+  });
   return data;
 };
 

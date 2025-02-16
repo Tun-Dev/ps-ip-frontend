@@ -1,25 +1,13 @@
 'use client';
 
-import {
-  Button,
-  Flex,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  IconButton,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Text,
-} from '@chakra-ui/react';
+import { Button, Flex, FormControl, FormErrorMessage, FormLabel, Input, Text } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useGetUser } from '@/hooks/useGetUser';
 import { useLogin } from '@/hooks/useLogin';
-import { ViewOffIcon, ViewIcon } from '@chakra-ui/icons';
-import { useState } from 'react';
+import { PasswordInput } from '@/shared/chakra/components/password-input';
 
 const Schema = z.object({
   email: z.string().min(1, 'Email is required').email('Email is invalid'),
@@ -33,9 +21,6 @@ const SignInPage = () => {
 
   const { isLoading } = useGetUser(isSuccess);
 
-  const [showPassword, setShowPassword] = useState(false);
-  const handleTogglePassword = () => setShowPassword(!showPassword);
-
   const {
     register,
     handleSubmit,
@@ -43,6 +28,7 @@ const SignInPage = () => {
   } = useForm<FormValues>({ resolver: zodResolver(Schema) });
 
   const hasErrors = Object.keys(errors).length > 0;
+  console.log('🚀 ~ SignInPage ~ errors:', errors);
 
   const onSubmit = (data: FormValues) => mutate(data);
 
@@ -78,24 +64,12 @@ const SignInPage = () => {
               Password
             </Text>
           </FormLabel>
-          <InputGroup>
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              variant="primary"
-              placeholder="Input password"
-              autoComplete="current-password"
-              {...register('password')}
-            />
-            <InputRightElement>
-              <IconButton
-                aria-label="Toggle password visibility"
-                icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                onClick={handleTogglePassword}
-                variant="ghost"
-              />
-            </InputRightElement>
-          </InputGroup>
+          <PasswordInput
+            id="password"
+            placeholder="Input password"
+            autoComplete="current-password"
+            {...register('password')}
+          />
           <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
         </FormControl>
       </Flex>

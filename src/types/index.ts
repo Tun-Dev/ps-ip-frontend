@@ -113,7 +113,7 @@ export type VendorOverview = {
 };
 
 export type Aggregator = {
-  id: number;
+  id: string;
   name: string;
   programId: string;
   noOfAgents: number;
@@ -165,8 +165,6 @@ export type ProgramPayload = {
 
 export type AggregatorPayload = {
   name: string;
-  programId: string;
-  maxAgents: number;
   firstname: string;
   lastname: string;
   email: string;
@@ -174,6 +172,7 @@ export type AggregatorPayload = {
   confirmPassword: string;
   contactEmail: string;
   contactPhone: string;
+  programDetails: { programId: string; maxAgents: number }[];
 };
 
 export type AddAggregatorToProgram = {

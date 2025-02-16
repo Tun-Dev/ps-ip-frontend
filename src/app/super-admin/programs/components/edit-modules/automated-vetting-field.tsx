@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+
 import { Box, Button, Flex, Grid, Icon, Input, SimpleGrid, Text } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useFieldArray, type FieldArrayWithId } from 'react-hook-form';
-import { MdEdit, MdRadioButtonUnchecked } from 'react-icons/md';
+import { MdEdit, MdRadioButtonUnchecked, MdAddCircle } from 'react-icons/md';
 
 import { useProgramForm } from '@/providers/form-provider';
 import { Fragment } from 'react';
@@ -25,7 +28,7 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
   });
 
   const { control, register } = useProgramForm();
-  const { fields } = useFieldArray({ name: `vettingForm.automatedFields.${index}.options`, control });
+  const { fields, remove, append } = useFieldArray({ name: `vettingForm.automatedFields.${index}.options`, control });
 
   return (
     <Box
@@ -105,6 +108,10 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
                   color="grey.500"
                   {...register(`vettingForm.automatedFields.${index}.options.${idx}.weight`)}
                 />
+
+                <Button variant="cancel" size="small" type="button" onClick={() => remove(idx)}>
+                  Delete
+                </Button>
               </Flex>
             </Fragment>
           ))}
@@ -131,6 +138,20 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
           </Grid>
         </Flex>
       </Flex>
+      <Button
+        mt="8px"
+        type="button"
+        variant="tertiary"
+        size="default"
+        leftIcon={<MdAddCircle color="var(--chakra-colors-primary-600)" size="1.5rem" />}
+        onClick={() => append({ label: '', value: '', weight: 0 })}
+        border="1px dashed"
+        borderColor="grey.300"
+        p="0.5rem 0.75rem"
+        color="grey.400"
+      >
+        Add option
+      </Button>
     </Box>
   );
 }

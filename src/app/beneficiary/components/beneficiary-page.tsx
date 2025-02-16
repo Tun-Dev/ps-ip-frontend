@@ -4,6 +4,7 @@ import { Box, Button, Flex, Text } from '@chakra-ui/react';
 import { useParams, useRouter } from 'next/navigation';
 
 import { useGetProgramForm } from '@/hooks/useGetProgramForm';
+import { LocationPermissionModal } from '@/shared/chakra/modals/location-permission-modal';
 
 const BeneficiaryPage = () => {
   const router = useRouter();
@@ -21,6 +22,7 @@ const BeneficiaryPage = () => {
 
   return (
     <Flex flexDir="column" h="full" borderRadius="12px" overflow="hidden">
+      <LocationPermissionModal />
       <Flex h="272px" bg="url(/images/benHeader1.png)" p="12px 24px" pos="relative" alignItems="flex-end">
         <Box
           bg="linear-gradient(0deg, rgba(7, 125, 0, 0.3) 0%, rgba(0, 0, 0, 0) 100%)"

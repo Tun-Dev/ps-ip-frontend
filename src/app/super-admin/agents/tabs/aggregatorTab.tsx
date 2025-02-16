@@ -23,9 +23,9 @@ import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { AggregatorDetailsModal, ReusableTable } from '@/shared';
+import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
-// import { EditAggregatorModal } from '@/shared/chakra/modals/EditAggregatorModal';
+import { ManageAggregatorModal } from '@/shared/chakra/modals/manage-aggregator-modal';
 import type { Aggregator } from '@/types';
 
 const AggregatorTab = () => {
@@ -40,11 +40,8 @@ const AggregatorTab = () => {
 
   const [aggregatorsDetails, setAggregatorsDetails] = useState<Aggregator | null>(null);
 
-  // const [selectedAggregator, setSelectedAggregator] = useState<Aggregator>();
-
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 10 });
 
-  // const { onClose, onOpen, isOpen } = useDisclosure();
   const { onClose: onCloseDetails, onOpen: onOpenDetails, isOpen: isOpenDetails } = useDisclosure();
 
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } = useGetAggregators({
@@ -80,7 +77,7 @@ const AggregatorTab = () => {
     {
       header: () => (
         <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-          No. of Program
+          No. of Programs
         </Text>
       ),
       accessorKey: 'programCount',
@@ -154,7 +151,6 @@ const AggregatorTab = () => {
       borderTop="1px solid"
       borderTopColor="grey.200"
     >
-      {/* <EditAggregatorModal isOpen={isOpen} onClose={onClose} initialValues={selectedAggregator} /> */}
       <Flex justifyContent="space-between">
         <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
@@ -219,7 +215,6 @@ const AggregatorTab = () => {
         <ReusableTable
           selectable
           data={aggregators}
-          // onClick={openAggregatorDetailsModal}
           columns={columns}
           isLoading={isLoading || isRefetching}
           isError={isError || isRefetchError}
@@ -238,7 +233,7 @@ const AggregatorTab = () => {
         />
       </>
       {aggregatorsDetails && (
-        <AggregatorDetailsModal isOpen={isOpenDetails} onClose={onCloseDetails} aggregator={aggregatorsDetails} />
+        <ManageAggregatorModal isOpen={isOpenDetails} onClose={onCloseDetails} aggregator={aggregatorsDetails} />
       )}
     </Flex>
   );

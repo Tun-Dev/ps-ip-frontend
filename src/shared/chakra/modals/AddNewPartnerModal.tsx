@@ -10,7 +10,6 @@ import {
   FormLabel,
   Input,
   InputGroup,
-  InputLeftAddon,
   InputLeftElement,
   Modal,
   ModalBody,
@@ -22,8 +21,11 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { PasswordInput } from '../components/password-input';
+import { PhoneNumberInput } from '../components/phone-number-input';
 
 type ModalProps = {
   isOpen: boolean;
@@ -47,10 +49,8 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
       password: z.string().min(1, 'Password is required'),
       confirmPassword: z.string().min(1, 'Confirm password is required'),
       contactPhone: z
-        .string()
-        .nonempty('Phone number is required')
-        // Accept only 10 digits, not starting with 0
-        .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits and cannot start with 0'),
+        .string({ invalid_type_error: 'Phone number is required' })
+        .refine(isValidPhoneNumber, 'Invalid phone number'),
     })
     .refine((value) => value.password === value.confirmPassword, {
       message: "Passwords don't match",
@@ -73,12 +73,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
   });
 
   const onSubmit = (data: FormValues) => {
-    const formattedData = {
-      ...data,
-      contactPhone: `+234${data.contactPhone}`,
-    };
-
-    mutate(formattedData);
+    mutate(data);
   };
 
   return (
@@ -137,7 +132,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
                   <InputLeftElement>
                     <Text>₦</Text>
                   </InputLeftElement>
-                  <Input type="number" id="amount" placeholder="50,000,000" {...register('amount')}></Input>
+                  <Input type="number" id="amount" placeholder="50000000" {...register('amount')}></Input>
                 </InputGroup>
                 <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
               </FormControl>
@@ -156,7 +151,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
                     Password
                   </Text>
                 </FormLabel>
-                <Input id="password" type="password" variant="primary" {...register('password')} />
+                <PasswordInput id="password" {...register('password')} />
                 <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
               </FormControl>
               <FormControl isInvalid={!!errors.confirmPassword}>
@@ -165,7 +160,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
                     Confirm Password
                   </Text>
                 </FormLabel>
-                <Input id="confirmPassword" type="password" variant="primary" {...register('confirmPassword')} />
+                <PasswordInput id="confirmPassword" {...register('confirmPassword')} />
                 <FormErrorMessage>{errors.confirmPassword && errors.confirmPassword.message}</FormErrorMessage>
               </FormControl>
 
@@ -205,16 +200,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
                     Phone number
                   </Text>
                 </FormLabel>
-                <InputGroup>
-                  <InputLeftAddon>+234</InputLeftAddon>
-                  <Input
-                    id="contactPhone"
-                    type="string"
-                    placeholder="e.g. 8012345678"
-                    variant="primary"
-                    {...register('contactPhone')}
-                  />
-                </InputGroup>
+                <PhoneNumberInput id="contactPhone" name="contactPhone" control={control} />
               </FormControl>
             </Flex>
           </ModalBody>

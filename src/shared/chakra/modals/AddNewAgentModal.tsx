@@ -5,8 +5,6 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
-  InputGroup,
-  InputLeftAddon,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -19,6 +17,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 import { Fragment, useCallback, useMemo } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -29,6 +28,7 @@ import { useGetCurrentUser } from '@/hooks/useGetCurrentUser';
 import { useGetStates } from '@/hooks/useGetStates';
 import { AgentProgramDetails } from '@/types';
 import { Dropdown } from '../components';
+import { PhoneNumberInput } from '../components/phone-number-input';
 
 type ModalProps = {
   isOpen: boolean;
@@ -39,10 +39,8 @@ const Schema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   phoneNumber: z
-    .string()
-    .min(1, 'Phone number is required')
-    // Accept only 10 digits, not starting with 0
-    .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits and cannot start with 0'),
+    .string({ invalid_type_error: 'Phone number is required' })
+    .refine(isValidPhoneNumber, 'Invalid phone number'),
   email: z.string().min(1, 'Email is required'),
   programDetails: z.array(
     z.object({
@@ -103,7 +101,7 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
         {
           firstName: data.firstName,
           lastName: data.lastName,
-          phoneNumber: `+234${data.phoneNumber}`,
+          phoneNumber: data.phoneNumber,
           email: data.email,
           programDetails: data.programDetails,
         },
@@ -175,16 +173,7 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
                   Phone number
                 </Text>
               </FormLabel>
-              <InputGroup>
-                <InputLeftAddon>+234</InputLeftAddon>
-                <Input
-                  id="phoneNumber"
-                  type="tel"
-                  placeholder="e.g. 8012345678"
-                  variant="primary"
-                  {...register('phoneNumber')}
-                />
-              </InputGroup>
+              <PhoneNumberInput id="phoneNumber" name="phoneNumber" control={control} />
               <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
             </FormControl>
             {fields.map((field, index) => (

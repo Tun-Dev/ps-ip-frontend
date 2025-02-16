@@ -21,11 +21,17 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
         borderBottomColor="grey.200"
         justifyContent="space-between"
         alignItems="center"
+        gap="4"
       >
         <ProgramsBreadcrumbs />
         {pathname !== `/super-admin/programs/${folderID}/create` &&
           !pathname.includes(`/super-admin/programs/${folderID}/edit`) && (
-            <Button variant="primary" gap="8px" onClick={() => router.push(`/super-admin/programs/${folderID}/create`)}>
+            <Button
+              variant="primary"
+              gap="8px"
+              onClick={() => router.push(`/super-admin/programs/${folderID}/create`)}
+              flexShrink="0"
+            >
               <MdAddCircle />
               <Text>Create New Product</Text>
             </Button>

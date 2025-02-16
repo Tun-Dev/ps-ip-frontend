@@ -33,7 +33,14 @@ const ProgramsBreadcrumbs = () => {
   const isCreating = pathname === `/super-admin/programs/${folderID}/create`;
 
   return (
-    <Breadcrumb separator=">" color="grey.500" fontSize="1rem" fontWeight="600">
+    <Breadcrumb
+      separator=">"
+      color="grey.500"
+      fontSize="1rem"
+      fontWeight="600"
+      sx={{ '& > ol': { flexWrap: 'wrap' } }}
+      isTruncated
+    >
       <BreadcrumbItem>
         <BreadcrumbLink as={Link} href="/super-admin/programs">
           Programs
@@ -44,7 +51,12 @@ const ProgramsBreadcrumbs = () => {
           isCurrentPage={!!folderID && !programID}
           color={!!folderID && !programID ? 'primary.600' : 'inherit'}
         >
-          <BreadcrumbLink as={!!folderID && !programID ? 'span' : Link} href={`/super-admin/programs/${folderID}`}>
+          <BreadcrumbLink
+            as={!!folderID && !programID ? 'span' : Link}
+            href={`/super-admin/programs/${folderID}`}
+            maxW="15rem"
+            isTruncated
+          >
             {folderName?.name}
           </BreadcrumbLink>
         </BreadcrumbItem>
@@ -57,6 +69,8 @@ const ProgramsBreadcrumbs = () => {
           <BreadcrumbLink
             as={!!programID && !currentModule ? 'span' : Link}
             href={`/super-admin/programs/${folderID}/${programID}/application`}
+            maxW="15rem"
+            isTruncated
           >
             {programName}
           </BreadcrumbLink>

@@ -3,7 +3,7 @@
 import { useDeleteVendor } from '@/hooks/useDeleteVendor';
 import { useFilterVendors } from '@/hooks/useFilterVendors';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { DeleteModal, EditVendorModal, ReusableTable } from '@/shared';
+import { DeleteModal, ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { ManageVendorModal } from '@/shared/chakra/modals/manage-vendor-modal';
 import { Vendor } from '@/types';
@@ -33,7 +33,6 @@ const VendorPage = () => {
   const [page, setPage] = useState(1);
   const { isOpen: isManageOpen, onOpen: onManageOpen, onClose: manageModalOnClose } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: deleteModalOnClose } = useDisclosure();
-  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: editModalOnClose } = useDisclosure();
   const [selectedVendor, setSelectedVendor] = useState<Vendor>();
   const { mutate: delVendor, isPending } = useDeleteVendor();
   const handleDeleteVendor = () => {
@@ -61,7 +60,7 @@ const VendorPage = () => {
       {
         header: () => (
           <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-            No. of Program
+            No. of Programs
           </Text>
         ),
         accessorKey: 'programCount',
@@ -117,23 +116,12 @@ const VendorPage = () => {
                   Delete Vendor
                 </Text>
               </MenuItem>
-              <MenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedVendor(info.row.original);
-                  onEditOpen();
-                }}
-              >
-                <Text as="span" variant="Body2Regular" w="full">
-                  Edit Vendor
-                </Text>
-              </MenuItem>
             </MenuList>
           </Menu>
         ),
       },
     ],
-    [onDeleteOpen, onEditOpen, onManageOpen]
+    [onDeleteOpen, onManageOpen]
   );
 
   const [program, setProgram] = useState<number | undefined>(undefined);
@@ -170,13 +158,6 @@ const VendorPage = () => {
       {selectedVendor && (
         <ManageVendorModal isOpen={isManageOpen} onClose={manageModalOnClose} vendor={selectedVendor} />
       )}
-      <EditVendorModal
-        isOpen={isEditOpen}
-        onClose={() => {
-          editModalOnClose();
-        }}
-        initialValues={selectedVendor}
-      />
       <Flex justifyContent="space-between">
         <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">

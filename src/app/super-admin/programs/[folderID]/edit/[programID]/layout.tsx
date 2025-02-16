@@ -25,7 +25,6 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const nextStep = useProgramStore((state) => state.nextStep);
   const previousStep = useProgramStore((state) => state.previousStep);
   const resetState = useProgramStore((state) => state.resetState);
-  const activeModuleId = useProgramStore((state) => state.activeModuleId);
   const setActiveModuleId = useProgramStore((state) => state.setActiveModuleId);
   const selectedModules = useProgramStore((state) => state.selectedModules);
   const setSelectedModules = useProgramStore((state) => state.setSelectedModules);
@@ -52,6 +51,12 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
       });
     setSelectedModules({ ids: selectedModulesSet });
   }, [setSelectedModules, program, modules]);
+
+  const handlePrevStep = () => {
+    const firstModuleId = selectedModules.ids.values().next().value ?? 0;
+    setActiveModuleId(firstModuleId);
+    previousStep();
+  };
 
   const handleNextStep = async () => {
     if (step === 5) {
@@ -91,7 +96,7 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
       } else handleEditProgram();
     } else {
       const firstModuleId = selectedModules.ids.values().next().value ?? 0;
-      if (!activeModuleId || !selectedModules.ids.has(activeModuleId)) setActiveModuleId(firstModuleId);
+      setActiveModuleId(firstModuleId);
       nextStep();
     }
   };
@@ -245,7 +250,7 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
             >
               <ButtonGroup size="default" spacing="4" w="full" maxW="31.25rem">
                 <Button
-                  onClick={previousStep}
+                  onClick={handlePrevStep}
                   variant="secondary"
                   flex="1"
                   visibility={step > 1 ? 'visible' : 'hidden'}
