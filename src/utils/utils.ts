@@ -141,3 +141,7 @@ export const getDashboardRoute = (user: User | null) => {
       return '/login';
   }
 };
+
+export const getImageUrl = (url: string) => {
+  return url.startsWith('http') ? url : `https://boi-ip-is.s3.eu-north-1.amazonaws.com/${url}`;
+};

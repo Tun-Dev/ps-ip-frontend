@@ -57,9 +57,15 @@ const CreateFileModal = ({ isOpen, onClose }: ModalProps) => {
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
+      <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside" isCentered>
         <ModalOverlay />
-        <ModalContent as="form" width="498px" height="756px" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
+        <ModalContent
+          as="form"
+          maxW="42.375rem"
+          minH="calc(100% - 8rem)"
+          borderRadius="12px"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <ModalHeader>
             <Text variant="Body1Semibold">Create New File</Text>
           </ModalHeader>
@@ -78,7 +84,7 @@ const CreateFileModal = ({ isOpen, onClose }: ModalProps) => {
             </Flex>
           </ModalBody>
           <ModalFooter>
-            <Button variant="primary" width="402px" height="48px" type="submit" isLoading={isPending}>
+            <Button variant="primary" w="25.125rem" h="3rem" mx="auto" type="submit" isLoading={isPending}>
               Create New File
             </Button>
           </ModalFooter>

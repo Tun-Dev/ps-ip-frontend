@@ -1,65 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { ReusableTable } from '@/shared';
-import { Flex, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Text } from '@chakra-ui/react';
+import { Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { MdMoreHoriz } from 'react-icons/md';
 
-const OrderPage = () => {
-  // const data = [
-  //   {
-  //     vendor: 'PAYSTACK',
-  //     program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAMME',
-  //     product_service_offered: 'Loan',
-  //     schedule_date: 'Dec. 20',
-  //     end_date: 'Dec. 20',
-  //     amount_disbursable: '₦ 50,000,000.00',
-  //   },
-  //   {
-  //     vendor: 'SOVALABS',
-  //     program: 'INVESTMENT IN DIGITAL CREATIVE ENTERPRISES PROGRAMME',
-  //     product_service_offered: 'Tech Skills',
-  //     schedule_date: 'Dec. 20',
-  //     end_date: 'Dec. 20',
-  //     amount_disbursable: '750 beneficiaries',
-  //   },
-  //   {
-  //     vendor: 'DANGOTE GROUP',
-  //     program: 'ALIKO DANGOTE FOUNDATION FUND',
-  //     product_service_offered: 'Skill Development',
-  //     schedule_date: 'Dec. 20',
-  //     end_date: 'Dec. 20',
-  //     amount_disbursable: '₦ 50,000,000.00',
-  //   },
-  //   {
-  //     vendor: 'PAYSTACK',
-  //     program: 'CBN BACKWARD INTEGRATION FUND',
-  //     product_service_offered: 'Loan',
-  //     schedule_date: 'Dec. 20',
-  //     end_date: 'Dec. 20',
-  //     amount_disbursable: '₦ 50,000,000.00',
-  //   },
-  //   {
-  //     vendor: 'PAYSTACK',
-  //     program: 'CBN BACKWARD INTEGRATION FUND',
-  //     product_service_offered: 'Loan',
-  //     schedule_date: 'Dec. 20',
-  //     end_date: 'Dec. 20',
-  //     amount_disbursable: '₦ 50,000,000.00',
-  //   },
-  //   {
-  //     vendor: 'PAYSTACK',
-  //     program: 'GOVERNMENT ENTERPRISE EMPOWERMENT PROGRAMME',
-  //     product_service_offered: 'Loan',
-  //     schedule_date: 'Dec. 20',
-  //     end_date: 'Dec. 20',
-  //     amount_disbursable: '₦ 50,000,000.00',
-  //   },
-  // ];
+type Order = {
+  vendor: string;
+  program: string;
+  product_service_offered: string;
+  schedule_date: string;
+  end_date: string;
+  amount_disbursable: string;
+};
 
-  const columns: ColumnDef<any>[] = useMemo(
+const OrderPage = () => {
+  const columns: ColumnDef<Order>[] = useMemo(
     () => [
       {
         header: () => (
@@ -167,9 +124,9 @@ const OrderPage = () => {
   );
 
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px">
-      <ReusableTable selectable data={[]} columns={columns} />{' '}
-    </Flex>
+    <Stack gap="6" w="full" flex="1">
+      <ReusableTable selectable data={[]} columns={columns} />
+    </Stack>
   );
 };
 

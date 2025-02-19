@@ -6,6 +6,7 @@ import {
   NewVendor,
   PaginatedResponse,
   Vendor,
+  VendorAnalytics,
   VendorDetails,
   VendorFilterParams,
   VendorOverview,
@@ -97,5 +98,11 @@ export const removeVendorProgram = async (vendorProgramId: number) => {
 
 export const addVendorToProgram = async (payload: VendorProgramPayload) => {
   const { data } = await axiosInstance.put<APIResponse<boolean>>('/vendor/program/add', payload);
+  return data;
+};
+
+export const getVendorAnalytics = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, programId] = queryKey;
+  const { data } = await axiosInstance.get<APIResponse<VendorAnalytics>>(`/vendor/analytics/${programId}`, { signal });
   return data;
 };

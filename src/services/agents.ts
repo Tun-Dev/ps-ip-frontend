@@ -1,5 +1,12 @@
 import axiosInstance from '@/lib/axios';
-import type { Agent, AgentPayload, AgentSignUpPayload, APIResponse, ReassignAgentPayload } from '@/types';
+import type {
+  Agent,
+  AgentPayload,
+  AgentSignUpPayload,
+  APIResponse,
+  ReassignAgentPayload,
+  ScheduleActivationPayload,
+} from '@/types';
 
 export const createAgent = async (payload: AgentPayload) => {
   const { aggregatorId, agents } = payload;
@@ -16,4 +23,9 @@ export const reassignAgent = async (payload: ReassignAgentPayload) => {
   const { aggregatorProgramId, programs } = payload;
   const response = await axiosInstance.put<APIResponse<Agent>>(`/agents/${aggregatorProgramId}`, programs);
   return response.data;
+};
+
+export const scheduleActivation = async (payload: ScheduleActivationPayload[]) => {
+  const { data } = await axiosInstance.put<APIResponse<number>>('/agents/schedule-activation', payload);
+  return data;
 };

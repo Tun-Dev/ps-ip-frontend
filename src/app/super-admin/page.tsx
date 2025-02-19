@@ -5,9 +5,9 @@ import { NotificationCard, ReusableTable } from '@/shared';
 import { ModuleDashboardCard } from '@/shared/chakra/components';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { EnumerationsTableData } from '@/types';
-import { Box, Flex, Grid, Icon, Link, Text } from '@chakra-ui/react';
+import { Box, Flex, Icon, SimpleGrid, Stack, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import Link from 'next/link';
 import {
   MdEmojiEmotions,
   MdLocalShipping,
@@ -18,71 +18,6 @@ import {
   MdVolunteerActivism,
 } from 'react-icons/md';
 
-const ActivityTable = ({ data }: { data: EnumerationsTableData[] }) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const columns: ColumnDef<any>[] = useMemo(
-    () => [
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            Name
-          </Text>
-        ),
-        accessorKey: 'name',
-        enableSorting: false,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            LGA
-          </Text>
-        ),
-        accessorKey: 'lga',
-        enableSorting: false,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-            Enumerated
-          </Text>
-        ),
-        accessorKey: 'enumerated',
-        enableSorting: false,
-        cell: (info) => (
-          <Box
-            padding="2px 10px"
-            bg={info.row.original.enumerated / 1000 < 1 ? 'grey.200' : 'primary.100'}
-            borderRadius="12px"
-            width="fit-content"
-            mx="auto"
-          >
-            {info.row.original.enumerated}
-          </Box>
-        ),
-      },
-    ],
-    []
-  );
-  return (
-    <Flex gap="4px" flexDirection="column" padding="10px" borderRadius="12px" boxShadow="card" bg="primary.100">
-      <Flex justifyContent="space-between" alignItems="center">
-        <Text variant="Body2Semibold" color="grey.500">
-          Enumeration
-          {/* - iDICE */}
-        </Text>
-        <Flex justifyContent="flex-end" color="secondary.500">
-          <Link>
-            <Text display="flex" alignItems="center" gap="1" variant="Body3Semibold">
-              View details <Icon as={MdOpenInNew} />
-            </Text>
-          </Link>
-        </Flex>
-      </Flex>
-      <ReusableTable data={data} columns={columns} p="8px 0px" />
-    </Flex>
-  );
-};
-
 const SuperAdminDashboard = () => {
   const { data, isLoading } = useGetDashboardData();
 
@@ -92,7 +27,7 @@ const SuperAdminDashboard = () => {
         <Text variant="Body1Semibold" color="grey.400">
           Overview
         </Text>
-        <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(265px, 1fr))">
+        <SimpleGrid gap="4" columns={{ base: 3, sm: 4 }}>
           <OverviewCard
             title="Programs"
             number={isLoading ? '...' : (data?.body.runningPrograms ?? 0)}
@@ -113,13 +48,13 @@ const SuperAdminDashboard = () => {
             number={isLoading ? '...' : (data?.body.amountDisbursed ?? 0)}
             icon={MdVolunteerActivism}
           />
-        </Grid>
+        </SimpleGrid>
       </Flex>
       <Flex flexDir="column" gap="12px">
         <Text variant="Body1Semibold" color="grey.400">
           Modules In Progress
         </Text>
-        <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(262px, 1fr))">
+        <SimpleGrid gap="5" columns={{ base: 3, sm: 4 }}>
           <ModuleDashboardCard
             text="Applications"
             number={isLoading ? '...' : (data?.body.applications ?? 0)}
@@ -140,33 +75,93 @@ const SuperAdminDashboard = () => {
             number={isLoading ? '...' : (data?.body.awaitingDisbursement ?? 0)}
             image="/icons/Disbursement.svg"
           />
-        </Grid>
+        </SimpleGrid>
       </Flex>
       <Flex flexDir="column" gap="12px">
         <Text variant="Body1Semibold" color="grey.400">
           Recent Notifications
         </Text>
-        <Grid gap="1rem" templateColumns="repeat(auto-fit, minmax(22.375rem, 1fr))">
+        <SimpleGrid gap="4" columns={{ base: 2, sm: 3 }}>
           {NotificationData.map((item, index) => (
             <NotificationCard key={index} {...item} />
           ))}
-        </Grid>
+        </SimpleGrid>
       </Flex>
       <Flex flexDir="column" gap="12px">
         <Text variant="Body1Semibold" color="grey.400">
           Recent Activities
         </Text>
-        <Grid gap="20px" templateColumns="repeat(auto-fit, minmax(360px, 1fr))">
+        <SimpleGrid gap="5" columns={{ base: 2, sm: 3 }}>
           <ActivityTable data={data?.body.enumerations ?? []} />
-          <ActivityTable data={data?.body.enumerations ?? []} />
-          <ActivityTable data={data?.body.enumerations ?? []} />
-        </Grid>
+        </SimpleGrid>
       </Flex>
     </Flex>
   );
 };
 
-export default SuperAdminDashboard;
+const ActivityTable = ({ data }: { data: EnumerationsTableData[] }) => {
+  return (
+    <Stack gap="1" py="2" px="2.5" borderRadius="0.75rem" boxShadow="card" bgColor="primary.100">
+      <Flex justifyContent="space-between" alignItems="center">
+        <Text variant="Body2Semibold" color="grey.500">
+          Enumeration
+        </Text>
+        <Flex justifyContent="flex-end" color="secondary.500">
+          <Link href="/super-admin/agents">
+            <Text display="flex" alignItems="center" gap="1" variant="Body3Semibold">
+              View details <Icon as={MdOpenInNew} />
+            </Text>
+          </Link>
+        </Flex>
+      </Flex>
+      <ReusableTable data={data} columns={columns} p="0" border="none" shadow="none" />
+    </Stack>
+  );
+};
+
+const columns: ColumnDef<EnumerationsTableData>[] = [
+  {
+    header: () => (
+      <Text variant="Body3Semibold" color="gray.500">
+        Name
+      </Text>
+    ),
+    accessorKey: 'name',
+    enableSorting: false,
+  },
+  {
+    header: () => (
+      <Text variant="Body3Semibold" color="gray.500">
+        LGA
+      </Text>
+    ),
+    accessorKey: 'lga',
+    enableSorting: false,
+  },
+  {
+    header: () => (
+      <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+        Enumerated
+      </Text>
+    ),
+    accessorKey: 'enumerated',
+    enableSorting: false,
+    cell: (info) => {
+      const [current, total] = info.row.original.enumerated.split('/');
+      return (
+        <Box
+          padding="2px 10px"
+          bg={current !== total ? 'grey.200' : 'primary.100'}
+          borderRadius="12px"
+          width="fit-content"
+          mx="auto"
+        >
+          {info.row.original.enumerated}
+        </Box>
+      );
+    },
+  },
+];
 
 const NotificationData = [
   {
@@ -188,3 +183,5 @@ const NotificationData = [
     Icon: MdStickyNote2,
   },
 ];
+
+export default SuperAdminDashboard;

@@ -12,11 +12,11 @@ import ModuleStatus from '../../components/module-status';
 const BeneficiaryApplication = () => {
   const { programId } = useParams();
   const code = useSearchParams().get('code') || '';
-  const { isLoading, error } = useGetProgramForm(programId.toString());
+  const { isLoading, error } = useGetProgramForm(`${programId}`);
 
   if (isLoading)
     return (
-      <Grid boxSize="full" placeItems="center">
+      <Grid flex="1" placeItems="center">
         <Spinner />
       </Grid>
     );
@@ -25,7 +25,7 @@ const BeneficiaryApplication = () => {
 
   if (error && statusCode !== 404)
     return (
-      <Grid boxSize="full" placeItems="center">
+      <Grid flex="1" placeItems="center">
         <Text variant="Body2Semibold" align="center">
           {formatErrorMessage(error)}
         </Text>

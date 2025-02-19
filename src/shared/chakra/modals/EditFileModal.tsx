@@ -1,3 +1,5 @@
+import { useEditGroup } from '@/hooks/useEditGroup';
+import { GroupEditPayload } from '@/types';
 import {
   Button,
   Flex,
@@ -12,6 +14,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  SimpleGrid,
   Text,
   useToast,
 } from '@chakra-ui/react';
@@ -19,9 +22,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-// import { useCreateGroup } from '@/hooks/useCreateGroup';
-import { useEditGroup } from '@/hooks/useEditGroup';
-import { GroupEditPayload } from '@/types';
 
 type ModalProps = {
   isOpen: boolean;
@@ -77,7 +77,13 @@ const EditFileModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
     <>
       <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
         <ModalOverlay />
-        <ModalContent as="form" width="498px" height="756px" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
+        <ModalContent
+          as="form"
+          maxW="42.375rem"
+          minH="calc(100% - 8rem)"
+          borderRadius="12px"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <ModalHeader>
             <Text variant="Body1Semibold">Edit File</Text>
           </ModalHeader>
@@ -96,14 +102,14 @@ const EditFileModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
             </Flex>
           </ModalBody>
           <ModalFooter>
-            <Flex width="100%" gap="16px">
-              <Button variant="cancel" width="402px" height="48px" onClick={onClose}>
+            <SimpleGrid width="full" gap="4" columns={2}>
+              <Button variant="cancel" w="full" h="3rem" onClick={onClose}>
                 Cancel
               </Button>
-              <Button variant="primary" width="402px" height="48px" type="submit" isLoading={isPending}>
+              <Button variant="primary" w="full" h="3rem" type="submit" isLoading={isPending}>
                 Save
               </Button>
-            </Flex>
+            </SimpleGrid>
           </ModalFooter>
         </ModalContent>
       </Modal>

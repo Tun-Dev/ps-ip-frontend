@@ -50,7 +50,7 @@ const PartnerTab = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: deleteModalOnClose } = useDisclosure();
   const { mutate: delPartner, isPending } = useDeletePartner();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   const handleDeletePartner = () => {
     delPartner(selectedPartner, {
       onSuccess: () => {

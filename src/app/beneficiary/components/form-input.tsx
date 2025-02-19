@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Box,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -25,37 +26,82 @@ import { Dropdown } from '@/shared/chakra/components';
 import { PhoneNumberInput } from '@/shared/chakra/components/phone-number-input';
 import { QuestionDetails } from '@/types';
 
-type FormInputProps = { question: QuestionDetails; form: UseFormReturn };
+type FormInputProps = {
+  question: QuestionDetails;
+  form: UseFormReturn;
+  number?: number;
+};
 
-const FormInput = ({ question, form }: FormInputProps) => {
+const FormInput = ({ question, form, number = 0 }: FormInputProps) => {
   const InputComponent = getFormInput(question.type);
 
   if (question.type === 'GPS') return <GPSInput question={question} form={form} />;
 
   return (
-    <FormControl isInvalid={!!form.formState.errors[question.id]} isRequired={question.mandatory} maxW="430px">
-      <FormLabel htmlFor={question.question}>
-        <Text as="span" variant="Body2Semibold" color="grey.500">
-          {question.question}
-        </Text>
-      </FormLabel>
-      <InputComponent question={question} form={form} />
-      <FormErrorMessage>{form.formState.errors[question.id]?.message?.toString()}</FormErrorMessage>
-    </FormControl>
+    <Box p="4" border="1px solid" borderColor="grey.200" borderRadius="1rem">
+      <FormControl isInvalid={!!form.formState.errors[question.id]} isRequired={question.mandatory}>
+        <FormLabel
+          htmlFor={question.id}
+          display="flex"
+          gap="4"
+          alignItems="center"
+          justifyContent="space-between"
+          flexWrap="wrap"
+          mb={getSpacing(question.type)}
+          requiredIndicator={
+            <Text as="span" variant="Body3Semibold" color="grey.500" display="inline-flex" gap="0.375rem">
+              Compulsory Question
+              <Text as="span" variant="Body2Semibold" color="red">
+                *
+              </Text>
+            </Text>
+          }
+        >
+          <Text as="span" variant="Body2Semibold" color="text" display="inline-flex" gap="2.5" alignItems="center">
+            <Text
+              as="span"
+              variant="Body2Semibold"
+              bgColor="primary.500"
+              minW="1.25rem"
+              color="white"
+              rounded="full"
+              lineHeight="none"
+              display="grid"
+              placeItems="center"
+              aspectRatio="1"
+            >
+              {number}
+            </Text>
+            {question.question}
+          </Text>
+        </FormLabel>
+        <InputComponent question={question} form={form} />
+        <FormErrorMessage px={question.type === 'UPLOAD' ? { xs: '1.875rem' } : undefined}>
+          {form.formState.errors[question.id]?.message?.toString()}
+        </FormErrorMessage>
+      </FormControl>
+    </Box>
   );
 };
 
 const TextInput = ({ question, form }: FormInputProps) => {
-  return <Input {...form.register(question.id)} type={getInputType(question.type)} isRequired={question.mandatory} />;
+  return (
+    <Input
+      {...form.register(question.id)}
+      id={question.id}
+      type={getInputType(question.type)}
+      isRequired={question.mandatory}
+    />
+  );
 };
 
 const TextareaInput = ({ question, form }: FormInputProps) => {
-  return <Textarea {...form.register(question.id)} isRequired={question.mandatory} />;
+  return <Textarea {...form.register(question.id)} id={question.id} isRequired={question.mandatory} />;
 };
 
 const RadioInput = ({ question, form }: FormInputProps) => {
   return (
-    <RadioGroup>
+    <RadioGroup id={question.id}>
       <HStack gap="8">
         {question.options.map((option) => (
           <Radio {...form.register(question.id)} key={option.id} value={option.value} isRequired={question.mandatory}>
@@ -79,6 +125,7 @@ const DropdownInput = ({ question, form }: FormInputProps) => {
       render={({ field: { name, onBlur, onChange, value, disabled } }) => (
         <Dropdown
           variant="whiteDropdown"
+          id={question.id}
           name={name}
           options={options}
           value={options.find((option) => option.value === value)}
@@ -114,11 +161,12 @@ const ImageInput = ({ question, form }: FormInputProps) => {
   };
 
   return (
-    <Flex gap="24px">
+    <Flex gap={{ base: '4', xs: '8' }} px={{ xs: '1.875rem' }} align="center">
       <Flex
+        id={question.id}
         as="button"
         type="button"
-        boxSize="96px"
+        boxSize="6rem"
         borderRadius="50%"
         border="1px dashed"
         borderColor="grey.300"
@@ -129,17 +177,18 @@ const ImageInput = ({ question, form }: FormInputProps) => {
         overflow="hidden"
         _focusVisible={{ boxShadow: 'outline' }}
         onClick={() => inputRef.current?.click()}
+        flexShrink="0"
       >
         <input type="file" hidden accept="image/*" onChange={handleFile} ref={inputRef} disabled={isPending} />
         {preview && (
           <Image src={preview} alt={question.question} objectFit="cover" pos="absolute" inset="0" boxSize="full" />
         )}
-        {preview ? null : <Icon as={MdOutlineAddCircle} boxSize="32px" color="grey.400" />}
+        {preview ? null : <Icon as={MdOutlineAddCircle} boxSize="8" color="secondary.500" />}
         {isPending && <Spinner color="text" size="sm" pos="absolute" inset="0" m="auto" />}
       </Flex>
-      <Flex w="230px" gap="8px">
-        <Icon as={MdInfo} boxSize="20px" color="grey.400" />
-        <Text variant="Body2Regular" color="grey.400">
+      <Flex gap="2">
+        <Icon as={MdInfo} boxSize="5" color="grey.400" />
+        <Text variant="Body2Regular" color="grey.400" maxW="12.625rem">
           Uploaded picture size should not exceed 500kb
         </Text>
       </Flex>
@@ -148,7 +197,9 @@ const ImageInput = ({ question, form }: FormInputProps) => {
 };
 
 const PhoneInput = ({ question, form }: FormInputProps) => {
-  return <PhoneNumberInput name={question.id} control={form.control} isRequired={question.mandatory} />;
+  return (
+    <PhoneNumberInput id={question.id} name={question.id} control={form.control} isRequired={question.mandatory} />
+  );
 };
 
 const GPSInput = ({ question, form }: FormInputProps) => {
@@ -201,6 +252,18 @@ const getInputType = (type: string): HTMLInputTypeAttribute => {
       return 'number';
     default:
       return 'text';
+  }
+};
+
+const getSpacing = (type: string) => {
+  switch (type) {
+    case 'UPLOAD':
+      return '1.5rem';
+    case 'CHECKBOX':
+    case 'MULTIPLE_CHOICE':
+      return '1rem';
+    default:
+      return '0.75rem';
   }
 };
 

@@ -4,6 +4,8 @@ import { useParams } from 'next/navigation';
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetModules } from '@/hooks/useGetModules';
 import type { ModuleDetail } from '@/types';
+import { getImageUrl } from '@/utils';
+import { Image } from '@chakra-ui/next-js';
 import { format, parseISO } from 'date-fns';
 
 type Props = {
@@ -43,7 +45,19 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
               <Text variant="Body2Semibold" color="grey.500" mb="2">
                 {answer.key}
               </Text>
-              <Text variant="Body1Regular">{value}</Text>
+              {answer.key === 'Picture' && typeof answer.value === 'string' ? (
+                <Box pos="relative" boxSize="6.25rem" rounded="full" overflow="hidden">
+                  <Image
+                    src={getImageUrl(answer.value)}
+                    alt="Beneficiary Image"
+                    sizes="6.25rem"
+                    sx={{ objectFit: 'cover' }}
+                    fill
+                  />
+                </Box>
+              ) : (
+                <Text variant="Body1Regular">{value}</Text>
+              )}
             </Box>
           );
         })}

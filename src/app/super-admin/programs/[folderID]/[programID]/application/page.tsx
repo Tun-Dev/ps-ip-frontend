@@ -1,8 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import {
+  Box,
   Button,
   Flex,
   Icon,
@@ -19,7 +18,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { MdArrowRightAlt, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
@@ -33,6 +32,8 @@ import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
+import { getImageUrl } from '@/utils';
+import { Image } from '@chakra-ui/next-js';
 import { AxiosError } from 'axios';
 import { format, parseISO } from 'date-fns';
 import { useParams } from 'next/navigation';
@@ -75,20 +76,23 @@ const ApplicationPage = () => {
     return data ? data.body.data : [];
   }, [data]);
 
-  const onApprove = ({ status, id }: { status: string; id: number }) => {
-    const payload = {
-      status: status.toUpperCase(),
-      beneficiaryId: [id],
-      moduleId: 1,
-      programId: programID.toString(),
-    };
+  const onApprove = useCallback(
+    ({ status, id }: { status: string; id: number }) => {
+      const payload = {
+        status: status.toUpperCase(),
+        beneficiaryId: [id],
+        moduleId: 1,
+        programId: programID.toString(),
+      };
 
-    approveBeneficiary(payload, {
-      onSuccess: () => {
-        toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
-      },
-    });
-  };
+      approveBeneficiary(payload, {
+        onSuccess: () => {
+          toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
+        },
+      });
+    },
+    [approveBeneficiary, programID, toast]
+  );
 
   const uploadData = () => {
     processModule(programModuleId.toString(), {
@@ -125,6 +129,20 @@ const ApplicationPage = () => {
           const value = info.getValue() as string | number | undefined;
           const realValue =
             key === 'Date of Birth' ? format(parseISO(value as string), 'dd/MM/yyyy') : value?.toString();
+
+          if (key === 'Picture' && typeof value === 'string')
+            return (
+              <Box pos="relative" boxSize="5" rounded="full" overflow="hidden">
+                <Image
+                  src={getImageUrl(value)}
+                  alt="Beneficiary Image"
+                  sizes="1.25rem"
+                  sx={{ objectFit: 'cover' }}
+                  fill
+                />
+              </Box>
+            );
+
           return (
             <Text as="span" textAlign="left" display="block" variant="Body2Regular">
               {info.getValue() !== null && value !== undefined ? realValue : 'N/A'}
@@ -192,7 +210,7 @@ const ApplicationPage = () => {
     };
 
     return [...otherColumns, statusColumn];
-  }, [tableData]);
+  }, [onApprove, tableData]);
 
   const openBeneficiaryModal = (beneficiary: Beneficiary) => {
     setBeneficiary(beneficiary);

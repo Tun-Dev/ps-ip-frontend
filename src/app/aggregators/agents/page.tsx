@@ -8,6 +8,7 @@ import { AddNewAgentModal, ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { ReassignAgentModal } from '@/shared/chakra/modals/ReassignAgentModal';
+import { ScheduleActivationModal } from '@/shared/chakra/modals/ScheduleActivationModal';
 import type { AggregatorAgent } from '@/types';
 import {
   Box,
@@ -35,7 +36,7 @@ import {
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useCallback, useMemo, useState } from 'react';
-import { MdAddCircle, MdDownload, MdEditCalendar, MdGroups, MdMoreHoriz, MdSearch } from 'react-icons/md';
+import { MdAddCircle, MdDownload, MdGroups, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 const AggregatorsAgentsDashboard = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -138,8 +139,10 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('');
   const debouncedQuery = useDebounce(query);
+  const { onClose: onScheduleClose, onOpen: onScheduleOpen, isOpen: isScheduleOpen } = useDisclosure();
   const { onClose, onOpen, isOpen } = useDisclosure();
   const [selectedAgent, setSelectedAgent] = useState<AggregatorAgent>();
+  const [selectedAgents, setSelectedAgents] = useState<AggregatorAgent[]>([]);
 
   const { mutate: activateAgent } = useActivateAgent();
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetchError, isRefetching } = useGetAggregatorAgents(
@@ -224,11 +227,42 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
         },
       },
       {
-        header: () => (
-          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-            Actions
-          </Text>
-        ),
+        header: () => {
+          if (selectedAgents.length > 0)
+            return (
+              <Menu>
+                <MenuButton
+                  as={IconButton}
+                  variant="ghost"
+                  aria-label="Actions"
+                  icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+                  minW="0"
+                  h="auto"
+                  mx="auto"
+                  display="flex"
+                  p="0"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <MenuList>
+                  <MenuItem>
+                    <Text as="span" variant="Body2Regular">
+                      Approve agents
+                    </Text>
+                  </MenuItem>
+                  <MenuItem onClick={onScheduleOpen}>
+                    <Text as="span" variant="Body2Regular">
+                      Batch schedule
+                    </Text>
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            );
+          return (
+            <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+              Actions
+            </Text>
+          );
+        },
         id: 'actions',
         enableSorting: false,
         cell: (info) => (
@@ -238,6 +272,7 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
               variant="ghost"
               aria-label="Actions"
               icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              minW="0"
               h="auto"
               mx="auto"
               display="flex"
@@ -252,7 +287,17 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
                 }}
               >
                 <Text as="span" variant="Body2Regular">
-                  Reassign Agent
+                  Reassign agent
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  onScheduleOpen();
+                  setSelectedAgent(info.row.original);
+                }}
+              >
+                <Text as="span" variant="Body2Regular">
+                  Schedule agent
                 </Text>
               </MenuItem>
               <MenuItem
@@ -261,7 +306,7 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
                 }}
               >
                 <Text as="span" variant="Body2Regular">
-                  {info.row.original.status === true ? 'Deactivate' : 'Activate'} Agent
+                  {info.row.original.status === true ? 'Deactivate' : 'Activate'} agent
                 </Text>
               </MenuItem>
             </MenuList>
@@ -269,12 +314,20 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
         ),
       },
     ],
-    [handleAgentActivation, onOpen]
+    [handleAgentActivation, onOpen, onScheduleOpen, selectedAgents]
   );
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
       {selectedAgent && <ReassignAgentModal isOpen={isOpen} onClose={onClose} agent={selectedAgent} />}
+      <ScheduleActivationModal
+        isOpen={isScheduleOpen}
+        onClose={() => {
+          onScheduleClose();
+          setSelectedAgent(undefined);
+        }}
+        agents={selectedAgent ? [selectedAgent] : selectedAgents}
+      />
       <Flex justifyContent="space-between">
         <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
@@ -315,9 +368,6 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
           <Button leftIcon={<MdDownload />} variant="secondary" size="medium" borderRadius="10px">
             Download Report
           </Button>
-          <Button leftIcon={<MdEditCalendar />} variant="primary" size="medium" borderRadius="10px">
-            Schedule Activation
-          </Button>
         </Flex>
       </Flex>
       <ReusableTable
@@ -327,6 +377,7 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
         isLoading={isLoading || isRefetching}
         isError={isError || isRefetchError}
         onRefresh={refetch}
+        onSelectionChange={setSelectedAgents}
       />
       <TablePagination
         handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}

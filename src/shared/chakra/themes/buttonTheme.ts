@@ -55,11 +55,11 @@ export const secondaryVariant = () =>
   ({
     color: 'secondary.500',
     fill: 'secondary.500',
-    bg: 'secondary.100',
+    bg: 'secondary.200',
     _hover: {
-      bg: 'secondary.200',
+      bg: 'secondary.400',
       _disabled: {
-        _hover: { bg: 'secondary.100' },
+        _hover: { bg: 'secondary.200' },
       },
     },
     font: 'body1-bold',

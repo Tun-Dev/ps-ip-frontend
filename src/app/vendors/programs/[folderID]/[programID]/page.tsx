@@ -2,12 +2,14 @@
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useGetVendorAnalytics } from '@/hooks/useGetVendorAnalytics';
 import { useGetVendorBeneficiaries } from '@/hooks/useGetVendorBeneficiaries';
 import { ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, getImageUrl } from '@/utils';
+import { Image } from '@chakra-ui/next-js';
 import {
   Box,
   Button,
@@ -44,13 +46,31 @@ import {
 } from 'react-icons/md';
 
 const VendorsDisbursementDashboard = () => {
+  const { programID } = useParams();
+  const { data, isPending, isError } = useGetVendorAnalytics(programID.toString());
   return (
     <Flex flexDir="column" gap="1.5rem" boxSize="full">
       <SimpleGrid columns={{ base: 3, sm: 4 }} gap="4">
-        <OverviewCard title="Orders Pending" number={0} icon={MdLocalShipping} />
-        <OverviewCard title="Amount Disbursed" number={formatCurrency(0)} icon={MdVolunteerActivism} />
-        <OverviewCard title="Amount Disbursable" number={formatCurrency(0)} icon={MdAccountBalanceWallet} />
-        <OverviewCard title="Candidates Disbursed" number={0} icon={MdEmojiEmotions} />
+        <OverviewCard
+          title="Orders Pending"
+          number={isPending || isError ? '...' : data.body.ordersPending}
+          icon={MdLocalShipping}
+        />
+        <OverviewCard
+          title="Amount Disbursed"
+          number={isPending || isError ? '...' : formatCurrency(data.body.amountDisbursed)}
+          icon={MdVolunteerActivism}
+        />
+        <OverviewCard
+          title="Amount Disbursable"
+          number={isPending || isError ? '...' : formatCurrency(data.body.amountDisburseable)}
+          icon={MdAccountBalanceWallet}
+        />
+        <OverviewCard
+          title="Candidates Disbursed"
+          number={isPending || isError ? '...' : data.body.candidatesDisbursed}
+          icon={MdEmojiEmotions}
+        />
       </SimpleGrid>
       <VendorTab />
     </Flex>
@@ -184,6 +204,20 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         accessorKey: key,
         cell: (info) => {
           const value = info.getValue() as string | number | undefined;
+
+          if (key === 'Picture' && typeof value === 'string')
+            return (
+              <Box pos="relative" boxSize="5" rounded="full" overflow="hidden">
+                <Image
+                  src={getImageUrl(value)}
+                  alt="Beneficiary Image"
+                  sizes="1.25rem"
+                  sx={{ objectFit: 'cover' }}
+                  fill
+                />
+              </Box>
+            );
+
           return (
             <Text as="span" textAlign="left" display="block" variant="Body2Regular">
               {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
@@ -210,6 +244,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
                 variant="ghost"
                 aria-label="Actions"
                 icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+                minW="0"
                 h="auto"
                 mx="auto"
                 display="flex"
@@ -230,7 +265,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
               </MenuList>
             </Menu>
           ) : (
-            <Text color="green" size="sm">
+            <Text variant="Body3Semibold" color="green" textAlign="center">
               Disbursed
             </Text>
           ),

@@ -1,18 +1,19 @@
 'use client';
 
-import { Flex, Text, Box, Button, Grid, useDisclosure } from '@chakra-ui/react';
+import { useGetVendorOverview } from '@/hooks/useGetVendorOverview';
+import { NewVendorModal } from '@/shared';
+import { SmallOverviewCard } from '@/shared/chakra/components';
 import { OverviewCard } from '@/shared/chakra/components/overview';
+import { Button, Divider, Flex, SimpleGrid, Stack, Text, useDisclosure } from '@chakra-ui/react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 import {
+  MdAccountBalanceWallet,
   MdAddCircle,
+  MdEmojiEmotions,
   MdLocalShipping,
   MdVolunteerActivism,
-  MdAccountBalanceWallet,
-  MdEmojiEmotions,
 } from 'react-icons/md';
-import { NewVendorModal } from '@/shared';
-import { useGetVendorOverview } from '@/hooks/useGetVendorOverview';
-import { usePathname, useRouter } from 'next/navigation';
-import { SmallOverviewCard } from '@/shared/chakra/components';
 
 const VendorLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -22,105 +23,90 @@ const VendorLayout = ({ children }: { children: React.ReactNode }) => {
 
   const { response: overview, isLoading } = useGetVendorOverview();
 
-  const cards = [
-    {
-      name: 'Vendors',
-      icon: MdLocalShipping,
-      value: overview?.body?.vendors || 0,
-      identifier: '/super-admin/vendors',
-      clickable: true,
-    },
-    {
-      name: 'Orders',
-      icon: MdLocalShipping,
-      value: overview?.body?.orders || 0,
-      identifier: '/super-admin/vendors/orders',
-      clickable: true,
-    },
-  ];
+  const cards = useMemo(
+    () => [
+      {
+        name: 'Vendors',
+        icon: MdLocalShipping,
+        value: overview?.body?.vendors || 0,
+        identifier: '/super-admin/vendors',
+      },
+      {
+        name: 'Orders',
+        icon: MdLocalShipping,
+        value: overview?.body?.orders || 0,
+        identifier: '/super-admin/vendors/orders',
+      },
+    ],
+    [overview]
+  );
 
-  const metrics = [
-    {
-      name: 'Amount Disbursed',
-      icon: MdVolunteerActivism,
-      value: overview?.body?.amountDisbursed || 0,
-      identifier: 'amount-disbursed',
-      clickable: false,
-    },
-    {
-      name: 'Beneficiaries Disbursed',
-      icon: MdEmojiEmotions,
-      value: overview?.body?.beneficiariesDisbursed || 0,
-      identifier: 'beneficiaries-disbursed',
-      clickable: false,
-    },
-    {
-      name: 'Amount Disbursable',
-      icon: MdAccountBalanceWallet,
-      value: overview?.body?.amountDisburseable || 0,
-      identifier: 'amount-disbursable',
-      clickable: false,
-    },
-  ];
+  const metrics = useMemo(
+    () => [
+      {
+        name: 'Amount Disbursed',
+        icon: MdVolunteerActivism,
+        value: overview?.body?.amountDisbursed || 0,
+      },
+      {
+        name: 'Beneficiaries Disbursed',
+        icon: MdEmojiEmotions,
+        value: overview?.body?.beneficiariesDisbursed || 0,
+      },
+      {
+        name: 'Amount Disbursable',
+        icon: MdAccountBalanceWallet,
+        value: overview?.body?.amountDisburseable || 0,
+      },
+    ],
+    [overview]
+  );
 
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%">
+    <Stack gap="6" boxSize="full">
       <NewVendorModal isOpen={isOpen} onClose={onClose} />
-      <Flex flexDir="column" gap="12px">
-        <Flex alignItems="center" justifyContent="space-between">
+      <Stack gap="6">
+        <Flex align="center" justify="space-between">
           <Text variant="Body1Semibold" color="grey.400">
             Overview
           </Text>
-
           <Button variant="primary" gap="8px" onClick={onOpen}>
             <MdAddCircle />
             <Text> Add New Vendor</Text>
           </Button>
         </Flex>
-        <Grid
-          gap="6"
-          templateColumns="repeat(4, minmax(265px, 1fr))"
-          borderBottom="1px solid"
-          borderBottomColor="grey.200"
-          pb="24px"
-        >
+        <SimpleGrid gap="4" columns={{ base: 3, sm: 4 }}>
           {cards.map((card, index) => (
-            <Box
+            <OverviewCard
               key={index}
-              onClick={card.clickable ? () => router.push(card.identifier) : () => {}}
-              cursor={card.clickable ? 'pointer' : 'default'}
-            >
-              <OverviewCard
-                title={card.name}
-                number={isLoading ? '...' : card.value}
-                icon={card.icon}
-                active={pathname.endsWith(card.identifier)}
-              />
-            </Box>
+              title={card.name}
+              number={isLoading ? '...' : card.value}
+              icon={card.icon}
+              active={pathname.endsWith(card.identifier)}
+              onClick={() => router.push(card.identifier)}
+              cursor="pointer"
+            />
           ))}
-        </Grid>
-
-        <Grid gap="6" templateColumns="repeat(4, minmax(258px, 1fr))">
-          {metrics.map((card, index) => (
-            <Box
-              key={index}
-              onClick={card.clickable ? () => router.push(card.identifier) : () => {}}
-              cursor={card.clickable ? 'pointer' : 'default'}
-            >
+        </SimpleGrid>
+        <Stack gap="4">
+          <Divider borderColor="grey.200" opacity="1" />
+          <SimpleGrid gap="6" columns={{ base: 3, sm: 4 }}>
+            {metrics.map((card, index) => (
               <SmallOverviewCard
+                key={index}
                 title={card.name}
                 number={isLoading ? '...' : card.value}
                 icon={card.icon}
                 iconColor="primary.600"
+                minW="0"
               />
-            </Box>
-          ))}
-        </Grid>
-      </Flex>
+            ))}
+          </SimpleGrid>
+        </Stack>
+      </Stack>
       {children}
-    </Flex>
+    </Stack>
   );
 };
 
 export default VendorLayout;
-//

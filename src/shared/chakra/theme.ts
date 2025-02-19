@@ -28,6 +28,7 @@ const extendedConfig: ThemeOverride = {
   },
   breakpoints: {
     base: '0px',
+    xs: '768px',
     sm: '1440px',
     md: '1600px',
     lg: '1920px',

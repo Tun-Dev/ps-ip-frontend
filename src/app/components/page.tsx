@@ -222,8 +222,7 @@ const Table = () => {
     { name: 'Bob Johnson', age: 45, email: 'bob@example.com' },
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const columns: ColumnDef<any>[] = useMemo(
+  const columns: ColumnDef<(typeof data)[number]>[] = useMemo(
     () => [
       {
         header: () => (

@@ -1,26 +1,53 @@
 'use client';
 
+import { Image } from '@chakra-ui/next-js';
+import { Box, Stack } from '@chakra-ui/react';
+import { usePathname } from 'next/navigation';
+
 import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
-import { Box, Flex, Image } from '@chakra-ui/react';
+import { CoverPhoto } from './components/cover-photo';
 
 const BeneficiaryLayout = ({ children }: { children: React.ReactNode }) => {
+  const pathname = usePathname();
   return (
-    <Flex w="full" minH="100dvh" bg="primary.500" p="24px" gap="24px" position="relative" justifyContent="center">
-      <Image
-        src="/images/bg-image.png"
-        alt=""
-        pos="absolute"
-        top="0px"
-        left="0px"
-        w="100%"
-        height="100%"
-        objectFit="cover"
-      />
-      <Image src="/images/boi-white.png" alt="" pos="absolute" top="32px" left="32px" w="197px" h="52px" zIndex={2} />
-      <Box w="920px" borderRadius="12px" bg="white" boxShadow="card" zIndex={1}>
-        {children}
+    <Stack pos="relative" w="full" minH="100dvh" p={{ base: '3', xs: '6' }} gap="2.5" align="center">
+      <Image src="/images/beneficiaries-bg.png" alt="Background image" sizes="100vw" fill />
+      <Box
+        pos={{ xs: 'absolute' }}
+        bgColor="white"
+        alignSelf="flex-start"
+        p="2"
+        rounded="0.375rem"
+        top="6"
+        left="6"
+        zIndex="1"
+      >
+        <Image
+          src="/images/BOI_LOGO.png"
+          alt="Bank of Industry Logo"
+          width={1048}
+          height={238}
+          w="auto"
+          h={{ base: '1.5rem', xs: '2.25rem' }}
+          sx={{ objectFit: 'contain' }}
+        />
       </Box>
-    </Flex>
+      <Stack
+        gap="0"
+        maxW={pathname.includes('details') ? '57.5rem' : '42.5rem'}
+        w="full"
+        mx="auto"
+        rounded="0.75rem"
+        bgColor="white"
+        overflow="hidden"
+        boxShadow="card"
+        zIndex="1"
+        flex="1"
+      >
+        <CoverPhoto />
+        {children}
+      </Stack>
+    </Stack>
   );
 };
 

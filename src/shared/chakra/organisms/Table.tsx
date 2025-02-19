@@ -146,7 +146,7 @@ function ReusableTable<T extends object>({
             <Table>
               <Thead>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <Tr key={headerGroup.id}>
+                  <Tr key={headerGroup.id} h="8">
                     {headerGroup.headers.map((header, index) => (
                       <Th
                         key={header.id}
@@ -187,6 +187,7 @@ function ReusableTable<T extends object>({
                   <Tr
                     key={row.id}
                     borderBottomColor="grey.500"
+                    bgColor={row.getIsSelected() ? 'secondary.50' : undefined}
                     onClick={onClick ? () => onClick(row.original) : undefined}
                     cursor={onClick ? 'pointer' : undefined}
                     _hover={onClick ? { bgColor: 'primary.50' } : undefined}

@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Icon, Text } from '@chakra-ui/react';
+import { Box, BoxProps, Flex, Heading, Icon, Text } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
 
 type OverviewCardProps = {
@@ -7,9 +7,9 @@ type OverviewCardProps = {
   number: number | string;
   stat?: number;
   iconColor?: string;
-};
+} & BoxProps;
 
-export const SmallOverviewCard = ({ title, icon, number, iconColor = 'primary.500' }: OverviewCardProps) => {
+export const SmallOverviewCard = ({ title, icon, number, iconColor = 'primary.500', ...props }: OverviewCardProps) => {
   return (
     <Box
       padding="8px 12px"
@@ -19,11 +19,12 @@ export const SmallOverviewCard = ({ title, icon, number, iconColor = 'primary.50
       justifyContent="space-between"
       borderRadius="12px"
       border="1px solid"
-      backgroundColor={'primary.100'}
+      backgroundColor="primary.100"
       borderColor="grey.100"
       boxShadow="card"
       minW="258px"
       gap="8px"
+      {...props}
     >
       <Flex align="center" gap="8px">
         <Flex

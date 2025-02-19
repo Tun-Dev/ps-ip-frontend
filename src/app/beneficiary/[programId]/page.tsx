@@ -11,18 +11,18 @@ import ViewProgress from '../components/view-progress';
 const BeneficiaryDashboard = () => {
   const { programId } = useParams();
 
-  const { data, isPending, error, isError } = useGetProgramForm(programId.toString());
+  const { data, isPending, error, isError } = useGetProgramForm(`${programId}`);
 
   if (isPending)
     return (
-      <Grid boxSize="full" placeItems="center">
+      <Grid flex="1" placeItems="center">
         <Spinner />
       </Grid>
     );
 
   if (isError)
     return (
-      <Grid boxSize="full" placeItems="center">
+      <Grid flex="1" placeItems="center">
         <Text variant="Body2Semibold" align="center">
           {formatErrorMessage(error)}
         </Text>

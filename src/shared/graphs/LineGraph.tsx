@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   BarController,
   BarElement,
@@ -39,6 +38,7 @@ const data = {
       data: [90, 92, 94, 90],
       pointBorderColor: '#CEA766',
       backgroundColor: '#CEA766',
+      borderRadius: { topLeft: 8, topRight: 8 },
     },
     {
       type: 'line' as const,
@@ -49,6 +49,7 @@ const data = {
       pointBorderColor: '#E7D3B3',
       backgroundColor: '#E7D3B3',
       fill: false,
+      borderRadius: { topLeft: 8, topRight: 8 },
     },
     {
       type: 'line' as const,
@@ -59,6 +60,7 @@ const data = {
       borderWidth: 3,
       pointBorderColor: '#175F2F',
       fill: false,
+      borderRadius: { topLeft: 8, topRight: 8 },
     },
     {
       type: 'line' as const,
@@ -74,7 +76,7 @@ const data = {
 };
 
 const LineGraphCard = () => {
-  const datasets = data?.datasets.map((dataset: any, index: number) => ({
+  const datasets = data.datasets.map((dataset: (typeof data)['datasets'][number], index: number) => ({
     type: 'line' as const,
     label: dataset.label,
     backgroundColor: dataset?.backgroundColor || bgColors[index], // Use modulo to cycle through colors array

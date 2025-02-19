@@ -432,6 +432,8 @@ export type ProgramForm = {
   programType: string;
   programName: string;
   availableModules: { module: string; order: number }[];
+  coverPhoto: string;
+  eligibilityCriteria: string[];
 };
 
 export type FillFormPayload = {
@@ -711,5 +713,25 @@ export type VendorProgramPayload = {
   id: string;
   programId: string;
   scheduledDate: string;
+  endDate: string;
+};
+
+export type VendorAnalytics = {
+  ordersPending: number;
+  amountDisbursed: number;
+  amountDisburseable: number;
+  candidatesDisbursed: number;
+};
+
+export type ScheduleActivationPayload = {
+  agent: { agentId: string; programId: string };
+  schedule: AgentSchedule;
+};
+
+export type AgentSchedule = {
+  days: (string | number)[];
+  startTime: string;
+  endTime: string;
+  startDate: string;
   endDate: string;
 };

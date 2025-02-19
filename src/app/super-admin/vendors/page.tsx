@@ -20,6 +20,7 @@ import {
   MenuItem,
   MenuList,
   Select,
+  Stack,
   Text,
   useDisclosure,
   useToast,
@@ -147,7 +148,7 @@ const VendorPage = () => {
   const totalPages = data?.body.totalPages ?? 0;
 
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%" padding="1rem 0px">
+    <Stack gap="6" w="full" flex="1">
       <DeleteModal
         isOpen={isDeleteOpen}
         onClose={deleteModalOnClose}
@@ -219,7 +220,7 @@ const VendorPage = () => {
         isDisabled={isLoading}
         display={totalPages > 1 ? 'flex' : 'none'}
       />
-    </Flex>
+    </Stack>
   );
 };
 

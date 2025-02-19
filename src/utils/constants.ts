@@ -298,3 +298,49 @@ export const SERVICES = [
   { label: 'Physical Item', value: 'Physical Item' },
   { label: 'Capacity Building', value: 'Capacity Building' },
 ];
+
+export const MODULE_STATUS = {
+  Application: {
+    description: 'The initial step where you submit your information to be considered for the program.',
+    status: 'Your Application has been sent.',
+  },
+  Enumeration: {
+    description: 'A process to gather and record information about potential program participants.',
+    status: 'Your information has been recorded.',
+  },
+  Nomination: {
+    description: 'A selection process where potential participants are identified for the program.',
+    status: 'You have been successfully nominated.',
+  },
+  Survey: {
+    description: 'A data collection phase to better understand participant circumstances.',
+    status: 'Your survey has been completed.',
+  },
+  Verification: {
+    description:
+      'During verification, we check your information against the federal government’s database to validate your identity.',
+    status: 'Your Application has been sent.',
+  },
+  Vetting: {
+    description:
+      'Through vetting, we verify that you meet the program’s requirements and are eligible to receive its benefits.',
+    status: 'Congratulations, you have been verified.',
+  },
+  Whitelisting: {
+    description: 'After vetting, the most eligible candidates are whitelisted and selected as beneficiaries.',
+    status: 'Congratulations, you have been vetted.',
+  },
+  Disbursement: {
+    description:
+      'Reaching the disbursement stage means you’ve been whitelisted and will receive the program’s benefits soon.',
+    status: 'Congratulations, you have been whitelisted.',
+  },
+  Rejected: {
+    description: 'Your application doesn’t meet the eligibility criteria for this program at this time.',
+    status: 'Verification Failed',
+  },
+  default: {
+    description: 'This is the default module status',
+    status: 'This is the default status',
+  },
+};

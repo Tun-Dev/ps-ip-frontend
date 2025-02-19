@@ -2,6 +2,7 @@
 'use client';
 
 import {
+  Box,
   Button,
   ButtonGroup,
   Flex,
@@ -39,6 +40,8 @@ import { Beneficiary } from '@/types';
 // import { AxiosError } from 'axios';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { getImageUrl } from '@/utils';
+import { Image } from '@chakra-ui/next-js';
 import { useParams } from 'next/navigation';
 
 const options = [
@@ -127,6 +130,20 @@ const DisbursementPage = () => {
         accessorKey: key,
         cell: (info) => {
           const value = info.getValue() as string | number | undefined;
+
+          if (key === 'Picture' && typeof value === 'string')
+            return (
+              <Box pos="relative" boxSize="5" rounded="full" overflow="hidden">
+                <Image
+                  src={getImageUrl(value)}
+                  alt="Beneficiary Image"
+                  sizes="1.25rem"
+                  sx={{ objectFit: 'cover' }}
+                  fill
+                />
+              </Box>
+            );
+
           return (
             <Text as="span" textAlign="left" display="block" variant="Body2Regular">
               {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
