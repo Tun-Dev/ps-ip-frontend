@@ -21,7 +21,10 @@ const Schema = z.object({
 type FormValues = z.infer<typeof Schema>;
 
 const SignUpPage = () => {
-  const { mutate: signUp, isPending } = useSignUpAgent();
+  const {
+    // mutate: signUp,
+    isPending,
+  } = useSignUpAgent();
   const { data: states } = useGetStates();
 
   const stateOptions = useMemo(() => {
@@ -44,7 +47,8 @@ const SignUpPage = () => {
   const hasErrors = Object.keys(errors).length > 0;
 
   const onSubmit = (data: FormValues) => {
-    signUp(data);
+    // signUp(data);
+    console.log(data);
   };
 
   return (

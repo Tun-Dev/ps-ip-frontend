@@ -644,9 +644,23 @@ export type Role = {
 };
 
 export type AgentSignUpPayload = {
+  password: string;
+  confirmPassword: string;
   firstName: string;
   lastName: string;
+  otherName: string;
+  dob: string;
+  gender: string;
   email: string;
+  aggregatorCode: string;
+  phoneNumber: string;
+  bvnPhoneNumber: string;
+  bvn: string;
+  numberOfDependents: number;
+  address: string;
+  highestEducation: string;
+  photo: number;
+  nin: string;
   stateOfOrigin: number;
   LGAOfResidence: number;
 };
