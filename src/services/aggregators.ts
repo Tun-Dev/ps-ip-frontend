@@ -41,7 +41,7 @@ export const getAgents = async ({ queryKey }: { queryKey: QueryKey }) => {
 };
 
 export const activateAgent = async (data: ActivateAgentPayload) => {
-  const response = await axiosInstance.put<APIResponse<boolean>>(`/agents/status`, data);
+  const response = await axiosInstance.put<APIResponse<boolean>>(`/agents/change/status`, data);
   return response.data;
 };
 

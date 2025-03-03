@@ -32,7 +32,6 @@ import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { getImageUrl } from '@/utils';
 import { Image } from '@chakra-ui/next-js';
 import { AxiosError } from 'axios';
 import { format, parseISO } from 'date-fns';
@@ -133,13 +132,7 @@ const ApplicationPage = () => {
           if (key === 'Picture' && typeof value === 'string')
             return (
               <Box pos="relative" boxSize="5" rounded="full" overflow="hidden">
-                <Image
-                  src={getImageUrl(value)}
-                  alt="Beneficiary Image"
-                  sizes="1.25rem"
-                  sx={{ objectFit: 'cover' }}
-                  fill
-                />
+                <Image src={value} alt="Beneficiary Image" sizes="1.25rem" sx={{ objectFit: 'cover' }} fill />
               </Box>
             );
 

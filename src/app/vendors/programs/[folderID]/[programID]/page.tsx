@@ -8,7 +8,7 @@ import { ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { formatCurrency, getImageUrl } from '@/utils';
+import { formatCurrency } from '@/utils';
 import { Image } from '@chakra-ui/next-js';
 import {
   Box,
@@ -208,13 +208,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
           if (key === 'Picture' && typeof value === 'string')
             return (
               <Box pos="relative" boxSize="5" rounded="full" overflow="hidden">
-                <Image
-                  src={getImageUrl(value)}
-                  alt="Beneficiary Image"
-                  sizes="1.25rem"
-                  sx={{ objectFit: 'cover' }}
-                  fill
-                />
+                <Image src={value} alt="Beneficiary Image" sizes="1.25rem" sx={{ objectFit: 'cover' }} fill />
               </Box>
             );
 

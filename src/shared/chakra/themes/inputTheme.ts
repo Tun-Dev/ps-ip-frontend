@@ -20,8 +20,9 @@ export const primaryVariant = definePartsStyle({
       color: 'grey.400',
     },
 
-    _focus: {
-      color: 'text',
+    _focusVisible: {
+      borderColor: 'blue.500',
+      boxShadow: '0 0 0 1px #3182ce',
     },
   },
 });

@@ -11,7 +11,7 @@ const BeneficiaryLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   return (
     <Stack pos="relative" w="full" minH="100dvh" p={{ base: '3', xs: '6' }} gap="2.5" align="center">
-      <Image src="/images/beneficiaries-bg.png" alt="Background image" sizes="100vw" fill />
+      <Image src="/images/beneficiaries-bg.png" alt="Background image" sizes="100vw" sx={{ objectFit: 'cover' }} fill />
       <Box
         pos={{ xs: 'absolute' }}
         bgColor="white"

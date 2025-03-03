@@ -81,22 +81,34 @@ export const ReassignAgentModal = ({ isOpen, onClose, agent }: Props) => {
     return stateOptions.flatMap((state) => state.options).find((option) => option.label === agent.lga)?.value ?? 0;
   }, [agent, stateOptions]);
 
-  const aggregatorId = useMemo(() => {
-    if (!currentUser) return '';
-    return currentUser.body.aggregator.id;
-  }, [currentUser]);
+  const getAggregatorProgramId = useCallback(
+    (programId: string) => {
+      if (!currentUser || !currentUser.body.aggregator) return '';
+
+      const aggregatorPrograms = currentUser.body.aggregator.aggregatorPrograms;
+
+      if (aggregatorPrograms.length < 1) return '';
+
+      const aggregatorProgram = aggregatorPrograms.find((program) => program.programId === programId);
+
+      if (aggregatorProgram) return aggregatorProgram.id;
+
+      return aggregatorPrograms[0].id;
+    },
+    [currentUser]
+  );
 
   const defaultValues = useMemo(
     () => ({
       programs: [
         {
           agentId: agent.id,
-          aggregatorId,
+          aggregatorId: getAggregatorProgramId(agent.programId) ?? '',
           programDetails: { programId: agent.programId, lgaId, objective: 0 },
         },
       ],
     }),
-    [agent, aggregatorId, lgaId]
+    [agent, lgaId, getAggregatorProgramId]
   );
 
   const {
@@ -105,41 +117,23 @@ export const ReassignAgentModal = ({ isOpen, onClose, agent }: Props) => {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<FormValues>({ resolver: zodResolver(Schema), defaultValues });
   const { fields, append, remove } = useFieldArray({ name: 'programs', control });
 
   useEffect(() => {
-    if (agent) {
-      reset(defaultValues);
-    }
+    if (agent) reset(defaultValues);
   }, [defaultValues, agent, reset]);
 
   const hasErrors = Object.keys(errors).length > 0;
 
   const onSubmit = (data: FormValues) => {
-    const aggregatorProgramId = getAggregatorProgramId();
-
-    if (!aggregatorProgramId) return toast({ status: 'error', title: 'Aggregator not found' });
-
-    mutate(
-      { aggregatorProgramId, programs: data.programs },
-      {
-        onSuccess: () => {
-          toast({ title: 'Agent reassigned successfully', status: 'success' });
-          onClose();
-        },
-      }
-    );
-  };
-
-  const getAggregatorProgramId = () => {
-    if (!currentUser || !currentUser.body.aggregator) return null;
-
-    const aggregatorPrograms = currentUser.body.aggregator.aggregatorPrograms;
-
-    if (aggregatorPrograms.length < 1) return null;
-
-    return aggregatorPrograms[0].id;
+    mutate(data.programs, {
+      onSuccess: () => {
+        toast({ title: 'Agent reassigned successfully', status: 'success' });
+        onClose();
+      },
+    });
   };
 
   return (
@@ -183,7 +177,11 @@ export const ReassignAgentModal = ({ isOpen, onClose, agent }: Props) => {
                         name={name}
                         options={programOptions}
                         value={programOptions?.find((option) => option.value === value)}
-                        onChange={(value) => value && onChange(value.value)}
+                        onChange={(value) => {
+                          if (!value) return;
+                          onChange(value.value);
+                          setValue(`programs.${index}.aggregatorId`, getAggregatorProgramId(value.value));
+                        }}
                         onBlur={onBlur}
                         isDisabled={disabled}
                       />
@@ -253,7 +251,7 @@ export const ReassignAgentModal = ({ isOpen, onClose, agent }: Props) => {
               onClick={() =>
                 append({
                   agentId: agent.id,
-                  aggregatorId: agent.aggregator,
+                  aggregatorId: '',
                   programDetails: { programId: '', objective: 0, lgaId: 0 },
                 })
               }

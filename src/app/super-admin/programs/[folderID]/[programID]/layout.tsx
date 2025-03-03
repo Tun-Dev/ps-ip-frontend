@@ -3,19 +3,17 @@
 import { Box, Flex, IconButton, Spinner } from '@chakra-ui/react';
 import { useParams, usePathname } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 
 import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { ModuleCard } from '@/shared/chakra/components';
 import { ProgramModulesDetails } from '@/types';
-import { ALL_MODULES, renameKey } from '@/utils';
+import { renameKey } from '@/utils';
 
 const ProgramIDLayout = ({ children }: PropsWithChildren) => {
   const pathname = usePathname();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isAtStart, setIsAtStart] = useState(true);
-  const [isAtEnd, setIsAtEnd] = useState(false);
   const { folderID, programID } = useParams();
 
   const { response, isLoading } = useGetProgramById(programID?.toString());
@@ -23,35 +21,12 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
   const modules = reorderDescending(response?.body.programModules) ?? [];
 
   const handleScroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, clientWidth } = scrollContainerRef.current;
-      const scrollAmount = clientWidth / ALL_MODULES.length;
-      const newScrollPosition = direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount;
-      scrollContainerRef.current.scrollTo({ left: newScrollPosition, behavior: 'smooth' });
-    }
+    if (!scrollContainerRef.current) return;
+    const { scrollLeft, clientWidth } = scrollContainerRef.current;
+    const scrollAmount = clientWidth / modules.length;
+    const newScrollPosition = direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount;
+    scrollContainerRef.current.scrollTo({ left: newScrollPosition, behavior: 'smooth' });
   };
-
-  useEffect(() => {
-    const handleScrollEvent = () => {
-      if (scrollContainerRef.current) {
-        const { scrollLeft, clientWidth, scrollWidth } = scrollContainerRef.current;
-        setIsAtStart(scrollLeft === 0);
-        setIsAtEnd(Math.ceil(scrollLeft + clientWidth) >= scrollWidth);
-      }
-    };
-
-    const scrollContainer = scrollContainerRef.current;
-    if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScrollEvent);
-      handleScrollEvent(); // Initial check
-    }
-
-    return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener('scroll', handleScrollEvent);
-      }
-    };
-  }, []);
 
   if (isLoading) {
     return (
@@ -86,7 +61,6 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
             transform="translateY(-50%)"
             _disabled={{ opacity: '0.6', cursor: 'not-allowed', _hover: { bgColor: 'white' } }}
             onClick={() => handleScroll('left')}
-            isDisabled={isAtStart}
           />
           {modules.map((item) => {
             const newItem = renameKey(item, 'moduleGuidelines', 'moduleGuidelines');
@@ -120,7 +94,6 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
             transform="translateY(-50%)"
             _disabled={{ opacity: '0.6', cursor: 'not-allowed', _hover: { bgColor: 'white' } }}
             onClick={() => handleScroll('right')}
-            isDisabled={isAtEnd}
           />
         </Flex>
       </Box>

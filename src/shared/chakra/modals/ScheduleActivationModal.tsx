@@ -33,8 +33,8 @@ const Schema = z.object({
   programId: z.string({ required_error: 'Program is required' }),
   startTime: z.string().min(1, 'Start time is required'),
   endTime: z.string().min(1, 'End time is required'),
-  startDate: z.string().min(1, 'Start date is required'),
-  endDate: z.string().min(1, 'End date is required'),
+  startDate: z.coerce.date({ required_error: 'Start date is required' }),
+  endDate: z.coerce.date({ required_error: 'End date is required' }),
 });
 
 type FormValues = z.infer<typeof Schema>;

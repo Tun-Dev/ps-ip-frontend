@@ -63,7 +63,7 @@ const AggregatorsAgentsDashboard = () => {
           />
           <OverviewCard
             title="Agents Active"
-            number={isPending || isError ? '...' : data.body.totalAgents}
+            number={isPending || isError ? '...' : data.body.agentsActive}
             icon={MdGroups}
             minW="unset"
           />
@@ -162,9 +162,10 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
   };
 
   const handleAgentActivation = useCallback(
-    (id: string, status: boolean) => {
+    (id: string, programId: string, status: boolean) => {
       const payload = {
         agentId: id,
+        programId,
         isActive: status,
       };
 
@@ -206,23 +207,17 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
         enableSorting: false,
         cell: (info) => {
           return (
-            <>
-              {info.row.original.status === true ? (
-                <Text variant="Body3Semibold" color="green" textAlign="center">
-                  Online{' '}
-                  <Text as="span" variant="Body3Semibold" display="inline" color="green">
-                    (Active)
-                  </Text>
-                </Text>
-              ) : (
-                <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-                  Offline{' '}
-                  <Text as="span" variant="Body3Semibold" display="inline" color="grey.500">
-                    (Deactivated)
-                  </Text>
-                </Text>
-              )}
-            </>
+            <Text variant="Body3Semibold" color={info.row.original.isOnline ? 'green' : 'grey.500'} textAlign="center">
+              {info.row.original.isOnline ? 'Online' : 'Offline'}{' '}
+              <Text
+                as="span"
+                variant="Body3Semibold"
+                display="inline"
+                color={info.row.original.status ? 'green' : 'grey.500'}
+              >
+                ({info.row.original.status ? 'Active' : 'Deactivated'})
+              </Text>
+            </Text>
           );
         },
       },
@@ -280,29 +275,33 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
               onClick={(e) => e.stopPropagation()}
             />
             <MenuList>
+              {info.row.original.status && (
+                <>
+                  <MenuItem
+                    onClick={() => {
+                      onOpen();
+                      setSelectedAgent(info.row.original);
+                    }}
+                  >
+                    <Text as="span" variant="Body2Regular">
+                      Reassign agent
+                    </Text>
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      onScheduleOpen();
+                      setSelectedAgent(info.row.original);
+                    }}
+                  >
+                    <Text as="span" variant="Body2Regular">
+                      Schedule agent
+                    </Text>
+                  </MenuItem>
+                </>
+              )}
               <MenuItem
                 onClick={() => {
-                  onOpen();
-                  setSelectedAgent(info.row.original);
-                }}
-              >
-                <Text as="span" variant="Body2Regular">
-                  Reassign agent
-                </Text>
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  onScheduleOpen();
-                  setSelectedAgent(info.row.original);
-                }}
-              >
-                <Text as="span" variant="Body2Regular">
-                  Schedule agent
-                </Text>
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleAgentActivation(info.row.original.id, !info.row.original.status);
+                  handleAgentActivation(info.row.original.id, info.row.original.programId, !info.row.original.status);
                 }}
               >
                 <Text as="span" variant="Body2Regular">

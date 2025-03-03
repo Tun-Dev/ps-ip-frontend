@@ -12,6 +12,7 @@ export const useActivateAgent = () => {
     mutationFn: activateAgent,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agents'] });
+      queryClient.invalidateQueries({ queryKey: ['aggregatorAgents'] });
     },
     onError: (error) => {
       toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });

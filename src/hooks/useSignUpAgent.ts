@@ -11,6 +11,9 @@ export const useSignUpAgent = () => {
 
   return useMutation({
     mutationFn: signUpAgent,
+    onSuccess: () => {
+      toast({ title: 'Success', status: 'success', description: 'Account created successfully' });
+    },
     onError: (error) => {
       toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });
     },

@@ -478,6 +478,7 @@ export type DashboardDataResponse = {
 export type AggregatorDashboard = {
   programCount: number;
   totalAgents: number;
+  agentsActive: number;
   agentsOnline: number;
   totalEnumerations: number;
   unfulfilledObjectives: number;
@@ -516,6 +517,7 @@ export type AggregatorAgent = {
   state: string;
   lga: string;
   status: boolean;
+  isOnline: boolean;
   lastActive: string;
   programId: string;
   programName: string;
@@ -542,13 +544,10 @@ export type AgentPayload = {
 };
 
 export type ReassignAgentPayload = {
-  aggregatorProgramId: string;
-  programs: {
-    agentId: string;
-    aggregatorId: string;
-    programDetails: { programId: string; objective: number; lgaId: number };
-  }[];
-};
+  agentId: string;
+  aggregatorId: string;
+  programDetails: { programId: string; objective: number; lgaId: number };
+}[];
 
 export type AgentProgramDetails = {
   programId: string;
@@ -746,6 +745,6 @@ export type AgentSchedule = {
   days: (string | number)[];
   startTime: string;
   endTime: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
 };

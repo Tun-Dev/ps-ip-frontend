@@ -204,65 +204,6 @@ export const ALL_MODULES: Module[] = [
   },
 ];
 
-// export const ALL_MODULES = [
-//   {
-//     id: 1,
-//     name: 'Application',
-//     icon: '/icons/Application.svg',
-//     hasForm: true,
-//     hasSettings: true,
-//   },
-//   {
-//     id: 2,
-//     name: 'Enumeration',
-//     icon: '/icons/Enumeration.svg',
-//     hasForm: true,
-//     hasSettings: true,
-//   },
-//   {
-//     id: 3,
-//     name: 'Verification',
-//     icon: '/icons/Verification.svg',
-//     hasForm: false,
-//     hasSettings: false,
-//   },
-//   {
-//     id: 4,
-//     name: 'Nomination',
-//     icon: '/icons/Nomination.svg',
-//     hasForm: false,
-//     hasSettings: false,
-//   },
-//   {
-//     id: 5,
-//     name: 'Vetting',
-//     icon: '/icons/Vetting.svg',
-//     hasForm: true,
-//     hasSettings: true,
-//   },
-//   {
-//     id: 6,
-//     name: 'Whitelisting',
-//     icon: '/icons/Whitelisting.svg',
-//     hasForm: false,
-//     hasSettings: true,
-//   },
-//   {
-//     id: 7,
-//     name: 'Disbursement',
-//     icon: '/icons/Disbursement.svg',
-//     hasForm: false,
-//     hasSettings: true,
-//   },
-//   {
-//     id: 8,
-//     name: 'Survey',
-//     icon: '/icons/Survey.svg',
-//     hasForm: true,
-//     hasSettings: false,
-//   },
-// ];
-
 export type ModuleProps = (typeof ALL_MODULES)[number];
 
 export const ProgramsData = [

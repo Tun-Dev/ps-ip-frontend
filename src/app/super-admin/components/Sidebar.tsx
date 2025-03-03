@@ -8,6 +8,7 @@ import {
   MdHome,
   MdLocalShipping,
   MdLogout,
+  MdManageAccounts,
   MdNoteAlt,
   MdPerson,
   MdViewCarousel,
@@ -23,6 +24,7 @@ const sideBarData = [
   { name: 'Agents/Aggregators', Icon: MdGroups, url: '/super-admin/agents' },
   { name: 'Vendors/Orders', Icon: MdLocalShipping, url: '/super-admin/vendors' },
   { name: 'Partners', Icon: MdVolunteerActivism, url: '/super-admin/partners' },
+  { name: 'Role Management', Icon: MdManageAccounts, url: '/super-admin/role-management' },
   { name: 'Reports', Icon: MdNoteAlt, url: '/super-admin/reports' },
 ];
 

@@ -1,13 +1,11 @@
-'use client';
-
-import { Box, Button, Flex, Grid, Icon, Input, SimpleGrid, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Icon, Input, SimpleGrid, Text } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useFieldArray, type FieldArrayWithId } from 'react-hook-form';
-import { MdEdit, MdRadioButtonUnchecked, MdAddCircle, MdInfo } from 'react-icons/md';
+import { MdAddCircle, MdEdit, MdInfo, MdRadioButtonUnchecked } from 'react-icons/md';
 
 import { useProgramForm } from '@/providers/form-provider';
-import { Fragment, useEffect } from 'react';
+import { Fragment } from 'react';
 
 type Field = {
   name: string;
@@ -29,43 +27,11 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
   const { control, register, watch } = useProgramForm();
   const { fields, remove, append } = useFieldArray({ name: `vettingForm.automatedFields.${index}.options`, control });
 
-  const toast = useToast();
-
   const fieldValue = watch(`vettingForm.automatedFields.${index}.value`);
   const optionWeights = watch(`vettingForm.automatedFields.${index}.options`) || [];
-  const fieldName = watch(`vettingForm.automatedFields.${index}.name`);
 
-  const calculateTotalWeight = () => {
-    return optionWeights.reduce((sum, option) => sum + (Number(option.weight) || 0), 0);
-  };
-
-  const totalWeight = calculateTotalWeight();
-  const hasMismatch = fieldValue !== totalWeight && fields.length > 0;
-
-  const handleBlur = () => {
-    if (hasMismatch) {
-      const fieldName = watch(`vettingForm.automatedFields.${index}.name`);
-      toast({
-        title: 'Score Mismatch',
-        description: `Field "${fieldName}": Sum of option weights (${totalWeight}) doesn't match field value (${fieldValue})`,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (hasMismatch) {
-      toast({
-        title: 'Score Mismatch',
-        description: `Field "${fieldName}": Sum of option weights (${totalWeight}) doesn't match field value (${fieldValue})`,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  }, [fieldValue, totalWeight, hasMismatch, fieldName, toast]);
+  const totalWeight = optionWeights.reduce((sum, option) => sum + Number(option.weight), 0);
+  const hasMismatch = Number(fieldValue) !== Number(totalWeight);
 
   return (
     <Box
@@ -108,7 +74,6 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
               size="sm"
               color="grey.500"
               {...register(`vettingForm.automatedFields.${index}.value`)}
-              onBlur={handleBlur}
             />
             {hasMismatch && (
               <Flex align="center" gap="2">
@@ -153,7 +118,6 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
                   size="sm"
                   color="grey.500"
                   {...register(`vettingForm.automatedFields.${index}.options.${idx}.weight`)}
-                  onBlur={handleBlur}
                 />
 
                 <Button variant="cancel" size="small" type="button" onClick={() => remove(idx)}>
