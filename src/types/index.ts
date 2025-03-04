@@ -748,3 +748,28 @@ export type AgentSchedule = {
   startDate: Date;
   endDate: Date;
 };
+
+export type VendorsOrders = {
+  id: number;
+  products: string;
+  services: string;
+  programName: string;
+  programType: string;
+  vendorName: string;
+  amountDisburseable: number;
+  scheduledDate: string;
+  endDate: string;
+};
+export type VendorsOrdersDetails = {
+  id: string;
+  firstname: string;
+  lastname: string;
+  otherNames: string;
+  gender: string;
+  itemDisbursed: string;
+  lga: string;
+  vendor: string;
+  vendorId: string;
+  disbursementDate: string;
+  status: string;
+};

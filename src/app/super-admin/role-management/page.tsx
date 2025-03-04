@@ -1,23 +1,26 @@
 'use client';
 
 import { OverviewCard } from '@/shared/chakra/components/overview';
-import { Box, Button, Divider, Flex, Text } from '@chakra-ui/react';
+import { Box, Button, Divider, Flex, Text, useDisclosure } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { MdAddCircle, MdPerson, MdVolunteerActivism } from 'react-icons/md';
 import SuperAdminTab from './tabs/SuperAdminTab';
 import VettingOfficerTab from './tabs/VettingOfficerTab';
+import { AddNewUserModal } from '@/shared';
 
 const RoleManagemantPage = () => {
   const [selected, setSelected] = useState('super-admin');
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
+      <AddNewUserModal isOpen={isOpen} onClose={onClose} />
       <Flex flexDir="column" gap="12px">
         <Flex alignItems="center" justifyContent="space-between">
           <Text variant="Body1Semibold" color="grey.400">
             Overview
           </Text>
 
-          <Button variant="primary" gap="8px">
+          <Button onClick={onOpen} variant="primary" gap="8px">
             <MdAddCircle />
             <Text> Add New User</Text>
           </Button>

@@ -12,6 +12,8 @@ import {
   VendorOverview,
   VendorProgram,
   VendorProgramPayload,
+  VendorsOrders,
+  VendorsOrdersDetails,
 } from '@/types';
 import type { QueryKey } from '@tanstack/react-query';
 
@@ -104,5 +106,16 @@ export const addVendorToProgram = async (payload: VendorProgramPayload) => {
 export const getVendorAnalytics = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
   const [, programId] = queryKey;
   const { data } = await axiosInstance.get<APIResponse<VendorAnalytics>>(`/vendor/analytics/${programId}`, { signal });
+  return data;
+};
+
+export const getVendorsOrders = async () => {
+  const { data } = await axiosInstance.get<PaginatedResponse<VendorsOrders>>(`/vendor/programs/all/orders`);
+  return data;
+};
+
+export const getVendorsOrdersDetails = async ({ queryKey }: { queryKey: QueryKey }) => {
+  const [, id] = queryKey;
+  const { data } = await axiosInstance.get<PaginatedResponse<VendorsOrdersDetails>>(`programs/all/orders/${id}`);
   return data;
 };

@@ -4,8 +4,20 @@ import { useGetVendorOverview } from '@/hooks/useGetVendorOverview';
 import { NewVendorModal } from '@/shared';
 import { SmallOverviewCard } from '@/shared/chakra/components';
 import { OverviewCard } from '@/shared/chakra/components/overview';
-import { Button, Divider, Flex, SimpleGrid, Stack, Text, useDisclosure } from '@chakra-ui/react';
-import { usePathname, useRouter } from 'next/navigation';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  Button,
+  Divider,
+  Flex,
+  Link,
+  SimpleGrid,
+  Stack,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import {
   MdAccountBalanceWallet,
@@ -22,6 +34,10 @@ const VendorLayout = ({ children }: { children: React.ReactNode }) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const { response: overview, isLoading } = useGetVendorOverview();
+
+  const programId = useSearchParams().get('program');
+
+  console.log(programId);
 
   const cards = useMemo(
     () => [
@@ -67,9 +83,29 @@ const VendorLayout = ({ children }: { children: React.ReactNode }) => {
       <NewVendorModal isOpen={isOpen} onClose={onClose} />
       <Stack gap="6">
         <Flex align="center" justify="space-between">
-          <Text variant="Body1Semibold" color="grey.400">
+          {/* <Text variant="Body1Semibold" color="grey.400">
             Overview
-          </Text>
+          </Text> */}
+          <Breadcrumb separator=">" color="grey.500" fontSize="1rem" fontWeight="600">
+            <BreadcrumbItem>
+              <BreadcrumbLink as={Link} href="/super-admin/vendors/orders">
+                Overview
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            {!!programId && (
+              <BreadcrumbItem
+                isCurrentPage={pathname === `/super-admin/vendors/orders?program=${programId}`}
+                color={pathname === `/super-admin/vendors/orders?program=${programId}` ? 'primary.600' : 'inherit'}
+              >
+                <BreadcrumbLink
+                  as={pathname === `/super-admin/vendors/orders?program=${programId}` ? 'span' : Link}
+                  href={`/super-admin/vendors/orders?program=${programId}`}
+                >
+                  {programId}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            )}
+          </Breadcrumb>
           <Button variant="primary" gap="8px" onClick={onOpen}>
             <MdAddCircle />
             <Text> Add New Vendor</Text>
