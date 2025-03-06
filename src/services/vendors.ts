@@ -116,6 +116,8 @@ export const getVendorsOrders = async () => {
 
 export const getVendorsOrdersDetails = async ({ queryKey }: { queryKey: QueryKey }) => {
   const [, id] = queryKey;
-  const { data } = await axiosInstance.get<PaginatedResponse<VendorsOrdersDetails>>(`programs/all/orders/${id}`);
+  const { data } = await axiosInstance.get<PaginatedResponse<VendorsOrdersDetails>>(
+    `/vendor/programs/all/orders/${id}`
+  );
   return data;
 };

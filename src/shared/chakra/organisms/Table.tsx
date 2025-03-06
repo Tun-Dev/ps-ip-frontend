@@ -40,6 +40,7 @@ interface ReusableTableProps<T extends object> extends Omit<StackProps, 'onClick
   isLoading?: boolean;
   isError?: boolean;
   onRefresh?: () => void;
+  selectedChildren?: React.ReactNode;
 }
 
 function ReusableTable<T extends object>({
@@ -52,6 +53,7 @@ function ReusableTable<T extends object>({
   isLoading,
   isError,
   onRefresh,
+  selectedChildren,
   ...props
 }: ReusableTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -142,6 +144,11 @@ function ReusableTable<T extends object>({
           borderColor="grey.100"
           {...props}
         >
+          {Object.keys(rowSelection).length > 0 && (
+            <Flex justifyContent="flex-end" gap="16px">
+              {selectedChildren}
+            </Flex>
+          )}
           <TableContainer width="100%">
             <Table>
               <Thead>

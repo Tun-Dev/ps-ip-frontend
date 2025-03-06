@@ -1,7 +1,7 @@
 'use client';
 
 import { useGetAggregatorsOverview } from '@/hooks/useGetAggregatorsOverview';
-import { AggregatorModal } from '@/shared';
+import { AggregatorModal, AddNewAgentModalSuperAdmin } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { Box, Button, Flex, Text, useDisclosure } from '@chakra-ui/react';
 import { useState } from 'react';
@@ -18,19 +18,23 @@ const AgentsPage = () => {
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
-      <AggregatorModal isOpen={isOpen} onClose={onClose} />
+      {selected === 'aggregators' ? (
+        <AggregatorModal isOpen={isOpen} onClose={onClose} />
+      ) : (
+        <AddNewAgentModalSuperAdmin isOpen={isOpen} onClose={onClose} />
+      )}
+      {/* <AggregatorModal isOpen={isOpen} onClose={onClose} />
+      <AddNewAgentModal isOpen={isOpen} onClose={onClose} /> */}
       <Flex flexDir="column" gap="12px">
         <Flex alignItems="center" justifyContent="space-between">
           <Text variant="Body1Semibold" color="grey.400">
             Overview
           </Text>
 
-          {selected === 'aggregators' && (
-            <Button variant="primary" gap="8px" onClick={onOpen}>
-              <MdAddCircle />
-              <Text> Add New Aggregator</Text>
-            </Button>
-          )}
+          <Button variant="primary" gap="8px" onClick={onOpen}>
+            <MdAddCircle />
+            <Text> Add New {selected === 'aggregators' ? 'Aggregator' : 'Agents'}</Text>
+          </Button>
         </Flex>
         <Flex gap="1rem">
           <Box w="265px" onClick={() => setSelected('aggregators')} cursor="pointer">

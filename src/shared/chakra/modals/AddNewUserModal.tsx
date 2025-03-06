@@ -29,7 +29,9 @@ type ModalProps = {
 };
 
 const Schema = z.object({
-  name: z.string().min(1, 'name is required'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email').min(1, 'Email is required'),
   role: z.string().min(1, 'Role is required'),
   gender: z.string().min(1, 'Gender is required'),
   programId: z.string().min(1, 'Program is required'),
@@ -88,14 +90,33 @@ const AddNewUserModal = ({ isOpen, onClose }: ModalProps) => {
         <ModalCloseButton />
         <ModalBody>
           <Stack spacing="5">
-            <FormControl isInvalid={!!errors.name} isRequired>
+            <FormControl isInvalid={!!errors.firstName} isRequired>
               <FormLabel htmlFor="firstName">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Name
+                  First Name
                 </Text>
               </FormLabel>
-              <Input id="firstName" variant="primary" {...register('name')} />
-              <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
+              <Input id="firstName" variant="primary" {...register('firstName')} />
+              <FormErrorMessage>{errors.firstName && errors.firstName.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.lastName} isRequired>
+              <FormLabel htmlFor="firstName">
+                <Text as="span" variant="Body2Semibold" color="grey.500">
+                  Last Name
+                </Text>
+              </FormLabel>
+              <Input id="lastName" variant="primary" {...register('lastName')} />
+              <FormErrorMessage>{errors.lastName && errors.lastName.message}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl isInvalid={!!errors.email} isRequired>
+              <FormLabel htmlFor="firstName">
+                <Text as="span" variant="Body2Semibold" color="grey.500">
+                  Email
+                </Text>
+              </FormLabel>
+              <Input id="email" variant="primary" {...register('email')} />
+              <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.gender} isRequired>
               <FormLabel htmlFor="gender">
@@ -122,31 +143,6 @@ const AddNewUserModal = ({ isOpen, onClose }: ModalProps) => {
               />
               <FormErrorMessage>{errors.gender && errors.gender.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.programId} isRequired>
-              <FormLabel htmlFor="programId">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Assign Program
-                </Text>
-              </FormLabel>
-              <Controller
-                control={control}
-                name="programId"
-                render={({ field: { name, onBlur, onChange, value, disabled } }) => (
-                  <Dropdown
-                    id="programId"
-                    variant="whiteDropdown"
-                    placeholder="Select program"
-                    name={name}
-                    options={programOptions}
-                    value={programOptions?.find((option) => option.value === value)}
-                    onChange={(value) => value && onChange(value.value)}
-                    onBlur={onBlur}
-                    isDisabled={disabled}
-                  />
-                )}
-              />
-              <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
-            </FormControl>
             <FormControl isInvalid={!!errors.role} isRequired>
               <FormLabel htmlFor="gender">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
@@ -171,6 +167,31 @@ const AddNewUserModal = ({ isOpen, onClose }: ModalProps) => {
                 )}
               />
               <FormErrorMessage>{errors.role && errors.role.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.programId} isRequired>
+              <FormLabel htmlFor="programId">
+                <Text as="span" variant="Body2Semibold" color="grey.500">
+                  Program
+                </Text>
+              </FormLabel>
+              <Controller
+                control={control}
+                name="programId"
+                render={({ field: { name, onBlur, onChange, value, disabled } }) => (
+                  <Dropdown
+                    id="programId"
+                    variant="whiteDropdown"
+                    placeholder="Select program"
+                    name={name}
+                    options={programOptions}
+                    value={programOptions?.find((option) => option.value === value)}
+                    onChange={(value) => value && onChange(value.value)}
+                    onBlur={onBlur}
+                    isDisabled={disabled}
+                  />
+                )}
+              />
+              <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
             </FormControl>
           </Stack>
         </ModalBody>

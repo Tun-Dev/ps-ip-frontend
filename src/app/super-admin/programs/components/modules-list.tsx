@@ -7,7 +7,7 @@ import { renameKey } from '@/utils';
 import { Box, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useMemo } from 'react';
 
-const EDITABLE_MODULES = ['Application', 'Enumeration', 'Vetting', 'Survey'];
+const EDITABLE_MODULES = ['Application', 'Enumeration', 'Vetting', 'Survey', 'Nomination'];
 
 export function ModulesList() {
   const step = useProgramStore((state) => state.step);

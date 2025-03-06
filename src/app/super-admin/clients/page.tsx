@@ -1,11 +1,11 @@
 'use client';
 
-import { useDeletePartner } from '@/hooks/useDeletePartner';
-import { useGetPartners } from '@/hooks/useGetPartners';
+import { useDeleteClient } from '@/hooks/useDeleteClient';
+import { useGetClients } from '@/hooks/useGetClients';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { AddNewPartnerModal, DeleteModal } from '@/shared/chakra/modals';
+import { AddNewClientModal, DeleteModal } from '@/shared/chakra/modals';
 import { ReusableTable } from '@/shared/chakra/organisms';
 import { Partner } from '@/types';
 import {
@@ -44,12 +44,12 @@ const PartnerTab = () => {
     isRefetchError,
     isRefetching,
     refetch,
-  } = useGetPartners({ page: 1, pageSize: 10, query: search, programId: program });
+  } = useGetClients({ page: 1, pageSize: 10, query: search, programId: program });
   const totalPages = partners?.body.total ?? 0;
   const [selectedPartner, setSelectedPartner] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: deleteModalOnClose } = useDisclosure();
-  const { mutate: delPartner, isPending } = useDeletePartner();
+  const { mutate: delPartner, isPending } = useDeleteClient();
 
   const handleDeletePartner = () => {
     delPartner(selectedPartner, {
@@ -134,7 +134,7 @@ const PartnerTab = () => {
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
-      <AddNewPartnerModal isOpen={isOpen} onClose={onClose} />
+      <AddNewClientModal isOpen={isOpen} onClose={onClose} />
       <DeleteModal
         isOpen={isDeleteOpen}
         onClose={deleteModalOnClose}
@@ -150,11 +150,11 @@ const PartnerTab = () => {
 
           <Button variant="primary" gap="8px" onClick={onOpen}>
             <MdAddCircle />
-            <Text> Add New Partner</Text>
+            <Text> Add New Client</Text>
           </Button>
         </Flex>
         <Box w="256px" cursor="pointer">
-          <OverviewCard title="Total Partners" number={partners?.body.total || 0} icon={MdVolunteerActivism} active />
+          <OverviewCard title="Total Clients" number={partners?.body.total || 0} icon={MdVolunteerActivism} active />
         </Box>
       </Flex>
 

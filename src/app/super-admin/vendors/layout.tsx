@@ -94,12 +94,12 @@ const VendorLayout = ({ children }: { children: React.ReactNode }) => {
             </BreadcrumbItem>
             {!!programId && (
               <BreadcrumbItem
-                isCurrentPage={pathname === `/super-admin/vendors/orders?program=${programId}`}
-                color={pathname === `/super-admin/vendors/orders?program=${programId}` ? 'primary.600' : 'inherit'}
+                isCurrentPage={pathname === `/super-admin/vendors/orders?programId=${programId}`}
+                color={pathname === `/super-admin/vendors/orders?programId=${programId}` ? 'primary.600' : 'inherit'}
               >
                 <BreadcrumbLink
-                  as={pathname === `/super-admin/vendors/orders?program=${programId}` ? 'span' : Link}
-                  href={`/super-admin/vendors/orders?program=${programId}`}
+                  as={pathname === `/super-admin/vendors/orders?programId=${programId}` ? 'span' : Link}
+                  href={`/super-admin/vendors/orders?programId=${programId}`}
                 >
                   {programId}
                 </BreadcrumbLink>

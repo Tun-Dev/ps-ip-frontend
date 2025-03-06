@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useCallback, useMemo, useState } from 'react';
-import { MdArrowRightAlt, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
+import { MdArrowRightAlt, MdCancel, MdCheckCircle, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
@@ -57,6 +57,7 @@ const ApplicationPage = () => {
   const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
   const { mutate: uploadProgram, isPending } = useUploadProgram();
   const { response } = useGetProgramById(programID?.toString());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Application')?.id ?? '';
   const isProgramCompleted =
@@ -80,6 +81,24 @@ const ApplicationPage = () => {
       const payload = {
         status: status.toUpperCase(),
         beneficiaryId: [id],
+        moduleId: 1,
+        programId: programID.toString(),
+      };
+
+      approveBeneficiary(payload, {
+        onSuccess: () => {
+          toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
+        },
+      });
+    },
+    [approveBeneficiary, programID, toast]
+  );
+
+  const onApproveSelected = useCallback(
+    ({ status, ids }: { status: string; ids: string[] }) => {
+      const payload = {
+        status: status.toUpperCase(),
+        beneficiaryId: ids,
         moduleId: 1,
         programId: programID.toString(),
       };
@@ -252,6 +271,35 @@ const ApplicationPage = () => {
           isLoading={isLoading || isRefetching}
           isError={isError || isRefetchError}
           onRefresh={refetch}
+          onSelectionChange={(selectedRows) => {
+            setSelectedIds(selectedRows.map((row) => row.id.toString()));
+          }}
+          selectedChildren={
+            <>
+              <Button
+                variant="accept"
+                size="medium"
+                leftIcon={<MdCheckCircle />}
+                onClick={() => {
+                  console.log(selectedIds);
+                  onApproveSelected({ status: 'Approved', ids: selectedIds });
+                }}
+              >
+                Approve selected
+              </Button>
+              <Button
+                variant="cancel"
+                size="medium"
+                leftIcon={<MdCancel />}
+                onClick={() => {
+                  console.log(selectedIds);
+                  onApproveSelected({ status: 'Disapproved', ids: selectedIds });
+                }}
+              >
+                Deny selected
+              </Button>
+            </>
+          }
         />
         <TablePagination
           handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}

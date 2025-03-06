@@ -3,7 +3,7 @@
 import { Button, Stack, Text, useDisclosure } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -17,6 +17,7 @@ import FormInput from './form-input';
 export default function ModuleForm() {
   const { programId } = useParams();
   const [code, setCode] = useState('');
+  const [stateQuestionId, setStateQuestionId] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { data: programForm } = useGetProgramForm(`${programId}`);
@@ -66,6 +67,11 @@ export default function ModuleForm() {
     );
   };
 
+  useEffect(() => {
+    const stateQuestion = questions.find((question) => question.question === 'State');
+    if (stateQuestion) setStateQuestionId(stateQuestion.id);
+  }, [questions]);
+
   if (!programForm || !programForm.body.form || !questions || questions.length < 0)
     return (
       <Text textAlign="center" variant="Body2Semibold">
@@ -78,7 +84,13 @@ export default function ModuleForm() {
       <BeneficiarySuccessModal isOpen={isOpen} onClose={onClose} code={code} moduleName={programForm.body.moduleName} />
       <Stack gap="6" as="form" onSubmit={form.handleSubmit(onSubmit)}>
         {questions.map((question, index) => (
-          <FormInput key={question.id} question={question} form={form} number={index + 1} />
+          <FormInput
+            key={question.id}
+            question={question}
+            form={form}
+            number={index + 1}
+            stateQuestionId={stateQuestionId}
+          />
         ))}
         <Button
           type="submit"
@@ -134,6 +146,11 @@ const generateSchema = (questions: QuestionDetails[]) => {
 
       case 'DATE':
         fieldSchema = z.coerce.date();
+        break;
+
+      case 'DROPDOWN':
+        if (question.question === 'State' || question.question === 'Lga') fieldSchema = z.coerce.number();
+        else fieldSchema = z.string().min(1, 'This field is required');
         break;
 
       default:

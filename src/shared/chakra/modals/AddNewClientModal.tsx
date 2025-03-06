@@ -1,4 +1,4 @@
-import { useCreatePartner } from '@/hooks/useCreatePartner';
+import { useCreateClients } from '@/hooks/useCreateClient';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { Dropdown } from '@/shared/chakra/components';
 import {
@@ -32,7 +32,7 @@ type ModalProps = {
   onClose: () => void;
 };
 
-const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
+const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
   const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
 
@@ -67,7 +67,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
     reset,
   } = useForm<FormValues>({ resolver: zodResolver(Schema) });
 
-  const { mutate, isPending } = useCreatePartner(() => {
+  const { mutate, isPending } = useCreateClients(() => {
     onClose();
     reset();
   });
@@ -82,7 +82,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
         <ModalOverlay />
         <ModalContent as="form" width="498px" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>
-            <Text variant="Body1Semibold">Add New Partner</Text>
+            <Text variant="Body1Semibold">Add New Client</Text>
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -90,7 +90,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
               <FormControl isInvalid={!!errors.name}>
                 <FormLabel htmlFor="name">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
-                    Partner Name
+                    Client Name
                   </Text>
                 </FormLabel>
                 <Input id="name" variant="primary" placeholder="Partner Usman" {...register('name')} />
@@ -100,7 +100,7 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
               <FormControl isInvalid={!!errors.programId}>
                 <FormLabel htmlFor="programId">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
-                    Assign Program
+                    Program
                   </Text>
                 </FormLabel>
                 <Controller
@@ -215,4 +215,4 @@ const AddNewPartnerModal = ({ isOpen, onClose }: ModalProps) => {
   );
 };
 
-export { AddNewPartnerModal };
+export { AddNewClientModal };

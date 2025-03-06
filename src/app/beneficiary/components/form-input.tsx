@@ -17,10 +17,11 @@ import {
   Textarea,
   useToast,
 } from '@chakra-ui/react';
-import { ChangeEvent, HTMLInputTypeAttribute, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, HTMLInputTypeAttribute, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
 import { MdInfo, MdOutlineAddCircle } from 'react-icons/md';
 
+import { useGetStates } from '@/hooks/useGetStates';
 import { useUploadFile } from '@/hooks/useUploadFile';
 import { Dropdown } from '@/shared/chakra/components';
 import { PhoneNumberInput } from '@/shared/chakra/components/phone-number-input';
@@ -29,10 +30,11 @@ import { QuestionDetails } from '@/types';
 type FormInputProps = {
   question: QuestionDetails;
   form: UseFormReturn;
+  stateQuestionId?: string;
   number?: number;
 };
 
-const FormInput = ({ question, form, number = 0 }: FormInputProps) => {
+const FormInput = ({ question, form, number = 0, stateQuestionId }: FormInputProps) => {
   const InputComponent = getFormInput(question.type);
 
   if (question.type === 'GPS') return <GPSInput question={question} form={form} />;
@@ -75,7 +77,13 @@ const FormInput = ({ question, form, number = 0 }: FormInputProps) => {
             {question.question}
           </Text>
         </FormLabel>
-        <InputComponent question={question} form={form} />
+        {question.question === 'State' && question.type === 'DROPDOWN' ? (
+          <StateInput question={question} form={form} />
+        ) : question.question === 'Lga' && question.type === 'DROPDOWN' ? (
+          <LGAInput question={question} form={form} stateQuestionId={stateQuestionId} />
+        ) : (
+          <InputComponent question={question} form={form} />
+        )}
         <FormErrorMessage px={question.type === 'UPLOAD' ? { xs: '1.875rem' } : undefined}>
           {form.formState.errors[question.id]?.message?.toString()}
         </FormErrorMessage>
@@ -155,7 +163,10 @@ const ImageInput = ({ question, form }: FormInputProps) => {
     uploadFile(
       { files: [file], type: 'beneficiaryDocs' },
       {
-        onSuccess: (data) => form.setValue(question.id, data.body[0].fileName),
+        onSuccess: (data) => {
+          form.setValue(question.id, data.body[0].fileName);
+          form.clearErrors(question.id);
+        },
       }
     );
   };
@@ -217,6 +228,86 @@ const GPSInput = ({ question, form }: FormInputProps) => {
   }, [toast, form, question]);
 
   return <Input type="hidden" {...form.register(question.id)} />;
+};
+
+const StateInput = ({ question, form }: FormInputProps) => {
+  const { data: states } = useGetStates();
+
+  const stateOptions = useMemo(() => {
+    if (!states) return [];
+    return states.body.map((state) => ({ label: state.name, value: state.id }));
+  }, [states]);
+
+  const currentState = useCallback(
+    (value: number | undefined) =>
+      value !== undefined ? stateOptions.find((option) => option.value === value) : undefined,
+    [stateOptions]
+  );
+
+  return (
+    <Controller
+      control={form.control}
+      name={question.id}
+      render={({ field: { name, onBlur, onChange, value, disabled } }) => (
+        <Dropdown
+          variant="whiteDropdown"
+          id={question.id}
+          name={name}
+          options={stateOptions}
+          value={currentState(value)}
+          onChange={(value) => value && onChange(value.value)}
+          onBlur={onBlur}
+          isDisabled={disabled}
+          isRequired={question.mandatory}
+        />
+      )}
+    />
+  );
+};
+
+const LGAInput = ({ question, form, stateQuestionId }: FormInputProps) => {
+  const { data: states } = useGetStates();
+
+  const selectedStateId = form.watch(stateQuestionId ?? '');
+
+  const LGAOptions = useMemo(() => {
+    if (!states || !selectedStateId) return [];
+    const currentState = states.body.find((state) => state.id === Number(selectedStateId));
+    if (!currentState) return [];
+    return currentState.LGAs.map((lga) => ({ label: lga.name, value: lga.id }));
+  }, [selectedStateId, states]);
+
+  const currentLGA = useCallback(
+    (value: number | undefined) =>
+      value !== undefined ? LGAOptions.find((option) => option.value === value) : undefined,
+    [LGAOptions]
+  );
+
+  useEffect(() => {
+    // Reset LGA value when state changes
+    form.resetField(question.id);
+  }, [selectedStateId, form, question.id]);
+
+  return (
+    <Controller
+      control={form.control}
+      name={question.id}
+      render={({ field: { name, onBlur, onChange, value, disabled } }) => (
+        <Dropdown
+          variant="whiteDropdown"
+          id={question.id}
+          name={name}
+          options={LGAOptions}
+          value={currentLGA(value) ?? ''}
+          onChange={(value) => value && typeof value !== 'string' && onChange(value.value)}
+          onBlur={onBlur}
+          isDisabled={disabled || (!!stateQuestionId && !selectedStateId)}
+          isRequired={question.mandatory}
+          placeholder={!!stateQuestionId && !selectedStateId ? 'Please select a state first' : 'Select LGA'}
+        />
+      )}
+    />
+  );
 };
 
 const getFormInput = (type: string) => {

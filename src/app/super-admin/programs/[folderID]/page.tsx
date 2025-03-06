@@ -26,9 +26,9 @@ import { MdArrowRightAlt, MdLink } from 'react-icons/md';
 import { DeleteModal } from '@/shared';
 import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
 // import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { useDeleteProgramFromGroup } from '@/hooks/useDeleteProgramFromGroup';
 import { useGetGroupById } from '@/hooks/useGetGroupById';
 import { Program, ProgramModules } from '@/types';
-import { useDeleteProgramFromGroup } from '@/hooks/useDeleteProgramFromGroup';
 import { useQueryClient } from '@tanstack/react-query';
 
 const ProgramsPage = () => {
@@ -226,11 +226,11 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
                 Copy Link
               </Button>
               <Flex gap="16px">
-                <Button fontSize="10px" w="full" variant="cancel" onClick={onOpen}>
-                  Delete Product
-                </Button>
                 <Button fontSize="10px" w="full" variant="accept" onClick={() => handleEdit(program.id)}>
                   Edit Product
+                </Button>
+                <Button fontSize="10px" w="full" variant="cancel" onClick={onOpen}>
+                  Delete Product
                 </Button>
               </Flex>
             </Flex>

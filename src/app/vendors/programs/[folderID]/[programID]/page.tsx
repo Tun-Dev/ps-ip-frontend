@@ -2,14 +2,15 @@
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useGetCurrentUser } from '@/hooks/useGetCurrentUser';
+import { useGetModules } from '@/hooks/useGetModules';
 import { useGetVendorAnalytics } from '@/hooks/useGetVendorAnalytics';
-import { useGetVendorBeneficiaries } from '@/hooks/useGetVendorBeneficiaries';
+import { useGetWhitelist } from '@/hooks/useGetWhitelist';
 import { ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { Beneficiary } from '@/types';
-import { formatCurrency } from '@/utils';
-import { Image } from '@chakra-ui/next-js';
+import { VendorsOrdersDetails } from '@/types';
+import { formatCurrency, FormStatus } from '@/utils';
 import {
   Box,
   Button,
@@ -32,7 +33,8 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { format, parseISO } from 'date-fns';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -80,18 +82,21 @@ const VendorsDisbursementDashboard = () => {
 const VendorTab = () => {
   const { programID } = useParams();
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const { data: currentUser } = useGetCurrentUser();
 
-  const { data: pendingBeneficiaries } = useGetVendorBeneficiaries({
+  const { data: pendingBeneficiaries } = useGetWhitelist({
     page: 1,
     pageSize: 10,
     programId: programID.toString(),
-    status: 'Pending',
+    status: FormStatus.PENDING,
+    vendorId: currentUser?.body.vendor.id,
   });
-  const { data: disbursedBeneficiaries } = useGetVendorBeneficiaries({
+  const { data: disbursedBeneficiaries } = useGetWhitelist({
     page: 1,
     pageSize: 10,
     programId: programID.toString(),
-    status: 'Approved',
+    status: FormStatus.APPROVED,
+    vendorId: currentUser?.body.vendor.id,
   });
 
   const ordersPending = pendingBeneficiaries?.body.total ?? 0;
@@ -130,10 +135,10 @@ const VendorTab = () => {
 
       <TabPanels h="100%">
         <TabPanel px="0" py="1.25rem" h="100%">
-          <VendorPanel status="Pending" />
+          <VendorPanel status={FormStatus.PENDING} />
         </TabPanel>
         <TabPanel px="0" py="1.25rem" h="100%">
-          <VendorPanel status="Approved" />
+          <VendorPanel status={FormStatus.APPROVED} />
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -141,8 +146,10 @@ const VendorTab = () => {
 };
 
 type VendorPanelProps = {
-  status: 'Pending' | 'Approved';
+  status: FormStatus;
 };
+
+const columnHelper = createColumnHelper<VendorsOrdersDetails>();
 
 const VendorPanel = ({ status }: VendorPanelProps) => {
   const toast = useToast();
@@ -152,16 +159,19 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
 
+  const { data: modules } = useGetModules();
+  const disbursementModuleId = modules?.body.find((module) => module.name === 'Disbursement')?.id ?? 0;
+  const { data: currentUser } = useGetCurrentUser();
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
 
-  const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } =
-    useGetVendorBeneficiaries({
-      page,
-      pageSize: 10,
-      programId: programID.toString(),
-      query: debouncedQuery === '' ? undefined : debouncedQuery,
-      status,
-    });
+  const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } = useGetWhitelist({
+    page,
+    pageSize: 10,
+    programId: programID.toString(),
+    vendorId: currentUser?.body.vendor.id,
+    query: debouncedQuery === '' ? undefined : debouncedQuery,
+    status,
+  });
 
   const tableData = useMemo(() => data?.body.data ?? [], [data]);
   const totalPages = data?.body.totalPages ?? 1;
@@ -172,11 +182,11 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
   };
 
   const onApprove = useCallback(
-    ({ status, id }: { status: string; id: number }) => {
+    ({ status, id }: { status: string; id: string }) => {
       const payload = {
         status: status.toUpperCase(),
         beneficiaryId: [id],
-        moduleId: 1,
+        moduleId: disbursementModuleId,
         programId: programID.toString(),
       };
 
@@ -186,49 +196,114 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         },
       });
     },
-    [approveBeneficiary, programID, toast]
+    [approveBeneficiary, programID, toast, disbursementModuleId]
   );
 
-  const columns = useMemo(() => {
-    if (!tableData || tableData.length === 0) return [];
-    const keys = Object.keys(tableData[0]);
-
-    const formColumns: ColumnDef<Beneficiary>[] = keys
-      .filter((key) => key !== 'id' && key !== 'moduleName' && key !== 'status')
-      .map((key) => ({
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('firstname', {
         header: () => (
-          <Text variant="Body3Semibold" textAlign="left">
-            {key}
+          <Text variant="Body3Semibold" color="grey.500">
+            First Name
           </Text>
         ),
-        accessorKey: key,
-        cell: (info) => {
-          const value = info.getValue() as string | number | undefined;
-
-          if (key === 'Picture' && typeof value === 'string')
-            return (
-              <Box pos="relative" boxSize="5" rounded="full" overflow="hidden">
-                <Image src={value} alt="Beneficiary Image" sizes="1.25rem" sx={{ objectFit: 'cover' }} fill />
-              </Box>
-            );
-
-          return (
-            <Text as="span" textAlign="left" display="block" variant="Body2Regular">
-              {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
-            </Text>
-          );
-        },
-        enableSorting: false, // You can enable this if sorting is required
-      }));
-
-    const otherColumns: ColumnDef<Beneficiary>[] = [
-      {
+        cell: (info) => (
+          <Text as="span" variant="Body2Regular">
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor('lastname', {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500">
+            Last Name
+          </Text>
+        ),
+        cell: (info) => (
+          <Text as="span" variant="Body2Regular">
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor('otherNames', {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500">
+            Other Names
+          </Text>
+        ),
+        cell: (info) => (
+          <Text as="span" variant="Body2Regular">
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor('gender', {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500">
+            Gender
+          </Text>
+        ),
+        cell: (info) => (
+          <Text as="span" variant="Body2Regular">
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor('itemDisbursed', {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500">
+            Item Disbursed
+          </Text>
+        ),
+        cell: (info) => (
+          <Text as="span" variant="Body2Regular">
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor('lga', {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500">
+            LGA
+          </Text>
+        ),
+        cell: (info) => (
+          <Text as="span" variant="Body2Regular">
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor('vendor', {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500">
+            Vendor
+          </Text>
+        ),
+        cell: (info) => (
+          <Text as="span" variant="Body2Regular">
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor('disbursementDate', {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500">
+            Disbursement Date
+          </Text>
+        ),
+        cell: (info) => (
+          <Text as="span" variant="Body2Regular">
+            {format(parseISO(info.getValue()), 'MMM. d')}
+          </Text>
+        ),
+      }),
+      columnHelper.display({
+        id: 'actions',
         header: () => (
           <Text variant="Body3Semibold" color="grey.500" textAlign="center">
             Status
           </Text>
         ),
-        accessorKey: 'Status',
         enableSorting: false,
         cell: (info) =>
           info.row.original.status === 'Pending' ? (
@@ -263,11 +338,10 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
               Disbursed
             </Text>
           ),
-      },
-    ];
-
-    return [...formColumns, ...otherColumns];
-  }, [onApprove, tableData]);
+      }),
+    ],
+    [onApprove]
+  );
 
   return (
     <Flex flexDir="column" gap="1.5rem" boxSize="full">
@@ -294,7 +368,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
       <ReusableTable
         selectable
         data={tableData}
-        columns={columns}
+        columns={columns as ColumnDef<VendorsOrdersDetails>[]}
         isLoading={isLoading || isRefetching}
         isError={isError || isRefetchError}
         onRefresh={refetch}

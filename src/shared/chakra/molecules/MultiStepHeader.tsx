@@ -20,6 +20,7 @@ export { MultiStepHeader };
 
 const StepItem = ({ step, activeStep, label }: { step: number; activeStep: number; label: string }) => {
   const isActive = activeStep === step || activeStep > step;
+  const passed = activeStep > step;
   return (
     <Flex flexDir="column" gap="8px" alignItems="center" boxSize="80px">
       <Flex
@@ -27,7 +28,7 @@ const StepItem = ({ step, activeStep, label }: { step: number; activeStep: numbe
         h="56px"
         borderRadius="50%"
         border="2px dashed"
-        borderColor={isActive ? 'secondary.600' : 'grey.300'}
+        borderColor={passed ? 'primary.200' : isActive ? 'secondary.600' : 'grey.300'}
         justifyContent="center"
         alignItems="center"
         transition="all 0.3s ease-in-out"
@@ -35,7 +36,7 @@ const StepItem = ({ step, activeStep, label }: { step: number; activeStep: numbe
         <Flex
           w="40px"
           h="40px"
-          bg={isActive ? 'secondary.200' : 'grey.200'}
+          bg={passed ? 'primary.200' : isActive ? 'secondary.200' : 'grey.200'}
           borderRadius="50%"
           justifyContent="center"
           alignItems="center"

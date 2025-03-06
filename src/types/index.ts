@@ -367,7 +367,7 @@ export type QuestionDetails = {
 
 export type ApproveBeneficiaryPayload = {
   status: string;
-  beneficiaryId: number[];
+  beneficiaryId: (number | string)[];
   moduleId: number;
   programId: string;
   vetScore?: number;
@@ -619,6 +619,12 @@ export type CurrentUser = {
   roles: RoleElement[];
   agent: [];
   aggregator: AggregatorUser;
+  vendor: VendorUser;
+};
+
+export type VendorUser = {
+  id: string;
+  programs: number[];
 };
 
 export type AggregatorUser = {
@@ -760,6 +766,7 @@ export type VendorsOrders = {
   scheduledDate: string;
   endDate: string;
 };
+
 export type VendorsOrdersDetails = {
   id: string;
   firstname: string;

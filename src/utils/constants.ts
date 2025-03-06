@@ -285,3 +285,11 @@ export const MODULE_STATUS = {
     status: 'This is the default status',
   },
 };
+
+export enum FormStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  DISAPPROVED = 'DISAPPROVED',
+  WHITELISTED = 'WHITELISTED',
+  DISBURSED = 'DISBURSED',
+}

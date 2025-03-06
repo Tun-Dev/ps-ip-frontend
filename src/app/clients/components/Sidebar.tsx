@@ -7,7 +7,7 @@ import { MdGroups, MdHome, MdLocalShipping, MdLogout, MdNoteAlt, MdPerson, MdVie
 
 const sideBarData = [
   { name: 'Dashboard', Icon: MdHome, url: '/clients' },
-  { name: 'Modules', Icon: MdViewCarousel, url: '/clients/modules' },
+  { name: 'Programs', Icon: MdViewCarousel, url: '/clients/programs' },
   { name: 'Agents/Aggregators', Icon: MdGroups, url: '/clients/agents' },
   { name: 'Vendors/Orders', Icon: MdLocalShipping, url: '/clients/vendors' },
   { name: 'Reports', Icon: MdNoteAlt, url: '/clients/reports' },

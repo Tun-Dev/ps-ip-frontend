@@ -1,9 +1,14 @@
 'use client';
 
+import { useGetVendorsOrders } from '@/hooks/useGetVendorsOrders';
+import { useGetVendorsOrdersDetails } from '@/hooks/useGetVendorsOrdersDetails';
 import { ReusableTable } from '@/shared';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { VendorsOrders, VendorsOrdersDetails } from '@/types';
 import {
   Button,
   Flex,
+  Grid,
   Icon,
   IconButton,
   Input,
@@ -14,26 +19,32 @@ import {
   MenuItem,
   MenuList,
   Select,
+  Spinner,
   Stack,
   Text,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
+import { format, parseISO } from 'date-fns';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
-import { useGetVendorsOrders } from '@/hooks/useGetVendorsOrders';
-import { VendorsOrders, VendorsOrdersDetails } from '@/types';
-import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { parseISO, format } from 'date-fns';
-import { useGetVendorDetails } from '@/hooks/useGetVendorDetails';
-import { useRouter } from 'next/navigation';
 
 const OrderPage = () => {
   const [page, setPage] = useState(1);
+  const [detailsPage, setDetailsPage] = useState(1);
   const { data, isLoading, isError, isRefetching, isRefetchError, refetch } = useGetVendorsOrders();
-  console.log(data);
+
+  const programId = useSearchParams().get('programId') || '';
 
   // Fetch Details
-  const { data: details } = useGetVendorDetails('');
+  const {
+    data: details,
+    isLoading: isDetailsLoading,
+    isRefetching: isDetailsRefetching,
+    isError: isDetailsError,
+    isRefetchError: isDetailsRefetchError,
+    refetch: refetchDetails,
+  } = useGetVendorsOrdersDetails(programId);
   console.log(details);
 
   const router = useRouter();
@@ -248,38 +259,6 @@ const OrderPage = () => {
           </Text>
         ),
       },
-      // {
-      //   header: () => (
-      //     <Text variant="Body3Semibold" color="gray.500" textAlign="center">
-      //       Actions
-      //     </Text>
-      //   ),
-      //   accessorKey: 'deactivate',
-      //   enableSorting: false,
-      //   cell: () => (
-      //     <Menu>
-      //       <MenuButton
-      //         as={IconButton}
-      //         variant="ghost"
-      //         aria-label="Actions"
-      //         icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
-      //         minW="0"
-      //         h="auto"
-      //         mx="auto"
-      //         display="flex"
-      //         p="1"
-      //         onClick={(e) => e.stopPropagation()}
-      //       />
-      //       <MenuList>
-      //         <MenuItem>
-      //           <Text as="span" variant="Body2Regular" w="full">
-      //             Stop Order
-      //           </Text>
-      //         </MenuItem>
-      //       </MenuList>
-      //     </Menu>
-      //   ),
-      // },
     ],
     []
   );
@@ -290,8 +269,10 @@ const OrderPage = () => {
   const [search, setSearch] = useState<string | undefined>(undefined);
 
   const totalPages = data?.body.totalPages ?? 0;
+  const detailsTotalPages = details?.body.totalPages ?? 0;
 
   const orders = useMemo(() => data?.body.data ?? [], [data]);
+  const ordersDetails = useMemo(() => details?.body.data ?? [], [details]);
 
   return (
     <Stack gap="6" w="full" flex="1">
@@ -336,32 +317,65 @@ const OrderPage = () => {
           </Button>
         </Flex>
       </Flex>
-      <ReusableTable
-        selectable
-        data={orders}
-        columns={columns}
-        isLoading={isLoading || isRefetching}
-        isError={isError || isRefetchError}
-        onRefresh={refetch}
-        onClick={(e) => {
-          // console.log(e);
-          const searchParams = new URLSearchParams();
-          searchParams.set('program', e.programName);
-          router.push(`/super-admin/vendors/orders?${searchParams.toString()}`);
-        }}
-      />
+      {programId ? (
+        isDetailsLoading ? (
+          <Grid flex="1" placeItems="center">
+            <Spinner />
+          </Grid>
+        ) : (
+          <>
+            <ReusableTable
+              selectable
+              data={ordersDetails}
+              columns={detailsColumns}
+              isLoading={isDetailsLoading || isDetailsRefetching}
+              isError={isDetailsError || isDetailsRefetchError}
+              onRefresh={refetchDetails}
+            />
 
-      <TablePagination
-        handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-        handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
-        handlePageChange={(pageNumber) => setPage(pageNumber)}
-        isNextDisabled={page >= totalPages}
-        isPrevDisabled={page <= 1}
-        currentPage={page}
-        totalPages={totalPages}
-        isDisabled={isLoading}
-        display={totalPages > 1 ? 'flex' : 'none'}
-      />
+            <TablePagination
+              handleNextPage={() => setDetailsPage((prev) => Math.min(prev + 1, detailsTotalPages))}
+              handlePrevPage={() => setDetailsPage((prev) => Math.max(prev - 1, 1))}
+              handlePageChange={(pageNumber) => setDetailsPage(pageNumber)}
+              isNextDisabled={detailsPage >= detailsTotalPages}
+              isPrevDisabled={detailsPage <= 1}
+              currentPage={detailsPage}
+              totalPages={detailsTotalPages}
+              isDisabled={isDetailsLoading}
+              display={detailsTotalPages > 1 ? 'flex' : 'none'}
+            />
+          </>
+        )
+      ) : (
+        <>
+          <ReusableTable
+            selectable
+            data={orders}
+            columns={columns}
+            isLoading={isLoading || isRefetching}
+            isError={isError || isRefetchError}
+            onRefresh={refetch}
+            onClick={(e) => {
+              // console.log(e);
+              const searchParams = new URLSearchParams();
+              searchParams.set('programId', `${e.id}`);
+              router.push(`/super-admin/vendors/orders?${searchParams.toString()}`);
+            }}
+          />
+
+          <TablePagination
+            handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+            handlePageChange={(pageNumber) => setPage(pageNumber)}
+            isNextDisabled={page >= totalPages}
+            isPrevDisabled={page <= 1}
+            currentPage={page}
+            totalPages={totalPages}
+            isDisabled={isLoading}
+            display={totalPages > 1 ? 'flex' : 'none'}
+          />
+        </>
+      )}
     </Stack>
   );
 };

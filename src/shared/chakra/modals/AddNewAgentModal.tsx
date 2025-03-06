@@ -42,6 +42,7 @@ const Schema = z.object({
     .string({ invalid_type_error: 'Phone number is required' })
     .refine(isValidPhoneNumber, 'Invalid phone number'),
   email: z.string().min(1, 'Email is required'),
+  gender: z.string().min(1, 'Gender is required'),
   programDetails: z.array(
     z.object({
       programId: z.string().min(1, 'Program is required'),
@@ -52,6 +53,11 @@ const Schema = z.object({
 });
 
 type FormValues = z.infer<typeof Schema>;
+
+const genderOptions = [
+  { value: 'Male', label: 'Male' },
+  { value: 'Female', label: 'Female' },
+];
 
 export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
   const toast = useToast();
@@ -166,6 +172,33 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
               </FormLabel>
               <Input id="email" type="email" variant="primary" {...register('email')} />
               <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.gender} isRequired>
+              <Flex align="center" justify="space-between">
+                <FormLabel htmlFor={`programId-`}>
+                  <Text as="span" variant="Body2Semibold" color="grey.500">
+                    Gender
+                  </Text>
+                </FormLabel>
+              </Flex>
+              <Controller
+                control={control}
+                name={`gender`}
+                render={({ field: { name, onBlur, onChange, value, disabled } }) => (
+                  <Dropdown
+                    id={`gender`}
+                    variant="whiteDropdown"
+                    placeholder="Select gender"
+                    name={name}
+                    options={genderOptions}
+                    value={genderOptions?.find((option) => option.value === value)}
+                    onChange={(value) => value && onChange(value.value)}
+                    onBlur={onBlur}
+                    isDisabled={disabled}
+                  />
+                )}
+              />
+              <FormErrorMessage>{errors.gender && errors.gender.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.phoneNumber} isRequired>
               <FormLabel htmlFor="phoneNumber">

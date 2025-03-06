@@ -23,7 +23,7 @@ const sideBarData = [
   { name: 'Programs', Icon: MdViewCarousel, url: '/super-admin/programs' },
   { name: 'Agents/Aggregators', Icon: MdGroups, url: '/super-admin/agents' },
   { name: 'Vendors/Orders', Icon: MdLocalShipping, url: '/super-admin/vendors' },
-  { name: 'Partners', Icon: MdVolunteerActivism, url: '/super-admin/partners' },
+  { name: 'Clients', Icon: MdVolunteerActivism, url: '/super-admin/clients' },
   { name: 'Role Management', Icon: MdManageAccounts, url: '/super-admin/role-management' },
   { name: 'Reports', Icon: MdNoteAlt, url: '/super-admin/reports' },
 ];
