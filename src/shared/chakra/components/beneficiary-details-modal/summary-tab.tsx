@@ -111,7 +111,10 @@ const SummaryColumn = ({ logs, withHeading }: { logs: ProgressLog[]; withHeading
                 Date
               </Text>
               <Text variant="Body2Semibold" color="text" py="1" px="2" bgColor="primary.50" rounded="0.5rem">
-                {Intl.DateTimeFormat('en-GB').format(new Date(log.date))}
+                {Intl.DateTimeFormat('en-GB', {
+                  dateStyle: 'short',
+                  timeStyle: 'short',
+                }).format(new Date(log.date))}
               </Text>
             </Box>
           </Flex>

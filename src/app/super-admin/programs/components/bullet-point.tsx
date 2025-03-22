@@ -1,82 +1,75 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Box, Textarea } from '@chakra-ui/react';
 import { useProgramForm } from '@/providers/form-provider';
+import { Textarea } from '@chakra-ui/react';
+import React, { useCallback } from 'react';
+import { Controller } from 'react-hook-form';
+
+type CriteriaItem = { id: number | null; criteria: string };
+type EligibilityCriteria = CriteriaItem[] | string[];
+type InputEvent<T> = {
+  e: T;
+  value: EligibilityCriteria;
+  onChange: (value: EligibilityCriteria) => void;
+};
 
 export function BulletPointTextArea() {
   const {
-    setValue,
-    formState: { errors },
-    getValues,
+    form: { formState, control },
   } = useProgramForm();
-  const initial = getValues('eligibilityCriteria');
-  const [text, setText] = useState('');
 
-  console.log(initial);
+  // Handle both string[] and CriteriaItem[] in the formatted output
+  const getFormattedText = useCallback(
+    (value: EligibilityCriteria) =>
+      value.map((item) => (typeof item === 'string' ? `• ${item}` : `• ${item.criteria}`)).join('\n'),
+    []
+  );
 
-  useEffect(() => {
-    if (initial && initial.length > 0) {
-      const bulletText = initial.map((item) => `• ${item}`).join('\n');
-      setText(bulletText);
-    }
-  }, [initial]);
-
-  // Extract bullet points as an array of strings
-  const getBulletPoints = (rawText: string) => {
-    // Split on each new line, strip leading "• " if it exists, and filter out empty lines
-    return rawText
+  const handleChange = useCallback(({ e, value, onChange }: InputEvent<React.ChangeEvent<HTMLTextAreaElement>>) => {
+    const lines = e.target.value
       .split('\n')
-      .map((line) => line.replace(/^•\s*/, '')) // remove the leading '• '
-      .filter((line) => line.trim() !== '');
-  };
+      .map((line) => line.replace(/^•\s*/, '')) // Remove bullets but preserve spaces
+      .filter((line) => line !== ''); // Remove empty lines
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const target = e.currentTarget;
-      const { selectionStart, selectionEnd } = target;
-
-      // Insert new line plus bullet
-      const before = text.slice(0, selectionStart);
-      const after = text.slice(selectionEnd);
-      const newText = before + '\n• ' + after;
-      setText(newText);
-
-      // Move the cursor right after the inserted bullet
-      requestAnimationFrame(() => {
-        target.selectionStart = selectionStart + 3; // jump past "\n• "
-        target.selectionEnd = selectionStart + 3;
-      });
+    if (value.length > 0 && typeof value[0] === 'object') {
+      // Convert text back to CriteriaItem[]
+      const updatedList: CriteriaItem[] = lines.map((line, index) => ({
+        id: (value as CriteriaItem[])[index]?.id || null, // Preserve ID
+        criteria: line,
+      }));
+      onChange(updatedList);
     }
-  };
+    // If it was originally a string[], keep it as a string[]
+    else onChange(lines);
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    let newValue = e.target.value;
-    if (newValue === '') {
-      setText('');
-      setValue('eligibilityCriteria', []);
-      return;
-    }
-    if (text === '') {
-      newValue = `• ${newValue}`;
-    }
-    setText(newValue);
-    const bulletPoints = getBulletPoints(newValue);
-    setValue('eligibilityCriteria', bulletPoints);
-  };
+  const handleKeyDown = useCallback(({ e, value, onChange }: InputEvent<React.KeyboardEvent<HTMLTextAreaElement>>) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    // If the list is string[], add an empty bullet
+    if (value.length === 0 || typeof value[0] === 'string') onChange([...(value as string[]), '']);
+    // If the list is CriteriaItem[], add an empty object
+    else onChange([...(value as CriteriaItem[]), { id: null, criteria: '' }]);
+  }, []);
 
   return (
-    <Box>
-      <Textarea
-        rows={5}
-        value={text}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        border="1px dashed"
-        borderColor={!!errors.eligibilityCriteria ? 'red' : 'grey.300'}
-        placeholder="Type and press Enter to add a new bullet..."
-      />
-    </Box>
+    <Controller
+      control={control}
+      name="eligibilityCriteria"
+      render={({ field: { name, onBlur, onChange, value, disabled } }) => (
+        <Textarea
+          rows={5}
+          border="1px dashed"
+          borderColor={formState.errors.eligibilityCriteria ? 'red' : 'grey.300'}
+          placeholder="Type and press Enter to add a new bullet..."
+          value={getFormattedText(value)}
+          onChange={(e) => handleChange({ e, value, onChange })}
+          onKeyDown={(e) => handleKeyDown({ e, value, onChange })}
+          name={name}
+          onBlur={onBlur}
+          isDisabled={disabled}
+        />
+      )}
+    />
   );
 }

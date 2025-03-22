@@ -55,15 +55,15 @@ const Schema = z.object({
 type FormValues = z.infer<typeof Schema>;
 
 const genderOptions = [
-  { value: 'Male', label: 'Male' },
-  { value: 'Female', label: 'Female' },
+  { label: 'Male', value: 'Male' },
+  { label: 'Female', value: 'Female' },
 ];
 
 export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
   const toast = useToast();
   const { mutate, isPending } = useCreateAgent(onSuccess);
   const { data: currentUser } = useGetCurrentUser();
-  const { data: programs } = useGetAllAggregatorPrograms(isOpen);
+  const { data: programs } = useGetAllAggregatorPrograms({ enabled: isOpen });
   const { data: states } = useGetStates(isOpen);
 
   const programOptions = useMemo(() => {
@@ -83,6 +83,8 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
     (value: number) => stateOptions.flatMap((state) => state.options).find((option) => option.value === value),
     [stateOptions]
   );
+
+  const currentGender = useCallback((value: string) => genderOptions.find((option) => option.value === value), []);
 
   const {
     register,
@@ -109,6 +111,7 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
           lastName: data.lastName,
           phoneNumber: data.phoneNumber,
           email: data.email,
+          gender: data.gender,
           programDetails: data.programDetails,
         },
       ],
@@ -173,33 +176,6 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="email" type="email" variant="primary" {...register('email')} />
               <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.gender} isRequired>
-              <Flex align="center" justify="space-between">
-                <FormLabel htmlFor={`programId-`}>
-                  <Text as="span" variant="Body2Semibold" color="grey.500">
-                    Gender
-                  </Text>
-                </FormLabel>
-              </Flex>
-              <Controller
-                control={control}
-                name={`gender`}
-                render={({ field: { name, onBlur, onChange, value, disabled } }) => (
-                  <Dropdown
-                    id={`gender`}
-                    variant="whiteDropdown"
-                    placeholder="Select gender"
-                    name={name}
-                    options={genderOptions}
-                    value={genderOptions?.find((option) => option.value === value)}
-                    onChange={(value) => value && onChange(value.value)}
-                    onBlur={onBlur}
-                    isDisabled={disabled}
-                  />
-                )}
-              />
-              <FormErrorMessage>{errors.gender && errors.gender.message}</FormErrorMessage>
-            </FormControl>
             <FormControl isInvalid={!!errors.phoneNumber} isRequired>
               <FormLabel htmlFor="phoneNumber">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
@@ -208,6 +184,31 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
               </FormLabel>
               <PhoneNumberInput id="phoneNumber" name="phoneNumber" control={control} />
               <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.gender} isRequired>
+              <FormLabel htmlFor="gender">
+                <Text as="span" variant="Body2Semibold" color="grey.500">
+                  Gender
+                </Text>
+              </FormLabel>
+              <Controller
+                control={control}
+                name="gender"
+                render={({ field: { name, onBlur, onChange, value, disabled } }) => (
+                  <Dropdown
+                    id="gender"
+                    variant="whiteDropdown"
+                    placeholder=""
+                    name={name}
+                    options={genderOptions}
+                    value={currentGender(value)}
+                    onChange={(selected) => selected && onChange(selected.value)}
+                    onBlur={onBlur}
+                    isDisabled={disabled}
+                  />
+                )}
+              />
+              <FormErrorMessage>{errors.gender && errors.gender.message}</FormErrorMessage>
             </FormControl>
             {fields.map((field, index) => (
               <Fragment key={field.id}>

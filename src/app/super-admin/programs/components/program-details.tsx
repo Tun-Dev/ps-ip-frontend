@@ -1,21 +1,17 @@
-import { Dropdown } from '@/shared/chakra/components';
-import { BoxProps, Flex, Icon, Input, Text } from '@chakra-ui/react';
-import { memo, ReactNode, useMemo } from 'react';
-import { Controller } from 'react-hook-form';
-import { MdEdit } from 'react-icons/md';
-import { ProgramImage } from './program-image';
 import { useGetProgramTypes } from '@/hooks/useGetProgramTypes';
 import { useProgramForm } from '@/providers/form-provider';
+import { Dropdown } from '@/shared/chakra/components';
+import { Flex, FlexProps, Icon, Input, Text, Textarea } from '@chakra-ui/react';
+import { memo, useCallback, useMemo } from 'react';
+import { Controller } from 'react-hook-form';
+import { MdEdit } from 'react-icons/md';
 import { BulletPointTextArea } from './bullet-point';
 import { ProgramCover } from './program-cover';
+import { ProgramImage } from './program-image';
 
-const ProgramDetails = memo((props: BoxProps) => {
+const ProgramDetails = memo((props: FlexProps) => {
   const {
-    setValue,
-    control,
-    formState: { errors },
-    getValues,
-    // register,
+    form: { register, control, formState },
   } = useProgramForm();
   const { data: programTypes } = useGetProgramTypes();
 
@@ -24,40 +20,35 @@ const ProgramDetails = memo((props: BoxProps) => {
     [programTypes]
   );
 
+  const currentProgramType = useCallback(
+    (value: number) => options.find((option) => option.value === value),
+    [options]
+  );
+
   return (
-    <Flex h="full" w="full" {...props} flexDir="column" gap="24px" py="24px">
+    <Flex h="full" w="full" flexDir="column" gap="24px" py="24px" {...props}>
       <Wrapper title="Program Logo">
-        <ProgramImage hasError={!!errors.logo} />
+        <ProgramImage hasError={!!formState.errors.logo} />
       </Wrapper>
       <Wrapper title="Cover Photo">
-        <ProgramCover hasError={!!errors.coverPhotoID} />
+        <ProgramCover hasError={!!formState.errors.coverPhotoID} />
       </Wrapper>
-
-      <Wrapper title="Program Name" icon>
-        <Input
-          //   placeholder="Program Name"
-          border="1px dashed"
-          borderColor={!!errors.name ? 'red' : 'grey.300'}
-          onChange={(e) => setValue('name', e.target.value)}
-          defaultValue={getValues('name')}
-        />
+      <Wrapper title="Program Name" maxW="34.625rem" icon>
+        <Input border="1px dashed" borderColor={!!formState.errors.name ? 'red' : 'grey.300'} {...register('name')} />
       </Wrapper>
-
-      <Wrapper title="Program Type" icon>
+      <Wrapper title="Program Type" maxW="34.625rem" icon>
         <Controller
           control={control}
           name="programTypeId"
-          defaultValue={getValues('programTypeId')}
           render={({ field: { name, onBlur, onChange, value, disabled } }) => (
             <Dropdown
               id="programTypeId"
               variant="whiteDropdown"
-              //   placeholder="Program Type"
               chakraStyles={{
                 control: (styles) => ({
                   ...styles,
                   outline: '1px dashed',
-                  outlineColor: !!errors.programTypeId ? 'red' : 'grey.300',
+                  outlineColor: !!formState.errors.programTypeId ? 'red' : 'grey.300',
                   h: '10',
                   fontSize: '16px',
                   _placeholder: { color: 'grey.500' },
@@ -65,11 +56,8 @@ const ProgramDetails = memo((props: BoxProps) => {
               }}
               name={name}
               options={options}
-              value={options?.find((option) => option.value === value)}
-              onChange={(selectedOption) => {
-                onChange(selectedOption?.value ?? '');
-                setValue('programTypeId', selectedOption?.value ?? 0);
-              }}
+              value={currentProgramType(value) ?? ''}
+              onChange={(value) => value && typeof value !== 'string' && onChange(value.value)}
               onBlur={onBlur}
               isDisabled={disabled}
             />
@@ -77,22 +65,18 @@ const ProgramDetails = memo((props: BoxProps) => {
         />
       </Wrapper>
       <Wrapper title="Description" icon>
-        <Input
-          //   placeholder="Description"
+        <Textarea
           border="1px dashed"
-          borderColor={!!errors.description ? 'red' : 'grey.300'}
-          onChange={(e) => setValue('description', e.target.value)}
-          defaultValue={getValues('description')}
+          borderColor={!!formState.errors.description ? 'red' : 'grey.300'}
+          {...register('description')}
         />
       </Wrapper>
-      <Wrapper title="Target" icon>
+      <Wrapper title="Target Beneficiaries" maxW="34.625rem" icon>
         <Input
-          //   placeholder="Target"
           type="number"
           border="1px dashed"
-          borderColor={!!errors.target ? 'red' : 'grey.300'}
-          onChange={(e) => setValue('target', Number(e.target.value))}
-          defaultValue={getValues('target')}
+          borderColor={!!formState.errors.target ? 'red' : 'grey.300'}
+          {...register('target')}
         />
       </Wrapper>
       <Wrapper title="Eligibility Criteria" icon>
@@ -104,11 +88,11 @@ const ProgramDetails = memo((props: BoxProps) => {
 
 ProgramDetails.displayName = 'ProgramDetails';
 
-export default ProgramDetails;
+type WrapperProps = React.PropsWithChildren<{ title: string; icon?: boolean }> & FlexProps;
 
-const Wrapper = ({ children, title, icon }: { children: ReactNode; title?: string; icon?: boolean }) => {
+const Wrapper = memo(({ children, title, icon, ...props }: WrapperProps) => {
   return (
-    <Flex flexDir="column" gap="8px">
+    <Flex flexDir="column" gap="8px" {...props}>
       <Flex gap="8px" alignItems="center">
         <Text color="#A4A4A4" variant="Body2Semibold">
           {title}
@@ -118,4 +102,8 @@ const Wrapper = ({ children, title, icon }: { children: ReactNode; title?: strin
       {children}
     </Flex>
   );
-};
+});
+
+Wrapper.displayName = 'Wrapper';
+
+export default ProgramDetails;

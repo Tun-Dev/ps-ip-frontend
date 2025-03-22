@@ -8,7 +8,9 @@ type Params = Partial<{
   page: number;
   pageSize: number;
   query: string;
-  aggregatorId: number;
+  active: boolean;
+  status: boolean;
+  programId: string;
 }>;
 
 export const useGetAgents = (params: Params) => {

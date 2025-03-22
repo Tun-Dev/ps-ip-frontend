@@ -23,22 +23,13 @@ import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { useGetVendorDetails } from '@/hooks/useGetVendorDetails';
 import { Dropdown } from '@/shared/chakra/components';
 import type { Vendor, VendorProgramPayload } from '@/types';
-import { formatDateForInput } from '@/utils';
 
 type ModalProps = {
   vendor: Vendor;
   setScreen: Dispatch<SetStateAction<'list' | 'assign'>>;
 };
 
-const Schema = z.object({
-  programId: z.string().min(1, 'Program is required'),
-  scheduledDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Scheduled date must be a valid ISO string',
-  }),
-  endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'End date must be a valid ISO string',
-  }),
-});
+const Schema = z.object({ programId: z.string().min(1, 'Program is required') });
 
 type FormValues = z.infer<typeof Schema>;
 
@@ -69,8 +60,6 @@ export const AssignProgramToVendor = ({ vendor, setScreen }: ModalProps) => {
     const payload: VendorProgramPayload = {
       id: vendor.id,
       programId: data.programId,
-      scheduledDate: data.scheduledDate,
-      endDate: data.endDate,
     };
     mutate(payload, {
       onSuccess: () => {
@@ -122,54 +111,6 @@ export const AssignProgramToVendor = ({ vendor, setScreen }: ModalProps) => {
             />
             <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
           </FormControl>
-          <SimpleGrid columns={2} gap="4">
-            <FormControl isInvalid={!!errors.scheduledDate}>
-              <FormLabel htmlFor="scheduledDate">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Scheduled Date
-                </Text>
-              </FormLabel>
-              <Controller
-                name="scheduledDate"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    id="scheduledDate"
-                    type="date"
-                    defaultValue={field.value ? formatDateForInput(field.value) : ''}
-                    onChange={(e) => {
-                      const date = new Date(e.target.value);
-                      field.onChange(date.toISOString());
-                    }}
-                  />
-                )}
-              />
-              <FormErrorMessage>{errors.scheduledDate && errors.scheduledDate.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.endDate}>
-              <FormLabel htmlFor="endDate">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  End Date
-                </Text>
-              </FormLabel>
-              <Controller
-                name="endDate"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    id="endDate"
-                    type="date"
-                    defaultValue={field.value ? formatDateForInput(field.value) : ''}
-                    onChange={(e) => {
-                      const date = new Date(e.target.value);
-                      field.onChange(date.toISOString());
-                    }}
-                  />
-                )}
-              />
-              <FormErrorMessage>{errors.endDate && errors.endDate.message}</FormErrorMessage>
-            </FormControl>
-          </SimpleGrid>
         </Stack>
       </ModalBody>
       <ModalFooter>

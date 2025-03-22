@@ -65,6 +65,8 @@ const SuperAdminTab = () => {
     },
   ];
 
+  console.log(superAdmins);
+
   const columns: ColumnDef<SuperAdmin>[] = [
     {
       header: 'Agents',
@@ -89,7 +91,7 @@ const SuperAdminTab = () => {
     },
     {
       header: () => (
-        <Text variant="Body3Semibold" color="gray.500">
+        <Text variant="Body3Semibold" color="grey.500">
           Date Added
         </Text>
       ),
@@ -165,7 +167,7 @@ const SuperAdminTab = () => {
         </Button>
       </Flex>
       <>
-        <ReusableTable selectable data={superAdmins} columns={columns} isLoading={false} />
+        <ReusableTable selectable data={[]} columns={columns} isLoading={false} />
       </>
     </Flex>
   );

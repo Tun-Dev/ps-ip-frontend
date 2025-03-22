@@ -1,16 +1,19 @@
 'use client';
 
+import { useGetVettingOfficersOverview } from '@/hooks/useGetVettingOfficersOverview';
+import { AddNewUserModal } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { Box, Button, Divider, Flex, Text, useDisclosure } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MdAddCircle, MdPerson, MdVolunteerActivism } from 'react-icons/md';
 import SuperAdminTab from './tabs/SuperAdminTab';
 import VettingOfficerTab from './tabs/VettingOfficerTab';
-import { AddNewUserModal } from '@/shared';
 
 const RoleManagemantPage = () => {
   const [selected, setSelected] = useState('super-admin');
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data, isLoading } = useGetVettingOfficersOverview();
+
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
       <AddNewUserModal isOpen={isOpen} onClose={onClose} />
@@ -27,12 +30,17 @@ const RoleManagemantPage = () => {
         </Flex>
         <Flex gap="1rem">
           <Box w="265px" onClick={() => setSelected('super-admin')} cursor="pointer">
-            <OverviewCard title="Super Admins" number={3} icon={MdPerson} active={selected === 'super-admin'} />
+            <OverviewCard
+              title="Super Admins"
+              number={isLoading ? '...' : (data?.body.superAdmins ?? 0)}
+              icon={MdPerson}
+              active={selected === 'super-admin'}
+            />
           </Box>
           <Box w="265px" onClick={() => setSelected('vetting-officers')} cursor="pointer">
             <OverviewCard
               title="Vetting Officers"
-              number={20}
+              number={isLoading ? '...' : (data?.body.specializedRoles ?? 0)}
               icon={MdVolunteerActivism}
               active={selected === 'vetting-officers'}
             />

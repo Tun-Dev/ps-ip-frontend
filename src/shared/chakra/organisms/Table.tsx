@@ -30,6 +30,10 @@ import {
 import React from 'react';
 import { MdSortByAlpha } from 'react-icons/md';
 
+type MetaType = {
+  isCentered?: boolean;
+};
+
 interface ReusableTableProps<T extends object> extends Omit<StackProps, 'onClick'> {
   data: T[];
   columns: ColumnDef<T>[];
@@ -121,16 +125,16 @@ function ReusableTable<T extends object>({
     <>
       {isLoading ? (
         <Flex flex="1 1 0%" alignItems="center" justifyContent="center">
-          <Spinner size="xl" />
+          <Spinner size="md" />
         </Flex>
       ) : data.length === 0 || isError ? (
         <Flex flex="1 1 0%" flexDir="column" alignItems="center" justifyContent="center" gap="4" p="6">
           <Text variant="Body2Semibold" color="grey.500">
-            No data available
+            {isError ? 'An error occurred' : 'No data available'}
           </Text>
           {!!onRefresh && (
             <Button variant="tertiary" border="1px solid" borderColor="secondary.500" onClick={onRefresh} size="medium">
-              Refresh
+              {isError ? 'Retry' : 'Refresh'}
             </Button>
           )}
         </Flex>
@@ -144,7 +148,7 @@ function ReusableTable<T extends object>({
           borderColor="grey.100"
           {...props}
         >
-          {Object.keys(rowSelection).length > 0 && (
+          {Object.keys(rowSelection).length > 0 && selectedChildren && (
             <Flex justifyContent="flex-end" gap="16px">
               {selectedChildren}
             </Flex>
@@ -167,7 +171,12 @@ function ReusableTable<T extends object>({
                         textTransform="capitalize"
                         w={`${header.column.getSize()}px`}
                       >
-                        <Box display="flex" alignItems="center" gap="1">
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          justifyContent={(header.column.columnDef.meta as MetaType)?.isCentered ? 'center' : 'normal'}
+                          gap="1"
+                        >
                           {header.column.getCanSort() && (
                             <>
                               {{
@@ -178,7 +187,12 @@ function ReusableTable<T extends object>({
                               )}
                             </>
                           )}
-                          <Text as="span" variant="Body3Semibold" color="grey.500" flex="1">
+                          <Text
+                            as="span"
+                            variant="Body3Semibold"
+                            color="grey.500"
+                            flex={(header.column.columnDef.meta as MetaType)?.isCentered ? 'none' : '1'}
+                          >
                             {header.isPlaceholder
                               ? null
                               : flexRender(header.column.columnDef.header, header.getContext())}
@@ -201,7 +215,12 @@ function ReusableTable<T extends object>({
                   >
                     {row.getVisibleCells().map((cell) => (
                       <Td key={cell.id} p="0.5rem 0.75rem" w={`${cell.column.getSize()}px`}>
-                        <Text as="div" variant="Body2Semibold" color="text">
+                        <Text
+                          as="div"
+                          variant="Body2Semibold"
+                          color="text"
+                          textAlign={(cell.column.columnDef.meta as MetaType)?.isCentered ? 'center' : 'left'}
+                        >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </Text>
                       </Td>

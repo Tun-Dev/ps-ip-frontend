@@ -4,7 +4,7 @@ import { Box, Flex, Grid, Image, SimpleGrid, SkeletonCircle, SkeletonText, Stack
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { useGetVendorPrograms } from '@/hooks/useGetVendorPrograms';
+import { useGetVettingOfficersPrograms } from '@/hooks/useGetVettingOfficersPrograms';
 import { GeepComponent } from '@/shared/chakra/components';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 
@@ -15,15 +15,15 @@ const ProgramsPage = () => {
   const { folderID } = useParams();
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, isPlaceholderData } = useGetVendorPrograms({
+  const { data, isLoading, isPlaceholderData } = useGetVettingOfficersPrograms({
     page,
     pageSize: PAGE_SIZE,
     folderId: folderID.toString(),
   });
 
-  const programList = data?.body ?? [];
-  const programCount = data?.body.length ?? 0;
-  const totalPages = Math.ceil((data?.body.length ?? 0) / PAGE_SIZE);
+  const programList = data?.body.programs ?? [];
+  const programCount = data?.body.programs.length ?? 0;
+  const totalPages = Math.ceil((data?.body.programs.length ?? 0) / PAGE_SIZE);
   const paginatedPrograms = programList.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
@@ -39,11 +39,10 @@ const ProgramsPage = () => {
               key={index}
               name={item.name}
               logo={item.logo}
-              programType={item.type}
-              // count={item.moduleName}
-              count={'Vetting'}
+              programType={item.programType}
+              count="Vetting"
               waveDirection={index % 2 === 0 ? 'bottom' : 'top'}
-              onClick={() => router.push(`/vetting-officers/programs/${folderID}/${item.programId}`)}
+              onClick={() => router.push(`/vetting-officers/programs/${folderID}/${item.id}`)}
             />
           ))}
         </SimpleGrid>

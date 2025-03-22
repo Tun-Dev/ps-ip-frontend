@@ -21,11 +21,6 @@ export const getQueryClient = () => {
 };
 
 export function ClientRootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  if (process.env.NEXT_PUBLIC_NODE_ENV === 'production') {
-    console.log = () => {};
-    console.error = () => {};
-    console.debug = () => {};
-  }
   return (
     <QueryClientProvider client={getQueryClient()}>
       {children}

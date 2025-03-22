@@ -3,7 +3,8 @@
 import { Box, Flex, Grid, Image, SimpleGrid, SkeletonCircle, SkeletonText, Stack, Text } from '@chakra-ui/react';
 import { useParams, useRouter } from 'next/navigation';
 
-import { useGetAggregatorPrograms } from '@/hooks/useGetAggregatorPrograms';
+import { useGetCurrentUser } from '@/hooks/useGetCurrentUser';
+import { useGetProgramsByFolderId } from '@/hooks/useGetProgramsByFolderId';
 import { GeepComponent } from '@/shared/chakra/components';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { useState } from 'react';
@@ -13,10 +14,15 @@ const ProgramsPage = () => {
   const { folderID } = useParams();
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, isPlaceholderData } = useGetAggregatorPrograms({
+  const { data: currentUser } = useGetCurrentUser();
+  const aggregatorId = currentUser?.body.aggregator.id;
+
+  const { data, isLoading, isPlaceholderData } = useGetProgramsByFolderId({
     page,
     pageSize: 10,
     folderId: folderID.toString(),
+    aggregatorId: aggregatorId,
+    enabled: !!folderID && !!aggregatorId,
   });
 
   const programList = data?.body.data ?? [];

@@ -2,19 +2,19 @@
 
 import { Divider, Flex, Grid, Icon, Image, SimpleGrid, SkeletonText, Stack, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { MdFolder, MdViewCarousel } from 'react-icons/md';
 
-import { useGetVendorProgramGroups } from '@/hooks/useGetVendorProgramGroups';
+import { useGetVettingOfficersProgramGroups } from '@/hooks/useGetVettingOfficersProgramGroups';
 import { FolderCard } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
-import { MdFolder, MdViewCarousel } from 'react-icons/md';
 
 const ProgramsFolderPage = () => {
   const router = useRouter();
-  const { data, isLoading } = useGetVendorProgramGroups();
+  const { data, isLoading } = useGetVettingOfficersProgramGroups();
 
-  const folderList = data?.body.programGroups ?? [];
+  const folderList = data?.body.data ?? [];
   const folderCount = folderList.length ?? 0;
-  const programCount = data?.body.programCount ?? 0;
+  const programCount = data?.body.total ?? 0;
 
   return (
     <Stack pos="relative" overflow="hidden" spacing="6" boxSize="full">

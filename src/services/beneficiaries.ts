@@ -34,3 +34,10 @@ export const getBeneficiaryStatus = async ({ queryKey }: { queryKey: QueryKey })
   const { data } = await axiosInstance.get<APIResponse<BeneficiaryStatus>>(`beneficiary/progress/status/${code}`);
   return data;
 };
+
+export const bulkProcessAction = async ({ programModuleId, status }: { programModuleId: string; status: string }) => {
+  const { data } = await axiosInstance.post<APIResponse<boolean>>(
+    `/program/process-module/${programModuleId}/${status}`
+  );
+  return data;
+};

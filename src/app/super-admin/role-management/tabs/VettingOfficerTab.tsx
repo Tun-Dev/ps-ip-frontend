@@ -12,67 +12,39 @@ import {
   MenuList,
   Select,
   Text,
+  useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
+import { useDeleteVettingOfficers } from '@/hooks/useDeleteVettingOfficers';
+import { useGetVettingOfficers } from '@/hooks/useGetVettingOfficers';
 import { ReusableTable } from '@/shared';
+import { EditUserModal } from '@/shared/chakra/modals/EditUserModal';
+import { VettingOfficersDetails } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
-
-type VettingOfficer = {
-  firstName: string;
-  lastName: string;
-  gender: string;
-  dateAdded: string;
-  program: string;
-};
+import { useMemo, useState } from 'react';
 
 const VettingOfficerTab = () => {
-  const vettingOfficers: VettingOfficer[] = [
-    {
-      firstName: 'John',
-      lastName: 'Doe',
-      gender: 'Male',
-      dateAdded: 'Feb 28, 2025',
-      program: 'INVESTMENT IN DIGITAL CREATIVE ENTERPRISES PROGRAM',
-    },
-    {
-      firstName: 'Aisha',
-      lastName: 'Bello',
-      gender: 'Female',
-      dateAdded: 'Feb 27, 2025',
-      program: 'TECHNOLOGY INNOVATION SUPPORT PROGRAM',
-    },
-    {
-      firstName: 'Chen',
-      lastName: 'Wei',
-      gender: 'Male',
-      dateAdded: 'Feb 26, 2025',
-      program: 'YOUTH ENTREPRENEURSHIP DEVELOPMENT PROGRAM',
-    },
-    {
-      firstName: 'Fatima',
-      lastName: 'Omar',
-      gender: 'Female',
-      dateAdded: 'Feb 25, 2025',
-      program: 'AGRICULTURAL VALUE CHAIN SUPPORT PROGRAM',
-    },
-    {
-      firstName: 'David',
-      lastName: 'Smith',
-      gender: 'Male',
-      dateAdded: 'Feb 24, 2025',
-      program: 'CREATIVE INDUSTRY FINANCING INITIATIVE',
-    },
-    {
-      firstName: 'Nkechi',
-      lastName: 'Okafor',
-      gender: 'Female',
-      dateAdded: 'Feb 23, 2025',
-      program: 'WOMEN IN BUSINESS SUPPORT PROGRAM',
-    },
-  ];
+  const toast = useToast();
+  const { data } = useGetVettingOfficers({ page: 1, pageSize: 999 });
+  const { mutate: deleteVettingOfficer } = useDeleteVettingOfficers();
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: editModalOnClose } = useDisclosure();
 
-  const columns: ColumnDef<VettingOfficer>[] = [
+  const [selectedUser, setSelectedUser] = useState<VettingOfficersDetails>();
+
+  const onDelete = (id: string) => {
+    deleteVettingOfficer(id, {
+      onSuccess: () => {
+        toast({ title: 'Vetting Officer deleted successfully', status: 'success' });
+      },
+    });
+  };
+
+  const vettingOfficers = useMemo(() => data?.body.data ?? [], [data]);
+  // const totalPages = data?.body.totalPages ?? 1;
+
+  const columns: ColumnDef<VettingOfficersDetails>[] = [
     {
       header: 'Agents',
       accessorKey: 'firstName',
@@ -81,33 +53,33 @@ const VettingOfficerTab = () => {
       ),
     },
     {
-      header: 'Program Assigned',
-      accessorKey: 'firstName',
-      cell: (info) => <Text variant="Body2Semibold">{info.row.original.program}</Text>,
+      header: 'Role',
+      accessorKey: 'program',
+      cell: (info) => <Text variant="Body2Semibold">{info.row.original.role}</Text>,
     },
+    // {
+    //   header: () => (
+    //     <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+    //       Gender
+    //     </Text>
+    //   ),
+    //   accessorKey: 'gender',
+    //   enableSorting: false,
+    //   cell: (info) => (
+    //     <Text variant="Body2Regular" textAlign="center">
+    //       {info.row.original.gender || 'N/A'}
+    //     </Text>
+    //   ),
+    // },
     {
       header: () => (
-        <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-          Gender
-        </Text>
-      ),
-      accessorKey: 'gender',
-      enableSorting: false,
-      cell: (info) => (
-        <Text variant="Body2Regular" textAlign="center">
-          {info.row.original.gender || 'N/A'}
-        </Text>
-      ),
-    },
-    {
-      header: () => (
-        <Text variant="Body3Semibold" color="gray.500">
-          Date Added
+        <Text variant="Body3Semibold" color="grey.500">
+          Email
         </Text>
       ),
       accessorKey: 'dateAdded',
       enableSorting: false,
-      cell: (info) => <Text variant="Body2Regular">{info.row.original.dateAdded}</Text>,
+      cell: (info) => <Text variant="Body2Regular">{info.row.original.email}</Text>,
     },
     {
       header: () => (
@@ -117,7 +89,7 @@ const VettingOfficerTab = () => {
       ),
       id: 'actions',
       enableSorting: false,
-      cell: () => {
+      cell: (info) => {
         // const { id, status, programId } = info.row.original;
         return (
           <Menu>
@@ -134,12 +106,18 @@ const VettingOfficerTab = () => {
               onClick={(e) => e.stopPropagation()}
             />
             <MenuList>
-              <MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedUser(info.row.original);
+                  onEditOpen();
+                }}
+              >
                 <Text as="span" variant="Body2Regular" w="full">
                   Edit
                 </Text>
               </MenuItem>
-              <MenuItem>
+              <MenuItem onClick={() => onDelete(info.row.original.id)}>
                 <Text as="span" variant="Body2Regular" w="full">
                   Delete
                 </Text>
@@ -152,34 +130,47 @@ const VettingOfficerTab = () => {
   ];
 
   return (
-    <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
-      <Flex justifyContent="space-between">
-        <Flex gap="24px" alignItems="center">
-          <Flex gap="8px" alignItems="center">
-            <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-              Filter by
-            </Text>
-            <Select size="small" variant="white" w="7rem" fontSize="13px" fontWeight="600" placeholder="Program">
-              <option key="Program" value="Program">
-                Program
-              </option>
-            </Select>
+    <>
+      {selectedUser && (
+        <EditUserModal
+          isOpen={isEditOpen}
+          onClose={() => {
+            setSelectedUser(undefined);
+            editModalOnClose();
+          }}
+          initialValues={selectedUser}
+        />
+      )}
+
+      <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
+        <Flex justifyContent="space-between">
+          <Flex gap="24px" alignItems="center">
+            <Flex gap="8px" alignItems="center">
+              <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
+                Filter by
+              </Text>
+              <Select size="small" variant="white" w="7rem" fontSize="13px" fontWeight="600" placeholder="Program">
+                <option key="Program" value="Program">
+                  Program
+                </option>
+              </Select>
+            </Flex>
+            <InputGroup w="212px" size="sm">
+              <InputLeftElement>
+                <Icon as={MdSearch} w="12px" h="12px" color="primary.600" />
+              </InputLeftElement>
+              <Input variant="primary" fontSize="10px" placeholder="Search" />
+            </InputGroup>
           </Flex>
-          <InputGroup w="212px" size="sm">
-            <InputLeftElement>
-              <Icon as={MdSearch} w="12px" h="12px" color="primary.600" />
-            </InputLeftElement>
-            <Input variant="primary" fontSize="10px" placeholder="Search" />
-          </InputGroup>
+          <Button leftIcon={<MdDownload />} variant="primary" size="medium" borderRadius="10px">
+            Download Report
+          </Button>
         </Flex>
-        <Button leftIcon={<MdDownload />} variant="primary" size="medium" borderRadius="10px">
-          Download Report
-        </Button>
+        <>
+          <ReusableTable selectable data={vettingOfficers} columns={columns} isLoading={false} />
+        </>
       </Flex>
-      <>
-        <ReusableTable selectable data={vettingOfficers} columns={columns} isLoading={false} />
-      </>
-    </Flex>
+    </>
   );
 };
 

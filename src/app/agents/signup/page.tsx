@@ -25,7 +25,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChangeEvent, useCallback, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { MdOutlineCloudDownload } from 'react-icons/md';
 import { z } from 'zod';
@@ -103,7 +103,14 @@ const Step1 = ({ action }: { action: () => void }) => {
 
     navigator.geolocation.getCurrentPosition(
       () => action(),
-      () => toast({ status: 'error', title: 'Error', description: 'Please allow location access to proceed' })
+      () =>
+        toast({
+          status: 'error',
+          title: 'Error',
+          description: 'Please allow location access to proceed',
+          isClosable: false,
+          duration: null,
+        })
     );
   };
 
@@ -166,10 +173,10 @@ const Step2 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
       <Text variant="Body1Regular" color="grey.500" w="100%">
         Enter the code given to you by your agent network company*
       </Text>
-      <FormControl isInvalid={!!errors.aggregatorCode}>
+      <FormControl isRequired isInvalid={!!errors.aggregatorCode}>
         <FormLabel htmlFor="aggregatorCode">
           <Text as="span" variant="Body2Semibold" color="grey.500">
-            Code
+            Aggregator Code
           </Text>
         </FormLabel>
         <Input placeholder="Code" id="aggregatorCode" {...register('aggregatorCode')} />
@@ -183,7 +190,6 @@ const Step2 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
 };
 
 const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; data: Partial<FormData> }) => {
-  const toast = useToast();
   const { mutate: signUp, isPending: isSigningUp } = useSignUpAgent();
   const {
     handleSubmit,
@@ -192,11 +198,17 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
     formState: { errors },
     setValue,
     getValues,
+    watch,
     reset,
+    resetField,
+    clearErrors,
   } = useForm<FormData>({
     defaultValues: { ...data },
     resolver: zodResolver(schemaWithRefinement),
   });
+
+  // Watch for changes to the stateOfOrigin field
+  const selectedStateId = watch('stateOfOrigin');
 
   const hasErrors = Object.keys(errors).length > 0;
 
@@ -238,18 +250,26 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
     [stateOptions]
   );
 
-  const LGAOptions = useMemo(() => {
-    if (!states) return [];
-    return states.body.map((state) => ({
-      label: state.name,
-      options: state.LGAs.map((lga) => ({ label: lga.name, value: lga.id })),
-    }));
-  }, [states]);
+  // Filter LGAs based on selected state
+  const filteredLGAOptions = useMemo(() => {
+    if (!states || selectedStateId === undefined) return [];
+    const selectedState = states.body.find((state) => state.id === selectedStateId);
+    if (!selectedState) return [];
+    return selectedState.LGAs.map((lga) => ({ label: lga.name, value: lga.id }));
+  }, [states, selectedStateId]);
 
   const currentLGA = useCallback(
-    (value: number) => LGAOptions.flatMap((state) => state.options).find((option) => option.value === value),
-    [LGAOptions]
+    (value: number) => {
+      if (!value) return undefined;
+      return filteredLGAOptions.find((option) => option.value === value);
+    },
+    [filteredLGAOptions]
   );
+
+  // Reset LGA selection when state changes
+  useEffect(() => {
+    if (selectedStateId) resetField('LGAOfResidence');
+  }, [resetField, selectedStateId]);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -264,7 +284,15 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
 
     setValue('photo', URL.createObjectURL(file));
 
-    uploadFile({ files: [file], type: 'programLogo' }, { onSuccess: (data) => setValue('photoID', data.body[0].id) });
+    uploadFile(
+      { files: [file], type: 'programLogo' },
+      {
+        onSuccess: (data) => {
+          setValue('photoID', data.body[0].id);
+          clearErrors('photoID');
+        },
+      }
+    );
   };
 
   const onSubmit = (data: FormData) => {
@@ -292,7 +320,6 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
     };
     signUp(signUpData, {
       onSuccess: () => {
-        toast({ title: 'Agent created successfully', status: 'success' });
         reset();
       },
     });
@@ -312,25 +339,25 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
       p="40px"
       gap="24px"
     >
-      <FormControl isInvalid={!!errors.firstName}>
+      <FormControl isRequired isInvalid={!!errors.firstName}>
         <FormLabel htmlFor="firstName">
           <Text as="span" variant="Body2Semibold" color="grey.500">
-            First Name
+            First Name (Must match data on BVN)
           </Text>
         </FormLabel>
         <Input placeholder="Input first name" id="firstName" {...register('firstName')} />
         <FormErrorMessage>{errors.firstName && errors.firstName.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.lastName}>
+      <FormControl isRequired isInvalid={!!errors.lastName}>
         <FormLabel htmlFor="lastName">
           <Text as="span" variant="Body2Semibold" color="grey.500">
-            Last Name
+            Last Name (Must match data on BVN)
           </Text>
         </FormLabel>
         <Input placeholder="Input last name" id="lastName" {...register('lastName')} />
         <FormErrorMessage>{errors.lastName && errors.lastName.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.otherName}>
+      <FormControl isRequired isInvalid={!!errors.otherName}>
         <FormLabel htmlFor="otherName">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             Other Name
@@ -339,7 +366,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         <Input placeholder="Input other name" id="otherName" {...register('otherName')} />
         <FormErrorMessage>{errors.otherName && errors.otherName.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.dob}>
+      <FormControl isRequired isInvalid={!!errors.dob}>
         <FormLabel htmlFor="dob">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             Date of Birth
@@ -348,7 +375,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         <Input type="date" placeholder="Click to select dob" id="dob" {...register('dob')} />
         <FormErrorMessage>{errors.dob && errors.dob.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.email}>
+      <FormControl isRequired isInvalid={!!errors.email}>
         <FormLabel htmlFor="email">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             Email
@@ -358,7 +385,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
       </FormControl>
       <Grid templateColumns="1fr 1fr" gap="16px" w="100%">
-        <FormControl isInvalid={!!errors.password}>
+        <FormControl isRequired isInvalid={!!errors.password}>
           <FormLabel htmlFor="password">
             <Text as="span" variant="Body2Semibold" color="grey.500">
               Password
@@ -367,7 +394,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
           <PasswordInput placeholder="Input password" id="password" {...register('password')} />
           <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={!!errors.confirmPassword}>
+        <FormControl isRequired isInvalid={!!errors.confirmPassword}>
           <FormLabel htmlFor="confirmPassword">
             <Text as="span" variant="Body2Semibold" color="grey.500">
               Confirm Password
@@ -377,7 +404,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
           <FormErrorMessage>{errors.confirmPassword && errors.confirmPassword.message}</FormErrorMessage>
         </FormControl>
       </Grid>
-      <FormControl isInvalid={!!errors.gender}>
+      <FormControl isRequired isInvalid={!!errors.gender}>
         <FormLabel htmlFor="gender">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             Gender
@@ -402,10 +429,10 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         />
         <FormErrorMessage>{errors.gender && errors.gender.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.stateOfOrigin}>
+      <FormControl isRequired isInvalid={!!errors.stateOfOrigin}>
         <FormLabel htmlFor="stateOfOrigin">
           <Text as="span" variant="Body2Semibold" color="grey.500">
-            State of Origin
+            State of Residence
           </Text>
         </FormLabel>
         <Controller
@@ -427,10 +454,10 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         />
         <FormErrorMessage>{errors.stateOfOrigin && errors.stateOfOrigin.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.LGAOfResidence}>
+      <FormControl isRequired isInvalid={!!errors.LGAOfResidence}>
         <FormLabel htmlFor="LGAOfResidence">
           <Text as="span" variant="Body2Semibold" color="grey.500">
-            Local Government of Area
+            Local Government of Area of Residence
           </Text>
         </FormLabel>
         <Controller
@@ -440,19 +467,19 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
             <Dropdown
               id="LGAOfResidence"
               variant="whiteDropdown"
-              placeholder="Select Local Government Area"
+              placeholder={selectedStateId ? 'Select Local Government Area' : 'Please select a state first'}
               name={name}
-              options={LGAOptions}
-              value={currentLGA(value)}
-              onChange={(selected) => selected && onChange(selected.value)}
+              options={filteredLGAOptions}
+              value={currentLGA(value) ?? ''}
+              onChange={(selected) => selected && typeof selected !== 'string' && onChange(selected.value)}
               onBlur={onBlur}
-              isDisabled={disabled}
+              isDisabled={disabled || !selectedStateId}
             />
           )}
         />
         <FormErrorMessage>{errors.LGAOfResidence && errors.LGAOfResidence.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.bvnPhoneNumber}>
+      <FormControl isRequired isInvalid={!!errors.bvnPhoneNumber}>
         <FormLabel htmlFor="bvnPhoneNumber">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             BVN Phone Number
@@ -466,7 +493,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         />
         <FormErrorMessage>{errors.bvnPhoneNumber && errors.bvnPhoneNumber.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.phoneNumber}>
+      <FormControl isRequired isInvalid={!!errors.phoneNumber}>
         <FormLabel htmlFor="phoneNumber">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             Contact Phone Number
@@ -480,7 +507,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         />
         <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.nin}>
+      <FormControl isRequired isInvalid={!!errors.nin}>
         <FormLabel htmlFor="nin">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             NIN
@@ -489,7 +516,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         <Input placeholder="Input national identification number" id="nin" inputMode="numeric" {...register('nin')} />
         <FormErrorMessage>{errors.nin && errors.nin.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.streetName}>
+      <FormControl isRequired isInvalid={!!errors.streetName}>
         <FormLabel htmlFor="streetName">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             Street Name
@@ -499,7 +526,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         <FormErrorMessage>{errors.streetName && errors.streetName.message}</FormErrorMessage>
       </FormControl>
       <Grid templateColumns="1fr 1fr" gap="16px" w="100%">
-        <FormControl isInvalid={!!errors.houseNumber}>
+        <FormControl isRequired isInvalid={!!errors.houseNumber}>
           <FormLabel htmlFor="houseNumber">
             <Text as="span" variant="Body2Semibold" color="grey.500">
               House Number
@@ -508,7 +535,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
           <Input placeholder="Input house number" id="houseNumber" {...register('houseNumber')} />
           <FormErrorMessage>{errors.houseNumber && errors.houseNumber.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={!!errors.city}>
+        <FormControl isRequired isInvalid={!!errors.city}>
           <FormLabel htmlFor="city">
             <Text as="span" variant="Body2Semibold" color="grey.500">
               City
@@ -518,7 +545,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
           <FormErrorMessage>{errors.city && errors.city.message}</FormErrorMessage>
         </FormControl>
       </Grid>
-      <FormControl isInvalid={!!errors.numberOfDependents}>
+      <FormControl isRequired isInvalid={!!errors.numberOfDependents}>
         <FormLabel htmlFor="numberOfDependents">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             Number of Dependants
@@ -527,7 +554,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         <Input placeholder="Input number of dependants" id="numberOfDependents" {...register('numberOfDependents')} />
         <FormErrorMessage>{errors.numberOfDependents && errors.numberOfDependents.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.highestEducation}>
+      <FormControl isRequired isInvalid={!!errors.highestEducation}>
         <FormLabel htmlFor="highestEducation">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             Highest level of school
@@ -552,13 +579,14 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         />
         <FormErrorMessage>{errors.highestEducation && errors.highestEducation.message}</FormErrorMessage>
       </FormControl>
-      <FormControl isInvalid={!!errors.bvn}>
+      <FormControl isRequired isInvalid={!!errors.bvn}>
         <FormLabel htmlFor="bvn">
           <Text as="span" variant="Body2Semibold" color="grey.500">
             BVN
           </Text>
         </FormLabel>
         <Input placeholder="Input your BVN" id="bvn" inputMode="numeric" {...register('bvn')} />
+        <FormErrorMessage>{errors.bvn && errors.bvn.message}</FormErrorMessage>
       </FormControl>
       <Flex flexDir="column" w="100%">
         <FormLabel htmlFor="photoID">
@@ -616,7 +644,7 @@ const Step3 = ({ action, data }: { action: (data: Partial<FormData>) => void; da
         </Flex>
         <FormErrorMessage>{errors.photoID && errors.photoID.message}</FormErrorMessage>
       </Flex>
-      <FormControl isInvalid={!!errors.terms}>
+      <FormControl isRequired isInvalid={!!errors.terms}>
         <Checkbox size="lg" {...register('terms')}>
           <Text variant="Body1Regular">
             By checking the box below, I agree to the following{' '}

@@ -1,3 +1,4 @@
+import { FormStatus } from '@/utils';
 import type { IconProps } from '@chakra-ui/react';
 import type { AxiosProgressEvent } from 'axios';
 import type { IconType } from 'react-icons';
@@ -67,39 +68,29 @@ export type NewVendor = {
   name: string;
   service: string;
   product?: string;
-  amount: number;
-  scheduledDate: string;
-  endDate: string;
-  numberOfBeneficiaries: number;
-  programId: string;
-  user: {
-    email: string;
-    firstname: string;
-    lastname: string;
-  };
+  user: { email: string; firstname: string; lastname: string };
 };
 
 export type Vendor = {
   id: string;
-  amount: number;
-  endDate: string;
-  item: string;
   name: string;
-  numberOfBeneficiaries: number;
-  programName: string;
-  programId: string;
-  scheduledDate: string;
-  product?: string;
+  email: string;
+  service: string;
+  product: string;
+  firstName: string;
+  lastName: string;
   contactEmail: string;
   contactPhone: string;
+  phoneNumber: string;
   programCount: number;
+  programDetails: { programId: string; vendorId: number }[];
 };
 
 export type VendorFilterParams = {
   query?: string;
   page?: number;
   pageSize?: number;
-  programId?: number;
+  program?: string;
   scheduledDate?: string;
   endDate?: string;
 };
@@ -115,14 +106,12 @@ export type VendorOverview = {
 export type Aggregator = {
   id: string;
   name: string;
-  programId: string;
-  noOfAgents: number;
-  maxAgents: number;
-  programName: string;
+  lastName: string;
+  firstName: string;
   contactEmail: string;
   contactPhone: string;
-  totalAgents: string;
-  programCount: string;
+  programCount: number;
+  totalAgents: number;
 };
 
 export type AggregatorOverview = {
@@ -143,6 +132,7 @@ export type Program = {
   name: string;
   description: string;
   logo: string;
+  programType: string;
   moduleCount: string;
   programModules: ProgramModules[];
 };
@@ -168,8 +158,6 @@ export type AggregatorPayload = {
   firstname: string;
   lastname: string;
   email: string;
-  password: string;
-  confirmPassword: string;
   contactEmail: string;
   contactPhone: string;
   programDetails: { programId: string; maxAgents: number }[];
@@ -183,16 +171,15 @@ export type AddAggregatorToProgram = {
 
 export type Agent = {
   id: string;
+  aggregatorId: string;
   firstName: string;
   lastName: string;
-  aggregator: string;
-  dob: string;
   gender: string;
-  userId: number;
-  status: boolean;
-  lga: string;
-  state: string;
-  programId: string;
+  lastActive: string;
+  programCount: number;
+  isActive: boolean;
+  isOnline: boolean;
+  aggregatorDetails: AggregatorProgramDetails[];
 };
 
 export type Module = {
@@ -294,17 +281,20 @@ export type FileUpload = {
   fileType: string;
 };
 
-export type Partner = {
+export type Client = {
+  id: string;
+  programs: number;
   amount: number;
-  id: number;
   name: string;
-  program: string;
+  email: string;
+  phoneNumber: string;
+  contactFirstName: string;
+  contactLastName: string;
+  contactEmail: string;
 };
 
-export type NewPartnerDetails = {
-  password: string;
-  confirmPassword: string;
-  programId: string;
+export type ClientPayload = {
+  // programId: string;
   amount: number;
   name: string;
   firstName: string;
@@ -323,11 +313,11 @@ export type ProgramDetails = {
   programModules: ProgramModulesDetails[];
   coverPhoto: string;
   coverPhotoId: number;
-  eligibilityCriteria: EligibilityCriteriaType[];
+  eligibilityCriteria: EligibilityCriteriaType[] | string[];
 };
 
 export type EligibilityCriteriaType = {
-  id: number;
+  id: number | null;
   criteria: string;
 };
 
@@ -373,7 +363,7 @@ export type ApproveBeneficiaryPayload = {
   vetScore?: number;
 };
 
-export type PartnerFilterParams = {
+export type ClientFilterParams = {
   page: number;
   pageSize: number;
   query?: string;
@@ -381,10 +371,18 @@ export type PartnerFilterParams = {
 };
 
 export type Beneficiary = {
-  id: number;
+  id: string;
+  firstname: string;
+  lastname: string;
+  otherNames: string;
+  gender: string;
+  dob: string;
+  email: string;
+  isFlagged: boolean;
+  phoneNumber: string;
+  vetScore: number;
+  status: FormStatus;
   moduleName: string;
-  status: string;
-  [key: string]: string | number;
 };
 
 export type BeneficiaryDetails = {
@@ -399,11 +397,21 @@ export type BeneficiaryDetails = {
 export type ModuleDetail = {
   moduleName: string;
   formAnswers: FormAnswer[];
+  verifications: Verification[];
 };
 
 export type FormAnswer = {
   key: string;
   value: string;
+  answerId: string;
+  score: number;
+  question: QuestionDetails;
+};
+
+export type Verification = {
+  type: string;
+  value: string;
+  status: boolean;
 };
 
 export type ProgressLog = {
@@ -448,13 +456,13 @@ export type BeneficiaryStatus = {
   status: string;
   currentModule: string;
   programName: string;
+  coverPhoto: string;
   availableModules: { name: string; order: number }[];
 };
 
 export type ActivateAgentPayload = {
   agentId: string;
   isActive: boolean;
-  programId?: string;
 };
 
 export type EnumerationsTableData = {
@@ -508,22 +516,6 @@ export type AggregatorAnalytics = {
   completionTime?: string;
 };
 
-export type AggregatorAgent = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  aggregator: string;
-  gender: string;
-  state: string;
-  lga: string;
-  status: boolean;
-  isOnline: boolean;
-  lastActive: string;
-  programId: string;
-  programName: string;
-  programType: string;
-};
-
 export type AggregatorAgentsParams = Partial<{
   page: number;
   pageSize: number;
@@ -539,6 +531,7 @@ export type AgentPayload = {
     lastName: string;
     phoneNumber: string;
     email: string;
+    gender: string;
     programDetails?: AgentProgramDetails[];
   }[];
 };
@@ -593,14 +586,18 @@ export type DashboardProgramGroups = {
   programGroups: { id: string; name: string; programCount: number }[];
 };
 
-export type AggregatorProgramsParams = Partial<{
+export type ProgramFilterOptions = Partial<{
   page: number;
   pageSize: number;
   query: string;
   folderId: string;
+  vendorId: string;
+  aggregatorId: string;
+  clientId: string;
+  enabled: boolean;
 }>;
 
-export type AggregatorProgram = {
+export type FolderProgram = {
   id: string;
   logo: string;
   name: string;
@@ -712,9 +709,11 @@ export type VendorBeneficiary = {
 export type AggregatorDetails = {
   name: string;
   agents: number;
+  maxAgents: number;
   aggregatorProgramId: string;
   programName: string;
   programType: string;
+  programId: string;
 };
 
 export type VendorDetails = {
@@ -731,8 +730,28 @@ export type VendorDetails = {
 export type VendorProgramPayload = {
   id: string;
   programId: string;
-  scheduledDate: string;
-  endDate: string;
+};
+
+export type AgentDetails = {
+  programName: string;
+  programType: string;
+  programId: string;
+  objective: number;
+  aggregatorId: string;
+  lga: string;
+  activation?: {
+    startTime: string;
+    endTime: string;
+    startDate: string;
+    endDate: string;
+    days: string[];
+  };
+};
+
+export type AgentProgramPayload = {
+  agentId: string;
+  aggregatorId: string;
+  programDetails: { programId: string; objective: number; lgaId: number };
 };
 
 export type VendorAnalytics = {
@@ -779,4 +798,136 @@ export type VendorsOrdersDetails = {
   vendorId: string;
   disbursementDate: string;
   status: string;
+};
+
+export type PendingAgent = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  lastActive: Date;
+  lga?: string;
+  state?: string;
+  status?: boolean;
+  isOnline?: boolean;
+  aggregator?: string;
+  programName?: string;
+  programId?: string;
+  programType?: string;
+  aggregatorDetails: AggregatorProgramDetails[];
+};
+
+export type AggregatorProgramDetails = {
+  id: string;
+  programId: string;
+  aggregatorId: string;
+};
+
+export type ScoreSheet = {
+  beneficiaryId: string;
+  answers: Answer[];
+};
+
+export type Answer = {
+  answerId: string;
+  score: number;
+  value: string;
+  question: string;
+};
+
+export type VettingOfficers = {
+  firstname: string;
+  lastname: string;
+  otherNames?: string;
+  gender?: string;
+  email: string;
+  phoneNumber?: string;
+  role?: string;
+};
+
+export type VettingOfficersDetails = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  otherNames?: string;
+  gender?: string;
+  email: string;
+  phoneNumber?: string;
+  role?: string;
+};
+
+export type VettingOfficersOverview = {
+  specializedRoles: number;
+  superAdmins: number;
+};
+
+export type CreateWhiteListBucketPayload = {
+  name: string;
+  programId: string;
+  vendorId?: string | number;
+  amount?: number;
+  beneficiaries?: string[];
+  whitelistId?: string;
+};
+
+export type VettingOfficersDashboard = {
+  programs: number;
+  totalVetted: number;
+  pendingApproval: number;
+  successfulVetting: number;
+  failedVetting: number;
+};
+
+export type VettingOfficersProgram = {
+  id: string;
+  name: string;
+  programs: Program[];
+};
+
+export type VettingOfficersProgramGroups = {
+  id: string;
+  name: string;
+  programCount: number;
+};
+
+export type VettingOfficersAnalytics = {
+  pendingApproval: number;
+  successfulVetting: number;
+  failedVetting: number;
+};
+
+export type WhitelistDetails = {
+  id: string;
+  name: string;
+  status: string;
+  programName: string;
+  vendorId: null | string;
+  beneficiariesNo: number;
+};
+
+export type ExitingWhitelistPayload = {
+  whitelistId: string;
+  programId: string;
+  beneficiaryIds: string[];
+};
+
+export type BeneficiaryForm = {
+  form: APIResponse<Form>;
+  user: { firstName: string; lastName: string; company: string; userCode: string };
+  moduleName: string;
+};
+
+export type AddClientToProgram = {
+  clientId: string;
+  programId: string;
+  objective: number;
+  stateId: number;
+  amountDisbursed: number;
+};
+
+export type ClientDetails = {
+  programId: string;
+  programName: string;
+  programType: string;
+  amountDisbursed: string | null;
 };

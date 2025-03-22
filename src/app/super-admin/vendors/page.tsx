@@ -3,7 +3,7 @@
 import { useDeleteVendor } from '@/hooks/useDeleteVendor';
 import { useFilterVendors } from '@/hooks/useFilterVendors';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { DeleteModal, ReusableTable } from '@/shared';
+import { DeleteModal, EditVendorModal, ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { ManageVendorModal } from '@/shared/chakra/modals/manage-vendor-modal';
 import { Vendor } from '@/types';
@@ -32,15 +32,17 @@ import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 const VendorPage = () => {
   const toast = useToast();
   const [page, setPage] = useState(1);
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: editModalOnClose } = useDisclosure();
   const { isOpen: isManageOpen, onOpen: onManageOpen, onClose: manageModalOnClose } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: deleteModalOnClose } = useDisclosure();
   const [selectedVendor, setSelectedVendor] = useState<Vendor>();
   const { mutate: delVendor, isPending } = useDeleteVendor();
+
   const handleDeleteVendor = () => {
     if (selectedVendor) {
       delVendor(selectedVendor.id, {
         onSuccess: () => {
-          toast({ title: 'Partner deleted successfully', status: 'success' });
+          toast({ title: 'Vendor deleted successfully', status: 'success' });
           deleteModalOnClose();
         },
       });
@@ -51,7 +53,7 @@ const VendorPage = () => {
     () => [
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Vendor
           </Text>
         ),
@@ -60,7 +62,7 @@ const VendorPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
             No. of Programs
           </Text>
         ),
@@ -74,7 +76,7 @@ const VendorPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
             Actions
           </Text>
         ),
@@ -110,6 +112,17 @@ const VendorPage = () => {
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedVendor(info.row.original);
+                  onEditOpen();
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Edit Vendor
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedVendor(info.row.original);
                   onDeleteOpen();
                 }}
               >
@@ -122,10 +135,10 @@ const VendorPage = () => {
         ),
       },
     ],
-    [onDeleteOpen, onManageOpen]
+    [onDeleteOpen, onManageOpen, onEditOpen]
   );
 
-  const [program, setProgram] = useState<number | undefined>(undefined);
+  const [program, setProgram] = useState<string | undefined>(undefined);
   const [search, setSearch] = useState<string | undefined>(undefined);
 
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
@@ -139,7 +152,7 @@ const VendorPage = () => {
     isRefetching,
     refetch,
   } = useFilterVendors({
-    programId: program,
+    program: program,
     page: page,
     pageSize: 10,
     query: search,
@@ -149,15 +162,35 @@ const VendorPage = () => {
 
   return (
     <Stack gap="6" w="full" flex="1">
-      <DeleteModal
-        isOpen={isDeleteOpen}
-        onClose={deleteModalOnClose}
-        action={handleDeleteVendor}
-        isLoading={isPending}
-        text="Are you sure you want to delete this vendor. Proceeding will erase this vendor data."
-      />
       {selectedVendor && (
-        <ManageVendorModal isOpen={isManageOpen} onClose={manageModalOnClose} vendor={selectedVendor} />
+        <>
+          <EditVendorModal
+            isOpen={isEditOpen}
+            onClose={() => {
+              editModalOnClose();
+              setSelectedVendor(undefined);
+            }}
+            initialValues={selectedVendor}
+          />
+          <ManageVendorModal
+            isOpen={isManageOpen}
+            onClose={() => {
+              manageModalOnClose();
+              setSelectedVendor(undefined);
+            }}
+            vendor={selectedVendor}
+          />
+          <DeleteModal
+            isOpen={isDeleteOpen}
+            onClose={() => {
+              deleteModalOnClose();
+              setSelectedVendor(undefined);
+            }}
+            action={handleDeleteVendor}
+            isLoading={isPending}
+            text="Are you sure you want to delete this vendor. Proceeding will erase this vendor data."
+          />
+        </>
       )}
       <Flex justifyContent="space-between">
         <Flex gap="24px" alignItems="center">
@@ -172,7 +205,7 @@ const VendorPage = () => {
               w="94px"
               fontSize="13px"
               fontWeight="600"
-              onChange={(e) => setProgram(Number(e.target.value))}
+              onChange={(e) => setProgram(e.target.value)}
             >
               {options?.map((option) => (
                 <option key={option.value} value={option.value}>

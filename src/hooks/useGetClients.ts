@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { getClients } from '@/services/clients';
-import { PartnerFilterParams } from '@/types';
+import { ClientFilterParams } from '@/types';
 
-export const useGetClients = (filterParams: PartnerFilterParams) => {
-  return useQuery({ queryKey: ['partners', filterParams], queryFn: () => getClients(filterParams) });
+export const useGetClients = (filterParams: ClientFilterParams) => {
+  return useQuery({ queryKey: ['client', filterParams], queryFn: () => getClients(filterParams) });
 };

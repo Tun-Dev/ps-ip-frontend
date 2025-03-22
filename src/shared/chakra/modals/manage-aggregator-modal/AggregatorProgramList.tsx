@@ -76,15 +76,15 @@ const Item = ({ item }: { item: AggregatorDetails }) => {
         <SimpleGrid columns={3} gap="4" flex="1">
           <Stack>
             <Text variant="Body2Semibold" color="grey.500">
-              Aggregator
-            </Text>
-            <Text variant="Body1Semibold">{item.name}</Text>
-          </Stack>
-          <Stack>
-            <Text variant="Body2Semibold" color="grey.500">
               Agents
             </Text>
             <Text variant="Body1Semibold">{item.agents}</Text>
+          </Stack>
+          <Stack>
+            <Text variant="Body2Semibold" color="grey.500">
+              Max Agents
+            </Text>
+            <Text variant="Body1Semibold">{item.maxAgents}</Text>
           </Stack>
         </SimpleGrid>
         <Button

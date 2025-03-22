@@ -1,7 +1,8 @@
 'use client';
 
 import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
-import { Flex, Box, Image } from '@chakra-ui/react';
+import { withProtectedLoader } from '@/shared/chakra/components/protected-route-loader';
+import { Box, Flex, Image } from '@chakra-ui/react';
 import Sidebar from './components/Sidebar';
 
 const VettingOfficersLayout = ({ children }: { children: React.ReactNode }) => {
@@ -27,4 +28,4 @@ const VettingOfficersLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default withDesktopOnlyOverlay(VettingOfficersLayout);
+export default withDesktopOnlyOverlay(withProtectedLoader(VettingOfficersLayout, 'Vetting Officer'));

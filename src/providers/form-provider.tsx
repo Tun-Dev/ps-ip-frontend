@@ -1,13 +1,7 @@
 'use client';
 
-import { useGetModules } from '@/hooks/useGetModules';
-import { useGetProgramById } from '@/hooks/useGetProgramById';
-import { useGetProgramTypes } from '@/hooks/useGetProgramTypes';
-import { useGetQuestionTypes } from '@/hooks/useGetQuestionTypes';
-import { ProgramModulesDetails, QuestionType } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useParams } from 'next/navigation';
-import { createContext, useContext, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -16,7 +10,7 @@ const surveyFormSchema = z.object({
   fields: z.array(
     z.object({
       name: z.string(),
-      value: z.number(),
+      value: z.coerce.number(),
       status: z.string(),
       options: z.array(z.object({ label: z.string(), value: z.string() })),
     })
@@ -28,10 +22,12 @@ const vettingFormSchema = z.object({
   type: z.string(),
   totalScore: z.coerce.number(),
   passScore: z.coerce.number(),
+  manualTotalScore: z.coerce.number(),
+  manualPassScore: z.coerce.number(),
   manualFields: z.array(
     z.object({
       name: z.string(),
-      value: z.number(),
+      value: z.coerce.number(),
       status: z.string(),
       options: z.array(z.object({ label: z.string(), value: z.string() })),
     })
@@ -40,6 +36,7 @@ const vettingFormSchema = z.object({
     z.object({
       name: z.string(),
       value: z.coerce.number(),
+      status: z.string(),
       options: z.array(z.object({ label: z.string(), value: z.string(), weight: z.coerce.number() })),
     })
   ),
@@ -71,6 +68,11 @@ const programModuleSchema = z.object({
   formId: z.string().optional(),
 });
 
+const eliCcriItem = z.object({
+  id: z.number().nullable(),
+  criteria: z.string(),
+});
+
 const programSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   logo: z.number().min(1, 'Logo is required'),
@@ -78,11 +80,14 @@ const programSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   programTypeId: z.coerce.number().min(1, 'Program type is required'),
   coverPhotoID: z.number().min(1, 'Cover Photo is Required'),
-  eligibilityCriteria: z.array(z.string()).min(1, 'At least one eligibility criterion is required'),
+  // Allow eligibilityCriteria to be either an array of objects or an array of strings, with at least one item
+  eligibilityCriteria: z.union([
+    z.array(eliCcriItem).min(1, { message: 'At least one eligibility criterion is required' }), // Array of objects
+    z.array(z.string()).min(1, { message: 'At least one eligibility criterion is required' }), // Array of strings
+  ]),
   programModules: z.array(programModuleSchema),
   surveyForm: surveyFormSchema,
   vettingForm: vettingFormSchema,
-
   // To keep the images from one step to another but we not submitting it
   logoFile: z.string().optional(),
   coverPhotoFile: z.string().optional(),
@@ -90,56 +95,53 @@ const programSchema = z.object({
 
 type ProgramSchema = z.infer<typeof programSchema>;
 
-const defaultValues = {
+export const defaultValues: ProgramSchema = {
+  name: '',
+  logo: 0,
+  target: 0,
+  description: '',
+  programTypeId: 0,
+  coverPhotoID: 0,
+  logoFile: '',
+  coverPhotoFile: '',
+  eligibilityCriteria: [],
   programModules: [],
   surveyForm: {
     fields: [
-      { name: 'Full Name', value: 1, status: 'SHORT_TEXT', options: [] },
-      { name: 'Upload Picture', value: 0, status: 'UPLOAD', options: [] },
-      { name: 'Date of Birth', value: 6, status: 'DATE', options: [] },
+      { name: 'Full Name', value: 0, status: 'SHORT_TEXT', options: [] },
+      { name: 'Upload Picture', value: 0, status: 'IMAGE_UPLOAD', options: [] },
+      { name: 'Date of Birth', value: 0, status: 'DATE', options: [] },
       {
         name: 'Gender',
-        value: 4,
+        value: 0,
         status: 'DROPDOWN',
         options: [
           { label: 'Male', value: 'Male' },
           { label: 'Female', value: 'Female' },
         ],
       },
-      { name: 'Phone Number', value: 8, status: 'PHONE_NUMBER', options: [] },
-      { name: 'National Identity Number', value: 10, status: 'NUMBER', options: [] },
-      { name: 'Local Government Area', value: 4, status: 'DROPDOWN', options: [] },
-      { name: 'Email', value: 7, status: 'EMAIL', options: [] },
-      { name: 'Address', value: 2, status: 'LONG_TEXT', options: [] },
+      { name: 'Phone Number', value: 0, status: 'PHONE_NUMBER', options: [] },
+      { name: 'National Identity Number', value: 0, status: 'KYC', options: [] },
+      { name: 'Email', value: 0, status: 'EMAIL', options: [] },
+      { name: 'Address', value: 0, status: 'LONG_TEXT', options: [] },
     ],
   },
   vettingForm: {
     type: 'manual',
-    totalScore: 250,
-    passScore: 200,
+    totalScore: 40,
+    passScore: 40,
+    manualTotalScore: 30,
+    manualPassScore: 15,
     manualFields: [
-      { name: 'Full Name', value: 1, status: 'SHORT_TEXT', options: [] },
-      { name: 'Upload Picture', value: 0, status: 'UPLOAD', options: [] },
-      { name: 'Date of Birth', value: 6, status: 'DATE', options: [] },
-      {
-        name: 'Gender',
-        value: 4,
-        status: 'DROPDOWN',
-        options: [
-          { label: 'Male', value: 'Male' },
-          { label: 'Female', value: 'Female' },
-        ],
-      },
-      { name: 'Phone Number', value: 8, status: 'PHONE_NUMBER', options: [] },
-      { name: 'National Identity Number', value: 10, status: 'NUMBER', options: [] },
-      { name: 'Local Government Area', value: 4, status: 'DROPDOWN', options: [] },
-      { name: 'Email', value: 7, status: 'EMAIL', options: [] },
-      { name: 'Address', value: 2, status: 'LONG_TEXT', options: [] },
+      { name: 'How old is your business?', value: 10, status: 'SHORT_TEXT', options: [] },
+      { name: 'Why do you deserve this grant?', value: 10, status: 'LONG_TEXT', options: [] },
+      { name: 'What is your plan if you were to receive the grant?', value: 10, status: 'LONG_TEXT', options: [] },
     ],
     automatedFields: [
       {
         name: 'Beneficiary age',
-        value: 50,
+        value: 20,
+        status: 'MULTIPLE_CHOICE',
         options: [
           {
             label: '46-55',
@@ -165,7 +167,8 @@ const defaultValues = {
       },
       {
         name: 'Years in Service',
-        value: 50,
+        value: 20,
+        status: 'MULTIPLE_CHOICE',
         options: [
           {
             label: '16-20',
@@ -189,108 +192,22 @@ const defaultValues = {
           },
         ],
       },
+      {
+        name: 'Upload CAC File',
+        value: 0,
+        status: 'FILE_UPLOAD',
+        options: [],
+      },
     ],
   },
 };
 
-const ProgramFormContext = createContext<UseFormReturn<ProgramSchema> | null>(null);
-
-const mapSurveyFields = (module?: ProgramModulesDetails, questionTypes?: QuestionType[]) => {
-  if (!module) return [];
-  return module.form.questions.map((question) => ({
-    name: question.question,
-    value: questionTypes?.find((type) => type.status === question.type)?.value ?? 0,
-    status: question.type,
-    options: question.options?.map((option) => ({ label: option.label, value: option.value })) ?? [],
-  }));
-};
-
-const mapVettingFields = (module?: ProgramModulesDetails) => {
-  if (!module) return [];
-  return module.form.questions.map((question) => ({
-    name: question.question,
-    value: question.total,
-    options:
-      question.options?.map((option) => ({ label: option.label, value: option.value, weight: option.weight })) ?? [],
-  }));
-};
-
-const mapDataPoints = (module: ProgramModulesDetails) => {
-  if (module.module !== 'Application' && module.module !== 'Enumeration') return [];
-  return module.form.questions.map((question) => ({
-    dataPoint: {
-      id: question.dataPoint,
-      format: { options: question.options, type: question.type },
-      question: question.question,
-      type: question.question,
-      createdAt: question.createdAt,
-      updatedAt: question.updatedAt,
-    },
-    isRequired: question.mandatory,
-  }));
-};
+const ProgramFormContext = createContext<{ form: UseFormReturn<ProgramSchema> } | null>(null);
 
 export const ProgramFormProvider = ({ children }: { children: ReactNode }) => {
-  const { programID } = useParams();
-  const { response } = useGetProgramById(programID?.toString());
-  const { data: programTypes } = useGetProgramTypes();
-  const { data: questionTypes } = useGetQuestionTypes();
-  const { data: modules } = useGetModules();
-
   const form = useForm<ProgramSchema>({ defaultValues, resolver: zodResolver(programSchema) });
 
-  useEffect(() => {
-    if (!programID) form.reset(defaultValues);
-  }, [form, programID]);
-
-  useEffect(() => {
-    if (!response) return;
-
-    const program = response.body;
-    const surveyModule = program.programModules.find((module) => module.module === 'Survey');
-    const vettingModule = program.programModules.find((module) => module.module === 'Vetting');
-    const isManualVetting = vettingModule?.form.minVetScore === undefined;
-    const programType = programTypes?.body.find((type) => type.type === program.programType);
-
-    console.log(response);
-
-    form.reset({
-      name: program.name,
-      logo: program.logoId,
-      target: program.target,
-      description: program.description,
-      programTypeId: programType?.id,
-      coverPhotoID: program.coverPhotoId,
-      eligibilityCriteria: program.eligibilityCriteria.map((item) => item.criteria),
-      logoFile: program.logo,
-      coverPhotoFile: program.coverPhoto,
-      programModules: program.programModules.map((module) => ({
-        id: module.id,
-        order: module.order,
-        formId: module.formId,
-        isBase: false,
-        moduleId: modules?.body.find((md) => md.name === module.module)?.id ?? 0,
-        guidelines: module.moduleGuidelines.map((guideline) => guideline.id),
-        dataPoints: mapDataPoints(module),
-      })),
-      surveyForm: {
-        id: program.programModules.find((md) => md.module === 'Survey')?.formId,
-        fields: surveyModule ? mapSurveyFields(surveyModule, questionTypes?.body) : defaultValues.surveyForm.fields,
-      },
-      vettingForm: {
-        id: program.programModules.find((md) => md.module === 'Vetting')?.formId,
-        type: isManualVetting ? 'manual' : 'automated',
-        totalScore: vettingModule?.form.totalFormScore ?? defaultValues.vettingForm.totalScore,
-        passScore: vettingModule?.form.minVetScore ?? defaultValues.vettingForm.passScore,
-        manualFields: isManualVetting
-          ? mapSurveyFields(vettingModule, questionTypes?.body)
-          : defaultValues.vettingForm.manualFields,
-        automatedFields: isManualVetting ? defaultValues.vettingForm.automatedFields : mapVettingFields(vettingModule),
-      },
-    });
-  }, [questionTypes, form, programTypes, response, modules, programID]);
-
-  return <ProgramFormContext.Provider value={form}>{children}</ProgramFormContext.Provider>;
+  return <ProgramFormContext.Provider value={{ form }}>{children}</ProgramFormContext.Provider>;
 };
 
 export const useProgramForm = () => {

@@ -1,17 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { getBeneficiaries } from '@/services/beneficiaries';
+import { FormStatus } from '@/utils';
 
 type Params = Partial<{
+  programId: string;
+  moduleId: number;
   page: number;
   pageSize: number;
   query: string;
+  gender: 'Male' | 'Female';
+  state: number;
+  lga: number;
+  status: FormStatus;
+  whitelistId: string;
+  enabled: boolean;
 }>;
 
-export const useGetBeneficiariesById = (params: Params, programId: string, moduleId: string) => {
+export const useGetBeneficiariesById = ({ programId, moduleId, ...params }: Params) => {
   return useQuery({
     queryKey: ['beneficiaries', programId, moduleId, params],
     queryFn: getBeneficiaries,
-    enabled: !!programId && !!parseInt(moduleId),
+    enabled: params.enabled,
   });
 };

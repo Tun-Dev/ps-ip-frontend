@@ -1,12 +1,63 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { Button, Flex, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react';
-import { ColumnDef } from '@tanstack/react-table';
-import { useState } from 'react';
-import { MdDownload, MdSearch } from 'react-icons/md';
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Flex,
+  Icon,
+  IconButton,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { useMemo, useState } from 'react';
+import {
+  MdAddCircle,
+  MdArrowBack,
+  MdArrowRightAlt,
+  MdCancel,
+  MdCheckCircle,
+  MdDownload,
+  MdMoreHoriz,
+  MdSearch,
+} from 'react-icons/md';
 
+// import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
+import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
+// import { useProcessModule } from '@/hooks/useProcessModule';
+// import { useUploadProgram } from '@/hooks/useUploadData';
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
+import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { Beneficiary, WhitelistDetails } from '@/types';
+// import { FormStatus } from '@/utils';
+import { Image } from '@chakra-ui/next-js';
+// import { AxiosError } from 'axios';
+import { useGetModules } from '@/hooks/useGetModules';
+import { useGetWhitelistByProgramId } from '@/hooks/useGetWhitelistByProgramId';
+import { AddExistingWhiteListBucket } from '@/shared/chakra/modals/AddExistingWhiteListBucket';
+import CreateWhiteListBucket from '@/shared/chakra/modals/CreateWhiteListBucket';
+import EditWhiteListBucket from '@/shared/chakra/modals/EditWhiteListBucket';
+import { FormStatus } from '@/utils';
+import { useParams } from 'next/navigation';
+
+const columnHelper = createColumnHelper<Beneficiary>();
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -18,274 +69,661 @@ const options = [
 type Option = (typeof options)[number];
 
 const WhitelistingPage = () => {
-  const [sort, setSort] = useState<Option | null>(options[3]);
+  // const toast = useToast();
+  const [page, setPage] = useState(1);
+  const [bucketPage, setBucketPage] = useState(1);
+  const [selectedWLPage, setSelectedWLPage] = useState(1);
+  const { programID } = useParams();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isOpenCreate, onOpen: onOpenCreate, onClose: onCloseCreate } = useDisclosure();
+  const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
+  const { isOpen: isOpenExisting, onOpen: onOpenExisting, onClose: onCloseExisting } = useDisclosure();
+  const [sort, setSort] = useState<Option | null>(options[0]);
+  const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
+  // const { mutate: approveBeneficiary } = useApproveBeneficiary();
+  // const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
+  // const { mutate: uploadProgram, isPending } = useUploadProgram();
+  const { response } = useGetProgramById(programID?.toString());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedWhitelistId, setSelectedWhitelistId] = useState<string>('');
+  const [selectedWL, setSelectedWL] = useState<WhitelistDetails>();
+  const { data: modules } = useGetModules();
+
+  console.log(modules);
+
+  const moduleId = modules?.body?.find((module) => module.name === 'Whitelisting')?.id ?? 0;
+
+  const programType = response?.body?.programType ?? '';
+
+  const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
+    useGetBeneficiariesById({
+      page: page,
+      pageSize: 10,
+      programId: programID?.toString(),
+      moduleId,
+      status: FormStatus.PENDING,
+      enabled: !!programID && !!moduleId,
+    });
+
+  const {
+    data: selectedWhitelistBucket,
+    isPlaceholderData: isWhitelistPlaceholderData,
+    isLoading: isWhitelistLoading,
+    isError: isWhitelistError,
+    refetch: whitelistRefetch,
+    isRefetching: isWhitelistRefetching,
+    isRefetchError: isWhitelistRefetchError,
+  } = useGetBeneficiariesById({
+    page: selectedWLPage,
+    pageSize: 10,
+    programId: programID?.toString(),
+    moduleId,
+    whitelistId: selectedWhitelistId,
+    enabled: !!selectedWhitelistId,
+  });
+
+  // console.log(selectedWhitelistBucket);
+
+  const { data: whitelistBucket } = useGetWhitelistByProgramId(
+    { page: bucketPage, pageSize: 10 },
+    programID?.toString()
+  );
+
+  const totalPages = data?.body.totalPages ?? 0;
+  const totalBucketPages = whitelistBucket?.body.totalPages ?? 0;
+  const totalSelectedWhitelistBucketPage = selectedWhitelistBucket?.body?.totalPages ?? 0;
+
+  const tableData = useMemo(() => {
+    return data ? data.body.data : [];
+  }, [data]);
+
+  const whitelistTableData = useMemo(() => {
+    return whitelistBucket ? whitelistBucket.body.data : [];
+  }, [whitelistBucket]);
+
+  const selectedWhitelistTableData = useMemo(() => {
+    return selectedWhitelistBucket ? selectedWhitelistBucket.body.data : [];
+  }, [selectedWhitelistBucket]);
+
+  console.log(selectedWhitelistTableData);
+
+  // const dynamicColumns: ColumnDef<Beneficiary>[] = useMemo(() => {
+  //   if (!tableData || tableData.length === 0) return [];
+  //   const keys = Object.keys(tableData[0]);
+
+  //   const otherColumns = keys
+  //     .filter((key) => key !== 'id' && key !== 'moduleName' && key !== 'status')
+  //     .map((key) => ({
+  //       header: () => (
+  //         <Text variant="Body3Semibold" textAlign="left">
+  //           {key}
+  //         </Text>
+  //       ),
+  //       accessorKey: key,
+  //       cell: (info) => {
+  //         const value = info.getValue() as string | number | undefined;
+
+  //         if (key === 'Picture' && typeof value === 'string')
+  //           return (
+  //             <Box pos="relative" boxSize="5" rounded="full" overflow="hidden">
+  //               <Image src={value} alt="Beneficiary Image" sizes="1.25rem" sx={{ objectFit: 'cover' }} fill />
+  //             </Box>
+  //           );
+
+  //         return (
+  //           <Text as="span" textAlign="left" display="block" variant="Body2Regular">
+  //             {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
+  //           </Text>
+  //         );
+  //       },
+  //       enableSorting: false, // You can enable this if sorting is required
+  //     }));
+
+  //   const statusColumn: ColumnDef<Beneficiary> = {
+  //     header: () => (
+  //       <Text variant="Body3Semibold" textAlign="center">
+  //         Status
+  //       </Text>
+  //     ),
+  //     accessorKey: 'status',
+  //     cell: (info) =>
+  //       info.row.original.status === 'APPROVED' ? (
+  //         <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
+  //           Approved
+  //         </Text>
+  //       ) : info.row.original.status === 'DISAPPROVED' ? (
+  //         <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
+  //           Denied
+  //         </Text>
+  //       ) : (
+  //         <Menu>
+  //           <MenuButton
+  //             as={IconButton}
+  //             variant="ghost"
+  //             aria-label="Actions"
+  //             icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+  //             minW="0"
+  //             h="auto"
+  //             mx="auto"
+  //             display="flex"
+  //             p="1"
+  //             onClick={(e) => e.stopPropagation()}
+  //           />
+  //           <MenuList>
+  //             <MenuItem
+  //               onClick={(e) => {
+  //                 e.stopPropagation();
+  //                 setSelectedIds([info.row.original.id.toLocaleString()]);
+  //                 onOpenCreate();
+  //               }}
+  //             >
+  //               <Text as="span" variant="Body2Regular" w="full">
+  //                 Create New Whitelist
+  //               </Text>
+  //             </MenuItem>
+  //             <MenuItem
+  //               onClick={(e) => {
+  //                 e.stopPropagation();
+  //                 setSelectedIds([info.row.original.id.toString()]);
+  //                 onOpenExisting();
+  //                 // onApprove({ status: 'Approved', id: info.row.original.id });
+  //               }}
+  //             >
+  //               <Text as="span" variant="Body2Regular" w="full">
+  //                 Add to Existing Whitelist
+  //               </Text>
+  //             </MenuItem>
+  //           </MenuList>
+  //         </Menu>
+  //       ),
+  //     enableSorting: false, // Enable sorting for status
+  //   };
+
+  //   return [...otherColumns, statusColumn];
+  // }, [tableData]);
+
+  const columns = useMemo(
+    () =>
+      [
+        columnHelper.accessor('firstname', {
+          header: 'First Name',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('lastname', {
+          header: 'Last Name',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('otherNames', {
+          header: 'Other Names',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('email', {
+          header: 'Email',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('phoneNumber', {
+          header: 'Phone Number',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('gender', {
+          header: 'Gender',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('dob', {
+          header: 'Date of Birth',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('isFlagged', {
+          header: 'Flagged',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() === true ? 'Yes' : info.getValue() === false ? 'No' : 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('status', {
+          header: 'Status',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.display({
+          id: 'actions',
+          header: () => (
+            <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+              Actions
+            </Text>
+          ),
+          cell: (info) => (
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                variant="ghost"
+                aria-label="Actions"
+                icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+                minW="0"
+                h="auto"
+                mx="auto"
+                display="flex"
+                p="1"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <MenuList>
+                <MenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedIds([info.row.original.id.toLocaleString()]);
+                    onOpenCreate();
+                  }}
+                >
+                  <Text as="span" variant="Body2Regular" w="full">
+                    Create New Whitelist
+                  </Text>
+                </MenuItem>
+                <MenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedIds([info.row.original.id.toString()]);
+                    onOpenExisting();
+                    // onApprove({ status: 'Approved', id: info.row.original.id });
+                  }}
+                >
+                  <Text as="span" variant="Body2Regular" w="full">
+                    Add to Existing Whitelist
+                  </Text>
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          ),
+        }),
+      ] as ColumnDef<Beneficiary>[],
+    []
+  );
+
+  const dynamicColumnsWhitelist: ColumnDef<WhitelistDetails>[] = useMemo(() => {
+    if (!whitelistTableData || whitelistTableData.length === 0) return [];
+    const keys = Object.keys(whitelistTableData[0]);
+
+    const otherColumns = keys
+      .filter((key) => key !== 'vendorId' && key !== 'id' && key !== 'status')
+      .map((key) => ({
+        header: () => (
+          <Text variant="Body3Semibold" textAlign="left">
+            {keyRename(key)}
+          </Text>
+        ),
+        accessorKey: key,
+        cell: (info) => {
+          const value = info.getValue() as string | number | undefined;
+
+          if (key === 'Picture' && typeof value === 'string')
+            return (
+              <Box pos="relative" boxSize="5" rounded="full" overflow="hidden">
+                <Image src={value} alt="Beneficiary Image" sizes="1.25rem" sx={{ objectFit: 'cover' }} fill />
+              </Box>
+            );
+
+          return (
+            <Text as="span" textAlign="left" display="block" variant="Body2Regular">
+              {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
+            </Text>
+          );
+        },
+        enableSorting: false, // You can enable this if sorting is required
+      }));
+
+    const statusColumn: ColumnDef<WhitelistDetails> = {
+      header: () => (
+        <Text variant="Body3Semibold" textAlign="center">
+          Status
+        </Text>
+      ),
+      accessorKey: 'status',
+      cell: (info) =>
+        info.row.original.status === 'APPROVED' ? (
+          <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
+            Approved
+          </Text>
+        ) : info.row.original.status === 'DISAPPROVED' ? (
+          <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
+            Denied
+          </Text>
+        ) : (
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              aria-label="Actions"
+              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+              minW="0"
+              h="auto"
+              mx="auto"
+              display="flex"
+              p="1"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <MenuList>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedWL(info.row.original);
+                  onOpenEdit();
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Edit
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedIds([info.row.original.id.toString()]);
+                  onOpenExisting();
+                  // onApprove({ status: 'Approved', id: info.row.original.id });
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Start Disbursement
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        ),
+      enableSorting: false, // Enable sorting for status
+    };
+
+    return [...otherColumns, statusColumn];
+  }, [whitelistTableData]);
+
+  const openBeneficiaryModal = (beneficiary: Beneficiary) => {
+    setBeneficiary(beneficiary);
+    onOpen();
+  };
+
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   return (
-    <Flex direction="column" h="full">
-      <Flex align="center" justify="space-between" mb="8">
-        <Flex align="center" gap="6">
-          <Flex align="center" gap="2" shrink={0}>
-            <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
-              Filter by
-            </Text>
-            <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
-          </Flex>
-          <InputGroup>
-            <InputLeftElement pointerEvents="none" color="primary.600">
-              <MdSearch />
-            </InputLeftElement>
-            <Input placeholder="Search" variant="primary" pl="2.5rem" />
-          </InputGroup>
-        </Flex>
-        <Button leftIcon={<MdDownload size="0.875rem" />} variant="primary" size="medium">
-          Download Report
-        </Button>
-      </Flex>
-      {data.length < 1 ? (
-        <Flex align="center" justify="center" flex="1">
-          <Text variant="Body2Semibold" textAlign="center" color="grey.500">
-            No data available.
-          </Text>
-        </Flex>
-      ) : (
-        <ReusableTable data={data} columns={columns} />
+    <>
+      <Tabs onChange={(index) => setActiveTabIndex(index)} size="sm" variant="unstyled" isLazy flex="1 1 0%">
+        <TabList>
+          <Tab>
+            <Flex alignItems="center" gap="4px">
+              <Text variant={activeTabIndex === 1 ? 'Body2Bold' : 'Body2Semibold'}>Pending</Text>
+            </Flex>
+          </Tab>
+          <Tab>
+            <Flex alignItems="center" gap="4px">
+              <Text variant={activeTabIndex === 1 ? 'Body2Bold' : 'Body2Semibold'}>Whitelisted</Text>
+            </Flex>
+          </Tab>
+        </TabList>
+
+        <TabPanels h="100%">
+          {/* Pending */}
+          <TabPanel px="0" h="100%">
+            <Flex direction="column" h="full">
+              <Flex align="center" justify="space-between" mb="8">
+                <Flex align="center" gap="6">
+                  <Flex align="center" gap="2" shrink={0}>
+                    <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
+                      Filter by
+                    </Text>
+                    <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
+                  </Flex>
+                  <InputGroup>
+                    <InputLeftElement pointerEvents="none" color="primary.600">
+                      <MdSearch />
+                    </InputLeftElement>
+                    <Input placeholder="Search" variant="primary" pl="2.5rem" />
+                  </InputGroup>
+                </Flex>
+                <ButtonGroup size="medium" spacing="4">
+                  <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
+                    Download Report
+                  </Button>
+                  <Button
+                    rightIcon={<MdArrowRightAlt />}
+                    variant="primary"
+                    size="medium"
+                    onClick={() => {
+                      setSelectedIds([]);
+                      onOpenCreate();
+                    }}
+                    leftIcon={<MdAddCircle />}
+                  >
+                    Create Whitelist
+                  </Button>
+                </ButtonGroup>
+              </Flex>
+              <>
+                <ReusableTable
+                  data={tableData}
+                  columns={columns}
+                  onClick={openBeneficiaryModal}
+                  selectable
+                  isLoading={isLoading || isRefetching}
+                  isError={isError || isRefetchError}
+                  onRefresh={refetch}
+                  onSelectionChange={(selectedRows) => {
+                    setSelectedIds(selectedRows.map((row) => row.id.toString()));
+                  }}
+                  selectedChildren={
+                    <>
+                      <Button
+                        variant="accept"
+                        size="medium"
+                        leftIcon={<MdCheckCircle />}
+                        onClick={() => {
+                          console.log(selectedIds);
+                          onOpenCreate();
+                          // onApproveSelected({ status: 'Approved', ids: selectedIds });
+                        }}
+                      >
+                        Create Whitelist with Selected
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="medium"
+                        leftIcon={<MdCancel />}
+                        onClick={() => {
+                          console.log(selectedIds);
+                          onOpenExisting();
+                          // onApproveSelected({ status: 'Disapproved', ids: selectedIds });
+                        }}
+                      >
+                        Add Selected to Existing Whitelist
+                      </Button>
+                    </>
+                  }
+                />
+                <TablePagination
+                  handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                  handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+                  handlePageChange={(pageNumber) => setPage(pageNumber)}
+                  isNextDisabled={page >= totalPages}
+                  isPrevDisabled={page <= 1}
+                  currentPage={page}
+                  totalPages={totalPages}
+                  isDisabled={isLoading || isPlaceholderData}
+                  display={totalPages > 1 ? 'flex' : 'none'}
+                />
+              </>
+              {beneficiary && (
+                <BeneficiaryDetailsModal
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  beneficiary={beneficiary}
+                  moduleName="Whitelisting"
+                />
+              )}
+            </Flex>
+          </TabPanel>
+
+          {/* Whitelisted */}
+          <TabPanel px="0" h="100%">
+            <Flex direction="column" h="full">
+              <Flex align="center" justify="space-between" mb="8">
+                <Flex align="center" gap="6">
+                  <Flex align="center" gap="2" shrink={0}>
+                    <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
+                      Filter by
+                    </Text>
+                    <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
+                  </Flex>
+                  <InputGroup>
+                    <InputLeftElement pointerEvents="none" color="primary.600">
+                      <MdSearch />
+                    </InputLeftElement>
+                    <Input placeholder="Search" variant="primary" pl="2.5rem" />
+                  </InputGroup>
+                </Flex>
+                <ButtonGroup size="medium" spacing="4">
+                  <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
+                    Download Report
+                  </Button>
+                  <Button
+                    rightIcon={<MdArrowRightAlt />}
+                    variant="primary"
+                    size="medium"
+                    onClick={() => {
+                      setSelectedIds([]);
+                      onOpenCreate();
+                    }}
+                    leftIcon={<MdAddCircle />}
+                  >
+                    Create Whitelist
+                  </Button>
+                </ButtonGroup>
+              </Flex>
+              {!selectedWhitelistId ? (
+                <>
+                  <ReusableTable
+                    data={whitelistTableData}
+                    columns={dynamicColumnsWhitelist}
+                    // onClick={openBeneficiaryModal}
+                    onClick={(selected) => setSelectedWhitelistId(selected.id)}
+                    selectable
+                    isLoading={isLoading || isRefetching}
+                    isError={isError || isRefetchError}
+                    onRefresh={refetch}
+                  />
+                  <TablePagination
+                    handleNextPage={() => setBucketPage((prev) => Math.min(prev + 1, totalBucketPages))}
+                    handlePrevPage={() => setBucketPage((prev) => Math.max(prev - 1, 1))}
+                    handlePageChange={(pageNumber) => setBucketPage(pageNumber)}
+                    isNextDisabled={bucketPage >= totalBucketPages}
+                    isPrevDisabled={bucketPage <= 1}
+                    currentPage={bucketPage}
+                    totalPages={totalBucketPages}
+                    isDisabled={isLoading || isPlaceholderData}
+                    display={totalBucketPages > 1 ? 'flex' : 'none'}
+                  />
+                </>
+              ) : (
+                <>
+                  <Flex>
+                    <Button
+                      variant="unstyled"
+                      fontSize="12px"
+                      leftIcon={<MdArrowBack />}
+                      onClick={() => setSelectedWhitelistId('')}
+                    >
+                      Back
+                    </Button>
+                  </Flex>
+                  <ReusableTable
+                    data={selectedWhitelistTableData}
+                    columns={columns}
+                    selectable
+                    isLoading={isWhitelistLoading || isWhitelistRefetching}
+                    isError={isWhitelistError || isWhitelistRefetchError}
+                    onRefresh={whitelistRefetch}
+                  />
+                  <TablePagination
+                    handleNextPage={() =>
+                      setSelectedWLPage((prev) => Math.min(prev + 1, totalSelectedWhitelistBucketPage))
+                    }
+                    handlePrevPage={() => setSelectedWLPage((prev) => Math.max(prev - 1, 1))}
+                    handlePageChange={(pageNumber) => setSelectedWLPage(pageNumber)}
+                    isNextDisabled={selectedWLPage >= totalSelectedWhitelistBucketPage}
+                    isPrevDisabled={selectedWLPage <= 1}
+                    currentPage={selectedWLPage}
+                    totalPages={totalSelectedWhitelistBucketPage}
+                    isDisabled={isWhitelistLoading || isWhitelistPlaceholderData}
+                    display={totalSelectedWhitelistBucketPage > 1 ? 'flex' : 'none'}
+                  />
+                </>
+              )}
+
+              {/* {beneficiary && <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} beneficiary={beneficiary} />} */}
+            </Flex>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
+      <CreateWhiteListBucket
+        isOpen={isOpenCreate}
+        onClose={onCloseCreate}
+        programId={programID.toString()}
+        programType={programType}
+        beneficiariesIds={selectedIds}
+      />
+      {selectedWL && (
+        <EditWhiteListBucket
+          programId={programID.toString()}
+          initialValue={selectedWL}
+          isOpen={isOpenEdit}
+          onClose={() => {
+            setSelectedWL(undefined);
+            onCloseEdit();
+          }}
+        />
       )}
-    </Flex>
+      <AddExistingWhiteListBucket
+        isOpen={isOpenExisting}
+        onClose={onCloseExisting}
+        beneficiariesIds={selectedIds}
+        programID={programID}
+        selectedIds={selectedIds}
+      />
+    </>
   );
 };
 
-const data = [
-  {
-    beneficiary: 'Siegfried Fudge',
-    LGA: 'Jianxi',
-    agent: 'Trevor Adshed',
-    gender: 'Male',
-    age: 57,
-    disabled: true,
-    liberate: false,
-    score: 80,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Willy Hutchinson',
-    LGA: 'Yayva',
-    agent: 'Miles Pargiter',
-    gender: 'Male',
-    age: 56,
-    disabled: true,
-    liberate: true,
-    score: 52,
-    status: 'Whitelisted',
-  },
-  {
-    beneficiary: 'Caesar Seaborne',
-    LGA: 'Xingfeng',
-    agent: 'Kennedy Blabey',
-    gender: 'Male',
-    age: 57,
-    disabled: false,
-    liberate: false,
-    score: 83,
-    status: 'Whitelisted',
-  },
-  {
-    beneficiary: 'Linzy Galier',
-    LGA: 'Paris 05',
-    agent: 'Arlen Stoll',
-    gender: 'Female',
-    age: 30,
-    disabled: false,
-    liberate: true,
-    score: 69,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Lyon Stops',
-    LGA: 'Saguiaran',
-    agent: 'Riley Opdenort',
-    gender: 'Male',
-    age: 61,
-    disabled: false,
-    liberate: false,
-    score: 93,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Thelma MacKimmie',
-    LGA: 'Nytva',
-    agent: 'Charo Vesty',
-    gender: 'Female',
-    age: 48,
-    disabled: false,
-    liberate: true,
-    score: 76,
-    status: 'Whitelisted',
-  },
-  {
-    beneficiary: 'Wenonah Gateshill',
-    LGA: 'Migori',
-    agent: 'Janot Horning',
-    gender: 'Female',
-    age: 21,
-    disabled: true,
-    liberate: false,
-    score: 93,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Adelheid Whyborn',
-    LGA: 'Orël',
-    agent: 'Magdaia Baribal',
-    gender: 'Genderqueer',
-    age: 50,
-    disabled: false,
-    liberate: true,
-    score: 89,
-    status: 'Whitelisted',
-  },
-  {
-    beneficiary: 'Shurwood Grigoli',
-    LGA: 'Posse',
-    agent: 'Quinlan Rustman',
-    gender: 'Male',
-    age: 41,
-    disabled: false,
-    liberate: true,
-    score: 73,
-    status: 'Whitelisted',
-  },
-  {
-    beneficiary: 'Gussy Bobasch',
-    LGA: 'Seattle',
-    agent: 'Aurlie Loweth',
-    gender: 'Female',
-    age: 19,
-    disabled: false,
-    liberate: false,
-    score: 76,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Bryana Rutherforth',
-    LGA: 'Cruz das Almas',
-    agent: 'Rheta Acott',
-    gender: 'Female',
-    age: 34,
-    disabled: false,
-    liberate: false,
-    score: 89,
-    status: 'Pending',
-  },
-  {
-    beneficiary: 'Berty Illesley',
-    LGA: 'Mértola',
-    agent: 'Lorene Schuchmacher',
-    gender: 'Genderqueer',
-    age: 27,
-    disabled: true,
-    liberate: false,
-    score: 65,
-    status: 'Whitelisted',
-  },
-];
-
-const columns: ColumnDef<(typeof data)[number]>[] = [
-  {
-    header: 'Enumerated Beneficiaries (20,000)',
-    accessorKey: 'beneficiary',
-    cell: (info) => (
-      <Text as="span" variant="Body2Semibold">
-        {info.row.original.beneficiary}
-      </Text>
-    ),
-  },
-  {
-    header: 'LGA',
-    accessorKey: 'LGA',
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.LGA}
-      </Text>
-    ),
-  },
-  {
-    header: 'Agent',
-    accessorKey: 'agent',
-    cell: (info) => (
-      <Text as="span" variant="Body2Semibold">
-        {info.row.original.agent}
-      </Text>
-    ),
-  },
-  {
-    header: 'Gender',
-    accessorKey: 'gender',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.gender}
-      </Text>
-    ),
-  },
-  {
-    header: 'Age',
-    accessorKey: 'age',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.age}
-      </Text>
-    ),
-  },
-  {
-    header: 'Disabled',
-    accessorKey: 'disabled',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.disabled ? 'YES' : 'NO'}
-      </Text>
-    ),
-  },
-  {
-    header: 'Liberate',
-    accessorKey: 'liberate',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" variant="Body2Regular">
-        {info.row.original.liberate ? 'YES' : 'NO'}
-      </Text>
-    ),
-  },
-  {
-    header: 'Vetting Score',
-    accessorKey: 'score',
-    enableSorting: false,
-    cell: (info) => (
-      <Text as="span" textAlign="center" display="block" variant="Body1Bold" color="green">
-        {info.row.original.score}%
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text as="span" display="block" textAlign="center" variant="Body3Semibold">
-        Status
-      </Text>
-    ),
-    id: 'status',
-    enableSorting: false,
-    cell: (info) =>
-      info.row.original.status === 'Whitelisted' ? (
-        <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
-          Whitelisted
-        </Text>
-      ) : (
-        <Button variant="accept" size="small" mx="auto" display="flex">
-          Whitelist
-        </Button>
-      ),
-  },
-];
-
 export default WhitelistingPage;
+
+const keyRename = (name: string) =>
+  ({
+    programName: 'Program',
+    beneficiariesNo: 'Number of Beneficiaries',
+  })[name] ?? name;

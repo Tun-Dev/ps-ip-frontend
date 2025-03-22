@@ -1,51 +1,94 @@
 'use client';
 
-import { Divider, Flex, Grid, Icon, Image, SimpleGrid, SkeletonText, Stack, Text } from '@chakra-ui/react';
+import { useDeleteGroup } from '@/hooks/useDeleteGroup';
+import { useGetGroup } from '@/hooks/useGetGroup';
+import { DeleteModal, FolderCard } from '@/shared';
+import { GroupEditPayload } from '@/types';
+import {
+  Flex,
+  Grid,
+  Icon,
+  Image,
+  SimpleGrid,
+  SkeletonText,
+  Stack,
+  Text,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-
-import { useGetVendorProgramGroups } from '@/hooks/useGetVendorProgramGroups';
-import { FolderCard } from '@/shared';
-import { OverviewCard } from '@/shared/chakra/components/overview';
-import { MdFolder, MdViewCarousel } from 'react-icons/md';
+import { useState } from 'react';
+import { MdFolder } from 'react-icons/md';
+import ProgramsBreadcrumbs from './programs-breadcrumbs';
 
 const ProgramsFolderPage = () => {
+  const toast = useToast();
   const router = useRouter();
+  const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure();
+  const { data: groups, isPending } = useGetGroup({ page: 1, pageSize: 10 });
 
-  // Change the following line to useGetClientProgramGroups
-  const { data, isLoading } = useGetVendorProgramGroups();
+  const [selectedGroup, setSelectedGroup] = useState<GroupEditPayload>();
 
-  const folderList = data?.body.programGroups ?? [];
-  const folderCount = folderList.length ?? 0;
-  const programCount = data?.body.programCount ?? 0;
+  const { mutate: deleteGroup, isPending: isDeletePending } = useDeleteGroup();
 
+  const handleDelete = (id: string) => {
+    deleteGroup(id, {
+      onSuccess: () => {
+        toast({ title: 'File deleted successfully', status: 'success' });
+        onCloseDelete();
+      },
+    });
+  };
+
+  const data = groups?.body.data ?? [];
   return (
-    <Stack pos="relative" overflow="hidden" spacing="6" boxSize="full">
-      <SimpleGrid columns={{ base: 3, xl: 4 }} spacingY="6" spacingX="5">
-        <OverviewCard minW="unset" title="Programs" number={isLoading ? '...' : programCount} icon={MdViewCarousel} />
-      </SimpleGrid>
-      <Divider borderColor="grey.200" opacity={1} />
-      {isLoading ? (
-        <LoadingSkeleton />
-      ) : folderCount < 1 ? (
-        <EmptyState />
-      ) : (
-        <SimpleGrid columns={{ base: 3, xl: 4 }} spacingY="6" spacingX="5">
-          {folderList.map((item) => (
-            <FolderCard
-              key={item.id}
-              name={item.name}
-              onClick={() => router.push(`/vendors/programs/${item.id}`)}
-              count={item.programCount ?? 0}
-            />
-          ))}
-        </SimpleGrid>
-      )}
-    </Stack>
+    <>
+      <Stack pos="relative" overflow="hidden" p="6" spacing="0" w="full" h="100%">
+        <Flex
+          h="72px"
+          py="24px"
+          borderBottom="1px solid"
+          borderBottomColor="grey.200"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <ProgramsBreadcrumbs />
+        </Flex>
+        {isPending ? (
+          <LoadingSkeleton />
+        ) : data.length < 1 ? (
+          <EmptyState />
+        ) : (
+          <SimpleGrid columns={{ base: 3, xl: 4 }} spacingY="6" spacingX="5" mt="20px">
+            {data?.map((item, index) => (
+              <FolderCard
+                key={index}
+                name={item.name}
+                onClick={() => router.push(`/super-admin/programs/${item.id}`)}
+                onDelete={() => {
+                  setSelectedGroup({ name: item.name, id: item.id });
+                  onOpenDelete();
+                }}
+                count={item.programCount ?? 0}
+                onAdd={() => router.push(`/super-admin/programs/${item.id}/create`)}
+              />
+            ))}
+          </SimpleGrid>
+        )}
+      </Stack>
+      <DeleteModal
+        isOpen={isOpenDelete}
+        onClose={onCloseDelete}
+        action={() => !!selectedGroup?.id && handleDelete(selectedGroup.id)}
+        isLoading={isDeletePending}
+        text="Are you sure you want to delete this folder. Proceeding will erase the folder and all programs within it."
+      />
+    </>
   );
 };
 
 const LoadingSkeleton = () => (
-  <SimpleGrid columns={{ base: 3, xl: 4 }} spacingY="6" spacingX="5">
+  <SimpleGrid columns={{ base: 3, xl: 4 }} spacingY="6" spacingX="5" mt="20px">
     {Array.from({ length: 8 }, (_, index) => (
       <Flex key={index} p="16px" borderRadius="16px" bg="primary.100" flexDir="column" gap="12px">
         <Flex width="60px" height="56px" bg="primary.200" borderRadius="8px" align="center" justify="center">
@@ -65,6 +108,7 @@ const EmptyState = () => (
       <Image src="/icons/Blank.svg" alt="" />
     </Flex>
     <Text variant="Body2Semibold">No Folders Available.</Text>
+    <Text variant="Body2Semibold">Please create a folder.</Text>
   </Grid>
 );
 

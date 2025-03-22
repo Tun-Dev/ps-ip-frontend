@@ -15,13 +15,17 @@ import { NotificationCard, ReusableTable } from '@/shared';
 import { ModuleDashboardCard } from '@/shared/chakra/components';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { Link } from '@chakra-ui/next-js';
+import { useGetDashboardData } from '@/hooks/useGetDashboardData';
 
 const ClientsDashboard = () => {
+  const { data, isLoading } = useGetDashboardData();
+  console.log(data, isLoading);
+
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%">
       <Flex flexDir="column" gap="12px">
         <Text variant="Body1Semibold" color="grey.400">
-          Overview
+          Overviewss
         </Text>
         <Grid gap="1rem" templateColumns={{ base: 'repeat(3, 1fr)', sm: 'repeat(4, 1fr)' }}>
           <OverviewCard title="Total Beneficiaries" number={200000} icon={MdEmojiEmotions} />
@@ -133,7 +137,7 @@ const KYC_VERIFICATION = [
 const enumerationColumns: ColumnDef<(typeof ENUMERATION)[number]>[] = [
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         Name
       </Text>
     ),
@@ -142,7 +146,7 @@ const enumerationColumns: ColumnDef<(typeof ENUMERATION)[number]>[] = [
   },
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         LGA
       </Text>
     ),
@@ -151,7 +155,7 @@ const enumerationColumns: ColumnDef<(typeof ENUMERATION)[number]>[] = [
   },
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         Enumerated
       </Text>
     ),
@@ -173,7 +177,7 @@ const enumerationColumns: ColumnDef<(typeof ENUMERATION)[number]>[] = [
 const disbursementColumns: ColumnDef<(typeof DISBURSEMENT)[number]>[] = [
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         Name
       </Text>
     ),
@@ -182,7 +186,7 @@ const disbursementColumns: ColumnDef<(typeof DISBURSEMENT)[number]>[] = [
   },
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         LGA
       </Text>
     ),
@@ -191,7 +195,7 @@ const disbursementColumns: ColumnDef<(typeof DISBURSEMENT)[number]>[] = [
   },
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         Status
       </Text>
     ),
@@ -208,7 +212,7 @@ const disbursementColumns: ColumnDef<(typeof DISBURSEMENT)[number]>[] = [
 const kycVerificationColumns: ColumnDef<(typeof KYC_VERIFICATION)[number]>[] = [
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         Name
       </Text>
     ),
@@ -217,7 +221,7 @@ const kycVerificationColumns: ColumnDef<(typeof KYC_VERIFICATION)[number]>[] = [
   },
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         LGA
       </Text>
     ),
@@ -226,7 +230,7 @@ const kycVerificationColumns: ColumnDef<(typeof KYC_VERIFICATION)[number]>[] = [
   },
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         Status
       </Text>
     ),

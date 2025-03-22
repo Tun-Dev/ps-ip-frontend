@@ -16,7 +16,7 @@ type ModuleCardProps = DndHandleProps & {
   isActive?: boolean;
   disabled?: boolean;
   onRemove?: (e: MouseEvent<HTMLButtonElement>) => void;
-  status: 'Select' | 'Selected' | 'Completed' | 'In progress' | 'Pending' | 'Edit';
+  status?: 'Select' | 'Selected' | 'Completed' | 'In progress' | 'Pending' | 'Edit';
   isDragging?: boolean;
 } & StackProps;
 

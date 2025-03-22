@@ -6,3 +6,4 @@ export * from './DeleteModal';
 export * from './EditVendorModal';
 export * from './AddNewUserModal';
 export * from './AddNewAgentModalSuperAdmin';
+export * from './CreateWhiteListBucket';

@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { getProgramById } from '@/services/programs';
+import { formatErrorMessage } from '@/utils';
 import { useToast } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { getProgramById } from '@/services/programs';
-import { AxiosError } from 'axios';
+import { useEffect } from 'react';
 
 export const useGetProgramById = (id: string) => {
   const toast = useToast();
@@ -17,10 +17,7 @@ export const useGetProgramById = (id: string) => {
 
   useEffect(() => {
     if (!error) return;
-    let message = 'An unknown error occurred';
-    if (error instanceof Error) message = error.message;
-    if (error instanceof AxiosError) message = error.response?.data.message || message;
-    toast({ title: 'Error', description: message, status: 'error' });
+    toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });
   }, [error, toast]);
   return { response, isLoading, error };
 };

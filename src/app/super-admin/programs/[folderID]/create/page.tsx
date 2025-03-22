@@ -3,9 +3,9 @@
 import { useProgramStore } from '@/providers/programs-store-provider';
 import AdminSettings from '../../components/admin-settings';
 import EditModules from '../../components/edit-modules';
+import ProgramDetails from '../../components/program-details';
 import Review from '../../components/review';
 import SelectModules from '../../components/select-modules';
-import ProgramDetails from '../../components/program-details';
 
 const ProgramCreatePage = () => {
   const step = useProgramStore((state) => state.step);

@@ -1,18 +1,14 @@
 import { useUpdateVendorById } from '@/hooks/useEditVendorById';
-import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { Dropdown } from '@/shared/chakra/components';
 import { Vendor } from '@/types';
-import { formatDateForInput, SERVICES } from '@/utils';
+import { SERVICES } from '@/utils';
 import {
   Button,
+  Divider,
   Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Grid,
   Input,
-  InputGroup,
-  InputLeftElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -24,97 +20,56 @@ import {
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidPhoneNumber } from 'libphonenumber-js';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Dropdown } from '../components';
 import { PhoneNumberInput } from '../components/phone-number-input';
+
+const Schema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  service: z.string().min(1, 'Services is required'),
+  product: z.string().optional(),
+  email: z.string().min(1, 'Email is required').email('Invalid email'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  contactEmail: z.string().min(1, 'Contact Email is required').email('Invalid email'),
+  contactPhone: z
+    .string({ invalid_type_error: 'Phone number is required' })
+    .refine(isValidPhoneNumber, 'Invalid phone number'),
+});
+
+type FormValues = z.infer<typeof Schema>;
 
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  initialValues?: Partial<Vendor>;
+  initialValues: Vendor;
 };
 
 const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
-  const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
-  const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id.toString() }));
-
   const [showProductField, setShowProductField] = useState(false);
+  const { mutate, isPending } = useUpdateVendorById(initialValues.id);
 
-  const { mutate, isPending } = useUpdateVendorById(initialValues?.id as string, () => {
-    onClose();
-    reset();
-  });
-
-  const Schema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    programName: z.string().optional(),
-    programId: z.string().min(1, 'Program is required'),
-    amount: z.coerce.number().min(0, 'Amount is required'),
-    numberOfBeneficiaries: z.coerce.number().min(0, 'Number of Beneficiaries is required'),
-    product: z.string().optional(),
-    service: z.string().min(1, 'Services is required'),
-    scheduledDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-      message: 'Scheduled date must be a valid ISO string',
-    }),
-    endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-      message: 'End date must be a valid ISO string',
-    }),
-    contactEmail: z.string().min(1, 'Contact Email is required'),
-    contactPhone: z
-      .string({ invalid_type_error: 'Phone number is required' })
-      .refine(isValidPhoneNumber, 'Invalid phone number'),
-  });
-
-  type FormValues = z.infer<typeof Schema>;
-
-  const defaultValues = useMemo(
-    () => ({
-      name: initialValues?.name || '',
-      programName: initialValues?.programName || '',
-      programId: initialValues?.programId || '',
-      amount: initialValues?.amount || 0,
-      numberOfBeneficiaries: initialValues?.numberOfBeneficiaries || 0,
-      product: initialValues?.product || '',
-      service: initialValues?.item || '',
-      scheduledDate: initialValues?.scheduledDate || new Date().toISOString(),
-      endDate: initialValues?.endDate || new Date().toISOString(),
-      id: initialValues?.id || '',
-      contactEmail: initialValues?.contactEmail || '',
-      contactPhone: initialValues?.contactPhone || '',
-    }),
-    [initialValues]
-  );
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<FormValues>({ resolver: zodResolver(Schema), defaultValues });
-
-  useEffect(() => {
-    if (initialValues) {
-      reset(defaultValues);
-    }
-  }, [defaultValues, initialValues, reset]);
+  } = useForm<FormValues>({ resolver: zodResolver(Schema), defaultValues: initialValues });
 
   const onSubmit = (data: FormValues) => {
     const vendorData: Partial<Vendor> = {
-      name: data.name,
-      item: data.service,
-      product: data.product ? data.product : undefined,
-      amount: data.amount,
-      scheduledDate: data.scheduledDate,
-      endDate: data.endDate,
-      numberOfBeneficiaries: data.numberOfBeneficiaries,
-      programId: data.programId,
-      programName: data.programName,
-      id: initialValues?.id || '',
-      contactEmail: data.contactEmail,
-      contactPhone: data.contactPhone,
+      id: initialValues.id,
+      ...data,
     };
-    mutate(vendorData);
+    mutate(vendorData, {
+      onSuccess: () => {
+        onClose();
+        reset();
+      },
+    });
   };
 
   return (
@@ -135,35 +90,6 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
               </FormLabel>
               <Input id="name" variant="primary" placeholder="NURTW" {...register('name')} />
               <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.programId}>
-              <FormLabel htmlFor="programId">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Assign Program
-                </Text>
-              </FormLabel>
-              <Controller
-                control={control}
-                name="programId"
-                defaultValue={initialValues?.programId}
-                render={({ field }) => {
-                  return (
-                    <Dropdown
-                      id="programId"
-                      variant="whiteDropdown"
-                      placeholder="Select program"
-                      options={options}
-                      value={options?.find((option) => option.value === field.value)}
-                      onChange={(option) => {
-                        field.onChange(option ? parseInt(option.value) : 0);
-                      }}
-                      onBlur={field.onBlur}
-                      name={field.name}
-                    />
-                  );
-                }}
-              />
-              <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.service}>
               <FormLabel htmlFor="service">
@@ -206,88 +132,41 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
                 <FormErrorMessage>{errors.product && errors.product.message}</FormErrorMessage>
               </FormControl>
             )}
-            <FormControl isInvalid={!!errors.amount}>
-              <FormLabel htmlFor="amount">
+            <FormControl isInvalid={!!errors.email}>
+              <FormLabel htmlFor="email">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Amount Disbursed
+                  Corporate Email
                 </Text>
               </FormLabel>
-              <InputGroup>
-                <InputLeftElement>
-                  <Text>₦</Text>
-                </InputLeftElement>
-                <Input type="number" id="amount" placeholder="50000000" {...register('amount')}></Input>
-              </InputGroup>
-              <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
+              <Input id="email" type="email" variant="primary" {...register('email')} />
+              <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.numberOfBeneficiaries}>
-              <FormLabel htmlFor="numberOfBeneficiaries">
+
+            <Divider orientation="horizontal" />
+
+            <Text variant="Body1Semibold">Contact Information</Text>
+            <FormControl isInvalid={!!errors.firstName}>
+              <FormLabel htmlFor="firstName">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Number of Beneficiaries
+                  First Name
                 </Text>
               </FormLabel>
-              <Input
-                type="number"
-                id="numberOfBeneficiaries"
-                placeholder="0"
-                {...register('numberOfBeneficiaries')}
-              ></Input>
-              <FormErrorMessage>
-                {errors.numberOfBeneficiaries && errors.numberOfBeneficiaries.message}
-              </FormErrorMessage>
+              <Input id="firstName" variant="primary" {...register('firstName')} />
+              <FormErrorMessage>{errors.firstName && errors.firstName.message}</FormErrorMessage>
             </FormControl>
-            <Grid templateColumns="repeat(2,1fr)" gap={4}>
-              <FormControl isInvalid={!!errors.scheduledDate}>
-                <FormLabel htmlFor="scheduledDate">
-                  <Text as="span" variant="Body2Semibold" color="grey.500">
-                    Scheduled Date
-                  </Text>
-                </FormLabel>
-                <Controller
-                  name="scheduledDate"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      id="scheduledDate"
-                      type="date"
-                      defaultValue={field.value ? formatDateForInput(field.value) : ''}
-                      onChange={(e) => {
-                        const date = new Date(e.target.value);
-                        field.onChange(date.toISOString());
-                      }}
-                    />
-                  )}
-                />
-                <FormErrorMessage>{errors.scheduledDate && errors.scheduledDate.message}</FormErrorMessage>
-              </FormControl>
-              <FormControl isInvalid={!!errors.endDate}>
-                <FormLabel htmlFor="endDate">
-                  <Text as="span" variant="Body2Semibold" color="grey.500">
-                    End Date
-                  </Text>
-                </FormLabel>
-                <Controller
-                  name="endDate"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      id="endDate"
-                      type="date"
-                      defaultValue={field.value ? formatDateForInput(field.value) : ''}
-                      onChange={(e) => {
-                        const date = new Date(e.target.value);
-                        field.onChange(date.toISOString());
-                      }}
-                    />
-                  )}
-                />
-                <FormErrorMessage>{errors.endDate && errors.endDate.message}</FormErrorMessage>
-              </FormControl>
-            </Grid>
+            <FormControl isInvalid={!!errors.lastName}>
+              <FormLabel htmlFor="lastName">
+                <Text as="span" variant="Body2Semibold" color="grey.500">
+                  Last Name
+                </Text>
+              </FormLabel>
+              <Input id="lastName" variant="primary" {...register('lastName')} />
+              <FormErrorMessage>{errors.lastName && errors.lastName.message}</FormErrorMessage>
+            </FormControl>
             <FormControl isInvalid={!!errors.contactEmail}>
               <FormLabel htmlFor="contactEmail">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Contact Email
+                  Email
                 </Text>
               </FormLabel>
               <Input id="contactEmail" type="contactEmail" variant="primary" {...register('contactEmail')} />
@@ -306,7 +185,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
         </ModalBody>
         <ModalFooter>
           <Button variant="primary" width="402px" height="48px" type="submit" isLoading={isPending}>
-            Submit
+            Save Changes
           </Button>
         </ModalFooter>
       </ModalContent>

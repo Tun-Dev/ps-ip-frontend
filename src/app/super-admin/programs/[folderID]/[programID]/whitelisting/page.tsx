@@ -15,28 +15,49 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Text,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
-import { MdCloudUpload, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
+import {
+  MdAddCircle,
+  MdArrowBack,
+  MdArrowRightAlt,
+  MdCancel,
+  MdCheckCircle,
+  MdDownload,
+  MdMoreHoriz,
+  MdSearch,
+} from 'react-icons/md';
 
-import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
+// import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
-import { useGetUploadStatus } from '@/hooks/useGetUploadStatus';
-import { useProcessModule } from '@/hooks/useProcessModule';
-import { useUploadProgram } from '@/hooks/useUploadData';
+// import { useProcessModule } from '@/hooks/useProcessModule';
+// import { useUploadProgram } from '@/hooks/useUploadData';
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { Beneficiary } from '@/types';
+import { Beneficiary, WhitelistDetails } from '@/types';
+// import { FormStatus } from '@/utils';
 import { Image } from '@chakra-ui/next-js';
-import { AxiosError } from 'axios';
+// import { AxiosError } from 'axios';
+import { useGetModules } from '@/hooks/useGetModules';
+import { useGetWhitelistByProgramId } from '@/hooks/useGetWhitelistByProgramId';
+import { AddExistingWhiteListBucket } from '@/shared/chakra/modals/AddExistingWhiteListBucket';
+import CreateWhiteListBucket from '@/shared/chakra/modals/CreateWhiteListBucket';
+import EditWhiteListBucket from '@/shared/chakra/modals/EditWhiteListBucket';
+import { formatDateForInput, FormStatus } from '@/utils';
 import { useParams } from 'next/navigation';
+
+const columnHelper = createColumnHelper<Beneficiary>();
 
 const options = [
   { label: 'Aggregator', value: 'Aggregator' },
@@ -48,77 +69,227 @@ const options = [
 type Option = (typeof options)[number];
 
 const WhitelistingPage = () => {
-  const toast = useToast();
+  // const toast = useToast();
   const [page, setPage] = useState(1);
+  const [bucketPage, setBucketPage] = useState(1);
+  const [selectedWLPage, setSelectedWLPage] = useState(1);
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isOpenCreate, onOpen: onOpenCreate, onClose: onCloseCreate } = useDisclosure();
+  const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
+  const { isOpen: isOpenExisting, onOpen: onOpenExisting, onClose: onCloseExisting } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[0]);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
-  const { mutate: approveBeneficiary } = useApproveBeneficiary();
-  const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
-  const { mutate: uploadProgram, isPending } = useUploadProgram();
+  // const { mutate: approveBeneficiary } = useApproveBeneficiary();
+  // const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
+  // const { mutate: uploadProgram, isPending } = useUploadProgram();
   const { response } = useGetProgramById(programID?.toString());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedWhitelistId, setSelectedWhitelistId] = useState<string>('');
+  const [selectedWL, setSelectedWL] = useState<WhitelistDetails>();
+  const { data: modules } = useGetModules();
 
-  const programModuleId = response?.body?.programModules?.find((module) => module.module === 'Whitelisting')?.id ?? '';
-  const isProgramCompleted =
-    response?.body?.programModules?.find((module) => module.module === 'Whitelisting')?.isCompleted ?? true;
+  console.log(modules);
+
+  const moduleId = modules?.body?.find((module) => module.name === 'Whitelisting')?.id ?? 0;
+
+  const programType = response?.body?.programType ?? '';
 
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
-    useGetBeneficiariesById({ page: page, pageSize: 10 }, programID?.toLocaleString(), '6');
+    useGetBeneficiariesById({
+      page: page,
+      pageSize: 10,
+      programId: programID?.toString(),
+      moduleId,
+      status: FormStatus.PENDING,
+      enabled: !!programID && !!moduleId,
+    });
 
-  const { data: uploadStatus } = useGetUploadStatus(programModuleId?.toString(), !isProgramCompleted);
+  const {
+    data: selectedWhitelistBucket,
+    isPlaceholderData: isWhitelistPlaceholderData,
+    isLoading: isWhitelistLoading,
+    isError: isWhitelistError,
+    refetch: whitelistRefetch,
+    isRefetching: isWhitelistRefetching,
+    isRefetchError: isWhitelistRefetchError,
+  } = useGetBeneficiariesById({
+    page: selectedWLPage,
+    pageSize: 10,
+    programId: programID?.toString(),
+    moduleId,
+    whitelistId: selectedWhitelistId,
+    enabled: !!selectedWhitelistId,
+  });
 
-  const isUpload = uploadStatus?.body;
+  // console.log(selectedWhitelistBucket);
+
+  const { data: whitelistBucket } = useGetWhitelistByProgramId(
+    { page: bucketPage, pageSize: 10 },
+    programID?.toString()
+  );
 
   const totalPages = data?.body.totalPages ?? 0;
+  const totalBucketPages = whitelistBucket?.body.totalPages ?? 0;
+  const totalSelectedWhitelistBucketPage = selectedWhitelistBucket?.body?.totalPages ?? 0;
 
   const tableData = useMemo(() => {
     return data ? data.body.data : [];
   }, [data]);
 
-  const onApprove = ({ status, id }: { status: string; id: number }) => {
-    const payload = {
-      status: status.toUpperCase(),
-      beneficiaryId: [id],
-      moduleId: 6,
-      programId: programID.toString(),
-    };
+  const whitelistTableData = useMemo(() => {
+    return whitelistBucket ? whitelistBucket.body.data : [];
+  }, [whitelistBucket]);
 
-    approveBeneficiary(payload, {
-      onSuccess: () => {
-        toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
-      },
-    });
-  };
+  const selectedWhitelistTableData = useMemo(() => {
+    return selectedWhitelistBucket ? selectedWhitelistBucket.body.data : [];
+  }, [selectedWhitelistBucket]);
 
-  const uploadData = () => {
-    processModule(programModuleId.toString(), {
-      onSuccess: () => {
-        uploadProgram(programModuleId.toString(), {
-          onSuccess: () => {
-            toast({ title: 'Data uploaded successfully', status: 'success' });
-          },
-        });
-      },
-      onError: (error) => {
-        let message = 'An unknown error occurred';
-        if (error instanceof Error) message = error.message;
-        if (error instanceof AxiosError) message = error.response?.data.message || message;
-        toast({ title: 'Error', description: message, status: 'error' });
-      },
-    });
-  };
+  const columns = useMemo(
+    () =>
+      [
+        columnHelper.accessor('firstname', {
+          header: 'First Name',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('lastname', {
+          header: 'Last Name',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('otherNames', {
+          header: 'Other Names',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('email', {
+          header: 'Email',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('phoneNumber', {
+          header: 'Phone Number',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        columnHelper.accessor('gender', {
+          header: 'Gender',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+          meta: { isCentered: true },
+        }),
+        columnHelper.accessor('dob', {
+          header: 'Date of Birth',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
+            </Text>
+          ),
+          meta: { isCentered: true },
+        }),
+        columnHelper.accessor('isFlagged', {
+          header: 'Flagged',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() === true ? 'Yes' : info.getValue() === false ? 'No' : 'N/A'}
+            </Text>
+          ),
+          meta: { isCentered: true },
+        }),
+        columnHelper.display({
+          id: 'actions',
+          header: () => (
+            <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+              Actions/Status
+            </Text>
+          ),
+          cell: (info) =>
+            info.row.original.status === FormStatus.APPROVED ? (
+              <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
+                Approved
+              </Text>
+            ) : info.row.original.status === FormStatus.DISAPPROVED ? (
+              <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
+                Denied
+              </Text>
+            ) : info.row.original.status === FormStatus.WHITELISTED ? (
+              <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
+                Whitelisted
+              </Text>
+            ) : (
+              <Menu>
+                <MenuButton
+                  as={IconButton}
+                  variant="ghost"
+                  aria-label="Actions"
+                  icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+                  minW="0"
+                  h="auto"
+                  mx="auto"
+                  display="flex"
+                  p="1"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <MenuList>
+                  <MenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedIds([info.row.original.id.toLocaleString()]);
+                      onOpenCreate();
+                    }}
+                  >
+                    <Text as="span" variant="Body2Regular" w="full">
+                      Create New Whitelist
+                    </Text>
+                  </MenuItem>
+                  <MenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedIds([info.row.original.id.toString()]);
+                      onOpenExisting();
+                    }}
+                  >
+                    <Text as="span" variant="Body2Regular" w="full">
+                      Add to Existing Whitelist
+                    </Text>
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            ),
+        }),
+      ] as ColumnDef<Beneficiary>[],
+    []
+  );
 
-  const dynamicColumns: ColumnDef<Beneficiary>[] = useMemo(() => {
-    if (!tableData || tableData.length === 0) return [];
-    const keys = Object.keys(tableData[0]);
+  const dynamicColumnsWhitelist: ColumnDef<WhitelistDetails>[] = useMemo(() => {
+    if (!whitelistTableData || whitelistTableData.length === 0) return [];
+    const keys = Object.keys(whitelistTableData[0]);
 
     const otherColumns = keys
-      .filter((key) => key !== 'id' && key !== 'moduleName' && key !== 'status')
+      .filter((key) => key !== 'vendorId' && key !== 'id' && key !== 'status')
       .map((key) => ({
         header: () => (
           <Text variant="Body3Semibold" textAlign="left">
-            {key}
+            {keyRename(key)}
           </Text>
         ),
         accessorKey: key,
@@ -141,7 +312,7 @@ const WhitelistingPage = () => {
         enableSorting: false, // You can enable this if sorting is required
       }));
 
-    const statusColumn: ColumnDef<Beneficiary> = {
+    const statusColumn: ColumnDef<WhitelistDetails> = {
       header: () => (
         <Text variant="Body3Semibold" textAlign="center">
           Status
@@ -175,13 +346,26 @@ const WhitelistingPage = () => {
               <MenuItem
                 onClick={(e) => {
                   e.stopPropagation();
-                  onApprove({ status: 'Approved', id: info.row.original.id });
+                  setSelectedWL(info.row.original);
+                  onOpenEdit();
                 }}
               >
                 <Text as="span" variant="Body2Regular" w="full">
-                  Whitelist
+                  Edit
                 </Text>
               </MenuItem>
+              {/* <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedIds([info.row.original.id.toString()]);
+                  onOpenExisting();
+                  // onApprove({ status: 'Approved', id: info.row.original.id });
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Start Disbursement
+                </Text>
+              </MenuItem> */}
             </MenuList>
           </Menu>
         ),
@@ -189,71 +373,267 @@ const WhitelistingPage = () => {
     };
 
     return [...otherColumns, statusColumn];
-  }, [tableData]);
+  }, [whitelistTableData]);
 
   const openBeneficiaryModal = (beneficiary: Beneficiary) => {
     setBeneficiary(beneficiary);
     onOpen();
   };
 
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+
   return (
-    <Flex direction="column" h="full">
-      <Flex align="center" justify="space-between" mb="8">
-        <Flex align="center" gap="6">
-          <Flex align="center" gap="2" shrink={0}>
-            <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
-              Filter by
-            </Text>
-            <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
-          </Flex>
-          <InputGroup>
-            <InputLeftElement pointerEvents="none" color="primary.600">
-              <MdSearch />
-            </InputLeftElement>
-            <Input placeholder="Search" variant="primary" pl="2.5rem" />
-          </InputGroup>
-        </Flex>
-        <ButtonGroup size="medium" spacing="4">
-          <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
-            Download Report
-          </Button>
-          <Button
-            leftIcon={<MdCloudUpload />}
-            variant="primary"
-            size="medium"
-            isLoading={isPending || isProcessModulePending}
-            onClick={uploadData}
-            isDisabled={!isUpload}
-          >
-            Upload Data
-          </Button>
-        </ButtonGroup>
-      </Flex>
-      <>
-        <ReusableTable
-          data={tableData}
-          columns={dynamicColumns}
-          onClick={openBeneficiaryModal}
-          selectable
-          isLoading={isLoading || isRefetching}
-          isError={isError || isRefetchError}
-          onRefresh={refetch}
+    <>
+      <Tabs onChange={(index) => setActiveTabIndex(index)} size="sm" variant="unstyled" isLazy flex="1 1 0%">
+        <TabList>
+          <Tab>
+            <Flex alignItems="center" gap="4px">
+              <Text variant={activeTabIndex === 1 ? 'Body2Bold' : 'Body2Semibold'}>Pending</Text>
+            </Flex>
+          </Tab>
+          <Tab>
+            <Flex alignItems="center" gap="4px">
+              <Text variant={activeTabIndex === 1 ? 'Body2Bold' : 'Body2Semibold'}>Whitelisted</Text>
+            </Flex>
+          </Tab>
+        </TabList>
+
+        <TabPanels h="100%">
+          {/* Pending */}
+          <TabPanel px="0" h="100%">
+            <Flex direction="column" h="full">
+              <Flex align="center" justify="space-between" mb="8">
+                <Flex align="center" gap="6">
+                  <Flex align="center" gap="2" shrink={0}>
+                    <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
+                      Filter by
+                    </Text>
+                    <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
+                  </Flex>
+                  <InputGroup>
+                    <InputLeftElement pointerEvents="none" color="primary.600">
+                      <MdSearch />
+                    </InputLeftElement>
+                    <Input placeholder="Search" variant="primary" pl="2.5rem" />
+                  </InputGroup>
+                </Flex>
+                <ButtonGroup size="medium" spacing="4">
+                  <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
+                    Download Report
+                  </Button>
+                  <Button
+                    rightIcon={<MdArrowRightAlt />}
+                    variant="primary"
+                    size="medium"
+                    onClick={() => {
+                      setSelectedIds([]);
+                      onOpenCreate();
+                    }}
+                    leftIcon={<MdAddCircle />}
+                  >
+                    Create Whitelist
+                  </Button>
+                </ButtonGroup>
+              </Flex>
+              <>
+                <ReusableTable
+                  data={tableData}
+                  columns={columns}
+                  onClick={openBeneficiaryModal}
+                  selectable
+                  isLoading={isLoading || isRefetching}
+                  isError={isError || isRefetchError}
+                  onRefresh={refetch}
+                  onSelectionChange={(selectedRows) => {
+                    setSelectedIds(selectedRows.map((row) => row.id.toString()));
+                  }}
+                  selectedChildren={
+                    <>
+                      <Button
+                        variant="accept"
+                        size="medium"
+                        leftIcon={<MdCheckCircle />}
+                        onClick={() => {
+                          console.log(selectedIds);
+                          onOpenCreate();
+                          // onApproveSelected({ status: 'Approved', ids: selectedIds });
+                        }}
+                      >
+                        Create Whitelist with Selected
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="medium"
+                        leftIcon={<MdCancel />}
+                        onClick={() => {
+                          console.log(selectedIds);
+                          onOpenExisting();
+                          // onApproveSelected({ status: 'Disapproved', ids: selectedIds });
+                        }}
+                      >
+                        Add Selected to Existing Whitelist
+                      </Button>
+                    </>
+                  }
+                />
+                <TablePagination
+                  handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                  handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+                  handlePageChange={(pageNumber) => setPage(pageNumber)}
+                  isNextDisabled={page >= totalPages}
+                  isPrevDisabled={page <= 1}
+                  currentPage={page}
+                  totalPages={totalPages}
+                  isDisabled={isLoading || isPlaceholderData}
+                  display={totalPages > 1 ? 'flex' : 'none'}
+                />
+              </>
+              {beneficiary && (
+                <BeneficiaryDetailsModal
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  beneficiary={beneficiary}
+                  moduleName="Whitelisting"
+                />
+              )}
+            </Flex>
+          </TabPanel>
+
+          {/* Whitelisted */}
+          <TabPanel px="0" h="100%">
+            <Flex direction="column" h="full">
+              <Flex align="center" justify="space-between" mb="8">
+                <Flex align="center" gap="6">
+                  <Flex align="center" gap="2" shrink={0}>
+                    <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
+                      Filter by
+                    </Text>
+                    <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
+                  </Flex>
+                  <InputGroup>
+                    <InputLeftElement pointerEvents="none" color="primary.600">
+                      <MdSearch />
+                    </InputLeftElement>
+                    <Input placeholder="Search" variant="primary" pl="2.5rem" />
+                  </InputGroup>
+                </Flex>
+                <ButtonGroup size="medium" spacing="4">
+                  <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
+                    Download Report
+                  </Button>
+                  <Button
+                    rightIcon={<MdArrowRightAlt />}
+                    variant="primary"
+                    size="medium"
+                    onClick={() => {
+                      setSelectedIds([]);
+                      onOpenCreate();
+                    }}
+                    leftIcon={<MdAddCircle />}
+                  >
+                    Create Whitelist
+                  </Button>
+                </ButtonGroup>
+              </Flex>
+              {!selectedWhitelistId ? (
+                <>
+                  <ReusableTable
+                    data={whitelistTableData}
+                    columns={dynamicColumnsWhitelist}
+                    // onClick={openBeneficiaryModal}
+                    onClick={(selected) => setSelectedWhitelistId(selected.id)}
+                    selectable
+                    isLoading={isLoading || isRefetching}
+                    isError={isError || isRefetchError}
+                    onRefresh={refetch}
+                  />
+                  <TablePagination
+                    handleNextPage={() => setBucketPage((prev) => Math.min(prev + 1, totalBucketPages))}
+                    handlePrevPage={() => setBucketPage((prev) => Math.max(prev - 1, 1))}
+                    handlePageChange={(pageNumber) => setBucketPage(pageNumber)}
+                    isNextDisabled={bucketPage >= totalBucketPages}
+                    isPrevDisabled={bucketPage <= 1}
+                    currentPage={bucketPage}
+                    totalPages={totalBucketPages}
+                    isDisabled={isLoading || isPlaceholderData}
+                    display={totalBucketPages > 1 ? 'flex' : 'none'}
+                  />
+                </>
+              ) : (
+                <>
+                  <Flex>
+                    <Button
+                      variant="unstyled"
+                      fontSize="12px"
+                      leftIcon={<MdArrowBack />}
+                      onClick={() => setSelectedWhitelistId('')}
+                    >
+                      Back
+                    </Button>
+                  </Flex>
+                  <ReusableTable
+                    data={selectedWhitelistTableData}
+                    columns={columns}
+                    selectable
+                    isLoading={isWhitelistLoading || isWhitelistRefetching}
+                    isError={isWhitelistError || isWhitelistRefetchError}
+                    onRefresh={whitelistRefetch}
+                  />
+                  <TablePagination
+                    handleNextPage={() =>
+                      setSelectedWLPage((prev) => Math.min(prev + 1, totalSelectedWhitelistBucketPage))
+                    }
+                    handlePrevPage={() => setSelectedWLPage((prev) => Math.max(prev - 1, 1))}
+                    handlePageChange={(pageNumber) => setSelectedWLPage(pageNumber)}
+                    isNextDisabled={selectedWLPage >= totalSelectedWhitelistBucketPage}
+                    isPrevDisabled={selectedWLPage <= 1}
+                    currentPage={selectedWLPage}
+                    totalPages={totalSelectedWhitelistBucketPage}
+                    isDisabled={isWhitelistLoading || isWhitelistPlaceholderData}
+                    display={totalSelectedWhitelistBucketPage > 1 ? 'flex' : 'none'}
+                  />
+                </>
+              )}
+
+              {/* {beneficiary && <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} beneficiary={beneficiary} />} */}
+            </Flex>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
+      <CreateWhiteListBucket
+        isOpen={isOpenCreate}
+        onClose={onCloseCreate}
+        programId={programID.toString()}
+        programType={programType}
+        beneficiariesIds={selectedIds}
+      />
+      {selectedWL && (
+        <EditWhiteListBucket
+          programId={programID.toString()}
+          initialValue={selectedWL}
+          isOpen={isOpenEdit}
+          onClose={() => {
+            setSelectedWL(undefined);
+            onCloseEdit();
+          }}
         />
-        <TablePagination
-          handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-          handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
-          handlePageChange={(pageNumber) => setPage(pageNumber)}
-          isNextDisabled={page >= totalPages}
-          isPrevDisabled={page <= 1}
-          currentPage={page}
-          totalPages={totalPages}
-          isDisabled={isLoading || isPlaceholderData}
-          display={totalPages > 1 ? 'flex' : 'none'}
-        />
-      </>
-      {beneficiary && <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} beneficiary={beneficiary} />}
-    </Flex>
+      )}
+      <AddExistingWhiteListBucket
+        isOpen={isOpenExisting}
+        onClose={onCloseExisting}
+        beneficiariesIds={selectedIds}
+        programID={programID}
+        selectedIds={selectedIds}
+      />
+    </>
   );
 };
 
 export default WhitelistingPage;
+
+const keyRename = (name: string) =>
+  ({
+    programName: 'Program',
+    beneficiariesNo: 'Number of Beneficiaries',
+  })[name] ?? name;

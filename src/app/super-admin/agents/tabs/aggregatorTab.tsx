@@ -25,6 +25,7 @@ import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { EditAggregatorModal } from '@/shared/chakra/modals/EditAggregatorModal';
 import { ManageAggregatorModal } from '@/shared/chakra/modals/manage-aggregator-modal';
 import type { Aggregator } from '@/types';
 
@@ -42,6 +43,7 @@ const AggregatorTab = () => {
 
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 10 });
 
+  const { onClose: onCloseEdit, onOpen: onOpenEdit, isOpen: isOpenEdit } = useDisclosure();
   const { onClose: onCloseDetails, onOpen: onOpenDetails, isOpen: isOpenDetails } = useDisclosure();
 
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetching, isRefetchError } = useGetAggregators({
@@ -55,8 +57,6 @@ const AggregatorTab = () => {
   const aggregators = useMemo(() => data?.body.data ?? [], [data]);
   const totalPages = data?.body.totalPages ?? 1;
 
-  console.log('aggregators', aggregators);
-
   const resetFilters = () => {
     setPage(1);
     setProgramId('');
@@ -64,9 +64,24 @@ const AggregatorTab = () => {
     setQuery('');
   };
 
+  const openEditModal = (aggregator: Aggregator) => {
+    setAggregatorsDetails(aggregator);
+    onOpenEdit();
+  };
+
   const openAggregatorDetailsModal = (aggregator: Aggregator) => {
     setAggregatorsDetails(aggregator);
     onOpenDetails();
+  };
+
+  const closeEditModal = () => {
+    setAggregatorsDetails(null);
+    onCloseEdit();
+  };
+
+  const closeDetailsModal = () => {
+    setAggregatorsDetails(null);
+    onCloseDetails();
   };
 
   const columns: ColumnDef<Aggregator>[] = [
@@ -125,6 +140,16 @@ const AggregatorTab = () => {
             onClick={(e) => e.stopPropagation()}
           />
           <MenuList>
+            <MenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                openEditModal(info.row.original);
+              }}
+            >
+              <Text as="span" variant="Body2Regular" w="full">
+                Edit Aggregator
+              </Text>
+            </MenuItem>
             <MenuItem
               onClick={(e) => {
                 e.stopPropagation();
@@ -210,30 +235,30 @@ const AggregatorTab = () => {
           </Button>
         </Flex>
       </Flex>
-
-      <>
-        <ReusableTable
-          selectable
-          data={aggregators}
-          columns={columns}
-          isLoading={isLoading || isRefetching}
-          isError={isError || isRefetchError}
-          onRefresh={refetch}
-        />
-        <TablePagination
-          handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-          handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
-          handlePageChange={(pageNumber) => setPage(pageNumber)}
-          isNextDisabled={page >= totalPages}
-          isPrevDisabled={page <= 1}
-          currentPage={page}
-          totalPages={totalPages}
-          isDisabled={isLoading || isPlaceholderData}
-          display={totalPages > 1 ? 'flex' : 'none'}
-        />
-      </>
+      <ReusableTable
+        selectable
+        data={aggregators}
+        columns={columns}
+        isLoading={isLoading || isRefetching}
+        isError={isError || isRefetchError}
+        onRefresh={refetch}
+      />
+      <TablePagination
+        handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+        handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+        handlePageChange={(pageNumber) => setPage(pageNumber)}
+        isNextDisabled={page >= totalPages}
+        isPrevDisabled={page <= 1}
+        currentPage={page}
+        totalPages={totalPages}
+        isDisabled={isLoading || isPlaceholderData}
+        display={totalPages > 1 ? 'flex' : 'none'}
+      />
       {aggregatorsDetails && (
-        <ManageAggregatorModal isOpen={isOpenDetails} onClose={onCloseDetails} aggregator={aggregatorsDetails} />
+        <>
+          <EditAggregatorModal isOpen={isOpenEdit} onClose={closeEditModal} initialValues={aggregatorsDetails} />
+          <ManageAggregatorModal isOpen={isOpenDetails} onClose={closeDetailsModal} aggregator={aggregatorsDetails} />
+        </>
       )}
     </Flex>
   );

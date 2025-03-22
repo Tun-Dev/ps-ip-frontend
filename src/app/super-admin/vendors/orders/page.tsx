@@ -45,7 +45,6 @@ const OrderPage = () => {
     isRefetchError: isDetailsRefetchError,
     refetch: refetchDetails,
   } = useGetVendorsOrdersDetails(programId);
-  console.log(details);
 
   const router = useRouter();
 
@@ -53,7 +52,7 @@ const OrderPage = () => {
     () => [
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Product/Service Offered
           </Text>
         ),
@@ -61,13 +60,13 @@ const OrderPage = () => {
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
-            {info.row.original.products}
+            {info.row.original.products ?? 'N/A'}
           </Text>
         ),
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Program
           </Text>
         ),
@@ -81,7 +80,7 @@ const OrderPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Vendor Name
           </Text>
         ),
@@ -91,7 +90,7 @@ const OrderPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Amount Disbursable
           </Text>
         ),
@@ -99,13 +98,13 @@ const OrderPage = () => {
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
-            {info.row.original.amountDisburseable}
+            {info.row.original.amountDisburseable ?? 'N/A'}
           </Text>
         ),
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Schedule Date
           </Text>
         ),
@@ -113,13 +112,13 @@ const OrderPage = () => {
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
-            {format(parseISO(info.row.original.scheduledDate), 'MMM. d')}
+            {info.row.original.scheduledDate ? format(parseISO(info.row.original.scheduledDate), 'MMM. d') : 'N/A'}
           </Text>
         ),
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             End Date
           </Text>
         ),
@@ -127,13 +126,13 @@ const OrderPage = () => {
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
-            {format(parseISO(info.row.original.endDate), 'MMM. d')}
+            {info.row.original.endDate ? format(parseISO(info.row.original.endDate), 'MMM. d') : 'N/A'}
           </Text>
         ),
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
             Actions
           </Text>
         ),
@@ -171,7 +170,7 @@ const OrderPage = () => {
     () => [
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Beneficiaries
           </Text>
         ),
@@ -185,7 +184,7 @@ const OrderPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             LGA
           </Text>
         ),
@@ -195,7 +194,7 @@ const OrderPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Vendor
           </Text>
         ),
@@ -205,7 +204,7 @@ const OrderPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Gender
           </Text>
         ),
@@ -219,7 +218,7 @@ const OrderPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Age
           </Text>
         ),
@@ -233,7 +232,7 @@ const OrderPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Amount Disbursed
           </Text>
         ),
@@ -247,7 +246,7 @@ const OrderPage = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Date Disbursed
           </Text>
         ),
@@ -262,8 +261,6 @@ const OrderPage = () => {
     ],
     []
   );
-
-  console.log(detailsColumns);
 
   // const [program, setProgram] = useState<number | undefined>(undefined);
   const [search, setSearch] = useState<string | undefined>(undefined);
@@ -356,7 +353,6 @@ const OrderPage = () => {
             isError={isError || isRefetchError}
             onRefresh={refetch}
             onClick={(e) => {
-              // console.log(e);
               const searchParams = new URLSearchParams();
               searchParams.set('programId', `${e.id}`);
               router.push(`/super-admin/vendors/orders?${searchParams.toString()}`);

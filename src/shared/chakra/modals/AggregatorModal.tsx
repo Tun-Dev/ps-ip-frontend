@@ -24,33 +24,25 @@ import { z } from 'zod';
 import { useCreateAggregator } from '@/hooks/useCreateAggregator';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { Dropdown } from '@/shared/chakra/components';
-import { PasswordInput } from '../components/password-input';
-import { PhoneNumberInput } from '../components/phone-number-input';
+import { PhoneNumberInput } from '@/shared/chakra/components/phone-number-input';
 
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
-const Schema = z
-  .object({
-    name: z.string().min(1, 'Name is required'),
-    maxAgents: z.coerce.number().min(1),
-    programId: z.string().min(1, 'Program is required'),
-    firstname: z.string().min(1, 'First name is required'),
-    lastname: z.string().min(1, 'Last name is required'),
-    contactEmail: z.string().min(1, 'Corporate Email is required'),
-    email: z.string().min(1, 'Email is required'),
-    password: z.string().min(1, 'Password is required'),
-    confirmPassword: z.string().min(1, 'Confirm password is required'),
-    contactPhone: z
-      .string({ invalid_type_error: 'Phone number is required' })
-      .refine(isValidPhoneNumber, 'Invalid phone number'),
-  })
-  .refine((value) => value.password === value.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
+const Schema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  maxAgents: z.coerce.number().min(1),
+  programId: z.string().min(1, 'Program is required'),
+  firstname: z.string().min(1, 'First name is required'),
+  lastname: z.string().min(1, 'Last name is required'),
+  contactEmail: z.string().min(1, 'Corporate Email is required'),
+  email: z.string().min(1, 'Email is required'),
+  contactPhone: z
+    .string({ invalid_type_error: 'Phone number is required' })
+    .refine(isValidPhoneNumber, 'Invalid phone number'),
+});
 
 type FormValues = z.infer<typeof Schema>;
 
@@ -62,13 +54,14 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
     return programs.body.data.map((program) => ({ label: program.name, value: program.id }));
   }, [programs]);
 
-  const { mutate, isPending } = useCreateAggregator(onClose);
+  const { mutate, isPending } = useCreateAggregator();
 
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormValues>({ resolver: zodResolver(Schema) });
 
   const hasErrors = Object.keys(errors).length > 0;
@@ -78,7 +71,12 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
       ...data,
       programDetails: [{ programId, maxAgents }],
     };
-    mutate(formattedData);
+    mutate(formattedData, {
+      onSuccess: () => {
+        onClose();
+        reset();
+      },
+    });
   };
 
   return (
@@ -144,24 +142,6 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="corporateEmail" type="email" variant="primary" {...register('email')} />
               <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.password}>
-              <FormLabel htmlFor="password">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Password
-                </Text>
-              </FormLabel>
-              <PasswordInput id="password" {...register('password')} />
-              <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.confirmPassword}>
-              <FormLabel htmlFor="confirmPassword">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Confirm Password
-                </Text>
-              </FormLabel>
-              <PasswordInput id="confirmPassword" {...register('confirmPassword')} />
-              <FormErrorMessage>{errors.confirmPassword && errors.confirmPassword.message}</FormErrorMessage>
-            </FormControl>
 
             <Divider orientation="horizontal" />
 
@@ -213,7 +193,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
             isDisabled={hasErrors}
             isLoading={isPending}
           >
-            Add New Aggregator
+            Add Aggregator
           </Button>
         </ModalFooter>
       </ModalContent>

@@ -1,7 +1,7 @@
 import { useGetVendorDetails } from '@/hooks/useGetVendorDetails';
 import { useRemoveVendorProgram } from '@/hooks/useRemoveVendorProgram';
 import type { Vendor, VendorDetails } from '@/types';
-import { formatDateForInput, formatErrorMessage } from '@/utils';
+import { formatErrorMessage } from '@/utils';
 import {
   Button,
   Flex,
@@ -76,15 +76,9 @@ const Item = ({ item }: { item: VendorDetails }) => {
         <SimpleGrid columns={3} gap="4" flex="1">
           <Stack>
             <Text variant="Body2Semibold" color="grey.500">
-              Schedule date
+              Product/Services
             </Text>
-            <Text variant="Body1Semibold">{formatDateForInput(item.scheduledDate)}</Text>
-          </Stack>
-          <Stack>
-            <Text variant="Body2Semibold" color="grey.500">
-              End date
-            </Text>
-            <Text variant="Body1Semibold">{formatDateForInput(item.endDate)}</Text>
+            <Text variant="Body1Semibold">{item.productOrServices || 'N/A'}</Text>
           </Stack>
         </SimpleGrid>
         <Button

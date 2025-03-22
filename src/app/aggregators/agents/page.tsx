@@ -1,15 +1,17 @@
 'use client';
 
 import { useActivateAgent } from '@/hooks/useActivateAgent';
+import { useApproveAgents } from '@/hooks/useApproveAgents';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetAggregatorAgents } from '@/hooks/useGetAggregatorAgents';
 import { useGetAggregatorDashboard } from '@/hooks/useGetAggregatorDashboard';
+import { useGetPendingAgents } from '@/hooks/useGetPendingAgents';
 import { AddNewAgentModal, ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { ReassignAgentModal } from '@/shared/chakra/modals/ReassignAgentModal';
+import { ManageAgentModal } from '@/shared/chakra/modals/manage-agent-modal';
 import { ScheduleActivationModal } from '@/shared/chakra/modals/ScheduleActivationModal';
-import type { AggregatorAgent } from '@/types';
+import type { Agent, PendingAgent } from '@/types';
 import {
   Box,
   Button,
@@ -34,7 +36,7 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { useCallback, useMemo, useState } from 'react';
 import { MdAddCircle, MdDownload, MdGroups, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
@@ -85,6 +87,7 @@ const AgentsTab = () => {
 
   const { data: activeAgents } = useGetAggregatorAgents({ page: 1, pageSize: 10, active: true });
   const { data: inactiveAgents } = useGetAggregatorAgents({ page: 1, pageSize: 10, active: false });
+  const { data: pendingAgents } = useGetPendingAgents({ page: 1, pageSize: 10 });
 
   return (
     <Tabs onChange={(index) => setActiveTabIndex(index)} size="sm" variant="unstyled" isLazy flex="1 1 0%">
@@ -115,6 +118,19 @@ const AgentsTab = () => {
             </Box>
           </Flex>
         </Tab>
+        <Tab>
+          <Flex alignItems="center" gap="4px">
+            <Text variant={activeTabIndex === 2 ? 'Body2Bold' : 'Body2Semibold'}>Pending</Text>
+            <Box
+              p={'2px 4px'}
+              borderRadius="8px"
+              bg={activeTabIndex === 2 ? 'primary.100' : 'grey.200'}
+              color={activeTabIndex === 2 ? 'text' : 'grey.500'}
+            >
+              <Text variant="Body3Semibold">{pendingAgents?.body.total ?? 0}</Text>
+            </Box>
+          </Flex>
+        </Tab>
       </TabList>
 
       <TabPanels h="100%">
@@ -123,6 +139,9 @@ const AgentsTab = () => {
         </TabPanel>
         <TabPanel px="0" h="100%">
           <AgentPanel type="inactive" />
+        </TabPanel>
+        <TabPanel px="0" h="100%">
+          <PendingAgentPanel />
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -133,16 +152,20 @@ type AgentPanelProps = {
   type: 'active' | 'inactive';
 };
 
+const columnHelper = createColumnHelper<Agent>();
+
 const AgentPanel = ({ type }: AgentPanelProps) => {
   const toast = useToast();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('');
   const debouncedQuery = useDebounce(query);
+
+  const { onClose: onManageClose, onOpen: onManageOpen, isOpen: isManageOpen } = useDisclosure();
   const { onClose: onScheduleClose, onOpen: onScheduleOpen, isOpen: isScheduleOpen } = useDisclosure();
-  const { onClose, onOpen, isOpen } = useDisclosure();
-  const [selectedAgent, setSelectedAgent] = useState<AggregatorAgent>();
-  const [selectedAgents, setSelectedAgents] = useState<AggregatorAgent[]>([]);
+
+  const [selectedAgent, setSelectedAgent] = useState<Agent>();
+  const [selectedAgents, setSelectedAgents] = useState<Agent[]>([]);
 
   const { mutate: activateAgent } = useActivateAgent();
   const { data, isLoading, isPlaceholderData, refetch, isError, isRefetchError, isRefetching } = useGetAggregatorAgents(
@@ -162,68 +185,88 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
   };
 
   const handleAgentActivation = useCallback(
-    (id: string, programId: string, status: boolean) => {
-      const payload = {
-        agentId: id,
-        programId,
-        isActive: status,
-      };
-
-      activateAgent(payload, {
-        onSuccess: () => {
-          toast({ title: `${status !== true ? 'Deactivated' : 'Activated'} agent successfully`, status: 'success' });
-        },
-      });
+    (agentId: string, isActive: boolean) => {
+      activateAgent(
+        { agentId, isActive },
+        {
+          onSuccess: () => {
+            toast({
+              title: `${isActive !== true ? 'Deactivated' : 'Activated'} agent successfully`,
+              status: 'success',
+            });
+          },
+        }
+      );
     },
     [activateAgent, toast]
   );
 
-  const columns: ColumnDef<AggregatorAgent>[] = useMemo(
-    () => [
-      {
-        header: 'Agents',
-        accessorKey: 'firstName',
-        cell: (info) => (
-          <Text variant="Body2Semibold">{`${info.row.original.firstName} ${info.row.original.lastName}`}</Text>
-        ),
-      },
-      {
-        header: 'Program',
-        accessorKey: 'programName',
-        cell: (info) => `${info.row.original.programName} - ${info.row.original.programType}`,
-      },
-      {
-        header: 'LGA',
-        accessorKey: 'lga',
-        cell: (info) => <Text variant="Body2Regular">{info.row.original.lga || '----------------'}</Text>,
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-            Status
-          </Text>
-        ),
-        accessorKey: 'status',
-        enableSorting: false,
-        cell: (info) => {
-          return (
-            <Text variant="Body3Semibold" color={info.row.original.isOnline ? 'green' : 'grey.500'} textAlign="center">
-              {info.row.original.isOnline ? 'Online' : 'Offline'}{' '}
-              <Text
-                as="span"
-                variant="Body3Semibold"
-                display="inline"
-                color={info.row.original.status ? 'green' : 'grey.500'}
-              >
-                ({info.row.original.status ? 'Active' : 'Deactivated'})
-              </Text>
+  const columns = useMemo(
+    () =>
+      [
+        columnHelper.accessor('firstName', {
+          header: 'Agent',
+          cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
+        }),
+        columnHelper.accessor('gender', {
+          header: () => (
+            <Text as="span" variant="Body3Semibold" display="block" textAlign="center">
+              Gender
             </Text>
-          );
-        },
-      },
-      {
-        header: () => {
-          if (selectedAgents.length > 0)
+          ),
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular" display="block" textAlign="center">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+          enableSorting: false,
+        }),
+        columnHelper.accessor('programCount', {
+          header: () => (
+            <Text as="span" variant="Body3Semibold" display="block" textAlign="center">
+              No. of Programs
+            </Text>
+          ),
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular" display="block" textAlign="center">
+              {info.getValue()}
+            </Text>
+          ),
+          enableSorting: false,
+        }),
+        columnHelper.display({
+          id: 'status',
+          header: () => (
+            <Text as="span" variant="Body3Semibold" display="block" textAlign="center">
+              Status
+            </Text>
+          ),
+          cell: ({ row }) => {
+            return (
+              <Text variant="Body3Semibold" color={row.original.isOnline ? 'green' : 'grey.500'} textAlign="center">
+                {row.original.isOnline ? 'Online' : 'Offline'}{' '}
+                <Text
+                  as="span"
+                  variant="Body3Semibold"
+                  display="inline"
+                  color={row.original.isActive ? 'green' : 'grey.500'}
+                >
+                  ({row.original.isActive ? 'Active' : 'Deactivated'})
+                </Text>
+              </Text>
+            );
+          },
+        }),
+        columnHelper.display({
+          id: 'actions',
+          header: () => {
+            if (selectedAgents.length < 1)
+              return (
+                <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+                  Actions
+                </Text>
+              );
+
             return (
               <Menu>
                 <MenuButton
@@ -252,73 +295,66 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
                 </MenuList>
               </Menu>
             );
-          return (
-            <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-              Actions
-            </Text>
-          );
-        },
-        id: 'actions',
-        enableSorting: false,
-        cell: (info) => (
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              variant="ghost"
-              aria-label="Actions"
-              icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
-              minW="0"
-              h="auto"
-              mx="auto"
-              display="flex"
-              p="1"
-              onClick={(e) => e.stopPropagation()}
-            />
-            <MenuList>
-              {info.row.original.status && (
-                <>
-                  <MenuItem
-                    onClick={() => {
-                      onOpen();
-                      setSelectedAgent(info.row.original);
-                    }}
-                  >
-                    <Text as="span" variant="Body2Regular">
-                      Reassign agent
-                    </Text>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      onScheduleOpen();
-                      setSelectedAgent(info.row.original);
-                    }}
-                  >
-                    <Text as="span" variant="Body2Regular">
-                      Schedule agent
-                    </Text>
-                  </MenuItem>
-                </>
-              )}
-              <MenuItem
-                onClick={() => {
-                  handleAgentActivation(info.row.original.id, info.row.original.programId, !info.row.original.status);
-                }}
-              >
-                <Text as="span" variant="Body2Regular">
-                  {info.row.original.status === true ? 'Deactivate' : 'Activate'} agent
-                </Text>
-              </MenuItem>
-            </MenuList>
-          </Menu>
-        ),
-      },
-    ],
-    [handleAgentActivation, onOpen, onScheduleOpen, selectedAgents]
+          },
+          cell: (info) => (
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                variant="ghost"
+                aria-label="Actions"
+                icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+                minW="0"
+                h="auto"
+                mx="auto"
+                display="flex"
+                p="1"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <MenuList>
+                <MenuItem
+                  onClick={() => {
+                    onManageOpen();
+                    setSelectedAgent(info.row.original);
+                  }}
+                >
+                  <Text as="span" variant="Body2Regular">
+                    Manage agent
+                  </Text>
+                </MenuItem>
+                {info.row.original.isActive && (
+                  <>
+                    <MenuItem
+                      onClick={() => {
+                        onScheduleOpen();
+                        setSelectedAgent(info.row.original);
+                      }}
+                    >
+                      <Text as="span" variant="Body2Regular">
+                        Schedule agent
+                      </Text>
+                    </MenuItem>
+                  </>
+                )}
+                <MenuItem
+                  onClick={() => {
+                    handleAgentActivation(info.row.original.id, !info.row.original.isActive);
+                  }}
+                >
+                  <Text as="span" variant="Body2Regular">
+                    {info.row.original.isActive === true ? 'Deactivate' : 'Activate'} agent
+                  </Text>
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          ),
+        }),
+      ] as ColumnDef<Agent>[],
+    [handleAgentActivation, onScheduleOpen, onManageOpen, selectedAgents]
   );
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
-      {selectedAgent && <ReassignAgentModal isOpen={isOpen} onClose={onClose} agent={selectedAgent} />}
+      {selectedAgent && <ManageAgentModal isOpen={isManageOpen} onClose={onManageClose} agent={selectedAgent} />}
       <ScheduleActivationModal
         isOpen={isScheduleOpen}
         onClose={() => {
@@ -389,6 +425,183 @@ const AgentPanel = ({ type }: AgentPanelProps) => {
         isDisabled={isLoading || isPlaceholderData}
         display={totalPages > 1 ? 'flex' : 'none'}
       />
+    </Flex>
+  );
+};
+
+const pendingAgentColumnHelper = createColumnHelper<PendingAgent>();
+
+const PendingAgentPanel = () => {
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query);
+  const [selectedAgents, setSelectedAgents] = useState<PendingAgent[]>([]);
+
+  const { mutate: approveAgent } = useApproveAgents();
+
+  const { data, isLoading, isPlaceholderData, refetch, isError, isRefetchError, isRefetching } = useGetPendingAgents({
+    page,
+    pageSize: 10,
+    query: debouncedQuery === '' ? undefined : debouncedQuery,
+  });
+
+  const totalPages = data?.body.totalPages ?? 1;
+
+  const resetFilters = () => {
+    setPage(1);
+    setQuery('');
+  };
+
+  const handleApprove = useCallback(
+    (agents: PendingAgent[]) => {
+      const agentsToApprove = agents.map((agent) => ({ agentId: agent.id }));
+      approveAgent(agentsToApprove);
+    },
+    [approveAgent]
+  );
+
+  const columns = useMemo(
+    () =>
+      [
+        pendingAgentColumnHelper.accessor('firstName', {
+          header: 'Agent',
+          cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
+        }),
+        pendingAgentColumnHelper.accessor('gender', {
+          header: () => (
+            <Text as="span" variant="Body3Semibold" display="block" textAlign="center">
+              Gender
+            </Text>
+          ),
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular" display="block" textAlign="center">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+          enableSorting: false,
+        }),
+        pendingAgentColumnHelper.accessor('state', {
+          header: 'State',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        pendingAgentColumnHelper.accessor('lga', {
+          header: 'LGA',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
+        pendingAgentColumnHelper.display({
+          id: 'actions',
+          header: () => {
+            if (selectedAgents.length < 1)
+              return (
+                <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+                  Actions
+                </Text>
+              );
+
+            return (
+              <Menu>
+                <MenuButton
+                  as={IconButton}
+                  variant="ghost"
+                  aria-label="Actions"
+                  icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+                  minW="0"
+                  h="auto"
+                  mx="auto"
+                  display="flex"
+                  p="0"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <MenuList>
+                  <MenuItem onClick={() => handleApprove(selectedAgents)}>
+                    <Text as="span" variant="Body2Regular">
+                      Approve agents
+                    </Text>
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            );
+          },
+          cell: (info) => (
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                variant="ghost"
+                aria-label="Actions"
+                icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+                minW="0"
+                h="auto"
+                mx="auto"
+                display="flex"
+                p="1"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <MenuList>
+                <MenuItem onClick={() => handleApprove([info.row.original])}>
+                  <Text as="span" variant="Body2Regular">
+                    Approve agent
+                  </Text>
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          ),
+        }),
+      ] as ColumnDef<PendingAgent>[],
+    [handleApprove, selectedAgents]
+  );
+
+  return (
+    <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
+      <Flex justifyContent="space-between">
+        <InputGroup w="212px" size="sm">
+          <InputLeftElement>
+            <Icon as={MdSearch} w="12px" h="12px" color="primary.600" />
+          </InputLeftElement>
+          <Input
+            variant="primary"
+            fontSize="10px"
+            placeholder="Search"
+            onChange={(e) => {
+              // Reset filters when search query changes
+              resetFilters();
+              setQuery(e.target.value);
+            }}
+          />
+        </InputGroup>
+        <Button leftIcon={<MdDownload />} variant="primary" size="medium" borderRadius="10px">
+          Download Report
+        </Button>
+      </Flex>
+      <>
+        <ReusableTable
+          selectable
+          data={data?.body.data ?? []}
+          columns={columns}
+          isLoading={isLoading || isRefetching}
+          isError={isError || isRefetchError}
+          onRefresh={refetch}
+          onSelectionChange={setSelectedAgents}
+        />
+        <TablePagination
+          handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+          handlePageChange={(pageNumber) => setPage(pageNumber)}
+          isNextDisabled={page >= totalPages}
+          isPrevDisabled={page <= 1}
+          currentPage={page}
+          totalPages={totalPages}
+          isDisabled={isLoading || isPlaceholderData}
+          display={totalPages > 1 ? 'flex' : 'none'}
+        />
+      </>
     </Flex>
   );
 };

@@ -14,7 +14,7 @@ const ProgramsBreadcrumbs = () => {
   const { response: group } = useGetGroupById(folderID?.toString());
 
   const folderName = group?.body.name ?? '...';
-  const programName = response?.body.name ? `${response.body.name} Disbursement` : '...';
+  const programName = response?.body.name ? `${response.body.name} Vetting` : '...';
 
   return (
     <Breadcrumb separator=">" color="grey.500" fontSize="1rem" fontWeight="600">

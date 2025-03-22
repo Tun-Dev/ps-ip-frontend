@@ -14,7 +14,7 @@ import {
   ModalOverlay,
   Stack,
   Text,
-  //   useToast,
+  useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidPhoneNumber } from 'libphonenumber-js';
@@ -23,13 +23,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useCreateAgent } from '@/hooks/useCreateAgent';
-import { useGetAllAggregatorPrograms } from '@/hooks/useGetAllAggregatorPrograms';
+// import { useGetAllAggregatorPrograms } from '@/hooks/useGetAllAggregatorPrograms';
 // import { useGetCurrentUser } from '@/hooks/useGetCur/rentUser';
 // import { useGetStates } from '@/hooks/useGetStates';
 // import { AgentProgramDetails } from '@/types';
+import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { Dropdown } from '../components';
 import { PhoneNumberInput } from '../components/phone-number-input';
-import { useGetAggregators } from '@/hooks/useGetAggregators';
+import { useGetAggregatorsByID } from '@/hooks/useGetAggregatorByID';
 
 type ModalProps = {
   isOpen: boolean;
@@ -60,25 +61,25 @@ const genderOptions = [
 ];
 
 export const AddNewAgentModalSuperAdmin = ({ isOpen, onClose }: ModalProps) => {
-  //   const toast = useToast();
+  const toast = useToast();
   const { mutate, isPending } = useCreateAgent(onSuccess);
   //   const { data: currentUser } = useGetCurrentUser();
-  const { data: programs } = useGetAllAggregatorPrograms(isOpen);
+  // const { data: allPrograms } = useGetAllAggregatorPrograms({ enabled: isOpen });
 
   //   const { data: states } = useGetStates(isOpen);
 
   const { data: aggregators } = useGetAggregators({ page: 1, pageSize: 1000 });
-  //   console.log(aggregators);
+  // console.log(aggregators);
 
   const aggregatorOptions = useMemo(() => {
     if (!aggregators) return [];
     return aggregators.body.data.map((aggregator) => ({ label: aggregator.name, value: aggregator.id }));
   }, [aggregators]);
 
-  const programOptions = useMemo(() => {
-    if (!programs) return [];
-    return programs.body.map((program) => ({ label: program.name, value: program.id }));
-  }, [programs]);
+  // const programOptions = useMemo(() => {
+  //   if (!programs) return [];
+  //   return programs.body.map((program) => ({ label: program.name, value: program.id }));
+  // }, [programs]);
 
   const {
     register,
@@ -86,20 +87,33 @@ export const AddNewAgentModalSuperAdmin = ({ isOpen, onClose }: ModalProps) => {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<FormValues>({
     resolver: zodResolver(Schema),
   });
 
+  const aggregatorValue = watch('aggregator');
+  const { data: programs, isPending: programIsPending } = useGetAggregatorsByID(aggregatorValue);
+
+  const programOptions = useMemo(() => {
+    if (!programs) return [];
+    return programs.body.map((program) => ({ label: program.programName, value: program.programId }));
+  }, [programs]);
+
   //   const { fields } = useFieldArray({ name: 'programDetails', control });
-  //   console.log(fields);
 
   const hasErrors = Object.keys(errors).length > 0;
-  console.log(errors);
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
-    const aggregatorId = data.aggregator;
-    // if (!aggregatorId) return toast({ status: 'error', title: 'Aggregator not found' });
+    const selectedProgramName = programs?.body.find(
+      (program) => program.programId === data.programDetails[0].programId
+    )?.programName;
+    const aggregatorId = programs?.body.find(
+      (program) => program.programName === selectedProgramName
+    )?.aggregatorProgramId;
+    // const aggregatorId = programs?.body.find((program) => program.name === aggregatorName)?.aggregatorProgramId;
+    // const programId = data.programDetails[0].programId;
+    if (!aggregatorId) return toast({ status: 'error', title: 'Aggregator not found' });
     mutate({
       aggregatorId,
       agents: [
@@ -108,27 +122,12 @@ export const AddNewAgentModalSuperAdmin = ({ isOpen, onClose }: ModalProps) => {
           lastName: data.lastName,
           phoneNumber: data.phoneNumber,
           email: data.email,
+          gender: data.gender,
           programDetails: data.programDetails,
         },
       ],
     });
   };
-
-  //   const getAggregatorId = (programDetails: AgentProgramDetails[]) => {
-  //     if (!currentUser || !currentUser.body.aggregator) return null;
-
-  //     const aggregatorPrograms = currentUser.body.aggregator.aggregatorPrograms;
-
-  //     if (aggregatorPrograms.length < 1) return null;
-
-  //     if (programDetails.length < 1) return aggregatorPrograms[0].id;
-
-  //     const aggregatorProgram = aggregatorPrograms.find((program) => program.programId === programDetails[0].programId);
-
-  //     if (aggregatorProgram) return aggregatorProgram.id;
-
-  //     return null;
-  //   };
 
   function onSuccess() {
     onClose();
@@ -248,6 +247,7 @@ export const AddNewAgentModalSuperAdmin = ({ isOpen, onClose }: ModalProps) => {
               <Controller
                 control={control}
                 name={`programDetails.${0}.programId`}
+                disabled={!aggregatorValue || programIsPending}
                 render={({ field: { name, onBlur, onChange, value, disabled } }) => (
                   <Dropdown
                     id={`programId`}

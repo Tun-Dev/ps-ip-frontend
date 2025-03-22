@@ -1,11 +1,13 @@
 'use client';
 
-import { useGetPrograms } from '@/hooks/useGetPrograms';
+// import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { useCreateVettingOfficers } from '@/hooks/useCreateVettingOfficers';
 import {
   Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -15,10 +17,9 @@ import {
   ModalOverlay,
   Stack,
   Text,
-  Input,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Dropdown } from '../components';
@@ -29,19 +30,23 @@ type ModalProps = {
 };
 
 const Schema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  firstname: z.string().min(1, 'First name is required'),
+  lastname: z.string().min(1, 'Last name is required'),
   email: z.string().email('Invalid email').min(1, 'Email is required'),
   role: z.string().min(1, 'Role is required'),
   gender: z.string().min(1, 'Gender is required'),
-  programId: z.string().min(1, 'Program is required'),
 });
 
 type FormValues = z.infer<typeof Schema>;
 
 const AddNewUserModal = ({ isOpen, onClose }: ModalProps) => {
-  const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
-  const programOptions = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
+  // const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
+  // const programOptions = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
+
+  const { mutate, isPending } = useCreateVettingOfficers(() => {
+    onClose();
+    reset();
+  });
   const {
     register,
     control,
@@ -51,8 +56,8 @@ const AddNewUserModal = ({ isOpen, onClose }: ModalProps) => {
   } = useForm<FormValues>({ resolver: zodResolver(Schema) });
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
-    reset();
+    mutate(data);
+    // reset();
   };
 
   const genderOptions = useMemo(
@@ -70,8 +75,8 @@ const AddNewUserModal = ({ isOpen, onClose }: ModalProps) => {
 
   const roleOptions = useMemo(
     () => [
-      { label: 'Vetting Officer', value: 'Male' },
-      { label: 'Super Admin', value: 'Super Admin' },
+      { label: 'Vetting Officer', value: 'Vetting Officer' },
+      // { label: 'Super Admin', value: 'Super Admin' },
     ],
     []
   );
@@ -90,23 +95,23 @@ const AddNewUserModal = ({ isOpen, onClose }: ModalProps) => {
         <ModalCloseButton />
         <ModalBody>
           <Stack spacing="5">
-            <FormControl isInvalid={!!errors.firstName} isRequired>
-              <FormLabel htmlFor="firstName">
+            <FormControl isInvalid={!!errors.firstname} isRequired>
+              <FormLabel htmlFor="firstname">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   First Name
                 </Text>
               </FormLabel>
-              <Input id="firstName" variant="primary" {...register('firstName')} />
-              <FormErrorMessage>{errors.firstName && errors.firstName.message}</FormErrorMessage>
+              <Input id="firstname" variant="primary" {...register('firstname')} />
+              <FormErrorMessage>{errors.firstname && errors.firstname.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.lastName} isRequired>
+            <FormControl isInvalid={!!errors.lastname} isRequired>
               <FormLabel htmlFor="firstName">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Last Name
                 </Text>
               </FormLabel>
-              <Input id="lastName" variant="primary" {...register('lastName')} />
-              <FormErrorMessage>{errors.lastName && errors.lastName.message}</FormErrorMessage>
+              <Input id="lastname" variant="primary" {...register('lastname')} />
+              <FormErrorMessage>{errors.lastname && errors.lastname.message}</FormErrorMessage>
             </FormControl>
 
             <FormControl isInvalid={!!errors.email} isRequired>
@@ -168,36 +173,11 @@ const AddNewUserModal = ({ isOpen, onClose }: ModalProps) => {
               />
               <FormErrorMessage>{errors.role && errors.role.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.programId} isRequired>
-              <FormLabel htmlFor="programId">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Program
-                </Text>
-              </FormLabel>
-              <Controller
-                control={control}
-                name="programId"
-                render={({ field: { name, onBlur, onChange, value, disabled } }) => (
-                  <Dropdown
-                    id="programId"
-                    variant="whiteDropdown"
-                    placeholder="Select program"
-                    name={name}
-                    options={programOptions}
-                    value={programOptions?.find((option) => option.value === value)}
-                    onChange={(value) => value && onChange(value.value)}
-                    onBlur={onBlur}
-                    isDisabled={disabled}
-                  />
-                )}
-              />
-              <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
-            </FormControl>
           </Stack>
         </ModalBody>
         <ModalFooter display="flex" justifyContent="center" mt="3rem">
-          <Button type="submit" variant="primary" w="full" h="3rem" maxW="25.125rem">
-            Add New Agent
+          <Button type="submit" variant="primary" w="full" h="3rem" maxW="25.125rem" isLoading={isPending}>
+            Add New User
           </Button>
         </ModalFooter>
       </ModalContent>

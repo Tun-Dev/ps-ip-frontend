@@ -28,7 +28,6 @@ const SignInPage = () => {
   } = useForm<FormValues>({ resolver: zodResolver(Schema) });
 
   const hasErrors = Object.keys(errors).length > 0;
-  console.log('🚀 ~ SignInPage ~ errors:', errors);
 
   const onSubmit = (data: FormValues) => mutate(data);
 

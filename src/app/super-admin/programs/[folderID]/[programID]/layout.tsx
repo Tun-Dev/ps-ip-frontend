@@ -20,6 +20,8 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
 
   const modules = reorderDescending(response?.body.programModules) ?? [];
 
+  console.log(modules);
+
   const handleScroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return;
     const { scrollLeft, clientWidth } = scrollContainerRef.current;
@@ -68,7 +70,7 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
               <ModuleCard
                 key={item.id}
                 module={newItem}
-                status={item.isCompleted ? 'Completed' : item.isActive && !item.isCompleted ? 'In progress' : 'Pending'}
+                // status={item.isCompleted ? 'Completed' : item.isActive && !item.isCompleted ? 'In progress' : 'Pending'}
                 maxW="242px"
                 flexShrink={0}
                 number={item.order}

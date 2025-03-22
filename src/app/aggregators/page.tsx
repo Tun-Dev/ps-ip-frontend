@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MdGroups, MdOpenInNew, MdRefresh, MdViewCarousel, MdViewList } from 'react-icons/md';
 
+import { useGetAggregatorCode } from '@/hooks/useGetAggregatorCode';
 import { useGetAggregatorDashboard } from '@/hooks/useGetAggregatorDashboard';
 import { NotificationCard, ReusableTable } from '@/shared';
 import { ActivityTableSkeleton } from '@/shared/chakra/components/activity-table-skeleton';
@@ -14,6 +15,7 @@ import { OverviewCard } from '@/shared/chakra/components/overview';
 import type { AggregatorActivity, AggregatorActivityTable } from '@/types';
 
 const AggregatorsDashboard = () => {
+  useGetAggregatorCode();
   const router = useRouter();
   const { data, isPending, isError } = useGetAggregatorDashboard();
   return (
@@ -106,7 +108,7 @@ const ActivityTable = ({ activity }: { activity: AggregatorActivity }) => {
 const columns: ColumnDef<AggregatorActivityTable>[] = [
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         Name
       </Text>
     ),
@@ -115,7 +117,7 @@ const columns: ColumnDef<AggregatorActivityTable>[] = [
   },
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         LGA
       </Text>
     ),
@@ -127,7 +129,7 @@ const columns: ColumnDef<AggregatorActivityTable>[] = [
       const firstRow = info.table.getRowModel().rows[0]?.original;
       const headerText = firstRow?.enumerated ? 'Enumerated' : 'Status';
       return (
-        <Text variant="Body3Semibold" color="gray.500">
+        <Text variant="Body3Semibold" color="grey.500">
           {headerText}
         </Text>
       );

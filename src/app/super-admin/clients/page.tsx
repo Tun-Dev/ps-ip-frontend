@@ -6,8 +6,11 @@ import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { OverviewCard } from '@/shared/chakra/components/overview';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { AddNewClientModal, DeleteModal } from '@/shared/chakra/modals';
+import { EditClientModal } from '@/shared/chakra/modals/EditClientModal';
+import { ManageClientModal } from '@/shared/chakra/modals/manage-client-modal';
 import { ReusableTable } from '@/shared/chakra/organisms';
-import { Partner } from '@/types';
+import { Client } from '@/types';
+import { formatCurrency } from '@/utils';
 import {
   Box,
   Button,
@@ -30,7 +33,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { MdAddCircle, MdDownload, MdMoreHoriz, MdSearch, MdVolunteerActivism } from 'react-icons/md';
 
-const PartnerTab = () => {
+const ClientTab = () => {
   const toast = useToast();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -38,34 +41,37 @@ const PartnerTab = () => {
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
   const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
   const {
-    data: partners,
+    data: clients,
     isLoading,
     isError,
     isRefetchError,
     isRefetching,
     refetch,
   } = useGetClients({ page: 1, pageSize: 10, query: search, programId: program });
-  const totalPages = partners?.body.total ?? 0;
-  const [selectedPartner, setSelectedPartner] = useState('');
+  const totalPages = clients?.body.totalPages ?? 1;
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: deleteModalOnClose } = useDisclosure();
-  const { mutate: delPartner, isPending } = useDeleteClient();
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+  const { isOpen: isMangeOpen, onOpen: onManageOpen, onClose: onManageClose } = useDisclosure();
+  const { mutate: deleteClient, isPending } = useDeleteClient();
 
-  const handleDeletePartner = () => {
-    delPartner(selectedPartner, {
+  const handleDeleteClient = () => {
+    deleteClient(selectedClientId, {
       onSuccess: () => {
-        toast({ title: 'Partner deleted successfully', status: 'success' });
+        toast({ title: 'Client deleted successfully', status: 'success' });
         deleteModalOnClose();
       },
     });
   };
 
-  const columns: ColumnDef<Partner>[] = useMemo(
+  const columns: ColumnDef<Client>[] = useMemo(
     () => [
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            Partner
+          <Text variant="Body3Semibold" color="grey.500">
+            Client
           </Text>
         ),
         accessorKey: 'name',
@@ -73,25 +79,27 @@ const PartnerTab = () => {
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
+          <Text variant="Body3Semibold" color="grey.500">
             Program
           </Text>
         ),
         accessorKey: 'program',
         enableSorting: false,
+        cell: (info) => info.row.original.programs,
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500">
-            Amount Disbursed
+          <Text variant="Body3Semibold" color="grey.500">
+            Disbursable Amount
           </Text>
         ),
         accessorKey: 'amount',
         enableSorting: false,
+        cell: (info) => formatCurrency(info.row.original.amount),
       },
       {
         header: () => (
-          <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
             Actions
           </Text>
         ),
@@ -116,12 +124,34 @@ const PartnerTab = () => {
               <MenuItem
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedPartner(info.row.original.id.toString());
+                  setSelectedClient(info.row.original);
+                  onEditOpen();
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Edit Client
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedClient(info.row.original);
+                  onManageOpen();
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Manage Client
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedClientId(info.row.original.id.toString());
                   onDeleteOpen();
                 }}
               >
                 <Text as="span" variant="Body2Regular" w="full">
-                  Delete Partner
+                  Delete Client
                 </Text>
               </MenuItem>
             </MenuList>
@@ -129,18 +159,31 @@ const PartnerTab = () => {
         ),
       },
     ],
-    [isPending, onDeleteOpen]
+    [isPending, onDeleteOpen, onEditOpen, onManageOpen]
   );
 
   return (
     <Flex flexDir="column" gap="1.5rem" w="100%" h="100%">
+      {selectedClient && (
+        <>
+          <EditClientModal
+            isOpen={isEditOpen}
+            onClose={() => {
+              onEditClose();
+              setSelectedClient(null);
+            }}
+            client={selectedClient}
+          />
+          <ManageClientModal isOpen={isMangeOpen} onClose={onManageClose} client={selectedClient} />
+        </>
+      )}
       <AddNewClientModal isOpen={isOpen} onClose={onClose} />
       <DeleteModal
         isOpen={isDeleteOpen}
         onClose={deleteModalOnClose}
-        action={handleDeletePartner}
+        action={handleDeleteClient}
         isLoading={isPending}
-        text="Are you sure you want to delete this partner. Proceeding will erase this partner data."
+        text="Are you sure you want to delete this client. Proceeding will erase this client data."
       />
       <Flex flexDir="column" gap="12px">
         <Flex alignItems="center" justifyContent="space-between">
@@ -150,17 +193,17 @@ const PartnerTab = () => {
 
           <Button variant="primary" gap="8px" onClick={onOpen}>
             <MdAddCircle />
-            <Text> Add New Client</Text>
+            <Text>Add New Client</Text>
           </Button>
         </Flex>
         <Box w="256px" cursor="pointer">
-          <OverviewCard title="Total Clients" number={partners?.body.total || 0} icon={MdVolunteerActivism} active />
+          <OverviewCard title="Total Clients" number={clients?.body.total || 0} icon={MdVolunteerActivism} active />
         </Box>
       </Flex>
 
       <Flex justifyContent="space-between" alignItems="center">
         <Flex gap="8px" alignItems="center">
-          <Text variant="Body2Semibold" color="gray.500" whiteSpace="nowrap">
+          <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
             Filter by
           </Text>
           <Select
@@ -196,7 +239,7 @@ const PartnerTab = () => {
 
       <ReusableTable
         selectable
-        data={partners?.body.data || []}
+        data={clients?.body.data || []}
         columns={columns}
         isLoading={isLoading || isRefetching}
         isError={isError || isRefetchError}
@@ -217,4 +260,4 @@ const PartnerTab = () => {
   );
 };
 
-export default PartnerTab;
+export default ClientTab;

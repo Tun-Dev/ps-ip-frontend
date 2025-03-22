@@ -4,7 +4,8 @@ import { Box, Flex, Grid, Image, SimpleGrid, SkeletonCircle, SkeletonText, Stack
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { useGetVendorPrograms } from '@/hooks/useGetVendorPrograms';
+import { useGetCurrentUser } from '@/hooks/useGetCurrentUser';
+import { useGetProgramsByFolderId } from '@/hooks/useGetProgramsByFolderId';
 import { GeepComponent } from '@/shared/chakra/components';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 
@@ -15,16 +16,20 @@ const ProgramsPage = () => {
   const { folderID } = useParams();
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, isPlaceholderData } = useGetVendorPrograms({
+  const { data: currentUser } = useGetCurrentUser();
+  const vendorId = currentUser?.body.vendor.id;
+
+  const { data, isLoading, isPlaceholderData } = useGetProgramsByFolderId({
     page,
     pageSize: PAGE_SIZE,
     folderId: folderID.toString(),
+    vendorId: vendorId,
+    enabled: !!folderID && !!vendorId,
   });
 
-  const programList = data?.body ?? [];
-  const programCount = data?.body.length ?? 0;
-  const totalPages = Math.ceil((data?.body.length ?? 0) / PAGE_SIZE);
-  const paginatedPrograms = programList.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const programList = data?.body.data ?? [];
+  const programCount = data?.body.data.length ?? 0;
+  const totalPages = data?.body.totalPages ?? 1;
 
   return (
     <Stack pos="relative" overflow="hidden" spacing="6" justify="space-between" boxSize="full">
@@ -34,15 +39,15 @@ const ProgramsPage = () => {
         <EmptyState />
       ) : (
         <SimpleGrid columns={{ base: 3, xl: 4 }} spacingY="6" spacingX="5">
-          {paginatedPrograms.map((item, index) => (
+          {programList.map((item, index) => (
             <GeepComponent
               key={index}
               name={item.name}
               logo={item.logo}
-              programType={item.type}
-              count={item.moduleName}
+              programType={item.programType}
+              count="Disbursement"
               waveDirection={index % 2 === 0 ? 'bottom' : 'top'}
-              onClick={() => router.push(`/vendors/programs/${folderID}/${item.programId}`)}
+              onClick={() => router.push(`/vendors/programs/${folderID}/${item.id}`)}
             />
           ))}
         </SimpleGrid>

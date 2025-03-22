@@ -14,7 +14,7 @@ export const MultiStepHeaderBen = ({ availableModules, currentModule }: Props) =
   );
 
   return (
-    <Flex justifyContent="center" gap="8px">
+    <Flex justifyContent={{ xs: 'center' }} gap="8px">
       {modules.map((module, index) => (
         <Fragment key={module.module}>
           <StepItem step={index + 1} activeStep={activeModuleIndex + 1} label={module.module || module.name} />

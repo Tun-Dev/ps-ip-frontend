@@ -1,20 +1,18 @@
 'use client';
 
-import { Grid, Spinner, Text } from '@chakra-ui/react';
-import { isAxiosError } from 'axios';
-import { useParams, useSearchParams } from 'next/navigation';
+import { Grid, Spinner, Stack, Text } from '@chakra-ui/react';
+import { useParams } from 'next/navigation';
 
 import { useGetProgramForm } from '@/hooks/useGetProgramForm';
 import { formatErrorMessage } from '@/utils';
+import { isAxiosError } from 'axios';
 import ModuleForm from '../../components/module-form';
-import ModuleStatus from '../../components/module-status';
 
 const BeneficiaryApplication = () => {
   const { programId } = useParams();
-  const code = useSearchParams().get('code') || '';
-  const { isLoading, error } = useGetProgramForm(`${programId}`);
+  const { isPending, error } = useGetProgramForm(`${programId}`);
 
-  if (isLoading)
+  if (isPending)
     return (
       <Grid flex="1" placeItems="center">
         <Spinner />
@@ -32,9 +30,11 @@ const BeneficiaryApplication = () => {
       </Grid>
     );
 
-  if (statusCode === 404 || code) return <ModuleStatus />;
-
-  return <ModuleForm />;
+  return (
+    <Stack py="6" px="10" flex="1">
+      <ModuleForm />
+    </Stack>
+  );
 };
 
 export default BeneficiaryApplication;

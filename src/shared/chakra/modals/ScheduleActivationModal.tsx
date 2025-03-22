@@ -24,7 +24,7 @@ import { z } from 'zod';
 
 import { useGetAllAggregatorPrograms } from '@/hooks/useGetAllAggregatorPrograms';
 import { useScheduleActivation } from '@/hooks/useScheduleActivation';
-import type { AggregatorAgent, ScheduleActivationPayload } from '@/types';
+import type { Agent, ScheduleActivationPayload } from '@/types';
 import { useMemo } from 'react';
 import { Dropdown } from '../components';
 import { CustomCheckbox } from '../components/custom-checkbox';
@@ -52,13 +52,13 @@ const DAYS = [
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  agents: AggregatorAgent[];
+  agents: Agent[];
 };
 
 export const ScheduleActivationModal = ({ isOpen, onClose, agents }: ModalProps) => {
   const toast = useToast();
 
-  const { data: programs } = useGetAllAggregatorPrograms(isOpen);
+  const { data: programs } = useGetAllAggregatorPrograms({ enabled: isOpen });
 
   const options = useMemo(() => {
     if (!programs) return [];

@@ -16,7 +16,9 @@ export function ModulesList() {
   const selectedModuleIds = useProgramStore((state) => state.selectedModules);
   const setSelectedModuleIds = useProgramStore((state) => state.setSelectedModules);
 
-  const { getValues, setValue } = useProgramForm();
+  const {
+    form: { getValues, setValue },
+  } = useProgramForm();
 
   const { data: modules, isLoading } = useGetModules();
 
@@ -27,14 +29,22 @@ export function ModulesList() {
   }, [modules, selectedModuleIds, step]);
 
   const handleModuleClick = (module: Module, isSelected: boolean) => {
-    if (step !== 2) setActiveModuleId(module.id);
-    else if (!isSelected) {
-      setSelectedModuleIds({ ids: new Set(selectedModuleIds.ids.add(module.id)) });
+    if (step !== 2) return setActiveModuleId(module.id);
+    if (isSelected) return;
+    const isVetting = module.name === 'Vetting';
+    const manualGuideline = module.moduleGuidelines.find((guideline) => guideline.identifier === 'MANUAL');
 
-      const newModule = { moduleId: module.id, order: 0, isBase: false, guidelines: [] };
-      setValue('programModules', [...getValues('programModules'), newModule]);
-    }
+    setSelectedModuleIds({ ids: new Set(selectedModuleIds.ids.add(module.id)) });
+    const newModule = {
+      moduleId: module.id,
+      order: 0,
+      isBase: false,
+      guidelines: isVetting && manualGuideline ? [manualGuideline.id] : [],
+    };
+    setValue('programModules', [...getValues('programModules'), newModule]);
   };
+
+  console.log(modules);
 
   const isDisabled = (module: Module) =>
     (step === 3 && !EDITABLE_MODULES.includes(module.module)) ||

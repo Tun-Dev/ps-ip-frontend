@@ -10,6 +10,7 @@ import type {
   ProgramPayload,
   ProgramUploadResponse,
 } from '@/types';
+import { FormStatus } from '@/utils';
 
 export const getPrograms = async ({ queryKey }: { queryKey: QueryKey }) => {
   const [, params] = queryKey;
@@ -45,13 +46,30 @@ export const uploadData = async (programModuleId: string) => {
   return data;
 };
 
+export const uploadNominationFile = async ({ programId, file }: { programId: string; file: File }) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await axiosInstance.post<APIResponse<{ file: FormData }>>(
+    `/nomination/upload/${programId}`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
+
+  return response.data;
+};
+
 export const getUploadStatus = async ({ queryKey }: { queryKey: QueryKey }) => {
   const [, programModuleId] = queryKey;
   const { data } = await axiosInstance.get<APIResponse<boolean>>(`/program/upload-status/${programModuleId}`);
   return data;
 };
 
-export const processModule = async (programModuleId: string) => {
-  const { data } = await axiosInstance.post<APIResponse<any>>(`/program/process-module/${programModuleId}`);
+export const processModule = async ({ moduleid, status }: { moduleid: string; status: FormStatus }) => {
+  const { data } = await axiosInstance.post<APIResponse<any>>(`/program/process-module/${moduleid}/${status}`);
   return data;
 };

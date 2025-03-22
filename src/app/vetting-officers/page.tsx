@@ -1,42 +1,16 @@
 'use client';
 
+import { useGetVettingOfficersDashboard } from '@/hooks/useGetVettingOfficersDashboard';
 import { NotificationCard, ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
-import { Flex, Grid, Icon, Link, SimpleGrid, Stack, Text } from '@chakra-ui/react';
+import { Flex, Icon, Link, SimpleGrid, Stack, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
 import { MdEmojiEmotions, MdOpenInNew, MdOutlineChecklistRtl, MdViewCarousel } from 'react-icons/md';
 
-const ACTIVITY = {
-  program: 'iDICE',
-  activity: [
-    {
-      name: 'Usman Ola',
-      lga: 'Ikeja',
-      status: 'Pending',
-    },
-    {
-      name: 'Oluwaseun Chukwu',
-      lga: 'Agege',
-      status: 'Pending',
-    },
-    {
-      name: 'Chukwudi Abubakar',
-      lga: 'Badagry',
-      status: 'Approved',
-    },
-    {
-      name: 'Amina Adewale',
-      lga: 'Ikorodu',
-      status: 'Denied',
-    },
-  ],
-};
-
-type Activity = typeof ACTIVITY;
-
 const VettingOfficersDashboard = () => {
   const router = useRouter();
+  const { isPending, isError, data } = useGetVettingOfficersDashboard();
 
   return (
     <Stack flexDir="column" gap="6">
@@ -48,26 +22,36 @@ const VettingOfficersDashboard = () => {
           <OverviewCard
             minW="unset"
             title="Programs"
-            number={8}
+            number={isPending || isError ? '...' : data.body.programs}
             icon={MdViewCarousel}
             cursor="pointer"
             onClick={() => router.push('/vetting-officers/programs')}
           />
-          <OverviewCard minW="unset" title="Total Beneficiaries" icon={MdEmojiEmotions} number={200000} />
-          <OverviewCard minW="unset" title="Awaiting Vetting" icon={MdOutlineChecklistRtl} number={100000} />
+          <OverviewCard
+            minW="unset"
+            title="Total Beneficiaries"
+            icon={MdEmojiEmotions}
+            number={isPending || isError ? '...' : data.body.totalVetted}
+          />
+          <OverviewCard
+            minW="unset"
+            title="Awaiting Vetting"
+            icon={MdOutlineChecklistRtl}
+            number={isPending || isError ? '...' : data.body.pendingApproval}
+          />
           <OverviewCard
             minW="unset"
             title="Total Successful Vetting"
             icon={MdOutlineChecklistRtl}
             iconColor="green"
-            number={75000}
+            number={isPending || isError ? '...' : data.body.successfulVetting}
           />
           <OverviewCard
             minW="unset"
             title="Total Failed Vetting"
             icon={MdOutlineChecklistRtl}
             iconColor="red"
-            number={25000}
+            number={isPending || isError ? '...' : data.body.failedVetting}
           />
         </SimpleGrid>
       </Stack>
@@ -75,7 +59,7 @@ const VettingOfficersDashboard = () => {
         <Text variant="Body1Semibold" color="grey.400">
           Recent Notifications
         </Text>
-        <Grid gap="1rem" templateColumns={{ base: 'repeat(2, 1fr)', xl: 'repeat(3, 1fr)' }}>
+        <SimpleGrid columns={{ base: 2, xl: 3 }} gap="4">
           <NotificationCard
             title="Vetting Updates"
             time="2 hours ago"
@@ -100,15 +84,15 @@ const VettingOfficersDashboard = () => {
             Icon={MdOutlineChecklistRtl}
             iconSize="1.25rem"
           />
-        </Grid>
+        </SimpleGrid>
       </Stack>
       <Stack spacing="3">
         <Text variant="Body1Semibold" color="grey.400">
           Recent Activities
         </Text>
-        <Grid gap="20px" templateColumns={{ base: 'repeat(2, 1fr)', xl: 'repeat(3, 1fr)' }}>
+        <SimpleGrid columns={{ base: 2, xl: 3 }} gap="5">
           <ActivityTable activity={ACTIVITY} />
-        </Grid>
+        </SimpleGrid>
       </Stack>
     </Stack>
   );
@@ -122,7 +106,7 @@ const ActivityTable = ({ activity }: { activity: Activity }) => {
           {activity.program}
         </Text>
         <Flex justifyContent="flex-end" color="primary.500">
-          <Link href="/aggregators/programs">
+          <Link href="/vetting-officers/programs">
             <Text display="flex" alignItems="center" gap="1" variant="Body3Semibold" color="secondary.500">
               View details <Icon as={MdOpenInNew} />
             </Text>
@@ -133,6 +117,10 @@ const ActivityTable = ({ activity }: { activity: Activity }) => {
     </Flex>
   );
 };
+
+type Activity = { program: string; activity: { name: string; lga: string; status: string }[] };
+
+const ACTIVITY: Activity = { program: 'N/A', activity: [] };
 
 const columns: ColumnDef<Activity['activity'][number]>[] = [
   {

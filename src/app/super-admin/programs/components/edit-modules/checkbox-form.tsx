@@ -1,9 +1,12 @@
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Button,
   Checkbox,
-  CheckboxGroup,
   Flex,
-  Heading,
   Input,
   InputGroup,
   InputLeftElement,
@@ -28,7 +31,7 @@ import { useParams } from 'next/navigation';
 const CheckboxForm = memo(({ moduleId }: { moduleId: number }) => {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(999);
 
   const { isLoading, isPlaceholderData } = useGetDataPoints({ query: debouncedQuery, pageSize });
 
@@ -77,13 +80,28 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
   >(new Map());
   const selectedModuleIds = useProgramStore((state) => state.selectedModules);
   const moduleIndex = Array.from(selectedModuleIds.ids).indexOf(moduleId);
-  const { setValue, getValues } = useProgramForm();
+  const {
+    form: { setValue, getValues },
+  } = useProgramForm();
   const programModules = getValues('programModules');
 
   const { data, isPlaceholderData } = useGetDataPoints({ query: debouncedQuery, pageSize });
   const { programID } = useParams();
   const { response: program } = useGetProgramById(programID?.toString());
   const { data: modules } = useGetModules();
+
+  const [allCompulsory, setAllCompulsory] = useState(false);
+
+  // Check if all selected data points are compulsory when the selection changes
+  useEffect(() => {
+    if (checkedDataPoints.size === 0) {
+      setAllCompulsory(false);
+      return;
+    }
+
+    const allRequired = Array.from(checkedDataPoints.values()).every((item) => item.isRequired);
+    setAllCompulsory(allRequired);
+  }, [checkedDataPoints]);
 
   useEffect(() => {
     if (!program) return;
@@ -130,127 +148,211 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
     return Object.entries(data.body.data);
   }, [data]);
 
-  const handleCheckboxChange = useCallback((dataPoint: DataPoint) => {
-    setCheckedDataPoints((prev) => {
-      const newMap = new Map(prev);
-      if (newMap.has(dataPoint.id)) newMap.delete(dataPoint.id);
-      else newMap.set(dataPoint.id, { dataPoint, isRequired: false });
-      return newMap;
-    });
-  }, []);
-
-  const handleCompulsoryChange = useCallback((dataPoint: DataPoint, isRequired: boolean) => {
-    setCheckedDataPoints((prev) => {
-      const newMap = new Map(prev);
-      if (newMap.has(dataPoint.id)) newMap.set(dataPoint.id, { dataPoint, isRequired });
-      return newMap;
-    });
-  }, []);
-
   const hasMoreData = useMemo(() => {
     if (!data) return false;
     const { total, currentPage } = data.body;
     return currentPage * pageSize < total;
   }, [data, pageSize]);
 
+  const toggleCompulsory = () => {
+    const shouldMakeCompulsory = !allCompulsory;
+
+    setCheckedDataPoints((prev) => {
+      const newMap = new Map(prev);
+      prev.forEach((value, key) => {
+        newMap.set(key, { dataPoint: value.dataPoint, isRequired: shouldMakeCompulsory });
+      });
+      return newMap;
+    });
+  };
+
   return (
-    <Stack spacing="4">
-      {dataPointEntries.map(([heading, dataPoints]) => (
-        <CheckboxGroup key={heading}>
-          <Stack spacing="2">
-            <Heading as="h3" variant="Body1Semibold" color="primary.500" alignSelf="start">
-              {heading}
-            </Heading>
-            <Stack spacing="3">
-              {dataPoints.map((field) => {
-                const checkedDataPoint = checkedDataPoints.get(field.id);
-                return (
-                  <Flex
-                    key={field.id}
-                    align="center"
-                    justify="space-between"
-                    rounded="0.5rem"
-                    border="1px solid"
-                    borderColor="grey.200"
-                    p="2"
-                  >
-                    <Checkbox
-                      isDisabled={isPlaceholderData}
-                      isChecked={!!checkedDataPoint}
-                      onChange={() => handleCheckboxChange(field)}
-                    >
-                      {field.question}
-                    </Checkbox>
-                    <Flex align="center" gap="0.625rem">
-                      <Text
-                        as="label"
-                        htmlFor={`${field.question}-is-compulsory`}
-                        color="grey.500"
-                        variant="Body2Regular"
-                      >
-                        Mark as Compulsory
-                      </Text>
-                      <Switch
-                        id={`${field.question}-is-compulsory`}
-                        isDisabled={isPlaceholderData || !checkedDataPoint}
-                        isChecked={checkedDataPoint?.isRequired || false}
-                        onChange={(e) => handleCompulsoryChange(field, e.target.checked)}
-                      />
-                    </Flex>
-                  </Flex>
-                );
-              })}
-            </Stack>
-          </Stack>
-        </CheckboxGroup>
-      ))}
-      {hasMoreData && (
-        <Flex justify="end" gap="2" align="center" color="grey.500">
-          {isPlaceholderData && <Spinner size="xs" />}
-          <Button
-            variant="link"
-            size="sm"
-            color="inherit"
-            onClick={() => setPageSize((prev) => prev + 20)}
-            disabled={isPlaceholderData}
-          >
-            Load more
-          </Button>
+    <>
+      <Flex align="center" justify="space-between">
+        <Flex align="center" gap="3">
+          <Text variant="Body1Semibold">Select Data Points</Text>
+          {checkedDataPoints.size > 0 && (
+            <Text variant="Body1Regular" color="primary.500">
+              ({checkedDataPoints.size} Selected)
+            </Text>
+          )}
         </Flex>
-      )}
-    </Stack>
+        <Button
+          variant="link"
+          color="secondary.500"
+          onClick={toggleCompulsory}
+          isDisabled={checkedDataPoints.size === 0}
+        >
+          <Text as="span" variant="Body2Semibold">
+            {allCompulsory ? 'Unmark all as Compulsory' : 'Mark all as Compulsory'}
+          </Text>
+        </Button>
+      </Flex>
+      <Stack spacing="4">
+        <Accordion allowMultiple>
+          {dataPointEntries.map(([heading, dataPoints]) => (
+            <CollapsibleGroup
+              key={heading}
+              heading={heading}
+              dataPoints={dataPoints}
+              isPlaceholderData={isPlaceholderData}
+              checkedDataPoints={checkedDataPoints}
+              setCheckedDataPoints={setCheckedDataPoints}
+            />
+          ))}
+        </Accordion>
+        {hasMoreData && (
+          <Flex justify="end" gap="2" align="center" color="grey.500">
+            {isPlaceholderData && <Spinner size="xs" />}
+            <Button
+              variant="link"
+              size="sm"
+              color="inherit"
+              onClick={() => setPageSize((prev) => prev + 20)}
+              disabled={isPlaceholderData}
+            >
+              Load more
+            </Button>
+          </Flex>
+        )}
+      </Stack>
+    </>
   );
 });
 
 RenderGroup.displayName = 'RenderGroup';
 
+type CollapsibleGroupProps = {
+  heading: string;
+  dataPoints: DataPoint[];
+  isPlaceholderData: boolean;
+  checkedDataPoints: Map<string, { dataPoint: DataPoint; isRequired: boolean }>;
+  setCheckedDataPoints: Dispatch<SetStateAction<Map<string, { dataPoint: DataPoint; isRequired: boolean }>>>;
+};
+
+const CollapsibleGroup = ({
+  heading,
+  dataPoints,
+  isPlaceholderData,
+  checkedDataPoints,
+  setCheckedDataPoints,
+}: CollapsibleGroupProps) => {
+  const handleCheckboxChange = useCallback(
+    (dataPoint: DataPoint) => {
+      setCheckedDataPoints((prev) => {
+        const newMap = new Map(prev);
+        if (newMap.has(dataPoint.id)) newMap.delete(dataPoint.id);
+        else newMap.set(dataPoint.id, { dataPoint, isRequired: false });
+        return newMap;
+      });
+    },
+    [setCheckedDataPoints]
+  );
+
+  const handleCompulsoryChange = useCallback(
+    (dataPoint: DataPoint, isRequired: boolean) => {
+      setCheckedDataPoints((prev) => {
+        const newMap = new Map(prev);
+        if (newMap.has(dataPoint.id)) newMap.set(dataPoint.id, { dataPoint, isRequired });
+        return newMap;
+      });
+    },
+    [setCheckedDataPoints]
+  );
+
+  return (
+    <AccordionItem _first={{ borderTop: 'none' }}>
+      <h3>
+        <AccordionButton px="0">
+          <Text as="span" flex="1" textAlign="left" variant="Body1Semibold" color="primary.500">
+            {heading}
+          </Text>
+          <AccordionIcon color="primary.500" />
+        </AccordionButton>
+      </h3>
+      <AccordionPanel px="0">
+        <Stack spacing="3">
+          {dataPoints.map((field) => {
+            const checkedDataPoint = checkedDataPoints.get(field.id);
+            const isCompulsory =
+              field.question.toLowerCase() === 'state' ||
+              field.question.toLowerCase() === 'lga' ||
+              field.question.toLowerCase() === 'gps';
+
+            return (
+              <Flex
+                key={field.id}
+                align="center"
+                justify="space-between"
+                rounded="0.5rem"
+                border="1px solid"
+                borderColor="grey.200"
+                p="2"
+              >
+                <Checkbox
+                  isDisabled={isPlaceholderData || isCompulsory}
+                  isChecked={isCompulsory || !!checkedDataPoint}
+                  onChange={() => handleCheckboxChange(field)}
+                >
+                  {field.question}
+                </Checkbox>
+                <Flex align="center" gap="0.625rem">
+                  <Text as="label" htmlFor={`${field.question}-is-compulsory`} color="grey.500" variant="Body2Regular">
+                    Mark as Compulsory
+                  </Text>
+                  <Switch
+                    id={`${field.question}-is-compulsory`}
+                    isDisabled={isCompulsory || isPlaceholderData || !checkedDataPoint}
+                    isChecked={isCompulsory || checkedDataPoint?.isRequired || false}
+                    onChange={(e) => handleCompulsoryChange(field, e.target.checked)}
+                  />
+                </Flex>
+              </Flex>
+            );
+          })}
+        </Stack>
+      </AccordionPanel>
+    </AccordionItem>
+  );
+};
+
 const LoadingSkeleton = () => (
-  <Stack spacing="2">
-    <SkeletonText noOfLines={2} maxW="8rem" />
-    <Stack spacing="3">
-      {Array.from({ length: 10 }, (_, i) => (
-        <Flex
-          key={i}
-          align="center"
-          justify="space-between"
-          rounded="0.5rem"
-          border="1px solid"
-          borderColor="grey.200"
-          p="2"
-        >
-          <Checkbox isDisabled>
-            <SkeletonText noOfLines={2}>Loading</SkeletonText>
-          </Checkbox>
-          <Flex align="center" gap="0.625rem">
-            <Text color="grey.500" variant="Body2Regular">
-              Mark as Compulsory
-            </Text>
-            <Switch isDisabled />
+  <>
+    <Flex align="center" justify="space-between">
+      <Text variant="Body1Semibold">Select Data Points</Text>
+      <Button variant="link" color="secondary.500" isDisabled>
+        <Text as="span" variant="Body2Semibold">
+          Mark all as Compulsory
+        </Text>
+      </Button>
+    </Flex>
+    <Stack spacing="2">
+      <SkeletonText noOfLines={2} maxW="8rem" />
+      <Stack spacing="3">
+        {Array.from({ length: 10 }, (_, i) => (
+          <Flex
+            key={i}
+            align="center"
+            justify="space-between"
+            rounded="0.5rem"
+            border="1px solid"
+            borderColor="grey.200"
+            p="2"
+          >
+            <Checkbox isDisabled>
+              <SkeletonText noOfLines={2}>Loading</SkeletonText>
+            </Checkbox>
+            <Flex align="center" gap="0.625rem">
+              <Text color="grey.500" variant="Body2Regular">
+                Mark as Compulsory
+              </Text>
+              <Switch isDisabled />
+            </Flex>
           </Flex>
-        </Flex>
-      ))}
+        ))}
+      </Stack>
     </Stack>
-  </Stack>
+  </>
 );
 
 export default CheckboxForm;

@@ -6,16 +6,14 @@ import type {
   AddAggregatorToProgram,
   Agent,
   Aggregator,
-  AggregatorAgent,
   AggregatorAnalytics,
   AggregatorDetails,
   AggregatorOverview,
   AggregatorPayload,
-  AggregatorProgram,
-  AggregatorProgramsParams,
   APIResponse,
   DashboardProgramGroups,
   PaginatedResponse,
+  PendingAgent,
 } from '@/types';
 
 export const getAggregators = async ({ queryKey }: { queryKey: QueryKey }) => {
@@ -51,14 +49,14 @@ export const activateAggregator = async ({ queryKey }: { queryKey: QueryKey }) =
   return response.data;
 };
 
-export const reassignAggregator = async (data: Partial<Aggregator>) => {
+export const editAggregator = async (data: Partial<Aggregator>) => {
   const response = await axiosInstance.put<APIResponse<Partial<Aggregator>>>(`/aggregator`, data);
   return response.data;
 };
 
 export const getAggregatorAgents = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
   const [, params] = queryKey;
-  const response = await axiosInstance.get<PaginatedResponse<AggregatorAgent>>('/aggregator/dashboard/agents', {
+  const response = await axiosInstance.get<PaginatedResponse<Agent>>('/aggregator/dashboard/agents', {
     params,
     signal,
   });
@@ -81,18 +79,11 @@ export const getAggregatorProgramGroups = async ({ signal }: { signal: AbortSign
   return response.data;
 };
 
-export const getAggregatorPrograms = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
-  const { folderId, ...params } = queryKey[1] as AggregatorProgramsParams;
-  const response = await axiosInstance.get<PaginatedResponse<AggregatorProgram>>(`/program-group/list/${folderId}`, {
-    params,
-    signal,
-  });
-  return response.data;
-};
-
-export const getAllAggregatorPrograms = async ({ signal }: { signal: AbortSignal }) => {
+export const getAllAggregatorPrograms = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, aggregatorId] = queryKey;
   const response = await axiosInstance.get<APIResponse<{ id: string; name: string }[]>>('/aggregator/program', {
     signal,
+    params: { aggregatorId },
   });
   return response.data;
 };
@@ -121,4 +112,28 @@ export const removeAggregatorFromProgram = async (id: string) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const response = await axiosInstance.delete<APIResponse<any>>(`/aggregator/${id}/remove/programs`);
   return response.data;
+};
+
+export const getPendingAgents = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, params] = queryKey;
+  const response = await axiosInstance.get<PaginatedResponse<PendingAgent>>('/aggregator/pending/agents/list', {
+    params,
+    signal,
+  });
+  return response.data;
+};
+
+export const getAggregatorCode = async () => {
+  const response = await axiosInstance.get<APIResponse<string>>('/aggregator/aggregatorCode');
+  return response.data;
+};
+
+export const approveAgents = async (payload: Array<{ agentId: string }>) => {
+  const { data } = await axiosInstance.put<APIResponse<boolean>>('/aggregator/dashboard/agents/approve', payload);
+  return data;
+};
+
+export const approveAgentsAdmin = async (payload: Array<{ agentId: string }>) => {
+  const { data } = await axiosInstance.put<APIResponse<boolean>>('/aggregator/admin/agents/approve', payload);
+  return data;
 };

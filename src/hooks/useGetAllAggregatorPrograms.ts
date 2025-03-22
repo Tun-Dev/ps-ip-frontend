@@ -7,9 +7,18 @@ import { useEffect } from 'react';
 import { getAllAggregatorPrograms } from '@/services/aggregators';
 import { formatErrorMessage } from '@/utils';
 
-export const useGetAllAggregatorPrograms = (enabled?: boolean) => {
+type Params = Partial<{
+  aggregatorId: string;
+  enabled: boolean;
+}>;
+
+export const useGetAllAggregatorPrograms = ({ enabled, aggregatorId }: Params) => {
   const toast = useToast();
-  const query = useQuery({ queryKey: ['allAggregatorPrograms'], queryFn: getAllAggregatorPrograms, enabled });
+  const query = useQuery({
+    queryKey: ['allAggregatorPrograms', aggregatorId],
+    queryFn: getAllAggregatorPrograms,
+    enabled,
+  });
 
   useEffect(() => {
     if (query.error) toast({ title: 'Error', description: formatErrorMessage(query.error), status: 'error' });

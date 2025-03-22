@@ -1,7 +1,7 @@
-import { MODULE_STATUS } from '@/utils';
 import {
   Button,
   Flex,
+  Grid,
   Icon,
   Modal,
   ModalBody,
@@ -18,19 +18,17 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   code: string;
-  moduleName: string;
+  isApplication?: boolean;
 };
 
-export const BeneficiarySuccessModal = ({ isOpen, onClose, code, moduleName }: Props) => {
+export const BeneficiarySuccessModal = ({ isOpen, onClose, code, isApplication }: Props) => {
   const router = useRouter();
   const { programId } = useParams();
   const { onCopy, hasCopied } = useClipboard(code);
 
-  const moduleStatus = MODULE_STATUS[moduleName] || MODULE_STATUS.default;
-
   const handleClose = () => {
     onClose();
-    router.push(`/beneficiary/${programId}/progress`);
+    router.push(`/beneficiary/${programId}`);
   };
 
   return (
@@ -40,6 +38,11 @@ export const BeneficiarySuccessModal = ({ isOpen, onClose, code, moduleName }: P
         <ModalBody p="8">
           <Stack gap="8" align="center">
             <Stack gap="5">
+              {!isApplication && (
+                <Grid placeItems="center">
+                  <Icon as={MdCheckCircle} boxSize="10" color="primary.600" />
+                </Grid>
+              )}
               <Text
                 variant="Body1Semibold"
                 color="text"
@@ -48,30 +51,32 @@ export const BeneficiarySuccessModal = ({ isOpen, onClose, code, moduleName }: P
                 justifyContent="center"
                 gap="1"
               >
-                {moduleStatus.status}
-                <Icon as={MdCheckCircle} boxSize="5" color="primary.600" />
+                Your response has been submitted
+                {isApplication && <Icon as={MdCheckCircle} boxSize="5" color="primary.600" />}
               </Text>
-              <Stack gap="4">
-                <Text variant="Body2Regular" color="grey.500" textAlign="center">
-                  You can track your progress with this USER ID
-                </Text>
-                <Flex gap="2.5" justify="center" align="center">
-                  <Text variant="Header1Bold" bgColor="primary.150" py="2" px="4" rounded="0.375rem">
-                    {code}
+              {isApplication && (
+                <Stack gap="4">
+                  <Text variant="Body2Regular" color="grey.500" textAlign="center">
+                    You can track your progress with this USER ID
                   </Text>
-                  <Button
-                    variant="secondary"
-                    fontWeight="600"
-                    fontSize="1rem"
-                    rounded="0.375rem"
-                    gap="2"
-                    onClick={onCopy}
-                  >
-                    <Icon as={MdContentCopy} boxSize="5" />
-                    {hasCopied ? 'Copied' : 'Copy'}
-                  </Button>
-                </Flex>
-              </Stack>
+                  <Flex gap="2.5" justify="center" align="center">
+                    <Text variant="Header1Bold" bgColor="primary.150" py="2" px="4" rounded="0.375rem">
+                      {code}
+                    </Text>
+                    <Button
+                      variant="secondary"
+                      fontWeight="600"
+                      fontSize="1rem"
+                      rounded="0.375rem"
+                      gap="2"
+                      onClick={onCopy}
+                    >
+                      <Icon as={MdContentCopy} boxSize="5" />
+                      {hasCopied ? 'Copied' : 'Copy'}
+                    </Button>
+                  </Flex>
+                </Stack>
+              )}
             </Stack>
             <Button variant="primary" size="default" w="full" maxW="20rem" onClick={handleClose}>
               Continue

@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Flex, Image, Text } from '@chakra-ui/react';
+import { Image } from '@chakra-ui/next-js';
+import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
 import {
@@ -28,39 +29,55 @@ const sideBarData = [
   { name: 'Reports', Icon: MdNoteAlt, url: '/super-admin/reports' },
 ];
 
+const NAME = '/super-admin';
+const NOTIFICATIONS_URL = `${NAME}/notifications`;
+
 const Sidebar = () => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const user = useUserStore((state) => state.user);
   const logout = useUserStore((state) => state.logout);
-  // const router = useRouter();
 
   const handleLogout = () => {
-    queryClient.invalidateQueries();
+    queryClient.cancelQueries();
     queryClient.clear();
     logout();
   };
 
   return (
-    <Flex w="full" flexDir="column">
-      <Image src="/images/boi-white.png" alt="" h="52px" w="197px" />
-      <Flex flex="1 1 0%" mt="44px" flexDirection="column" gap="10px">
-        {sideBarData.map((item, index) => (
-          <SideBarItem
-            key={index}
-            {...item}
-            active={pathname.startsWith(item.url) && (item.url === '/super-admin' ? pathname === '/super-admin' : true)}
+    <Stack
+      w="full"
+      justify="space-between"
+      gap="4"
+      overflowY="auto"
+      sx={{ scrollbarWidth: 'none', msOverflowStyle: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
+    >
+      <Stack align="flex-start" gap="2.75rem" w="full">
+        <Box bgColor="white" p="2" rounded="0.375rem">
+          <Image
+            src="/images/BOI_LOGO.png"
+            alt="Bank of Industry Logo"
+            width={1048}
+            height={238}
+            boxSize="auto"
+            minW="11rem"
+            sx={{ objectFit: 'contain' }}
+            priority
           />
-        ))}
-      </Flex>
-
-      <Flex flexDir="column" mb="68px">
-        <NotificationButton
-          count={3}
-          url="/super-admin/notifications"
-          active={pathname.startsWith('/super-admin/notifications')}
-        />
-        <Flex flexDir="column" mt="48px" gap="16px">
+        </Box>
+        <Stack gap="2.5" w="full">
+          {sideBarData.map((item, index) => (
+            <SideBarItem
+              key={index}
+              {...item}
+              active={pathname.startsWith(item.url) && (item.url === NAME ? pathname === NAME : true)}
+            />
+          ))}
+        </Stack>
+      </Stack>
+      <Stack gap="3rem">
+        <NotificationButton count={3} url={NOTIFICATIONS_URL} active={pathname.startsWith(NOTIFICATIONS_URL)} />
+        <Stack gap="4 ">
           <Flex
             py="16px"
             px="12px"
@@ -70,7 +87,7 @@ const Sidebar = () => {
             justifyContent="center"
             gap="8px"
             h="64px"
-            boxShadow="0px 2px 4px -1px #0330000A, 0px 4px 6px -1px #0330000A"
+            boxShadow="card"
           >
             <Flex
               boxSize="40px"
@@ -98,9 +115,9 @@ const Sidebar = () => {
           >
             Log out
           </Button>
-        </Flex>
-      </Flex>
-    </Flex>
+        </Stack>
+      </Stack>
+    </Stack>
   );
 };
 

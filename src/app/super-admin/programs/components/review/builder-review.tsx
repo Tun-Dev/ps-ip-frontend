@@ -19,9 +19,9 @@ export const BuilderReview = ({ name, fields }: Props) => {
           <GridItem key={index} colSpan={field.status === 'LONG_TEXT' ? 2 : undefined}>
             <Stack align="flex-start" spacing="2" flex="1">
               <Text as="label" variant="Body2Semibold" color="grey.500">
-                {field.name}
+                {name === 'Vetting Form' ? `${field.name}: ${field.value}` : field.name}
               </Text>
-              {field.status === 'UPLOAD' ? (
+              {field.status === 'IMAGE_UPLOAD' ? (
                 <Grid
                   mx="2"
                   placeItems="center"

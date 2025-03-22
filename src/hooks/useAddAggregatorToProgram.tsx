@@ -14,6 +14,7 @@ export const useAddAggregatorToProgram = (onSuccess?: () => void) => {
       toast({ title: 'Success', description: 'Assigned Successfully', status: 'success' });
       queryClient.invalidateQueries({ queryKey: ['aggregators'] });
       queryClient.invalidateQueries({ queryKey: ['aggregatorsOverview'] });
+      queryClient.invalidateQueries({ queryKey: ['allAggregatorPrograms'] });
       onSuccess?.();
     },
     onError: (error) => {

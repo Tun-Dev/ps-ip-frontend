@@ -1,7 +1,7 @@
 import { useCreateVendor } from '@/hooks/useCreateVendor';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
 import { Dropdown } from '@/shared/chakra/components';
-import { formatDateForInput, SERVICES } from '@/utils';
+import { SERVICES } from '@/utils';
 import {
   Button,
   Divider,
@@ -9,10 +9,7 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Grid,
   Input,
-  InputGroup,
-  InputLeftElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -34,41 +31,29 @@ type ModalProps = {
   onClose: () => void;
 };
 
+const Schema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  programId: z.string().min(1, 'Program is required'),
+  service: z.string().min(1, 'Services is required'),
+  product: z.string().optional(),
+  firstname: z.string().min(1, 'First name is required'),
+  lastname: z.string().min(1, 'Last name is required'),
+  email: z.string().min(1, 'Email is required').email('Invalid email'),
+  contactEmail: z.string().min(1, 'Contact Email is required').email('Invalid email'),
+  contactPhone: z
+    .string({ invalid_type_error: 'Phone number is required' })
+    .refine(isValidPhoneNumber, 'Invalid phone number'),
+});
+
+type FormValues = z.infer<typeof Schema>;
+
 const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
+  const [showProductField, setShowProductField] = useState(false);
+
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
   const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
 
-  const [showProductField, setShowProductField] = useState(false);
-
-  const { mutate, isPending } = useCreateVendor(() => {
-    onClose();
-    reset();
-  });
-
-  const Schema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    programId: z.string().min(1, 'Program is required'),
-    amount: z.coerce.number().min(0, 'Amount is required'),
-    numberOfBeneficiaries: z.coerce.number().min(0, 'Number of Beneficiaries is required'),
-    product: z.string().optional(),
-    service: z.string().min(1, 'Services is required'),
-    scheduledDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-      message: 'Scheduled date must be a valid ISO string',
-    }),
-    endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-      message: 'End date must be a valid ISO string',
-    }),
-
-    firstname: z.string().min(1, 'First name is required'),
-    lastname: z.string().min(1, 'Last name is required'),
-    email: z.string().min(1, 'Email is required').email('Invalid email'),
-    contactEmail: z.string().min(1, 'Contact Email is required').email('Invalid email'),
-    contactPhone: z
-      .string({ invalid_type_error: 'Phone number is required' })
-      .refine(isValidPhoneNumber, 'Invalid phone number'),
-  });
-
-  type FormValues = z.infer<typeof Schema>;
+  const { mutate, isPending } = useCreateVendor();
 
   const {
     register,
@@ -81,22 +66,19 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
   const onSubmit = (data: FormValues) => {
     const vendorData = {
       name: data.name,
+      programId: data.programId,
       service: data.service,
       product: data.product,
-      amount: data.amount,
-      scheduledDate: data.scheduledDate,
-      endDate: data.endDate,
-      numberOfBeneficiaries: data.numberOfBeneficiaries,
-      programId: data.programId,
       contactEmail: data.contactEmail,
       contactPhone: data.contactPhone,
-      user: {
-        email: data.email,
-        firstname: data.firstname,
-        lastname: data.lastname,
-      },
+      user: { email: data.email, firstname: data.firstname, lastname: data.lastname },
     };
-    mutate(vendorData);
+    mutate(vendorData, {
+      onSuccess: () => {
+        onClose();
+        reset();
+      },
+    });
   };
 
   return (
@@ -184,84 +166,6 @@ const NewVendorModal = ({ isOpen, onClose }: ModalProps) => {
                 <FormErrorMessage>{errors.product && errors.product.message}</FormErrorMessage>
               </FormControl>
             )}
-            <FormControl isInvalid={!!errors.amount}>
-              <FormLabel htmlFor="amount">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Amount Disbursed
-                </Text>
-              </FormLabel>
-              <InputGroup>
-                <InputLeftElement>
-                  <Text>₦</Text>
-                </InputLeftElement>
-                <Input type="number" id="amount" placeholder="50000000" {...register('amount')}></Input>
-              </InputGroup>
-              <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.numberOfBeneficiaries}>
-              <FormLabel htmlFor="numberOfBeneficiaries">
-                <Text as="span" variant="Body2Semibold" color="grey.500">
-                  Number of Beneficiaries
-                </Text>
-              </FormLabel>
-              <Input
-                type="number"
-                id="numberOfBeneficiaries"
-                placeholder="0"
-                {...register('numberOfBeneficiaries')}
-              ></Input>
-              <FormErrorMessage>
-                {errors.numberOfBeneficiaries && errors.numberOfBeneficiaries.message}
-              </FormErrorMessage>
-            </FormControl>
-            <Grid templateColumns="repeat(2,1fr)" gap={4}>
-              <FormControl isInvalid={!!errors.scheduledDate}>
-                <FormLabel htmlFor="scheduledDate">
-                  <Text as="span" variant="Body2Semibold" color="grey.500">
-                    Scheduled Date
-                  </Text>
-                </FormLabel>
-                <Controller
-                  name="scheduledDate"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      id="scheduledDate"
-                      type="date"
-                      defaultValue={field.value ? formatDateForInput(field.value) : ''}
-                      onChange={(e) => {
-                        const date = new Date(e.target.value);
-                        field.onChange(date.toISOString());
-                      }}
-                    />
-                  )}
-                />
-                <FormErrorMessage>{errors.scheduledDate && errors.scheduledDate.message}</FormErrorMessage>
-              </FormControl>
-              <FormControl isInvalid={!!errors.endDate}>
-                <FormLabel htmlFor="endDate">
-                  <Text as="span" variant="Body2Semibold" color="grey.500">
-                    End Date
-                  </Text>
-                </FormLabel>
-                <Controller
-                  name="endDate"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      id="endDate"
-                      type="date"
-                      defaultValue={field.value ? formatDateForInput(field.value) : ''}
-                      onChange={(e) => {
-                        const date = new Date(e.target.value);
-                        field.onChange(date.toISOString());
-                      }}
-                    />
-                  )}
-                />
-                <FormErrorMessage>{errors.endDate && errors.endDate.message}</FormErrorMessage>
-              </FormControl>
-            </Grid>
             <FormControl isInvalid={!!errors.email}>
               <FormLabel htmlFor="email">
                 <Text as="span" variant="Body2Semibold" color="grey.500">

@@ -1,16 +1,40 @@
 'use client';
 
-import { Button, Flex, Grid, MenuButton, Spinner, Text, Menu, MenuItem, MenuList } from '@chakra-ui/react';
+import { Button, Flex, Grid, MenuButton, Spinner, Text, Menu, MenuItem, MenuList, useToast } from '@chakra-ui/react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-import { Suspense, type PropsWithChildren } from 'react';
+import { Suspense, useCallback, type PropsWithChildren } from 'react';
 import { MdAddCircle, MdMoreHoriz } from 'react-icons/md';
 
 import ProgramsBreadcrumbs from '../programs-breadcrumbs';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { useBulkProcessAction } from '@/hooks/useBulkProcessAction';
 
 const ProgramsLayout = ({ children }: PropsWithChildren) => {
+  const toast = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const { folderID, programID } = useParams();
+  const { mutate } = useBulkProcessAction();
+
+  const lastPart = pathname.split('/').pop();
+
+  const { response } = useGetProgramById(programID?.toString());
+  const programModuleId =
+    response?.body?.programModules?.find((module) => module.module.toLowerCase() === lastPart)?.id.toString() ?? '';
+
+  const BulkAction = useCallback(
+    ({ status }: { status: string }) => {
+      mutate(
+        { programModuleId, status },
+        {
+          onSuccess: () => {
+            toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
+          },
+        }
+      );
+    },
+    [mutate, programModuleId, toast]
+  );
 
   return (
     <Flex flexDir="column" h="full">
@@ -58,6 +82,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
               <MenuItem
                 onClick={(e) => {
                   e.stopPropagation();
+                  BulkAction({ status: 'APPROVED' });
                   // onApprove({ status: 'Approved', id: info.row.original.id });
                 }}
               >
@@ -68,6 +93,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
               <MenuItem
                 onClick={(e) => {
                   e.stopPropagation();
+                  BulkAction({ status: 'DISAPPROVED' });
                   // onApprove({ status: 'Disapproved', id: info.row.original.id });
                 }}
               >

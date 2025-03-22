@@ -1,6 +1,6 @@
-import { useCreateClients } from '@/hooks/useCreateClient';
-import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { Dropdown } from '@/shared/chakra/components';
+import { useCreateClient } from '@/hooks/useCreateClient';
+// import { useGetPrograms } from '@/hooks/useGetPrograms';
+// import { Dropdown } from '@/shared/chakra/components';
 import {
   Button,
   Divider,
@@ -22,10 +22,27 @@ import {
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidPhoneNumber } from 'libphonenumber-js';
-import { Controller, useForm } from 'react-hook-form';
+import {
+  // Controller,
+  useForm,
+} from 'react-hook-form';
 import { z } from 'zod';
-import { PasswordInput } from '../components/password-input';
 import { PhoneNumberInput } from '../components/phone-number-input';
+
+const Schema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  // programId: z.string().min(1, 'Program is required'),
+  amount: z.coerce.number().min(0, 'Amount is required'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().min(1, 'Corporate Email is required'),
+  contactEmail: z.string().min(1, 'Email is required'),
+  contactPhone: z
+    .string({ invalid_type_error: 'Phone number is required' })
+    .refine(isValidPhoneNumber, 'Invalid phone number'),
+});
+
+type FormValues = z.infer<typeof Schema>;
 
 type ModalProps = {
   isOpen: boolean;
@@ -33,31 +50,8 @@ type ModalProps = {
 };
 
 const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
-  const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
-  const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
-
-  const Schema = z
-    .object({
-      name: z.string().min(1, 'Name is required'),
-      programId: z.string().min(1, 'Program is required'),
-      amount: z.coerce.number().min(0, 'Amount is required'),
-
-      firstName: z.string().min(1, 'First name is required'),
-      lastName: z.string().min(1, 'Last name is required'),
-      email: z.string().min(1, 'Corporate Email is required'),
-      contactEmail: z.string().min(1, 'Email is required'),
-      password: z.string().min(1, 'Password is required'),
-      confirmPassword: z.string().min(1, 'Confirm password is required'),
-      contactPhone: z
-        .string({ invalid_type_error: 'Phone number is required' })
-        .refine(isValidPhoneNumber, 'Invalid phone number'),
-    })
-    .refine((value) => value.password === value.confirmPassword, {
-      message: "Passwords don't match",
-      path: ['confirmPassword'],
-    });
-
-  type FormValues = z.infer<typeof Schema>;
+  // const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
+  // const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
 
   const {
     register,
@@ -67,7 +61,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
     reset,
   } = useForm<FormValues>({ resolver: zodResolver(Schema) });
 
-  const { mutate, isPending } = useCreateClients(() => {
+  const { mutate, isPending } = useCreateClient(() => {
     onClose();
     reset();
   });
@@ -93,11 +87,11 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                     Client Name
                   </Text>
                 </FormLabel>
-                <Input id="name" variant="primary" placeholder="Partner Usman" {...register('name')} />
+                <Input id="name" variant="primary" placeholder="Client Usman" {...register('name')} />
                 <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
               </FormControl>
 
-              <FormControl isInvalid={!!errors.programId}>
+              {/* <FormControl isInvalid={!!errors.programId}>
                 <FormLabel htmlFor="programId">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Program
@@ -121,11 +115,11 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                   )}
                 />
                 <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
-              </FormControl>
+              </FormControl> */}
               <FormControl isInvalid={!!errors.amount}>
                 <FormLabel htmlFor="amount">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
-                    Amount Disbursed
+                    Disbursable Amount
                   </Text>
                 </FormLabel>
                 <InputGroup>
@@ -144,24 +138,6 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                 </FormLabel>
                 <Input id="email" type="email" variant="primary" {...register('email')} />
                 <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
-              </FormControl>
-              <FormControl isInvalid={!!errors.password}>
-                <FormLabel htmlFor="password">
-                  <Text as="span" variant="Body2Semibold" color="grey.500">
-                    Password
-                  </Text>
-                </FormLabel>
-                <PasswordInput id="password" {...register('password')} />
-                <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
-              </FormControl>
-              <FormControl isInvalid={!!errors.confirmPassword}>
-                <FormLabel htmlFor="confirmPassword">
-                  <Text as="span" variant="Body2Semibold" color="grey.500">
-                    Confirm Password
-                  </Text>
-                </FormLabel>
-                <PasswordInput id="confirmPassword" {...register('confirmPassword')} />
-                <FormErrorMessage>{errors.confirmPassword && errors.confirmPassword.message}</FormErrorMessage>
               </FormControl>
 
               <Divider orientation="horizontal" />
@@ -206,7 +182,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
           </ModalBody>
           <ModalFooter>
             <Button variant="primary" width="402px" height="48px" isLoading={isPending} type="submit">
-              Add New Partner
+              Add New Client
             </Button>
           </ModalFooter>
         </ModalContent>

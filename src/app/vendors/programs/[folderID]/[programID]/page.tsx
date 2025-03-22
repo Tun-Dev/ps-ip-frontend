@@ -39,6 +39,7 @@ import { useParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import {
   MdAccountBalanceWallet,
+  MdCheckCircle,
   MdDownload,
   MdEmojiEmotions,
   MdLocalShipping,
@@ -88,14 +89,14 @@ const VendorTab = () => {
     page: 1,
     pageSize: 10,
     programId: programID.toString(),
-    status: FormStatus.PENDING,
+    status: FormStatus.WHITELISTED,
     vendorId: currentUser?.body.vendor.id,
   });
   const { data: disbursedBeneficiaries } = useGetWhitelist({
     page: 1,
     pageSize: 10,
     programId: programID.toString(),
-    status: FormStatus.APPROVED,
+    status: FormStatus.DISBURSED,
     vendorId: currentUser?.body.vendor.id,
   });
 
@@ -135,10 +136,10 @@ const VendorTab = () => {
 
       <TabPanels h="100%">
         <TabPanel px="0" py="1.25rem" h="100%">
-          <VendorPanel status={FormStatus.PENDING} />
+          <VendorPanel status={FormStatus.WHITELISTED} />
         </TabPanel>
         <TabPanel px="0" py="1.25rem" h="100%">
-          <VendorPanel status={FormStatus.APPROVED} />
+          <VendorPanel status={FormStatus.DISBURSED} />
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -158,6 +159,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const { data: modules } = useGetModules();
   const disbursementModuleId = modules?.body.find((module) => module.name === 'Disbursement')?.id ?? 0;
@@ -182,21 +184,21 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
   };
 
   const onApprove = useCallback(
-    ({ status, id }: { status: string; id: string }) => {
+    ({ status, ids }: { status: FormStatus; ids: string[] }) => {
       const payload = {
-        status: status.toUpperCase(),
-        beneficiaryId: [id],
+        status: status,
+        beneficiaryId: ids,
         moduleId: disbursementModuleId,
         programId: programID.toString(),
       };
 
       approveBeneficiary(payload, {
         onSuccess: () => {
-          toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
+          toast({ title: `${status} successfully`, status: 'success' });
         },
       });
     },
-    [approveBeneficiary, programID, toast, disbursementModuleId]
+    [approveBeneficiary, programID, disbursementModuleId, toast]
   );
 
   const columns = useMemo(
@@ -209,7 +211,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         ),
         cell: (info) => (
           <Text as="span" variant="Body2Regular">
-            {info.getValue()}
+            {info.getValue() ?? 'N/A'}
           </Text>
         ),
       }),
@@ -221,7 +223,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         ),
         cell: (info) => (
           <Text as="span" variant="Body2Regular">
-            {info.getValue()}
+            {info.getValue() ?? 'N/A'}
           </Text>
         ),
       }),
@@ -233,7 +235,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         ),
         cell: (info) => (
           <Text as="span" variant="Body2Regular">
-            {info.getValue()}
+            {info.getValue() ?? 'N/A'}
           </Text>
         ),
       }),
@@ -245,9 +247,10 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         ),
         cell: (info) => (
           <Text as="span" variant="Body2Regular">
-            {info.getValue()}
+            {info.getValue() ?? 'N/A'}
           </Text>
         ),
+        meta: { isCentered: true },
       }),
       columnHelper.accessor('itemDisbursed', {
         header: () => (
@@ -257,9 +260,10 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         ),
         cell: (info) => (
           <Text as="span" variant="Body2Regular">
-            {info.getValue()}
+            {info.getValue() ?? 'N/A'}
           </Text>
         ),
+        meta: { isCentered: true },
       }),
       columnHelper.accessor('lga', {
         header: () => (
@@ -269,9 +273,10 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         ),
         cell: (info) => (
           <Text as="span" variant="Body2Regular">
-            {info.getValue()}
+            {info.getValue() ?? 'N/A'}
           </Text>
         ),
+        meta: { isCentered: true },
       }),
       columnHelper.accessor('vendor', {
         header: () => (
@@ -281,7 +286,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         ),
         cell: (info) => (
           <Text as="span" variant="Body2Regular">
-            {info.getValue()}
+            {info.getValue() ?? 'N/A'}
           </Text>
         ),
       }),
@@ -293,9 +298,10 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         ),
         cell: (info) => (
           <Text as="span" variant="Body2Regular">
-            {format(parseISO(info.getValue()), 'MMM. d')}
+            {info.getValue() ? format(parseISO(info.getValue()), 'MMM. d') : 'N/A'}
           </Text>
         ),
+        meta: { isCentered: true },
       }),
       columnHelper.display({
         id: 'actions',
@@ -306,7 +312,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         ),
         enableSorting: false,
         cell: (info) =>
-          info.row.original.status === 'Pending' ? (
+          info.row.original.status === FormStatus.PENDING ? (
             <Menu>
               <MenuButton
                 as={IconButton}
@@ -324,7 +330,7 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
                 <MenuItem
                   onClick={(e) => {
                     e.stopPropagation();
-                    onApprove({ status: 'Approved', id: info.row.original.id });
+                    onApprove({ status: FormStatus.DISBURSED, ids: [info.row.original.id] });
                   }}
                 >
                   <Text as="span" variant="Body2Regular">
@@ -372,6 +378,19 @@ const VendorPanel = ({ status }: VendorPanelProps) => {
         isLoading={isLoading || isRefetching}
         isError={isError || isRefetchError}
         onRefresh={refetch}
+        onSelectionChange={(selectedRows) => {
+          setSelectedIds(selectedRows.map((row) => row.id.toString()));
+        }}
+        selectedChildren={
+          <Button
+            variant="accept"
+            size="medium"
+            leftIcon={<MdCheckCircle />}
+            onClick={() => onApprove({ status: FormStatus.DISBURSED, ids: selectedIds })}
+          >
+            Disburse selected
+          </Button>
+        }
       />
       <TablePagination
         handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}

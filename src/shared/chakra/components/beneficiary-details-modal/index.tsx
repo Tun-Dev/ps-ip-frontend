@@ -18,10 +18,11 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MdClose, MdDownload } from 'react-icons/md';
 
 import { useGetBeneficiaryDetails } from '@/hooks/useGetBeneficiaryDetails';
+import { useUserStore } from '@/providers/user-store-provider';
 import type { Beneficiary, ModuleDetail } from '@/types';
 import ModuleTab from './module-tab';
 import { SummaryTab } from './summary-tab';
@@ -30,9 +31,11 @@ type BeneficiaryDetailsModalProps = {
   isOpen: boolean;
   onClose: () => void;
   beneficiary: Beneficiary;
+  moduleName: string;
 };
 
-function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary }: BeneficiaryDetailsModalProps) {
+function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary, moduleName }: BeneficiaryDetailsModalProps) {
+  const user = useUserStore((state) => state.user);
   const [tabIndex, setTabIndex] = useState(0);
 
   const { data: beneficiaryDetails, isLoading } = useGetBeneficiaryDetails(beneficiary.id);
@@ -45,13 +48,23 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary }: BeneficiaryDe
     [beneficiaryDetails]
   );
 
+  const moduleTabs = useMemo(() => {
+    if (!beneficiaryDetails || !user) return [];
+    if (user.roles.includes('Super Admin')) return beneficiaryDetails.body.moduleDetails;
+    if (user.roles.includes('Aggregator'))
+      return beneficiaryDetails.body.moduleDetails.filter((module) => module.moduleName === 'Enumeration');
+    if (user.roles.includes('Vetting Officer'))
+      return beneficiaryDetails.body.moduleDetails.filter((module) => module.moduleName === 'Vetting');
+    if (user.roles.includes('Vendor'))
+      return beneficiaryDetails.body.moduleDetails.filter((module) => module.moduleName === 'Disbursement');
+    return [];
+  }, [beneficiaryDetails, user]);
+
   useEffect(() => {
-    if (!beneficiaryDetails || !isOpen) return;
-    const index = beneficiaryDetails.body.moduleDetails.findIndex(
-      (module) => module.moduleName === beneficiary.moduleName
-    );
+    if (!moduleTabs || !isOpen) return;
+    const index = moduleTabs.findIndex((module) => module.moduleName === moduleName);
     setTabIndex(index === -1 ? 0 : index);
-  }, [beneficiary.moduleName, beneficiaryDetails, isOpen]);
+  }, [moduleName, moduleTabs, isOpen]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
@@ -62,7 +75,7 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary }: BeneficiaryDe
             <IconButton
               aria-label="Close modal"
               icon={<MdClose size="1.5rem" />}
-              variant="secondary"
+              variant="ghost"
               boxSize="2rem"
               minW="unset"
               rounded="full"
@@ -93,8 +106,8 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary }: BeneficiaryDe
           ) : (
             <Tabs index={tabIndex} onChange={handleTabsChange} variant="unstyled">
               <TabList>
-                {beneficiaryDetails?.body?.moduleDetails.map((module) => (
-                  <Tab key={module.moduleName} fontSize="0.8125rem" p="0.25rem 1rem" color="grey.400">
+                {moduleTabs.map((module, index) => (
+                  <Tab key={index} fontSize="0.8125rem" p="0.25rem 1rem" color="grey.400">
                     {module.moduleName}
                   </Tab>
                 ))}
@@ -104,7 +117,7 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary }: BeneficiaryDe
               </TabList>
 
               <TabPanels>
-                {beneficiaryDetails?.body?.moduleDetails.map((module) => (
+                {moduleTabs.map((module) => (
                   <TabPanel key={module.moduleName} px="0" py="1.25rem">
                     <ModuleTab beneficiaryId={beneficiary.id} module={module} status={getModuleStatus(module)} />
                   </TabPanel>

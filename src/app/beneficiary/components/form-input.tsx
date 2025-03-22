@@ -26,39 +26,34 @@ import { useUploadFile } from '@/hooks/useUploadFile';
 import { Dropdown } from '@/shared/chakra/components';
 import { PhoneNumberInput } from '@/shared/chakra/components/phone-number-input';
 import { QuestionDetails } from '@/types';
+import { fileSchema } from '@/utils';
 
 type FormInputProps = {
   question: QuestionDetails;
   form: UseFormReturn;
   stateQuestionId?: string;
   number?: number;
+  inputOnly?: boolean;
 };
 
-const FormInput = ({ question, form, number = 0, stateQuestionId }: FormInputProps) => {
+const FormInput = ({ question, form, number = 0, stateQuestionId, inputOnly }: FormInputProps) => {
   const InputComponent = getFormInput(question.type);
 
   if (question.type === 'GPS') return <GPSInput question={question} form={form} />;
 
+  if (inputOnly)
+    return question.question === 'State' && question.type === 'DROPDOWN' ? (
+      <StateInput question={question} form={form} />
+    ) : question.question === 'Lga' && question.type === 'DROPDOWN' ? (
+      <LGAInput question={question} form={form} stateQuestionId={stateQuestionId} />
+    ) : (
+      <InputComponent question={question} form={form} />
+    );
+
   return (
-    <Box p="4" border="1px solid" borderColor="grey.200" borderRadius="1rem">
+    <Box p="4" border="1px solid" borderColor="grey.200" borderRadius="md">
       <FormControl isInvalid={!!form.formState.errors[question.id]} isRequired={question.mandatory}>
-        <FormLabel
-          htmlFor={question.id}
-          display="flex"
-          gap="4"
-          alignItems="center"
-          justifyContent="space-between"
-          flexWrap="wrap"
-          mb={getSpacing(question.type)}
-          requiredIndicator={
-            <Text as="span" variant="Body3Semibold" color="grey.500" display="inline-flex" gap="0.375rem">
-              Compulsory Question
-              <Text as="span" variant="Body2Semibold" color="red">
-                *
-              </Text>
-            </Text>
-          }
-        >
+        <FormLabel htmlFor={question.id} mb={getSpacing(question.type)}>
           <Text as="span" variant="Body2Semibold" color="text" display="inline-flex" gap="2.5" alignItems="center">
             <Text
               as="span"
@@ -84,7 +79,9 @@ const FormInput = ({ question, form, number = 0, stateQuestionId }: FormInputPro
         ) : (
           <InputComponent question={question} form={form} />
         )}
-        <FormErrorMessage px={question.type === 'UPLOAD' ? { xs: '1.875rem' } : undefined}>
+        <FormErrorMessage
+          px={question.type === 'IMAGE_UPLOAD' || question.type === 'FILE_UPLOAD' ? { xs: '1.875rem' } : undefined}
+        >
           {form.formState.errors[question.id]?.message?.toString()}
         </FormErrorMessage>
       </FormControl>
@@ -99,6 +96,7 @@ const TextInput = ({ question, form }: FormInputProps) => {
       id={question.id}
       type={getInputType(question.type)}
       isRequired={question.mandatory}
+      isReadOnly={question.question === 'User code'}
     />
   );
 };
@@ -110,7 +108,7 @@ const TextareaInput = ({ question, form }: FormInputProps) => {
 const RadioInput = ({ question, form }: FormInputProps) => {
   return (
     <RadioGroup id={question.id}>
-      <HStack gap="8">
+      <HStack rowGap="2" columnGap="8" flexWrap="wrap">
         {question.options.map((option) => (
           <Radio {...form.register(question.id)} key={option.id} value={option.value} isRequired={question.mandatory}>
             <Text as="span" variant="Body2Semibold">
@@ -148,6 +146,7 @@ const DropdownInput = ({ question, form }: FormInputProps) => {
 };
 
 const ImageInput = ({ question, form }: FormInputProps) => {
+  const toast = useToast();
   const [preview, setPreview] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -156,6 +155,10 @@ const ImageInput = ({ question, form }: FormInputProps) => {
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
+    const { success, error } = fileSchema.safeParse(file);
+
+    if (!success) return toast({ title: 'Error', description: error.flatten().formErrors[0], status: 'error' });
+
     if (preview) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(file));
     e.target.value = '';
@@ -207,6 +210,46 @@ const ImageInput = ({ question, form }: FormInputProps) => {
   );
 };
 
+const FileInput = ({ question, form }: FormInputProps) => {
+  const toast = useToast();
+  const { mutate: uploadFile, isPending } = useUploadFile();
+
+  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const file = e.target.files[0];
+
+    const { success, error } = fileSchema.safeParse(file);
+
+    if (!success) return toast({ title: 'Error', description: error.flatten().formErrors[0], status: 'error' });
+
+    uploadFile(
+      { files: [file], type: 'beneficiaryDocs' },
+      {
+        onSuccess: (data) => {
+          form.setValue(question.id, data.body[0].fileName);
+          form.clearErrors(question.id);
+        },
+      }
+    );
+  };
+
+  return (
+    <Box pos="relative">
+      <Input
+        id={question.id}
+        variant="primary"
+        h="auto"
+        py="2"
+        type="file"
+        isRequired={question.mandatory}
+        onChange={handleFile}
+        disabled={isPending}
+      />
+      {isPending && <Spinner size="sm" opacity="0.4" pos="absolute" right="4" insetBlock="0" my="auto" />}
+    </Box>
+  );
+};
+
 const PhoneInput = ({ question, form }: FormInputProps) => {
   return (
     <PhoneNumberInput id={question.id} name={question.id} control={form.control} isRequired={question.mandatory} />
@@ -223,7 +266,14 @@ const GPSInput = ({ question, form }: FormInputProps) => {
       (position) => {
         form.setValue(question.id, `${position.coords.latitude},${position.coords.longitude}`);
       },
-      () => toast({ status: 'error', title: 'Error', description: 'Please allow location access to proceed' })
+      () =>
+        toast({
+          status: 'error',
+          title: 'Error',
+          description: 'Please allow location access to proceed',
+          isClosable: false,
+          duration: null,
+        })
     );
   }, [toast, form, question]);
 
@@ -316,8 +366,10 @@ const getFormInput = (type: string) => {
       return TextareaInput;
     case 'DROPDOWN':
       return DropdownInput;
-    case 'UPLOAD':
+    case 'IMAGE_UPLOAD':
       return ImageInput;
+    case 'FILE_UPLOAD':
+      return FileInput;
     case 'CHECKBOX':
     case 'MULTIPLE_CHOICE':
       return RadioInput;
@@ -332,7 +384,8 @@ const getInputType = (type: string): HTMLInputTypeAttribute => {
   switch (type) {
     case 'DATE':
       return 'date';
-    case 'UPLOAD':
+    case 'IMAGE_UPLOAD':
+    case 'FILE_UPLOAD':
       return 'file';
     case 'EMAIL':
       return 'email';
@@ -348,7 +401,7 @@ const getInputType = (type: string): HTMLInputTypeAttribute => {
 
 const getSpacing = (type: string) => {
   switch (type) {
-    case 'UPLOAD':
+    case 'IMAGE_UPLOAD':
       return '1.5rem';
     case 'CHECKBOX':
     case 'MULTIPLE_CHOICE':

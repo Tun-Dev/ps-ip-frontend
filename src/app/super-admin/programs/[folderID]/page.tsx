@@ -239,9 +239,11 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
             {modules.map((item, index) => (
               <ModuleProgressCard
                 key={index}
-                status={item.isCompleted ? 'Completed' : item.isActive && !item.isCompleted ? 'In Progress' : 'Pending'}
                 name={item.name}
                 number={item.order}
+                onClick={() =>
+                  router.push(`/super-admin/programs/${folderID}/${program.id}/${item.name.toLowerCase()}`)
+                }
               />
             ))}
           </Flex>

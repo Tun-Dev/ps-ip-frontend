@@ -1,45 +1,254 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { Box, Button, Flex, Grid, Icon, Input, InputGroup, InputLeftElement, Select, Text } from '@chakra-ui/react';
+import { useDeleteVendor } from '@/hooks/useDeleteVendor';
+import { useFilterVendors } from '@/hooks/useFilterVendors';
+import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { DeleteModal, EditVendorModal, ReusableTable } from '@/shared';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
+import { ManageVendorModal } from '@/shared/chakra/modals/manage-vendor-modal';
+import { Vendor } from '@/types';
+import {
+  Button,
+  Flex,
+  Icon,
+  // IconButton,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  // Menu,
+  // MenuButton,
+  // MenuItem,
+  // MenuList,
+  Select,
+  Stack,
+  Text,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useState } from 'react';
-import { MdDownload, MdEmojiEmotions, MdGroupAdd, MdGroups, MdSearch, MdVolunteerActivism } from 'react-icons/md';
+import { useMemo, useState } from 'react';
+import {
+  MdDownload,
+  //  MdMoreHoriz,
+  MdSearch,
+} from 'react-icons/md';
 
-import { ReusableTable } from '@/shared';
-import { OverviewCard } from '@/shared/chakra/components/overview';
-
-const ClientsVendorsPage = () => {
-  const [selected, setSelected] = useState<'vendors' | 'orders'>('vendors');
-  return (
-    <Flex flexDir="column" gap="1.5rem" w="100%">
-      <Flex flexDir="column" gap="12px">
-        <Text variant="Body1Semibold" color="grey.500">
-          Overview
-        </Text>
-        <Grid gap="1rem" templateColumns="repeat(4, minmax(0, 1fr))">
-          <Box onClick={() => setSelected('vendors')} cursor="pointer">
-            <OverviewCard title="Total Vendors" number={10} icon={MdGroups} active={selected === 'vendors'} />
-          </Box>
-          <Box onClick={() => setSelected('orders')} cursor="pointer">
-            <OverviewCard title="Total Orders" number={150000} icon={MdGroupAdd} active={selected === 'orders'} />
-          </Box>
-          <Box>
-            <OverviewCard title="Beneficiaries Disbursable" number={50000} icon={MdVolunteerActivism} />
-          </Box>
-          <Box>
-            <OverviewCard title="Beneficiaries Disbursed" number={150000} icon={MdEmojiEmotions} />
-          </Box>
-        </Grid>
-      </Flex>
-      {selected === 'vendors' ? <VendorsTab /> : <OrdersTab />}
-    </Flex>
-  );
+type Test = {
+  vendor: string;
+  program: number;
+  product: string;
+  start_date: string;
+  end_date: string;
 };
 
-const OrdersTab = () => {
+const VendorPage = () => {
+  const toast = useToast();
+  const [page, setPage] = useState(1);
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: editModalOnClose } = useDisclosure();
+  const { isOpen: isManageOpen, onOpen: onManageOpen, onClose: manageModalOnClose } = useDisclosure();
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: deleteModalOnClose } = useDisclosure();
+  const [selectedVendor, setSelectedVendor] = useState<Vendor>();
+  const { mutate: delVendor, isPending } = useDeleteVendor();
+
+  const handleDeleteVendor = () => {
+    if (selectedVendor) {
+      delVendor(selectedVendor.id, {
+        onSuccess: () => {
+          toast({ title: 'Vendor deleted successfully', status: 'success' });
+          deleteModalOnClose();
+        },
+      });
+    }
+  };
+
+  const columns: ColumnDef<Test>[] = useMemo(
+    () => [
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500">
+            Vendor
+          </Text>
+        ),
+        accessorKey: 'vendor',
+        enableSorting: false,
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+            Programs
+          </Text>
+        ),
+        accessorKey: 'program',
+        enableSorting: false,
+        cell: (info) => (
+          <Text variant="Body2Semibold" align="center">
+            {info.row.original.program}
+          </Text>
+        ),
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+            Product/Service Offered
+          </Text>
+        ),
+        accessorKey: 'product',
+        enableSorting: false,
+        cell: (info) => (
+          <Text variant="Body2Semibold" align="center">
+            {info.row.original.product}
+          </Text>
+        ),
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+            Scheduled Date
+          </Text>
+        ),
+        accessorKey: 'start_date',
+        enableSorting: false,
+        cell: (info) => (
+          <Text variant="Body2Semibold" align="center">
+            {info.row.original.start_date}
+          </Text>
+        ),
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+            End Date
+          </Text>
+        ),
+        accessorKey: 'end_date',
+        enableSorting: false,
+        cell: (info) => (
+          <Text variant="Body2Semibold" align="center">
+            {info.row.original.end_date}
+          </Text>
+        ),
+      },
+
+      // {
+      //   header: () => (
+      //     <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+      //       Actions
+      //     </Text>
+      //   ),
+      //   accessorKey: 'deactivate',
+      //   enableSorting: false,
+      //   cell: (info) => (
+      //     <Menu>
+      //       <MenuButton
+      //         as={IconButton}
+      //         variant="ghost"
+      //         aria-label="Actions"
+      //         icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+      //         minW="0"
+      //         h="auto"
+      //         mx="auto"
+      //         display="flex"
+      //         p="1"
+      //         onClick={(e) => e.stopPropagation()}
+      //       />
+      //       <MenuList>
+      //         <MenuItem
+      //           onClick={(e) => {
+      //             e.stopPropagation();
+      //             setSelectedVendor(info.row.original);
+      //             onManageOpen();
+      //           }}
+      //         >
+      //           <Text as="span" variant="Body2Regular" w="full">
+      //             Manage Vendor
+      //           </Text>
+      //         </MenuItem>
+      //         <MenuItem
+      //           onClick={(e) => {
+      //             e.stopPropagation();
+      //             setSelectedVendor(info.row.original);
+      //             onEditOpen();
+      //           }}
+      //         >
+      //           <Text as="span" variant="Body2Regular" w="full">
+      //             Edit Vendor
+      //           </Text>
+      //         </MenuItem>
+      //         <MenuItem
+      //           onClick={(e) => {
+      //             e.stopPropagation();
+      //             setSelectedVendor(info.row.original);
+      //             onDeleteOpen();
+      //           }}
+      //         >
+      //           <Text as="span" variant="Body2Regular" w="full">
+      //             Delete Vendor
+      //           </Text>
+      //         </MenuItem>
+      //       </MenuList>
+      //     </Menu>
+      //   ),
+      // },
+    ],
+    [onDeleteOpen, onManageOpen, onEditOpen]
+  );
+
+  const [program, setProgram] = useState<string | undefined>(undefined);
+  const [search, setSearch] = useState<string | undefined>(undefined);
+
+  const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
+  const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
+
+  const {
+    response: data,
+    isLoading,
+    isError,
+    isRefetchError,
+    isRefetching,
+    refetch,
+  } = useFilterVendors({
+    program: program,
+    page: page,
+    pageSize: 10,
+    query: search,
+  });
+  // const vendors = useMemo(() => data?.body.data ?? [], [data]);
+  const totalPages = data?.body.totalPages ?? 0;
+
   return (
-    <Flex flexDir="column" w="100%" borderTop="1px solid" borderTopColor="grey.200">
-      <Flex justifyContent="space-between" py="5">
+    <Stack gap="6" w="full" flex="1">
+      {selectedVendor && (
+        <>
+          <EditVendorModal
+            isOpen={isEditOpen}
+            onClose={() => {
+              editModalOnClose();
+              setSelectedVendor(undefined);
+            }}
+            initialValues={selectedVendor}
+          />
+          <ManageVendorModal
+            isOpen={isManageOpen}
+            onClose={() => {
+              manageModalOnClose();
+              setSelectedVendor(undefined);
+            }}
+            vendor={selectedVendor}
+          />
+          <DeleteModal
+            isOpen={isDeleteOpen}
+            onClose={() => {
+              deleteModalOnClose();
+              setSelectedVendor(undefined);
+            }}
+            action={handleDeleteVendor}
+            isLoading={isPending}
+            text="Are you sure you want to delete this vendor. Proceeding will erase this vendor data."
+          />
+        </>
+      )}
+      <Flex justifyContent="space-between">
         <Flex gap="24px" alignItems="center">
           <Flex gap="8px" alignItems="center">
             <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
@@ -52,283 +261,66 @@ const OrdersTab = () => {
               w="94px"
               fontSize="13px"
               fontWeight="600"
+              onChange={(e) => setProgram(e.target.value)}
             >
-              <option key={'program'} value={'program'}>
-                Program
-              </option>
+              {options?.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </Select>
           </Flex>
           <InputGroup w="212px" size="sm">
             <InputLeftElement>
               <Icon as={MdSearch} w="12px" h="12px" color="primary.600" />
             </InputLeftElement>
-            <Input variant="primary" fontSize="10px" placeholder="Search" />
+            <Input
+              variant="primary"
+              fontSize="10px"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </InputGroup>
         </Flex>
-        <Button leftIcon={<MdDownload />} variant="primary" size="medium">
-          Download Report
-        </Button>
+        <Flex gap="8px" alignItems="center">
+          <Button leftIcon={<MdDownload />} variant="secondary" w="193px" borderRadius="10px" size="medium">
+            Download Report
+          </Button>
+        </Flex>
       </Flex>
-      <Box py="2" px="2.5" boxShadow="card" border="1px solid" borderColor="grey.100" borderRadius="12px">
-        <ReusableTable data={ordersData} columns={ordersColumns} />
-      </Box>
-    </Flex>
+
+      <ReusableTable
+        // selectable
+        data={dataTest}
+        columns={columns}
+        isLoading={isLoading || isRefetching}
+        isError={isError || isRefetchError}
+        onRefresh={refetch}
+      />
+      <TablePagination
+        handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+        handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+        handlePageChange={(pageNumber) => setPage(pageNumber)}
+        isNextDisabled={page >= totalPages}
+        isPrevDisabled={page <= 1}
+        currentPage={page}
+        totalPages={totalPages}
+        isDisabled={isLoading}
+        display={totalPages > 1 ? 'flex' : 'none'}
+      />
+    </Stack>
   );
 };
 
-const VendorsTab = () => {
-  return (
-    <Flex flexDir="column" w="100%" borderTop="1px solid" borderTopColor="grey.200">
-      <Flex justifyContent="space-between" py="5">
-        <Flex gap="24px" alignItems="center">
-          <Flex gap="8px" alignItems="center">
-            <Text variant="Body2Semibold" color="grey.500" whiteSpace="nowrap">
-              Filter by
-            </Text>
-            <Select
-              placeholder="Select..."
-              size="small"
-              defaultValue={'program'}
-              w="94px"
-              fontSize="13px"
-              fontWeight="600"
-            >
-              <option key={'program'} value={'program'}>
-                Program
-              </option>
-            </Select>
-          </Flex>
-          <InputGroup w="212px" size="sm">
-            <InputLeftElement>
-              <Icon as={MdSearch} w="12px" h="12px" color="primary.600" />
-            </InputLeftElement>
-            <Input variant="primary" fontSize="10px" placeholder="Search" />
-          </InputGroup>
-        </Flex>
-        <Button leftIcon={<MdDownload />} variant="primary" size="medium">
-          Download Report
-        </Button>
-      </Flex>
-      <Box py="2" px="2.5" boxShadow="card" border="1px solid" borderColor="grey.100" borderRadius="12px">
-        <ReusableTable data={vendorsData} columns={vendorsColumns} />
-      </Box>
-    </Flex>
-  );
-};
+export default VendorPage;
 
-const vendorsData = [
+const dataTest = [
   {
-    vendor: 'Bubblemix',
-    program: 'Team-oriented homogeneous function',
-    product: 'Engineering',
-    scheduleDate: '2024-08-28T19:42:33Z',
-    endDate: '2024-05-01T12:39:15Z',
-  },
-  {
-    vendor: 'Leexo',
-    program: 'Public-key eco-centric forecast',
-    product: 'Product Management',
-    scheduleDate: '2023-11-01T01:30:32Z',
-    endDate: '2024-04-01T09:43:46Z',
-  },
-  {
-    vendor: 'Jazzy',
-    program: 'Programmable dynamic matrices',
-    product: 'Support',
-    scheduleDate: '2024-04-06T11:33:07Z',
-    endDate: '2024-07-07T16:26:16Z',
-  },
-  {
-    vendor: 'Bubblebox',
-    program: 'Fully-configurable real-time infrastructure',
-    product: 'Human Resources',
-    scheduleDate: '2024-09-13T03:39:41Z',
-    endDate: '2023-12-29T16:36:50Z',
-  },
-  {
-    vendor: 'Fivespan',
-    program: 'Reverse-engineered multimedia array',
-    product: 'Human Resources',
-    scheduleDate: '2024-01-10T23:26:33Z',
-    endDate: '2024-08-13T12:40:19Z',
+    vendor: 'SCHLABS',
+    program: 2,
+    product: 'Tech Skills',
+    start_date: 'Dec-20',
+    end_date: 'Dec-31',
   },
 ];
-
-const vendorsColumns: ColumnDef<(typeof vendorsData)[number]>[] = [
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        Vendor
-      </Text>
-    ),
-    accessorKey: 'vendor',
-    cell: (info) => <Text variant="Body2Semibold">{info.row.original.vendor}</Text>,
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        Program
-      </Text>
-    ),
-    accessorKey: 'program',
-    cell: (info) => <Text variant="Body2Semibold">{info.row.original.program}</Text>,
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        Product/Service Offered
-      </Text>
-    ),
-    accessorKey: 'product',
-    cell: (info) => <Text variant="Body2Regular">{info.row.original.product}</Text>,
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        Schedule Date
-      </Text>
-    ),
-    accessorKey: 'scheduleDate',
-    enableSorting: false,
-    cell: (info) => (
-      <Text variant="Body2Regular">
-        {Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(
-          new Date(info.row.original.scheduleDate)
-        )}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        End Date
-      </Text>
-    ),
-    accessorKey: 'endDate',
-    enableSorting: false,
-    cell: (info) => (
-      <Text variant="Body2Regular">
-        {Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(new Date(info.row.original.endDate))}
-      </Text>
-    ),
-  },
-];
-
-const ordersData = [
-  {
-    vendor: 'Bubblemix',
-    program: 'Team-oriented homogeneous function',
-    product: 'Engineering',
-    amount: 750,
-    scheduleDate: '2024-08-28T19:42:33Z',
-    endDate: '2024-05-01T12:39:15Z',
-  },
-  {
-    vendor: 'Leexo',
-    program: 'Public-key eco-centric forecast',
-    product: 'Product Management',
-    amount: 500,
-    scheduleDate: '2023-11-01T01:30:32Z',
-    endDate: '2024-04-01T09:43:46Z',
-  },
-  {
-    vendor: 'Jazzy',
-    program: 'Programmable dynamic matrices',
-    product: 'Support',
-    amount: 750,
-    scheduleDate: '2024-04-06T11:33:07Z',
-    endDate: '2024-07-07T16:26:16Z',
-  },
-  {
-    vendor: 'Bubblebox',
-    program: 'Fully-configurable real-time infrastructure',
-    product: 'Human Resources',
-    amount: 500,
-    scheduleDate: '2024-09-13T03:39:41Z',
-    endDate: '2023-12-29T16:36:50Z',
-  },
-  {
-    vendor: 'Fivespan',
-    program: 'Reverse-engineered multimedia array',
-    product: 'Human Resources',
-    amount: 750,
-    scheduleDate: '2024-01-10T23:26:33Z',
-    endDate: '2024-08-13T12:40:19Z',
-  },
-];
-
-const ordersColumns: ColumnDef<(typeof ordersData)[number]>[] = [
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        Product/Service Offered
-      </Text>
-    ),
-    accessorKey: 'product',
-    cell: (info) => <Text variant="Body2Semibold">{info.row.original.product}</Text>,
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        Program
-      </Text>
-    ),
-    accessorKey: 'program',
-    cell: (info) => <Text variant="Body2Semibold">{info.row.original.program}</Text>,
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        Vendor
-      </Text>
-    ),
-    accessorKey: 'vendor',
-    cell: (info) => <Text variant="Body2Regular">{info.row.original.vendor}</Text>,
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        Amount Disbursable
-      </Text>
-    ),
-    accessorKey: 'amount',
-    enableSorting: false,
-    cell: (info) => <Text variant="Body2Semibold">{info.row.original.amount} Beneficiaries</Text>,
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        Schedule Date
-      </Text>
-    ),
-    accessorKey: 'scheduleDate',
-    enableSorting: false,
-    cell: (info) => (
-      <Text variant="Body2Regular">
-        {Intl.DateTimeFormat('en-US', {
-          month: 'short',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-        }).format(new Date(info.row.original.scheduleDate))}
-      </Text>
-    ),
-  },
-  {
-    header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
-        End Date
-      </Text>
-    ),
-    accessorKey: 'endDate',
-    enableSorting: false,
-    cell: (info) => (
-      <Text variant="Body2Regular">
-        {Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(new Date(info.row.original.endDate))}
-      </Text>
-    ),
-  },
-];
-
-export default ClientsVendorsPage;

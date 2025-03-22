@@ -2,14 +2,14 @@
 
 import { Box, Button, ButtonGroup, Flex, Grid, Stack, Text, useToast } from '@chakra-ui/react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { useAddProgramToGroup } from '@/hooks/useAddProgramToGroup';
 import { useCreateForm } from '@/hooks/useCreateForm';
 import { useCreateProgram } from '@/hooks/useCreateProgram';
 import { useGetModules } from '@/hooks/useGetModules';
 import { useGetQuestionTypes } from '@/hooks/useGetQuestionTypes';
-import { useProgramForm } from '@/providers/form-provider';
+import { defaultValues, useProgramForm } from '@/providers/form-provider';
 import { useProgramStore } from '@/providers/programs-store-provider';
 import { MultiStepHeader } from '@/shared';
 import { FormResponse, Program } from '@/types';
@@ -19,7 +19,6 @@ import { ModulesList } from '../../components/modules-list';
 const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast();
   const router = useRouter();
-  const [, setRender] = useState(false);
   const { folderID } = useParams();
 
   const step = useProgramStore((state) => state.step);
@@ -27,9 +26,12 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const previousStep = useProgramStore((state) => state.previousStep);
   const resetState = useProgramStore((state) => state.resetState);
   const setActiveModuleId = useProgramStore((state) => state.setActiveModuleId);
+  const setStep = useProgramStore((state) => state.setStep);
   const selectedModules = useProgramStore((state) => state.selectedModules);
 
-  const { getValues, trigger, reset: resetForm } = useProgramForm();
+  const {
+    form: { getValues, trigger, reset: resetForm },
+  } = useProgramForm();
 
   const { data: modules } = useGetModules();
   const { data: questionTypes } = useGetQuestionTypes();
@@ -44,46 +46,69 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const handleNextStep = async () => {
-    if (step === 5) {
-      const isNameValid = await trigger('name');
-      const isProgramTypeIdValid = await trigger('programTypeId');
-      const isTargetValid = await trigger('target');
-      const isDescriptionValid = await trigger('description');
-      const isLogoValid = await trigger('logo');
+    if (step === 1) {
+      const isValid = await validateProgramDetails();
+      if (isValid) goToNextStep();
+    } else if (step === 5) {
+      const isValid = await validateProgramDetails();
+      if (isValid) handleSubmit();
+    } else goToNextStep();
+  };
 
-      // Force a re-render to ensure errors are updated
-      setRender((prev) => !prev);
+  const handleSubmit = () => {
+    const moduleNames = (modules?.body ?? [])
+      .filter((module) => selectedModules.ids.has(module.id))
+      .map((module) => module.name);
 
-      if (!isNameValid) return toast({ title: 'Enter a program name', status: 'error' });
-      if (!isProgramTypeIdValid) return toast({ title: 'Select a program type', status: 'error' });
-      if (!isTargetValid) return toast({ title: 'Input a target', status: 'error' });
-      if (!isDescriptionValid) return toast({ title: 'Enter a description', status: 'error' });
-      if (!isLogoValid) return toast({ title: 'Upload a logo for this program', status: 'error' });
+    // If the selected modules contain Survey or Vetting, create forms first
+    if (moduleNames.includes('Survey') || moduleNames.includes('Vetting')) {
+      const surveyPayload = getSurveyFormPayload();
+      const vettingPayload = getVettingFormPayload();
+      const formsToCreate: (typeof surveyPayload)[] = [];
 
-      const moduleNames = (modules?.body ?? [])
-        .filter((module) => selectedModules.ids.has(module.id))
-        .map((module) => module.name);
+      if (moduleNames.includes('Survey')) formsToCreate.push(surveyPayload);
+      if (moduleNames.includes('Vetting')) formsToCreate.push(vettingPayload);
 
-      // If the selected modules contain Survey or Vetting, create forms first
-      if (moduleNames.includes('Survey') || moduleNames.includes('Vetting')) {
-        const surveyPayload = getSurveyFormPayload();
-        const vettingPayload = getVettingFormPayload();
-        const formsToCreate: (typeof surveyPayload)[] = [];
+      createForm(formsToCreate, {
+        onSuccess: (response) => {
+          handleCreateProgram(response.body);
+        },
+      });
+    } else handleCreateProgram();
+  };
 
-        if (moduleNames.includes('Survey')) formsToCreate.push(surveyPayload!);
-        if (moduleNames.includes('Vetting')) formsToCreate.push(vettingPayload);
+  const validateProgramDetails = async () => {
+    const [isLogoValid, isCoverPhotoValid, isNameValid, isProgramTypeIdValid, isDescriptionValid, isTargetValid] =
+      await Promise.all([
+        trigger('logo'),
+        trigger('coverPhotoID'),
+        trigger('name'),
+        trigger('programTypeId'),
+        trigger('description'),
+        trigger('target'),
+      ]);
 
-        createForm(formsToCreate, {
-          onSuccess: (response) => {
-            handleCreateProgram(response.body);
-          },
-        });
-      } else handleCreateProgram();
-    } else {
-      const firstModuleId = selectedModules.ids.values().next().value ?? 0;
-      setActiveModuleId(firstModuleId);
-      nextStep();
+    let errorMessage = '';
+
+    if (!isTargetValid) errorMessage = 'Input a target';
+    if (!isDescriptionValid) errorMessage = 'Enter a description';
+    if (!isProgramTypeIdValid) errorMessage = 'Select a program type';
+    if (!isNameValid) errorMessage = 'Enter a program name';
+    if (!isCoverPhotoValid) errorMessage = 'Upload a cover photo for this program';
+    if (!isLogoValid) errorMessage = 'Upload a logo for this program';
+
+    if (errorMessage) {
+      toast({ title: errorMessage, status: 'error' });
+      return false;
     }
+
+    return true;
+  };
+
+  const goToNextStep = () => {
+    const firstModuleId = selectedModules.ids.values().next().value ?? 0;
+    setActiveModuleId(firstModuleId);
+    nextStep();
   };
 
   const mapProgramModules = () => {
@@ -125,6 +150,7 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
       coverPhoto: Number(formValues.coverPhotoID),
       eligibilityCriteria: formValues.eligibilityCriteria,
       programModules: programModules,
+      hasAutomaticVerification: false,
     };
 
     createProgram(payload, {
@@ -158,7 +184,7 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
       program: formValues.name,
       questions: formValues.surveyForm.fields.map((field) => ({
         question: field.name,
-        type: field.value,
+        type: getType(field.status),
         options: field.options.map((option) => ({ ...option, value: option.label })),
         mandatory: true,
       })),
@@ -167,48 +193,53 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
     return payload;
   };
 
+  const getType = (type: string) => {
+    const value = questionTypes?.body.find((qt) => qt.status === type)?.value ?? 0;
+    return value;
+  };
+
   const getVettingFormPayload = () => {
     const formValues = getValues();
 
     const moduleId = modules?.body.find((module) => module.name === 'Vetting')?.id ?? 0; // Vetting module id
 
-    const manualPayload = {
+    const fields =
+      formValues.vettingForm.type === 'manual'
+        ? formValues.vettingForm.manualFields
+        : formValues.vettingForm.automatedFields;
+
+    const totalScore =
+      formValues.vettingForm.type === 'manual'
+        ? formValues.vettingForm.manualTotalScore
+        : formValues.vettingForm.totalScore;
+
+    const passScore =
+      formValues.vettingForm.type === 'manual'
+        ? formValues.vettingForm.manualPassScore
+        : formValues.vettingForm.passScore;
+
+    const payload = {
       moduleId: moduleId,
       program: formValues.name,
-      questions: formValues.vettingForm.manualFields.map((field) => ({
+      totalFormScore: Number(totalScore),
+      minVetScore: Number(passScore),
+      questions: fields.map((field) => ({
         question: field.name,
-        type: field.value,
+        type: getType(field.status),
+        total: Number(field.value),
         options: field.options.map((option) => ({ ...option, value: option.label })),
         mandatory: true,
       })),
     };
 
-    if (formValues.vettingForm.type === 'manual') return manualPayload;
-
-    const checkboxType = questionTypes?.body.find((qt) => qt.status === 'CHECKBOX')?.value ?? 0; // Checkbox question type
-
-    const automatedPayload = {
-      moduleId: moduleId,
-      program: formValues.name,
-      totalFormScore: Number(formValues.vettingForm.totalScore),
-      minVetScore: Number(formValues.vettingForm.passScore),
-      questions: formValues.vettingForm.automatedFields.map((field) => ({
-        question: field.name,
-        type: checkboxType,
-        total: field.value,
-        options: field.options.map((option) => ({ ...option, value: option.label })),
-        mandatory: true,
-      })),
-    };
-
-    return automatedPayload;
+    return payload;
   };
 
   useEffect(() => {
-    // Reset program state and form when the component is unmounted
+    // Reset program state when the component is unmounted
     return () => {
       resetState();
-      resetForm();
+      resetForm(defaultValues);
     };
   }, [resetState, resetForm]);
 
@@ -216,10 +247,9 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
     <Flex h="100%" w="full">
       <Stack spacing="0" flex="1 1 0%">
         <Flex pt="20px" pb="5" gap="24px" flexDir="column" borderBottom="1px solid" borderColor="grey.200">
-          <MultiStepHeader activeStep={step} />
+          <MultiStepHeader activeStep={step} setStep={setStep} />
           {step > 1 && <FormHeader />}
         </Flex>
-
         <Flex flexDir="column" height="100%">
           <Box mb="2.94rem" flex="1 1 0%">
             {selectedModules.ids.size < 1 && step !== 1 ? <EmptyState /> : children}
@@ -232,7 +262,6 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
             justify="end"
             borderTopColor="grey.300"
             bgColor="white"
-            zIndex={2}
           >
             <ButtonGroup size="default" spacing="4" w="full" maxW="31.25rem">
               <Button

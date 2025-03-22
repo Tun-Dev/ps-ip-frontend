@@ -122,7 +122,7 @@ const ActivityTable = ({ data }: { data: EnumerationsTableData[] }) => {
 const columns: ColumnDef<EnumerationsTableData>[] = [
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         Name
       </Text>
     ),
@@ -131,7 +131,7 @@ const columns: ColumnDef<EnumerationsTableData>[] = [
   },
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500">
+      <Text variant="Body3Semibold" color="grey.500">
         LGA
       </Text>
     ),
@@ -140,7 +140,7 @@ const columns: ColumnDef<EnumerationsTableData>[] = [
   },
   {
     header: () => (
-      <Text variant="Body3Semibold" color="gray.500" textAlign="center">
+      <Text variant="Body3Semibold" color="grey.500" textAlign="center">
         Enumerated
       </Text>
     ),

@@ -2,11 +2,13 @@ import axiosInstance from '@/lib/axios';
 import {
   AddProgramToGroupPayload,
   APIResponse,
+  FolderProgram,
   GroupDetailsResponse,
   GroupEditPayload,
   GroupPayload,
   GroupResponse,
   PaginatedResponse,
+  ProgramFilterOptions,
 } from '@/types';
 import type { QueryKey } from '@tanstack/react-query';
 
@@ -35,6 +37,15 @@ export const getGroupById = async ({ queryKey }: { queryKey: string[] }) => {
   const id = queryKey[1];
   const { data } = await axiosInstance.get<APIResponse<GroupDetailsResponse>>(`/program-group/${id}`);
   return data;
+};
+
+export const getProgramsByFolderId = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const { folderId, ...params } = queryKey[1] as ProgramFilterOptions;
+  const response = await axiosInstance.get<PaginatedResponse<FolderProgram>>(`/program-group/list/${folderId}`, {
+    params,
+    signal,
+  });
+  return response.data;
 };
 
 export const addProgramToGroup = async (group: AddProgramToGroupPayload) => {

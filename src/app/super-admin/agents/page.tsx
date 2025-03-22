@@ -26,7 +26,7 @@ const AgentsPage = () => {
       {/* <AggregatorModal isOpen={isOpen} onClose={onClose} />
       <AddNewAgentModal isOpen={isOpen} onClose={onClose} /> */}
       <Flex flexDir="column" gap="12px">
-        <Flex alignItems="center" justifyContent="space-between">
+        <Flex alignItems="center" justifyContent="space-between" minH="3rem">
           <Text variant="Body1Semibold" color="grey.400">
             Overview
           </Text>

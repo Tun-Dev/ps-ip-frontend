@@ -2,12 +2,16 @@
 
 import { useUploadFile } from '@/hooks/useUploadFile';
 import { useProgramForm } from '@/providers/form-provider';
-import { Avatar, Icon, Spinner, Text, Flex, Button } from '@chakra-ui/react';
+import { imageSchema } from '@/utils';
+import { Avatar, Button, Flex, Icon, Spinner, Text, useToast } from '@chakra-ui/react';
 import { ChangeEvent, useRef } from 'react';
 import { MdAddCircle } from 'react-icons/md';
 
 export const ProgramImage = ({ hasError, isReadOnly }: { hasError: boolean; isReadOnly?: boolean }) => {
-  const { setValue, getValues } = useProgramForm();
+  const toast = useToast();
+  const {
+    form: { setValue, getValues },
+  } = useProgramForm();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { mutate: uploadFile, isPending } = useUploadFile();
@@ -16,6 +20,11 @@ export const ProgramImage = ({ hasError, isReadOnly }: { hasError: boolean; isRe
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
+
+    const { success, error } = imageSchema.safeParse(file);
+
+    if (!success) return toast({ title: 'Error', description: error.flatten().formErrors[0], status: 'error' });
+
     if (preview) URL.revokeObjectURL(preview);
     e.target.value = '';
 

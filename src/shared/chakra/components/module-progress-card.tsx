@@ -1,15 +1,15 @@
 'use client';
 
-import { Flex, Text } from '@chakra-ui/react';
+import { Flex, type FlexProps, Text } from '@chakra-ui/react';
 import { MdCheckCircle, MdOutlineRotateRight, MdRefresh } from 'react-icons/md';
 
 type Props = {
   name: string;
   number: number;
-  status: 'Completed' | 'In Progress' | 'Pending';
-};
+  status?: 'Completed' | 'In Progress' | 'Pending';
+} & FlexProps;
 
-export const ModuleProgressCard = ({ name, number, status }: Props) => {
+export const ModuleProgressCard = ({ name, number, status, ...props }: Props) => {
   return (
     <Flex
       border="1px solid"
@@ -20,6 +20,12 @@ export const ModuleProgressCard = ({ name, number, status }: Props) => {
       gap="3rem"
       justify="space-between"
       minW="255px"
+      as="button"
+      cursor="pointer"
+      outline="none"
+      _hover={{ bgColor: 'primary.50' }}
+      _focusVisible={{ boxShadow: 'outline' }}
+      {...props}
     >
       <Flex gap="1" align="center">
         <Text

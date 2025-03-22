@@ -21,7 +21,14 @@ export function LocationPermissionModal() {
 
     navigator.geolocation.getCurrentPosition(
       () => onClose(),
-      () => toast({ status: 'error', title: 'Error', description: 'Please allow location access to proceed' })
+      () =>
+        toast({
+          status: 'error',
+          title: 'Error',
+          description: 'Please allow location access to proceed',
+          isClosable: false,
+          duration: null,
+        })
     );
   };
 

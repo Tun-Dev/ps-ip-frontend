@@ -1,20 +1,18 @@
 'use client';
 
 import { Flex, Stack, Text } from '@chakra-ui/react';
+import { ReactNode, useMemo } from 'react';
 
 import { useGetProgramTypes } from '@/hooks/useGetProgramTypes';
 import { useProgramForm } from '@/providers/form-provider';
-// import { Dropdown } from '@/shared/chakra/components';
-import { ReactNode, useMemo } from 'react';
-// import { Controller } from 'react-hook-form';
 import { ProgramImage } from './program-image';
 
 export function FormHeader() {
   const {
-    // register,
-    // control,
-    formState: { errors },
-    getValues,
+    form: {
+      formState: { errors },
+      getValues,
+    },
   } = useProgramForm();
   const { data: programTypes } = useGetProgramTypes();
 
@@ -42,7 +40,7 @@ export function FormHeader() {
       <Wrapper title="Description:">
         <Text>{desc}</Text>
       </Wrapper>
-      <Wrapper title="Target:">
+      <Wrapper title="Target Beneficiaries:">
         <Text>{target}</Text>
       </Wrapper>
     </Stack>
@@ -53,7 +51,7 @@ const Wrapper = ({ children, title }: { children: ReactNode; title: string }) =>
   return (
     <Flex
       border="1px dashed"
-      borderColor="#D7D7D7"
+      borderColor="grey.300"
       gap="8px"
       alignItems="center"
       p="8px 12px"

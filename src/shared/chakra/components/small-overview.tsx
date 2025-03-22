@@ -39,7 +39,7 @@ export const SmallOverviewCard = ({ title, icon, number, iconColor = 'primary.50
         >
           <Icon as={icon} color={iconColor} boxSize="14px" />
         </Flex>
-        <Text as="h2" variant="Body2Semibold" color={'gray.500'}>
+        <Text as="h2" variant="Body2Semibold" color={'grey.500'}>
           {title}
         </Text>
       </Flex>
