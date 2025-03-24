@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
-import { siteConfig } from '@/lib/constants';
 import { UserStoreProvider } from '@/providers/user-store-provider';
 import { ClientRootLayout } from '@/shared/chakra/components';
 import ThemedChakraProvider from '@/shared/chakra/ThemedChakraProvider';
+import { siteConfig } from '@/utils/constants';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -14,11 +14,7 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body>

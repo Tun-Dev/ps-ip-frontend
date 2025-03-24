@@ -9,8 +9,9 @@ import type {
   ProgramDetails,
   ProgramPayload,
   ProgramUploadResponse,
+  VerifyDataPayload,
 } from '@/types';
-import { FormStatus } from '@/utils';
+import { FormStatus, VerificationFilters } from '@/utils';
 
 export const getPrograms = async ({ queryKey }: { queryKey: QueryKey }) => {
   const [, params] = queryKey;
@@ -71,5 +72,29 @@ export const getUploadStatus = async ({ queryKey }: { queryKey: QueryKey }) => {
 
 export const processModule = async ({ moduleid, status }: { moduleid: string; status: FormStatus }) => {
   const { data } = await axiosInstance.post<APIResponse<any>>(`/program/process-module/${moduleid}/${status}`);
+  return data;
+};
+
+export const processVerification = async (programId: string, filters?: VerificationFilters) => {
+  const { data } = await axiosInstance.post<APIResponse<any>>(`/process-verification/${programId}`, filters || {});
+  return data;
+};
+
+export const toggleVerification = async (programId: string, status: string) => {
+  const { data } = await axiosInstance.put<APIResponse<any>>(`/program/verification/toggle/${programId}/${status}`);
+  return data;
+};
+
+export const getVerificationStatus = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, programId] = queryKey;
+  const { data } = await axiosInstance.get<APIResponse<boolean>>(`/program/verify/${programId}`, { signal });
+  return data;
+};
+
+export const verifyData = async ({ programId, ...params }: VerifyDataPayload) => {
+  const { data } = await axiosInstance.get<APIResponse<{ fullName: string; status: number }>>(
+    `/verification/verify/automatic/${programId}`,
+    { params }
+  );
   return data;
 };

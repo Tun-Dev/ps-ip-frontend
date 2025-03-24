@@ -1,18 +1,11 @@
 'use client';
 
-// import type { Metadata } from "next";
+import { ProgramFormProvider } from '@/providers/form-provider';
+import { ProgramStoreProvider } from '@/providers/programs-store-provider';
 import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
+import { withProtectedLoader } from '@/shared/chakra/components/protected-route-loader';
 import { Box, Flex, Image } from '@chakra-ui/react';
 import Sidebar from './components/Sidebar';
-import { withProtectedLoader } from '@/shared/chakra/components/protected-route-loader';
-import { ProgramStoreProvider } from '@/providers/programs-store-provider';
-import { ProgramFormProvider } from '@/providers/form-provider';
-// import { siteConfig } from "@/lib/constants";
-
-// export const metadata: Metadata = {
-//   title: { default: siteConfig.title, template: `%s | ${siteConfig.title}` },
-//   description: siteConfig.description,
-// };
 
 const ClientsLayout = ({ children }: { children: React.ReactNode }) => {
   return (

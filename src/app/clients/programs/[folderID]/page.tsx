@@ -13,7 +13,6 @@ import {
   Stack,
   Text,
   useClipboard,
-  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import { AnimatePresence, motion, type Transition } from 'framer-motion';
@@ -23,13 +22,10 @@ import { MdArrowRightAlt, MdLink } from 'react-icons/md';
 
 // import { useDeleteProgram } from '@/hooks/useDeleteProgram';
 // import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { DeleteModal } from '@/shared';
 import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
 // import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { useDeleteProgramFromGroup } from '@/hooks/useDeleteProgramFromGroup';
 import { useGetGroupById } from '@/hooks/useGetGroupById';
 import { Program, ProgramModules } from '@/types';
-import { useQueryClient } from '@tanstack/react-query';
 
 const ProgramsPage = () => {
   const [selectedId, setSelectedId] = useState('');
@@ -120,27 +116,9 @@ const LoadingSkeleton = () => (
 
 const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => void }) => {
   const toast = useToast();
-  const { isOpen, onOpen, onClose: deleteModalOnClose } = useDisclosure();
   const router = useRouter();
   const { onCopy } = useClipboard(`${window.origin}/beneficiary/${program?.id}`);
   const { folderID } = useParams();
-  const queryClient = useQueryClient();
-
-  const { mutate: deleProgramFromGroup, isPending } = useDeleteProgramFromGroup();
-
-  const handleEdit = (itemId: string) => {
-    router.push(`/super-admin/programs/${folderID}/edit/${itemId}`);
-  };
-
-  const handleDelete = () => {
-    deleProgramFromGroup([program.id], {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['group', folderID] });
-        toast({ title: 'Program deleted successfully', status: 'success' });
-        onClose();
-      },
-    });
-  };
 
   const transition: Transition = { duration: 0.5, ease: 'easeInOut' };
 
@@ -150,13 +128,6 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
 
   return (
     <>
-      <DeleteModal
-        isOpen={isOpen}
-        onClose={deleteModalOnClose}
-        action={handleDelete}
-        isLoading={isPending}
-        text="Are you sure you want to delete this program. Proceeding will erase all programs data."
-      />
       <Stack
         spacing="0"
         as={motion.div}
@@ -206,7 +177,7 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
                 h="48px"
                 w="full"
                 onClick={() =>
-                  router.push(`/super-admin/programs/${folderID}/${program.id}/${moduleUrl?.name.toLowerCase()}`)
+                  router.push(`/clients/programs/${folderID}/${program.id}/${moduleUrl?.name.toLowerCase()}`)
                 }
               >
                 View More
@@ -225,14 +196,6 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
                 <MdLink style={{ width: '14px', height: '14px', marginRight: '8px' }} />
                 Copy Link
               </Button>
-              <Flex gap="16px">
-                <Button fontSize="10px" w="full" variant="accept" onClick={() => handleEdit(program.id)}>
-                  Edit Product
-                </Button>
-                <Button fontSize="10px" w="full" variant="cancel" onClick={onOpen}>
-                  Delete Product
-                </Button>
-              </Flex>
             </Flex>
           </Flex>
           <Flex flexWrap="wrap" gap="16px">

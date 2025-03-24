@@ -44,8 +44,6 @@ export function ModulesList() {
     setValue('programModules', [...getValues('programModules'), newModule]);
   };
 
-  console.log(modules);
-
   const isDisabled = (module: Module) =>
     (step === 3 && !EDITABLE_MODULES.includes(module.module)) ||
     (step === 4 && module.moduleGuidelines.length < 1) ||

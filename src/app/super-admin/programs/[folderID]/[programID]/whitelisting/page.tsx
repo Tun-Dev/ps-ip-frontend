@@ -36,25 +36,20 @@ import {
   MdSearch,
 } from 'react-icons/md';
 
-// import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
+import { useGetModules } from '@/hooks/useGetModules';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
-// import { useProcessModule } from '@/hooks/useProcessModule';
-// import { useUploadProgram } from '@/hooks/useUploadData';
+import { useGetWhitelistByProgramId } from '@/hooks/useGetWhitelistByProgramId';
 import { ReusableTable } from '@/shared';
 import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
-import { Beneficiary, WhitelistDetails } from '@/types';
-// import { FormStatus } from '@/utils';
-import { Image } from '@chakra-ui/next-js';
-// import { AxiosError } from 'axios';
-import { useGetModules } from '@/hooks/useGetModules';
-import { useGetWhitelistByProgramId } from '@/hooks/useGetWhitelistByProgramId';
 import { AddExistingWhiteListBucket } from '@/shared/chakra/modals/AddExistingWhiteListBucket';
 import CreateWhiteListBucket from '@/shared/chakra/modals/CreateWhiteListBucket';
 import EditWhiteListBucket from '@/shared/chakra/modals/EditWhiteListBucket';
+import { Beneficiary, WhitelistDetails } from '@/types';
 import { formatDateForInput, FormStatus } from '@/utils';
+import { Image } from '@chakra-ui/next-js';
 import { useParams } from 'next/navigation';
 
 const columnHelper = createColumnHelper<Beneficiary>();
@@ -69,7 +64,6 @@ const options = [
 type Option = (typeof options)[number];
 
 const WhitelistingPage = () => {
-  // const toast = useToast();
   const [page, setPage] = useState(1);
   const [bucketPage, setBucketPage] = useState(1);
   const [selectedWLPage, setSelectedWLPage] = useState(1);
@@ -80,16 +74,11 @@ const WhitelistingPage = () => {
   const { isOpen: isOpenExisting, onOpen: onOpenExisting, onClose: onCloseExisting } = useDisclosure();
   const [sort, setSort] = useState<Option | null>(options[0]);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
-  // const { mutate: approveBeneficiary } = useApproveBeneficiary();
-  // const { mutate: processModule, isPending: isProcessModulePending } = useProcessModule();
-  // const { mutate: uploadProgram, isPending } = useUploadProgram();
   const { response } = useGetProgramById(programID?.toString());
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedWhitelistId, setSelectedWhitelistId] = useState<string>('');
   const [selectedWL, setSelectedWL] = useState<WhitelistDetails>();
   const { data: modules } = useGetModules();
-
-  console.log(modules);
 
   const moduleId = modules?.body?.find((module) => module.name === 'Whitelisting')?.id ?? 0;
 
@@ -121,8 +110,6 @@ const WhitelistingPage = () => {
     whitelistId: selectedWhitelistId,
     enabled: !!selectedWhitelistId,
   });
-
-  // console.log(selectedWhitelistBucket);
 
   const { data: whitelistBucket } = useGetWhitelistByProgramId(
     { page: bucketPage, pageSize: 10 },
@@ -449,28 +436,10 @@ const WhitelistingPage = () => {
                   }}
                   selectedChildren={
                     <>
-                      <Button
-                        variant="accept"
-                        size="medium"
-                        leftIcon={<MdCheckCircle />}
-                        onClick={() => {
-                          console.log(selectedIds);
-                          onOpenCreate();
-                          // onApproveSelected({ status: 'Approved', ids: selectedIds });
-                        }}
-                      >
+                      <Button variant="accept" size="medium" leftIcon={<MdCheckCircle />} onClick={onOpenCreate}>
                         Create Whitelist with Selected
                       </Button>
-                      <Button
-                        variant="secondary"
-                        size="medium"
-                        leftIcon={<MdCancel />}
-                        onClick={() => {
-                          console.log(selectedIds);
-                          onOpenExisting();
-                          // onApproveSelected({ status: 'Disapproved', ids: selectedIds });
-                        }}
-                      >
+                      <Button variant="secondary" size="medium" leftIcon={<MdCancel />} onClick={onOpenExisting}>
                         Add Selected to Existing Whitelist
                       </Button>
                     </>
@@ -540,7 +509,6 @@ const WhitelistingPage = () => {
                   <ReusableTable
                     data={whitelistTableData}
                     columns={dynamicColumnsWhitelist}
-                    // onClick={openBeneficiaryModal}
                     onClick={(selected) => setSelectedWhitelistId(selected.id)}
                     selectable
                     isLoading={isLoading || isRefetching}

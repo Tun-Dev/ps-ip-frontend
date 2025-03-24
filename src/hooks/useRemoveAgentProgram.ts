@@ -10,7 +10,7 @@ export const useRemoveAgentProgram = () => {
   return useMutation({
     mutationFn: removeAgentProgram,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['agentDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['agentDetails', 'agents'] });
       toast({ title: 'Success', description: 'Program removed successfully', status: 'success' });
     },
     onError: (error) => {

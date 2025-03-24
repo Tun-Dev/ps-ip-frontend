@@ -1,221 +1,8 @@
-import type { Module } from '@/types';
-import { MdArrowDropDown, MdCloudUpload, MdDateRange, MdFormatAlignLeft } from 'react-icons/md';
-import { ShortAnswerIcon } from '../../public/icons';
-
-export const OPTIONS = [
-  { label: 'Short answer', value: 'Short answer', icon: ShortAnswerIcon },
-  { label: 'Paragraph', value: 'Paragraph', icon: MdFormatAlignLeft },
-  { label: 'Dropdown', value: 'Dropdown', icon: MdArrowDropDown },
-  { label: 'Date', value: 'Date', icon: MdCloudUpload },
-  { label: 'File upload', value: 'File upload', icon: MdDateRange },
-] as const;
-
-export type Option = (typeof OPTIONS)[number];
-
-export const ALL_MODULES: Module[] = [
-  {
-    form: {
-      name: 'Nomination_Investment in Digital Creative Enterprises Program (iDICE)',
-      program: 'Investment in Digital Creative Enterprises Program (iDICE)',
-      questions: [],
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      id: '6749aae926f5db219859ef22',
-    },
-    moduleGuidelines: [],
-    formId: '6749aae926f5db219859ef22',
-    module: 'Nomination',
-    name: 'Nomination',
-    id: 61,
-    order: 3,
-  },
-  {
-    form: {
-      name: 'Vetting_Investment in Digital Creative Enterprises Program (iDICE)',
-      program: 'Investment in Digital Creative Enterprises Program (iDICE)',
-      questions: [],
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      id: '6749aaec26f5db219859ef2d',
-    },
-    moduleGuidelines: [
-      {
-        id: 131,
-        name: 'Allow manual vetting',
-        identifier: 'MANUAL',
-        moduleId: 3,
-      },
-    ],
-    formId: '6749aaec26f5db219859ef2d',
-    module: 'Vetting',
-    name: 'Vetting',
-    id: 62,
-    order: 4,
-  },
-  {
-    form: {
-      name: 'Disbursement_Investment in Digital Creative Enterprises Program (iDICE)',
-      program: 'Investment in Digital Creative Enterprises Program (iDICE)',
-      questions: [],
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      id: '6749aaed26f5db219859ef34',
-    },
-    moduleGuidelines: [
-      {
-        id: 137,
-        name: 'Allow beneficiaries enjoy multiple disbursement',
-        identifier: 'MULTIPLE_DISBURSEMENTS',
-        moduleId: 6,
-      },
-      {
-        id: 138,
-        name: 'Allow rejection during disbursement',
-        identifier: 'CAN_REJECT',
-        moduleId: 6,
-      },
-      {
-        id: 139,
-        name: 'Allow pause disbursement',
-        identifier: 'CAN_PAUSE',
-        moduleId: 6,
-      },
-    ],
-    formId: '6749aaed26f5db219859ef34',
-    module: 'Disbursement',
-    name: 'Disbursement',
-    id: 63,
-    order: 5,
-  },
-  {
-    form: {
-      name: 'Vetting_Investment in Digital Creative Enterprises Program (iDICE)',
-      program: 'Investment in Digital Creative Enterprises Program (iDICE)',
-      questions: [],
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      id: '6749aaec26f5db219859ef2d',
-    },
-    moduleGuidelines: [
-      {
-        id: 136,
-        name: 'Allow manual whitelisting',
-        identifier: 'MANUAL',
-        moduleId: 5,
-      },
-    ],
-    formId: '6749aaec26f5db219859ef2d',
-    module: 'Whitelisting',
-    name: 'Whitelisting',
-    id: 64,
-    order: 6,
-  },
-  {
-    form: {
-      name: 'Survey_Investment in Digital Creative Enterprises Program (iDICE)',
-      program: 'Investment in Digital Creative Enterprises Program (iDICE)',
-      questions: [],
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      id: '6749aaef26f5db219859ef3d',
-    },
-    moduleGuidelines: [],
-    formId: '6749aaef26f5db219859ef3d',
-    module: 'Survey',
-    name: 'Survey',
-    id: 65,
-    order: 7,
-  },
-  {
-    form: {
-      name: 'Application_Community Development and Skills Enhancement Program (CDSEP)',
-      program: 'Community Development and Skills Enhancement Program (CDSEP)',
-      questions: [],
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      id: '675a20e0464c70d54d04ed17',
-    },
-    moduleGuidelines: [
-      {
-        id: 126,
-        name: 'Allow multiple responses by one beneficiary',
-        identifier: 'MULTIPLE_APPLICATIONS',
-        moduleId: 1,
-      },
-      {
-        id: 127,
-        name: 'Allow beneficiaries save and continue',
-        identifier: 'SAVE_AND_CONTINUE',
-        moduleId: 1,
-      },
-      {
-        id: 128,
-        name: 'Allow screenshots',
-        identifier: 'CAN_SCREENSHOT',
-        moduleId: 1,
-      },
-      {
-        id: 129,
-        name: 'Allow beneficiaries apply again after rejection',
-        identifier: 'CAN_REAPPLY',
-        moduleId: 1,
-      },
-    ],
-    formId: '675a20e0464c70d54d04ed17',
-    module: 'Application',
-    name: 'Application',
-    id: 59,
-    order: 1,
-  },
-  {
-    form: {
-      name: 'Enumeration_Community Development and Skills Enhancement Program (CDSEP)',
-      program: 'Community Development and Skills Enhancement Program (CDSEP)',
-      questions: [],
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      id: '675a20e1464c70d54d04ed1c',
-    },
-    moduleGuidelines: [
-      {
-        id: 133,
-        name: 'Agent assisted enumeration',
-        identifier: 'AGENT_ASSISTED',
-        moduleId: 4,
-      },
-      {
-        id: 134,
-        name: 'Self enumeration',
-        identifier: 'SELF_ENUMERATION',
-        moduleId: 4,
-      },
-      {
-        id: 135,
-        name: 'Allow beneficiaries apply again after rejection',
-        identifier: 'CAN_REAPPLY',
-        moduleId: 4,
-      },
-    ],
-    formId: '675a20e1464c70d54d04ed1c',
-    module: 'Enumeration',
-    name: 'Enumeration',
-    id: 60,
-    order: 2,
-  },
-];
-
-export type ModuleProps = (typeof ALL_MODULES)[number];
-
-export const ProgramsData = [
-  { id: 1, name: 'Government Enterprise And Empowerment Programme', logo: 'GEEP LOGO', count: 5 },
-  { id: 2, name: 'INVESTMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM', logo: 'IDICE LOGO', count: 4 },
-  { id: 3, name: 'ALIKO DANGOTE FOUNDATION FUND', logo: 'ADFF LOGO', count: 3 },
-  { id: 4, name: 'CBN Backward Integration Fund', logo: 'CBNIF LOGO', count: 5 },
-  { id: 5, name: 'Government Enterprise And Empowerment Programme', logo: 'GEEP LOGO', count: 5 },
-  { id: 6, name: 'INVESTMENT IN DIGITAL AND CREATIVE ENTERPRISES PROGRAM', logo: 'IDICE LOGO', count: 4 },
-  { id: 7, name: 'ALIKO DANGOTE FOUNDATION FUND', logo: 'ADFF LOGO', count: 3 },
-  { id: 8, name: 'CBN Backward Integration Fund', logo: 'CBNIF LOGO', count: 5 },
-];
+export const siteConfig = {
+  name: 'PS-IP',
+  title: 'PS-IP',
+  description: '',
+};
 
 export const MONTHS = [
   { value: 'January', label: 'January' },
@@ -269,3 +56,18 @@ export const FILE_SIZE_LIMITS = {
   videos: 70 * 1024 * 1024, // 70MB
   documents: 20 * 1024 * 1024, // 20MB
 };
+
+export interface VerificationFilters {
+  gender?: 'Male' | 'Female';
+  state?: number;
+  lga?: number;
+  formStatus?: FormStatus;
+}
+
+export enum IdType {
+  NIN = 'NIN_SLIP',
+  BVN = 'BVN',
+  CAC = 'CAC',
+  VOTER_ID = 'VOTER_ID',
+  BANK_ACCOUNT = 'BANK_ACCOUNT',
+}

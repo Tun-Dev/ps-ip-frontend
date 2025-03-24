@@ -110,7 +110,14 @@ export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
   );
 
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
-    useGetBeneficiariesById({ page, pageSize: 10, programId: programID.toString(), moduleId, status });
+    useGetBeneficiariesById({
+      page,
+      pageSize: 10,
+      programId: programID.toString(),
+      moduleId,
+      status,
+      enabled: !!programID && !!moduleId,
+    });
 
   const totalPages = data?.body.totalPages ?? 0;
 

@@ -2,6 +2,7 @@
 
 import {
   Box,
+  Button,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -10,23 +11,30 @@ import {
   Icon,
   Image,
   Input,
+  InputGroup,
+  InputRightElement,
   Radio,
   RadioGroup,
   Spinner,
+  Stack,
   Text,
   Textarea,
   useToast,
 } from '@chakra-ui/react';
+import { getBanks } from 'nigeria-banks-list';
 import { ChangeEvent, HTMLInputTypeAttribute, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
 import { MdInfo, MdOutlineAddCircle } from 'react-icons/md';
 
 import { useGetStates } from '@/hooks/useGetStates';
+import { useGetVerificationStatus } from '@/hooks/useGetVerificationStatus';
 import { useUploadFile } from '@/hooks/useUploadFile';
+import { useVerifyData } from '@/hooks/useVerifyData';
 import { Dropdown } from '@/shared/chakra/components';
 import { PhoneNumberInput } from '@/shared/chakra/components/phone-number-input';
 import { QuestionDetails } from '@/types';
-import { fileSchema } from '@/utils';
+import { fileSchema, IdType } from '@/utils';
+import { useParams } from 'next/navigation';
 
 type FormInputProps = {
   question: QuestionDetails;
@@ -89,7 +97,22 @@ const FormInput = ({ question, form, number = 0, stateQuestionId, inputOnly }: F
   );
 };
 
+const KYCFields = [
+  'BVN',
+  'Recipient Bvn',
+  'Guarantor Bvn',
+  'Bvn Of A Board Member',
+  'NIN',
+  'CAC Registration Number',
+  'Voters Card',
+  'Recipient Account Number',
+];
+
 const TextInput = ({ question, form }: FormInputProps) => {
+  const isKYCField = useMemo(() => KYCFields.includes(question.question), [question]);
+
+  if (isKYCField) return <KYCInput question={question} form={form} />;
+
   return (
     <Input
       {...form.register(question.id)}
@@ -98,6 +121,81 @@ const TextInput = ({ question, form }: FormInputProps) => {
       isRequired={question.mandatory}
       isReadOnly={question.question === 'User code'}
     />
+  );
+};
+
+const KYCInput = ({ question, form }: FormInputProps) => {
+  const toast = useToast();
+  const { programId } = useParams();
+  const [bankCode, setBankCode] = useState<string>();
+  const [fullname, setFullname] = useState<string>();
+
+  const { mutate, isPending } = useVerifyData();
+  const { data: verificationStatus } = useGetVerificationStatus(programId.toString());
+
+  const banks = useMemo(() => getBanks().map((bank) => ({ label: bank.name, value: bank.code })), []);
+  const currentBank = useMemo(() => banks.find((bank) => bank.value === bankCode), [banks, bankCode]);
+
+  const type = useMemo(() => {
+    switch (question.question) {
+      case 'BVN':
+      case 'Recipient Bvn':
+      case 'Guarantor Bvn':
+      case 'Bvn Of A Board Member':
+        return IdType.BVN;
+      case 'NIN':
+        return IdType.NIN;
+      case 'CAC Registration Number':
+        return IdType.CAC;
+      case 'Voters Card':
+        return IdType.VOTER_ID;
+      case 'Recipient Account Number':
+        return IdType.BANK_ACCOUNT;
+      default:
+        return null;
+    }
+  }, [question]);
+
+  const handleClick = () => {
+    const data = form.getValues(question.id);
+    if (!data || !type) return;
+    if (type === IdType.BANK_ACCOUNT && !bankCode)
+      return toast({ title: 'Error', description: 'Please select a bank', status: 'error' });
+    mutate(
+      { id: data, programId: programId.toString(), type, bankCode },
+      { onSuccess: (response) => setFullname(response.body.fullName) }
+    );
+  };
+
+  return (
+    <Stack spacing="4">
+      {type === IdType.BANK_ACCOUNT && (
+        <Dropdown
+          variant="whiteDropdown"
+          placeholder="Select Bank"
+          options={banks}
+          value={currentBank}
+          onChange={(value) => value && setBankCode(value.value)}
+          isRequired={question.mandatory}
+        />
+      )}
+      <InputGroup>
+        <Input
+          {...form.register(question.id)}
+          id={question.id}
+          type={getInputType(question.type)}
+          isRequired={question.mandatory}
+        />
+        {verificationStatus?.body && type && (
+          <InputRightElement width="6rem">
+            <Button variant="primary" size="sm" h="1.75rem" onClick={handleClick} isLoading={isPending}>
+              Verify
+            </Button>
+          </InputRightElement>
+        )}
+      </InputGroup>
+      {fullname && <Text variant="Body2Semibold">{fullname}</Text>}
+    </Stack>
   );
 };
 
@@ -375,6 +473,8 @@ const getFormInput = (type: string) => {
       return RadioInput;
     case 'PHONE_NUMBER':
       return PhoneInput;
+    case 'KYC':
+      return KYCInput;
     default:
       return TextInput;
   }

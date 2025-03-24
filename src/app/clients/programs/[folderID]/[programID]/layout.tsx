@@ -72,7 +72,7 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
                 maxW="242px"
                 flexShrink={0}
                 number={item.order}
-                route={`/super-admin/programs/${folderID}/${programID}/${item.module.toLowerCase()}`}
+                route={`/clients/programs/${folderID}/${programID}/${item.module.toLowerCase()}`}
                 isActive={pathname.endsWith(item.module.toLowerCase())}
                 scroll
                 scrollSnapAlign="start"

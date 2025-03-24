@@ -1,4 +1,4 @@
-import { FormStatus } from '@/utils';
+import { FormStatus, IdType } from '@/utils';
 import type { IconProps } from '@chakra-ui/react';
 import type { AxiosProgressEvent } from 'axios';
 import type { IconType } from 'react-icons';
@@ -930,4 +930,12 @@ export type ClientDetails = {
   programName: string;
   programType: string;
   amountDisbursed: string | null;
+  totalBeneficiaries: number;
+};
+
+export type VerifyDataPayload = {
+  id: string;
+  programId: string;
+  type: IdType;
+  bankCode?: string;
 };

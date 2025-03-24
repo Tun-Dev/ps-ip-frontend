@@ -43,10 +43,13 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
           break;
 
         case 'KYC':
+          const maxLength = question.question === 'Recipient Account Number' ? 10 : 11;
           fieldSchema = z
             .string()
-            .min(11, `${question.question} must be 11 digits`)
-            .max(11, `${question.question} must be 11 digits`);
+            .min(maxLength, `${question.question} must be ${maxLength} digits`)
+            .max(maxLength, `${question.question} must be ${maxLength} digits`);
+          if (question.question === 'CAC Registration Number' || question.question === 'Voters Card')
+            fieldSchema = z.string().min(1, 'This field is required');
           break;
 
         case 'EMAIL':

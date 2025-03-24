@@ -13,6 +13,8 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Spinner,
+  Switch,
   Text,
   useDisclosure,
   useToast,
@@ -26,6 +28,8 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetModules } from '@/hooks/useGetModules';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { useGetVerificationStatus } from '@/hooks/useGetVerificationStatus';
+import { useToggleVerification } from '@/hooks/useToggleAutomaticVerification';
 import { ReusableTable } from '@/shared';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
@@ -61,6 +65,15 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
     [modules, moduleName]
   );
 
+  const toggleVerificationMutation = useToggleVerification();
+
+  const { data: verficationStatus, isLoading: isVerificationLoading } = useGetVerificationStatus(programID.toString());
+
+  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newStatus = event.target.checked;
+    toggleVerificationMutation.mutate({ programId: programID as string, status: newStatus });
+  };
+
   const isProgramCompleted = useMemo(
     () => response?.body?.programModules?.find((module) => module.module === moduleName)?.isCompleted ?? true,
     [response, moduleName]
@@ -73,6 +86,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
       query: debouncedQuery === '' ? undefined : debouncedQuery,
       programId: programID.toString(),
       moduleId: moduleId,
+      enabled: !!programID && !!moduleId,
     });
 
   const totalPages = data?.body.totalPages ?? 1;
@@ -297,6 +311,22 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
               </InputGroup>
             </Flex>
             <Flex gap="16px">
+              {moduleName === 'Verification' && (
+                <Flex alignItems="center" gap="8px">
+                  <Text as="label" variant="Body2Semibold" color="grey.500">
+                    Automatic verification:
+                  </Text>
+                  {!!verficationStatus ? (
+                    <Switch
+                      onChange={handleToggle}
+                      defaultChecked={verficationStatus.body}
+                      isDisabled={toggleVerificationMutation.isPending || isVerificationLoading}
+                    />
+                  ) : (
+                    <Spinner size="xs" color="grey.400" />
+                  )}
+                </Flex>
+              )}
               <Button
                 leftIcon={<MdDownload size="0.875rem" />}
                 variant={isProgramCompleted ? 'primary' : 'secondary'}

@@ -6,13 +6,23 @@ import { Image } from '@chakra-ui/next-js';
 import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
-import { MdGroups, MdHome, MdLocalShipping, MdLogout, MdNoteAlt, MdPerson, MdViewCarousel } from 'react-icons/md';
+import {
+  MdGroups,
+  MdHome,
+  MdLocalShipping,
+  MdLogout,
+  MdManageAccounts,
+  MdNoteAlt,
+  MdPerson,
+  MdViewCarousel,
+} from 'react-icons/md';
 
 const sideBarData = [
   { name: 'Dashboard', Icon: MdHome, url: '/clients' },
   { name: 'Programs', Icon: MdViewCarousel, url: '/clients/programs' },
   { name: 'Agents/Aggregators', Icon: MdGroups, url: '/clients/agents' },
   { name: 'Vendors/Orders', Icon: MdLocalShipping, url: '/clients/vendors' },
+  { name: 'Role Management', Icon: MdManageAccounts, url: '/clients/role-management' },
   { name: 'Reports', Icon: MdNoteAlt, url: '/clients/reports' },
 ];
 

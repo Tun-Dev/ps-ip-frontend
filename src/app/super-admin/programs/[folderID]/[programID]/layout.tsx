@@ -20,8 +20,6 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
 
   const modules = reorderDescending(response?.body.programModules) ?? [];
 
-  console.log(modules);
-
   const handleScroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return;
     const { scrollLeft, clientWidth } = scrollContainerRef.current;

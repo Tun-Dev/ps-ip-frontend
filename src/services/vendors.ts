@@ -109,8 +109,10 @@ export const getVendorAnalytics = async ({ queryKey, signal }: { queryKey: Query
   return data;
 };
 
-export const getVendorsOrders = async () => {
-  const { data } = await axiosInstance.get<PaginatedResponse<VendorsOrders>>(`/vendor/programs/all/orders`);
+export const getVendorsOrders = async (filterParams: VendorFilterParams) => {
+  const { data } = await axiosInstance.get<PaginatedResponse<VendorsOrders>>(`/vendor/programs/all/orders`, {
+    params: filterParams,
+  });
   return data;
 };
 

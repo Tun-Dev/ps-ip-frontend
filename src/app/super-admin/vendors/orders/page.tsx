@@ -32,7 +32,12 @@ import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 const OrderPage = () => {
   const [page, setPage] = useState(1);
   const [detailsPage, setDetailsPage] = useState(1);
-  const { data, isLoading, isError, isRefetching, isRefetchError, refetch } = useGetVendorsOrders();
+  const [search, setSearch] = useState<string | undefined>(undefined);
+  const { data, isLoading, isError, isRefetching, isRefetchError, refetch } = useGetVendorsOrders({
+    page: page,
+    pageSize: 10,
+    query: search,
+  });
 
   const programId = useSearchParams().get('programId') || '';
 
@@ -263,7 +268,6 @@ const OrderPage = () => {
   );
 
   // const [program, setProgram] = useState<number | undefined>(undefined);
-  const [search, setSearch] = useState<string | undefined>(undefined);
 
   const totalPages = data?.body.totalPages ?? 0;
   const detailsTotalPages = details?.body.totalPages ?? 0;

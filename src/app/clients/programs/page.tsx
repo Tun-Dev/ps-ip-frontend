@@ -1,44 +1,15 @@
 'use client';
 
-import { useDeleteGroup } from '@/hooks/useDeleteGroup';
 import { useGetGroup } from '@/hooks/useGetGroup';
-import { DeleteModal, FolderCard } from '@/shared';
-import { GroupEditPayload } from '@/types';
-import {
-  Flex,
-  Grid,
-  Icon,
-  Image,
-  SimpleGrid,
-  SkeletonText,
-  Stack,
-  Text,
-  useDisclosure,
-  useToast,
-} from '@chakra-ui/react';
+import { FolderCard } from '@/shared';
+import { Flex, Grid, Icon, Image, SimpleGrid, SkeletonText, Stack, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { MdFolder } from 'react-icons/md';
 import ProgramsBreadcrumbs from './programs-breadcrumbs';
 
 const ProgramsFolderPage = () => {
-  const toast = useToast();
   const router = useRouter();
-  const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure();
   const { data: groups, isPending } = useGetGroup({ page: 1, pageSize: 10 });
-
-  const [selectedGroup, setSelectedGroup] = useState<GroupEditPayload>();
-
-  const { mutate: deleteGroup, isPending: isDeletePending } = useDeleteGroup();
-
-  const handleDelete = (id: string) => {
-    deleteGroup(id, {
-      onSuccess: () => {
-        toast({ title: 'File deleted successfully', status: 'success' });
-        onCloseDelete();
-      },
-    });
-  };
 
   const data = groups?.body.data ?? [];
   return (
@@ -64,25 +35,13 @@ const ProgramsFolderPage = () => {
               <FolderCard
                 key={index}
                 name={item.name}
-                onClick={() => router.push(`/super-admin/programs/${item.id}`)}
-                onDelete={() => {
-                  setSelectedGroup({ name: item.name, id: item.id });
-                  onOpenDelete();
-                }}
+                onClick={() => router.push(`/clients/programs/${item.id}`)}
                 count={item.programCount ?? 0}
-                onAdd={() => router.push(`/super-admin/programs/${item.id}/create`)}
               />
             ))}
           </SimpleGrid>
         )}
       </Stack>
-      <DeleteModal
-        isOpen={isOpenDelete}
-        onClose={onCloseDelete}
-        action={() => !!selectedGroup?.id && handleDelete(selectedGroup.id)}
-        isLoading={isDeletePending}
-        text="Are you sure you want to delete this folder. Proceeding will erase the folder and all programs within it."
-      />
     </>
   );
 };

@@ -18,13 +18,13 @@ import { useParams } from 'next/navigation';
 import React, { useState } from 'react';
 import { MdDownload, MdOutlineUploadFile, MdSearch } from 'react-icons/md';
 
-const options = [
+export const options = [
   { label: 'LGA', value: 'LGA' },
   { label: 'Gender', value: 'Gender' },
   // { label: 'Nominated', value: 'Nominated' },
 ] as const;
 
-type Option = (typeof options)[number];
+export type Option = (typeof options)[number];
 
 export const NominationForm = () => {
   return (

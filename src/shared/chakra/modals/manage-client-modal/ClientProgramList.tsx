@@ -78,7 +78,7 @@ const Item = ({ item }: { item: ClientDetails }) => {
             <Text variant="Body2Semibold" color="grey.500">
               No. of Beneficiaries
             </Text>
-            {/* <Text variant="Body1Semibold">{item.agents}</Text> */}
+            <Text variant="Body1Semibold">{item.totalBeneficiaries}</Text>
           </Stack>
           <Stack>
             <Text variant="Body2Semibold" color="grey.500">

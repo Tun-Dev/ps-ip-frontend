@@ -45,14 +45,11 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
   const { mutate: addExistingWhitelist } = useAddExistingWhiteList();
 
   const onSubmit = (id: string) => {
-    console.log('working');
     const payload = {
       programId: programID?.toLocaleString(),
       whitelistId: id,
       beneficiaryIds: beneficiariesIds,
     };
-
-    console.log('payload', payload);
 
     addExistingWhitelist(payload, {
       onSuccess: () => {
@@ -61,8 +58,6 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
       },
     });
   };
-
-  console.log(data);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside" isCentered>

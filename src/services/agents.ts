@@ -34,8 +34,8 @@ export const getAgentDetails = async ({ queryKey, signal }: { queryKey: QueryKey
   return data;
 };
 
-export const removeAgentProgram = async ({ agentId, programId }: { agentId: string; programId: string }) => {
-  const { data } = await axiosInstance.delete<APIResponse<boolean>>(`/agents/${agentId}/${programId} `);
+export const removeAgentProgram = async (payload: { agentId: string; programId: string }) => {
+  const { data } = await axiosInstance.put<APIResponse<boolean>>(`/agents/program/remove`, payload);
   return data;
 };
 
