@@ -39,12 +39,14 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
 
   const options = useMemo(() => {
     if (!questionTypes) return [];
-    return questionTypes.body.map((type) => ({
-      label: getDropdownName(type.status),
-      value: type.value,
-      status: type.status,
-      icon: getDropdownIcon(type.status),
-    }));
+    return questionTypes.body
+      .filter((type) => type.status !== 'KYC')
+      .map((type) => ({
+        label: getDropdownName(type.status),
+        value: type.value,
+        status: type.status,
+        icon: getDropdownIcon(type.status),
+      }));
   }, [questionTypes]);
 
   const currentOption = useMemo(() => options.find((opt) => opt.status === field.status), [field.status, options]);

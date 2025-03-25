@@ -77,6 +77,20 @@ const VendorPage = () => {
       {
         header: () => (
           <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+            Product/Service Offered
+          </Text>
+        ),
+        accessorKey: 'product',
+        enableSorting: false,
+        cell: (info) => (
+          <Text variant="Body2Semibold" align="center">
+            {info.row.original.product ? info.row.original.product : info.row.original.service}
+          </Text>
+        ),
+      },
+      {
+        header: () => (
+          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
             Actions
           </Text>
         ),
