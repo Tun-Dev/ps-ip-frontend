@@ -121,7 +121,6 @@ export const defaultValues: ProgramSchema = {
         ],
       },
       { name: 'Phone Number', value: 0, status: 'PHONE_NUMBER', options: [] },
-      { name: 'National Identity Number', value: 0, status: 'KYC', options: [] },
       { name: 'Email', value: 0, status: 'EMAIL', options: [] },
       { name: 'Address', value: 0, status: 'LONG_TEXT', options: [] },
     ],

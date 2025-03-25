@@ -1,5 +1,4 @@
-// import { useGetPrograms } from '@/hooks/useGetPrograms';
-// import { Dropdown } from '@/shared/chakra/components';
+import { useEditClient } from '@/hooks/useEditClient';
 import { Client } from '@/types';
 import {
   Button,
@@ -22,17 +21,12 @@ import {
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidPhoneNumber } from 'libphonenumber-js';
-import {
-  // Controller,
-  useForm,
-} from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { PhoneNumberInput } from '../components/phone-number-input';
-import { useEditClient } from '@/hooks/useEditClient';
 
 const Schema = z.object({
   name: z.string().min(1, 'Name is required'),
-  programId: z.string().min(1, 'Program is required'),
   amount: z.coerce.number().min(0, 'Amount is required'),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -52,9 +46,6 @@ type ModalProps = {
 };
 
 export const EditClientModal = ({ isOpen, onClose, client }: ModalProps) => {
-  // const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
-  // const options = programs?.body.data.map((program) => ({ label: program.name, value: program.id }));
-
   const {
     register,
     control,
@@ -71,7 +62,6 @@ export const EditClientModal = ({ isOpen, onClose, client }: ModalProps) => {
       email: client.email,
       contactEmail: client.contactEmail,
       contactPhone: client.phoneNumber,
-      // programId: client.id
     },
   });
 
@@ -110,31 +100,6 @@ export const EditClientModal = ({ isOpen, onClose, client }: ModalProps) => {
                 <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
               </FormControl>
 
-              {/* <FormControl isInvalid={!!errors.programId}>
-                <FormLabel htmlFor="programId">
-                  <Text as="span" variant="Body2Semibold" color="grey.500">
-                    Assign Program
-                  </Text>
-                </FormLabel>
-                <Controller
-                  control={control}
-                  name="programId"
-                  render={({ field: { name, onBlur, onChange, value, disabled } }) => (
-                    <Dropdown
-                      id="programId"
-                      variant="whiteDropdown"
-                      placeholder="Select program"
-                      name={name}
-                      options={options}
-                      value={options?.find((option) => option.value === value)}
-                      onChange={(value) => value && onChange(value.value)}
-                      onBlur={onBlur}
-                      isDisabled={disabled}
-                    />
-                  )}
-                />
-                <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
-              </FormControl> */}
               <FormControl isInvalid={!!errors.amount}>
                 <FormLabel htmlFor="amount">
                   <Text as="span" variant="Body2Semibold" color="grey.500">

@@ -36,6 +36,7 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
 
     questions.forEach((question) => {
       let fieldSchema: z.ZodTypeAny = z.string();
+      const questionLabel = question.question.toLowerCase();
 
       switch (question.type) {
         case 'NUMBER':
@@ -43,12 +44,12 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
           break;
 
         case 'KYC':
-          const maxLength = question.question === 'Recipient Account Number' ? 10 : 11;
+          const maxLength = questionLabel === 'recipient account number' ? 10 : 11;
           fieldSchema = z
             .string()
             .min(maxLength, `${question.question} must be ${maxLength} digits`)
             .max(maxLength, `${question.question} must be ${maxLength} digits`);
-          if (question.question === 'CAC Registration Number' || question.question === 'Voters Card')
+          if (questionLabel === 'cac registration number' || questionLabel === 'voters card')
             fieldSchema = z.string().min(1, 'This field is required');
           break;
 
@@ -76,7 +77,7 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
           break;
 
         case 'DROPDOWN':
-          if (question.question === 'State' || question.question === 'Lga') fieldSchema = z.coerce.number();
+          if (questionLabel === 'state' || questionLabel === 'lga') fieldSchema = z.coerce.number();
           else fieldSchema = z.string().min(1, 'This field is required');
           break;
 
@@ -122,7 +123,9 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
       const questionInfo = questions.find((q) => q.id === question);
       if (!questionInfo) return { label: '', value: '', question: '' };
       const label = questionInfo.question;
-      return { label, value, question };
+      const bankCode = form.getValues('bankCode');
+      const isAccountNumber = label.toLowerCase() === 'recipient account number';
+      return { label, value: isAccountNumber ? `${value}, ${bankCode}` : value, question };
     });
 
     fillForm(

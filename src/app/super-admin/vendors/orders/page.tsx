@@ -27,7 +27,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
+import { MdArrowBack, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 const OrderPage = () => {
   const [page, setPage] = useState(1);
@@ -325,6 +325,16 @@ const OrderPage = () => {
           </Grid>
         ) : (
           <>
+            <Flex>
+              <Button
+                variant="unstyled"
+                fontSize="12px"
+                leftIcon={<MdArrowBack />}
+                onClick={() => router.push('/clients/vendors/orders')}
+              >
+                Back
+              </Button>
+            </Flex>
             <ReusableTable
               selectable
               data={ordersDetails}

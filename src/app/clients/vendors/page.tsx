@@ -1,10 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useDeleteVendor } from '@/hooks/useDeleteVendor';
 import { useFilterVendors } from '@/hooks/useFilterVendors';
 import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { DeleteModal, EditVendorModal, ReusableTable } from '@/shared';
+import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { ManageVendorModal } from '@/shared/chakra/modals/manage-vendor-modal';
 import { Vendor } from '@/types';
@@ -24,7 +22,6 @@ import {
   Stack,
   Text,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
@@ -34,35 +31,21 @@ import {
   MdSearch,
 } from 'react-icons/md';
 
-type Test = {
-  vendor: string;
-  program: number;
-  product: string;
-  start_date: string;
-  end_date: string;
-};
+// type Test = {
+//   vendor: string;
+//   program: number;
+//   product: string;
+//   start_date: string;
+//   end_date: string;
+// };
 
 const VendorPage = () => {
-  const toast = useToast();
   const [page, setPage] = useState(1);
-  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: editModalOnClose } = useDisclosure();
+
   const { isOpen: isManageOpen, onOpen: onManageOpen, onClose: manageModalOnClose } = useDisclosure();
-  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: deleteModalOnClose } = useDisclosure();
   const [selectedVendor, setSelectedVendor] = useState<Vendor>();
-  const { mutate: delVendor, isPending } = useDeleteVendor();
 
-  const handleDeleteVendor = () => {
-    if (selectedVendor) {
-      delVendor(selectedVendor.id, {
-        onSuccess: () => {
-          toast({ title: 'Vendor deleted successfully', status: 'success' });
-          deleteModalOnClose();
-        },
-      });
-    }
-  };
-
-  const columns: ColumnDef<Test>[] = useMemo(
+  const columns: ColumnDef<Vendor>[] = useMemo(
     () => [
       {
         header: () => (
@@ -70,7 +53,7 @@ const VendorPage = () => {
             Vendor
           </Text>
         ),
-        accessorKey: 'vendor',
+        accessorKey: 'name',
         enableSorting: false,
       },
       {
@@ -83,7 +66,7 @@ const VendorPage = () => {
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
-            {info.row.original.program}
+            {info.row.original.programCount}
           </Text>
         ),
       },
@@ -98,34 +81,6 @@ const VendorPage = () => {
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
             {info.row.original.product}
-          </Text>
-        ),
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-            Scheduled Date
-          </Text>
-        ),
-        accessorKey: 'start_date',
-        enableSorting: false,
-        cell: (info) => (
-          <Text variant="Body2Semibold" align="center">
-            {info.row.original.start_date}
-          </Text>
-        ),
-      },
-      {
-        header: () => (
-          <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-            End Date
-          </Text>
-        ),
-        accessorKey: 'end_date',
-        enableSorting: false,
-        cell: (info) => (
-          <Text variant="Body2Semibold" align="center">
-            {info.row.original.end_date}
           </Text>
         ),
       },
@@ -191,7 +146,7 @@ const VendorPage = () => {
       //   ),
       // },
     ],
-    [onDeleteOpen, onManageOpen, onEditOpen]
+    []
   );
 
   const [program, setProgram] = useState<string | undefined>(undefined);
@@ -213,21 +168,14 @@ const VendorPage = () => {
     pageSize: 10,
     query: search,
   });
-  // const vendors = useMemo(() => data?.body.data ?? [], [data]);
+  const vendors = useMemo(() => data?.body.data ?? [], [data]);
   const totalPages = data?.body.totalPages ?? 0;
+  console.log(data);
 
   return (
     <Stack gap="6" w="full" flex="1">
       {selectedVendor && (
         <>
-          <EditVendorModal
-            isOpen={isEditOpen}
-            onClose={() => {
-              editModalOnClose();
-              setSelectedVendor(undefined);
-            }}
-            initialValues={selectedVendor}
-          />
           <ManageVendorModal
             isOpen={isManageOpen}
             onClose={() => {
@@ -235,16 +183,7 @@ const VendorPage = () => {
               setSelectedVendor(undefined);
             }}
             vendor={selectedVendor}
-          />
-          <DeleteModal
-            isOpen={isDeleteOpen}
-            onClose={() => {
-              deleteModalOnClose();
-              setSelectedVendor(undefined);
-            }}
-            action={handleDeleteVendor}
-            isLoading={isPending}
-            text="Are you sure you want to delete this vendor. Proceeding will erase this vendor data."
+            type="client"
           />
         </>
       )}
@@ -292,11 +231,15 @@ const VendorPage = () => {
 
       <ReusableTable
         // selectable
-        data={dataTest}
+        data={vendors}
         columns={columns}
         isLoading={isLoading || isRefetching}
         isError={isError || isRefetchError}
         onRefresh={refetch}
+        onClick={(vendor) => {
+          setSelectedVendor(vendor);
+          onManageOpen();
+        }}
       />
       <TablePagination
         handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
@@ -315,12 +258,12 @@ const VendorPage = () => {
 
 export default VendorPage;
 
-const dataTest = [
-  {
-    vendor: 'SCHLABS',
-    program: 2,
-    product: 'Tech Skills',
-    start_date: 'Dec-20',
-    end_date: 'Dec-31',
-  },
-];
+// const dataTest = [
+//   {
+//     vendor: 'SCHLABS',
+//     program: 2,
+//     product: 'Tech Skills',
+//     start_date: 'Dec-20',
+//     end_date: 'Dec-31',
+//   },
+// ];

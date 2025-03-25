@@ -133,11 +133,8 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
       const moduleData = { ...module, order: index + 1 };
 
       if (!module.dataPoints) return { ...moduleData, dataPoints: [] };
-
-      return {
-        ...moduleData,
-        dataPoints: module.dataPoints.map((dp) => ({ isRequired: dp.isRequired, dataPoint: dp.dataPoint.id })),
-      };
+      const dataPoints = module.dataPoints.map((dp) => ({ isRequired: dp.isRequired, dataPoint: dp.dataPoint.id }));
+      return { ...moduleData, dataPoints };
     });
 
     return programModules;

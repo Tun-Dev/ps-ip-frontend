@@ -1,6 +1,6 @@
-import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { useToast } from '@chakra-ui/react';
 import { deleteClients } from '@/services/clients';
+import { useToast } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
 export const useDeleteClient = () => {
@@ -10,7 +10,7 @@ export const useDeleteClient = () => {
   return useMutation({
     mutationFn: deleteClients,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['partners'] });
+      queryClient.invalidateQueries({ queryKey: ['client'] });
     },
     onError: (error) => {
       let message = 'An unknown error occurred';

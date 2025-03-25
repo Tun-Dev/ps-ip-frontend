@@ -313,11 +313,12 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
             <Flex gap="16px">
               {moduleName === 'Verification' && (
                 <Flex alignItems="center" gap="8px">
-                  <Text as="label" variant="Body2Semibold" color="grey.500">
+                  <Text as="label" htmlFor="automatic-verification" variant="Body2Semibold" color="grey.500">
                     Automatic verification:
                   </Text>
                   {!!verficationStatus ? (
                     <Switch
+                      id="automatic-verification"
                       onChange={handleToggle}
                       defaultChecked={verficationStatus.body}
                       isDisabled={toggleVerificationMutation.isPending || isVerificationLoading}

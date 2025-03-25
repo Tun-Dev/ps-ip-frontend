@@ -5,6 +5,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useGetModules } from '@/hooks/useGetModules';
 import { useGetVettingOfficersAnalytics } from '@/hooks/useGetVettingOfficersAnalytics';
 import { useGetVettingOfficersBeneficiaries } from '@/hooks/useGetVettingOfficersBeneficiaries';
+import { useUserStore } from '@/providers/user-store-provider';
 import { VettingModalProvider } from '@/providers/vetting-modal-provider';
 import { ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
@@ -124,6 +125,8 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
   const toast = useToast();
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const user = useUserStore((state) => state.user);
+  const isVettingOfficer = user?.roles.includes('Vetting Officer') ?? false;
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
@@ -250,7 +253,7 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
           header: 'Vetting Score',
           cell: (info) => (
             <Text as="span" variant="Body1Bold" color="primary.500">
-              {info.getValue() ? `${info.getValue()}%` : 'N/A'}
+              {info.getValue() === null ? 'N/A' : `${info.getValue()}%`}
             </Text>
           ),
           meta: { isCentered: true },
@@ -259,7 +262,7 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
           id: 'actions',
           header: () => (
             <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-              Actions
+              Actions/Status
             </Text>
           ),
           cell: (info) =>
@@ -270,6 +273,17 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
             ) : info.row.original.status === FormStatus.DISAPPROVED ? (
               <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
                 Denied
+              </Text>
+            ) : isVettingOfficer ? (
+              <Text
+                as="span"
+                display="block"
+                color="text"
+                textAlign="center"
+                variant="Body3Semibold"
+                textTransform="capitalize"
+              >
+                {info.row.original.status.toString().toLowerCase()}
               </Text>
             ) : (
               <Menu>
@@ -311,7 +325,7 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
             ),
         }),
       ] as ColumnDef<Beneficiary>[],
-    [onApprove]
+    [onApprove, isVettingOfficer]
   );
 
   return (

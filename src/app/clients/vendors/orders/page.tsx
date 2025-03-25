@@ -27,7 +27,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import { MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
+import { MdArrowBack, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 const OrderPage = () => {
   const [page, setPage] = useState(1);
@@ -115,10 +115,11 @@ const OrderPage = () => {
           </Text>
         ),
         accessorKey: 'schedule_date',
+        meta: { isCentered: true },
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
-            {format(parseISO(info.row.original.scheduledDate), 'MMM. d')}
+            {info.row.original.scheduledDate ? format(parseISO(info.row.original.scheduledDate), 'MMM. d') : 'N/A'}
           </Text>
         ),
       },
@@ -129,10 +130,11 @@ const OrderPage = () => {
           </Text>
         ),
         accessorKey: 'end_date',
+        meta: { isCentered: true },
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
-            {format(parseISO(info.row.original.endDate), 'MMM. d')}
+            {info.row.original.endDate ? format(parseISO(info.row.original.endDate), 'MMM. d') : 'N/A'}
           </Text>
         ),
       },
@@ -229,6 +231,7 @@ const OrderPage = () => {
           </Text>
         ),
         accessorKey: 'schedule_date',
+        meta: { isCentered: true },
         enableSorting: false,
         // cell: (info) => (
         //   <Text variant="Body2Semibold" align="center">
@@ -243,6 +246,7 @@ const OrderPage = () => {
           </Text>
         ),
         accessorKey: 'end_date',
+        meta: { isCentered: true },
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
@@ -260,7 +264,9 @@ const OrderPage = () => {
         enableSorting: false,
         cell: (info) => (
           <Text variant="Body2Semibold" align="center">
-            {format(parseISO(info.row.original.disbursementDate), 'MMM. d')}
+            {info.row.original.disbursementDate
+              ? format(parseISO(info.row.original.disbursementDate), 'MMM. d')
+              : 'N/A'}
           </Text>
         ),
       },
@@ -328,6 +334,16 @@ const OrderPage = () => {
           </Grid>
         ) : (
           <>
+            <Flex>
+              <Button
+                variant="unstyled"
+                fontSize="12px"
+                leftIcon={<MdArrowBack />}
+                onClick={() => router.push('/clients/vendors/orders')}
+              >
+                Back
+              </Button>
+            </Flex>
             <ReusableTable
               selectable
               data={ordersDetails}

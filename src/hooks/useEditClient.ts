@@ -10,7 +10,7 @@ export const useEditClient = () => {
   return useMutation({
     mutationFn: editClients,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['partners'] });
+      queryClient.invalidateQueries({ queryKey: ['client'] });
       toast({ title: 'Success', status: 'success', description: 'Client edited successfully' });
     },
     onError: (error) => {

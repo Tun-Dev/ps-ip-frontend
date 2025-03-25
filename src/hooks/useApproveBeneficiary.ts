@@ -12,6 +12,7 @@ export const useApproveBeneficiary = () => {
   return useMutation({
     mutationFn: approveBeneficiary,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['whitelist'] });
       queryClient.invalidateQueries({ queryKey: ['beneficiaries'] });
       queryClient.invalidateQueries({ queryKey: ['beneficiaryDetails'] });
       queryClient.invalidateQueries({ queryKey: ['uploadStatus'] });

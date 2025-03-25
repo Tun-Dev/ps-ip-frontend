@@ -3,11 +3,11 @@
 import { Box, Button, Flex, Grid, Icon, Spinner, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { MdCheckCircle, MdLogout } from 'react-icons/md';
+import { MdCancel, MdCheckCircle, MdLogout } from 'react-icons/md';
 
 import { useGetBeneficiaryStatus } from '@/hooks/useGetBeneficiaryStatus';
 import { BeneficiaryForm } from '@/types';
-import { formatErrorMessage, MODULE_STATUS } from '@/utils';
+import { formatErrorMessage, FormStatus, MODULE_STATUS } from '@/utils';
 import { MultiStepHeaderBen } from './MultiStepHeaderBen';
 
 type Props = {
@@ -77,9 +77,15 @@ export default function ModuleStatus({ user }: Props) {
             </Text>
             <Flex align="center" gap="1">
               <Text variant={{ base: 'Body2Semibold', xs: 'Body1Semibold' }} color="text">
-                Your information has been recorded.
+                {beneficiaryStatus.body.status === FormStatus.DISAPPROVED
+                  ? 'You were rejected from this program.'
+                  : 'Your information has been recorded.'}
               </Text>
-              <Icon as={MdCheckCircle} boxSize="20px" color="primary.600" />
+              {beneficiaryStatus.body.status === FormStatus.DISAPPROVED ? (
+                <Icon as={MdCancel} boxSize="20px" color="red" />
+              ) : (
+                <Icon as={MdCheckCircle} boxSize="20px" color="primary.600" />
+              )}
             </Flex>
           </Stack>
           <Button

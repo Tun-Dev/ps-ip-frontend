@@ -10,7 +10,7 @@ export const useCreateClient = (onSuccess?: () => void) => {
   return useMutation({
     mutationFn: createClients,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['partners'] });
+      queryClient.invalidateQueries({ queryKey: ['client'] });
       toast({ title: 'Success', status: 'success', description: 'Client created successfully' });
       onSuccess?.();
     },

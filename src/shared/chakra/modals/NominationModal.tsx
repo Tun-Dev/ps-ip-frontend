@@ -34,7 +34,6 @@ const NominationModal = ({
   isLoading?: boolean;
   programId?: string;
 }) => {
-  console.log(programId);
   const toast = useToast();
   const templates = [
     {

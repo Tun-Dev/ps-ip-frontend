@@ -68,7 +68,7 @@ const ProgramIDLayout = ({ children }: PropsWithChildren) => {
               <ModuleCard
                 key={item.id}
                 module={newItem}
-                status={item.isCompleted ? 'Completed' : item.isActive && !item.isCompleted ? 'In progress' : 'Pending'}
+                // status={item.isCompleted ? 'Completed' : item.isActive && !item.isCompleted ? 'In progress' : 'Pending'}
                 maxW="242px"
                 flexShrink={0}
                 number={item.order}

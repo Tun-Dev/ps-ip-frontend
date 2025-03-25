@@ -98,18 +98,18 @@ const FormInput = ({ question, form, number = 0, stateQuestionId, inputOnly }: F
 };
 
 const KYCFields = [
-  'BVN',
-  'Recipient Bvn',
-  'Guarantor Bvn',
-  'Bvn Of A Board Member',
-  'NIN',
-  'CAC Registration Number',
-  'Voters Card',
-  'Recipient Account Number',
+  'bvn',
+  'recipient bvn',
+  'guarantor bvn',
+  'bvn of a board member',
+  'nin',
+  'cac registration number',
+  'voters card',
+  'recipient account number',
 ];
 
 const TextInput = ({ question, form }: FormInputProps) => {
-  const isKYCField = useMemo(() => KYCFields.includes(question.question), [question]);
+  const isKYCField = useMemo(() => KYCFields.includes(question.question.toLowerCase()), [question]);
 
   if (isKYCField) return <KYCInput question={question} form={form} />;
 
@@ -127,29 +127,28 @@ const TextInput = ({ question, form }: FormInputProps) => {
 const KYCInput = ({ question, form }: FormInputProps) => {
   const toast = useToast();
   const { programId } = useParams();
-  const [bankCode, setBankCode] = useState<string>();
   const [fullname, setFullname] = useState<string>();
 
   const { mutate, isPending } = useVerifyData();
   const { data: verificationStatus } = useGetVerificationStatus(programId.toString());
 
   const banks = useMemo(() => getBanks().map((bank) => ({ label: bank.name, value: bank.code })), []);
-  const currentBank = useMemo(() => banks.find((bank) => bank.value === bankCode), [banks, bankCode]);
+  const currentBank = useCallback((value) => banks.find((bank) => bank.value === value?.value), [banks]);
 
   const type = useMemo(() => {
-    switch (question.question) {
-      case 'BVN':
-      case 'Recipient Bvn':
-      case 'Guarantor Bvn':
-      case 'Bvn Of A Board Member':
+    switch (question.question.toLowerCase()) {
+      case 'bvn':
+      case 'recipient bvn':
+      case 'guarantor bvn':
+      case 'bvn of a board member':
         return IdType.BVN;
-      case 'NIN':
+      case 'nin':
         return IdType.NIN;
-      case 'CAC Registration Number':
+      case 'cac registration number':
         return IdType.CAC;
-      case 'Voters Card':
+      case 'voters card':
         return IdType.VOTER_ID;
-      case 'Recipient Account Number':
+      case 'recipient account number':
         return IdType.BANK_ACCOUNT;
       default:
         return null;
@@ -158,6 +157,7 @@ const KYCInput = ({ question, form }: FormInputProps) => {
 
   const handleClick = () => {
     const data = form.getValues(question.id);
+    const bankCode = form.getValues('bankCode');
     if (!data || !type) return;
     if (type === IdType.BANK_ACCOUNT && !bankCode)
       return toast({ title: 'Error', description: 'Please select a bank', status: 'error' });
@@ -170,13 +170,21 @@ const KYCInput = ({ question, form }: FormInputProps) => {
   return (
     <Stack spacing="4">
       {type === IdType.BANK_ACCOUNT && (
-        <Dropdown
-          variant="whiteDropdown"
-          placeholder="Select Bank"
-          options={banks}
-          value={currentBank}
-          onChange={(value) => value && setBankCode(value.value)}
-          isRequired={question.mandatory}
+        <Controller
+          control={form.control}
+          name="bankCode"
+          render={({ field: { name, onBlur, onChange, value, disabled } }) => (
+            <Dropdown
+              variant="whiteDropdown"
+              name={name}
+              options={banks}
+              value={currentBank(value)}
+              onChange={(value) => value && onChange(value.value)}
+              onBlur={onBlur}
+              isDisabled={disabled}
+              isRequired={question.mandatory}
+            />
+          )}
         />
       )}
       <InputGroup>
@@ -187,9 +195,16 @@ const KYCInput = ({ question, form }: FormInputProps) => {
           isRequired={question.mandatory}
         />
         {verificationStatus?.body && type && (
-          <InputRightElement width="6rem">
-            <Button variant="primary" size="sm" h="1.75rem" onClick={handleClick} isLoading={isPending}>
-              Verify
+          <InputRightElement width="4rem">
+            <Button
+              variant="primary"
+              size="xs"
+              h="1.75rem"
+              onClick={handleClick}
+              isLoading={isPending}
+              isDisabled={!!fullname}
+            >
+              {!!fullname ? 'Verified' : 'Verify'}
             </Button>
           </InputRightElement>
         )}

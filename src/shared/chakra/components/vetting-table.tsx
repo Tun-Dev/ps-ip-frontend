@@ -215,7 +215,7 @@ export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
           header: 'Vetting Score',
           cell: (info) => (
             <Text as="span" variant="Body1Bold" color="primary.500">
-              {info.getValue() ? `${info.getValue()}%` : 'N/A'}
+              {info.getValue() === null ? 'N/A' : `${info.getValue()}%`}
             </Text>
           ),
           meta: { isCentered: true },
