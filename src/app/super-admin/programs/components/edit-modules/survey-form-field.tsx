@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Grid, Icon, Input, Stack } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Icon, Input, Stack, Switch, Text } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useMemo } from 'react';
@@ -14,6 +14,7 @@ type Field = {
   name: string;
   status: string;
   value: number;
+  isRequired: boolean;
   options: { value: string; label: string }[];
 };
 
@@ -61,20 +62,31 @@ export function SurveyFormField({ field, inputProps, onDelete, onChange, index }
     >
       <Grid alignItems="end" gap="3" gridTemplateColumns={field.status === 'LONG_TEXT' ? '1fr auto' : '13.5rem auto'}>
         <Stack align="flex-start" spacing="2" flex="1">
-          <Flex align="center" gap="2">
-            <Input
-              px="2"
-              py="1"
-              boxSize="auto"
-              border="1px dashed"
-              borderColor="grey.300"
-              borderRadius="0.25rem"
-              fontSize="13px"
-              fontWeight="semibold"
-              lineHeight="20px"
-              {...inputProps}
-            />
-            <Icon as={MdEdit} aria-label={`Edit ${field.name}`} color="primary.500" boxSize="3" />
+          <Flex align="center" gap="4">
+            <Flex align="center" gap="2">
+              <Input
+                px="2"
+                py="1"
+                boxSize="auto"
+                border="1px dashed"
+                borderColor="grey.300"
+                borderRadius="0.25rem"
+                fontSize="13px"
+                fontWeight="semibold"
+                lineHeight="20px"
+                {...inputProps}
+              />
+              <Icon as={MdEdit} aria-label={`Edit ${field.name}`} color="primary.500" boxSize="3" />
+            </Flex>
+            <Flex align="center" gap="2.5" flexShrink="0">
+              <Text as="label" variant="Body2Regular" color="grey.500" htmlFor={`${field.id}-is-compulsory`}>
+                Required{' '}
+                <Text as="span" color="red">
+                  *
+                </Text>
+              </Text>
+              <Switch id={`${field.id}-is-compulsory`} {...register(`surveyForm.fields.${index}.isRequired`)} />
+            </Flex>
           </Flex>
           {field.status === 'IMAGE_UPLOAD' ? (
             <Flex maxW="6.8125rem" justify="center" w="full">

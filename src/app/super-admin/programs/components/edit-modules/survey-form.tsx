@@ -13,6 +13,7 @@ type Item = {
   name: string;
   status: string;
   value: number;
+  isRequired: boolean;
   options: { label: string; value: string }[];
 };
 
@@ -26,6 +27,7 @@ const SurveyForm = memo(() => {
     update(idx, {
       name: getValues(`surveyForm.fields.${idx}.name`),
       value: getValues(`surveyForm.fields.${idx}.value`),
+      isRequired: getValues(`surveyForm.fields.${idx}.isRequired`),
       status: status,
       options: [],
     });
@@ -66,7 +68,9 @@ const SurveyForm = memo(() => {
             variant="tertiary"
             size="default"
             leftIcon={<MdAddCircle color="var(--chakra-colors-primary-600)" size="1.5rem" />}
-            onClick={() => append({ name: 'New Question', value: 1, status: 'SHORT_TEXT', options: [] })}
+            onClick={() =>
+              append({ name: 'New Question', value: 1, status: 'SHORT_TEXT', isRequired: true, options: [] })
+            }
             border="1px dashed"
             borderColor="grey.300"
             py="1rem"

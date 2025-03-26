@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Grid, Icon, Input, SimpleGrid, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Icon, Input, SimpleGrid, Stack, Switch, Text } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useFieldArray, type FieldArrayWithId } from 'react-hook-form';
@@ -11,6 +11,7 @@ type Field = {
   name: string;
   value: number;
   status: string;
+  isRequired: boolean;
   options: { label: string; value: string; weight: number }[];
 };
 
@@ -94,7 +95,18 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
                 )}
               </Flex>
             ) : (
-              <Box />
+              <Flex align="center" gap="2.5" flexShrink="0">
+                <Text as="label" variant="Body2Regular" color="grey.500" htmlFor={`${field.id}-is-compulsory`}>
+                  Required{' '}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
+                </Text>
+                <Switch
+                  id={`${field.id}-is-compulsory`}
+                  {...register(`vettingForm.automatedFields.${index}.isRequired`)}
+                />
+              </Flex>
             )}
             {field.status === 'MULTIPLE_CHOICE' ? (
               fields.map((option, idx) => (

@@ -12,6 +12,7 @@ const surveyFormSchema = z.object({
       name: z.string(),
       value: z.coerce.number(),
       status: z.string(),
+      isRequired: z.boolean(),
       options: z.array(z.object({ label: z.string(), value: z.string() })),
     })
   ),
@@ -29,6 +30,7 @@ const vettingFormSchema = z.object({
       name: z.string(),
       value: z.coerce.number(),
       status: z.string(),
+      isRequired: z.boolean(),
       options: z.array(z.object({ label: z.string(), value: z.string() })),
     })
   ),
@@ -37,6 +39,7 @@ const vettingFormSchema = z.object({
       name: z.string(),
       value: z.coerce.number(),
       status: z.string(),
+      isRequired: z.boolean(),
       options: z.array(z.object({ label: z.string(), value: z.string(), weight: z.coerce.number() })),
     })
   ),
@@ -108,21 +111,22 @@ export const defaultValues: ProgramSchema = {
   programModules: [],
   surveyForm: {
     fields: [
-      { name: 'Full Name', value: 0, status: 'SHORT_TEXT', options: [] },
-      { name: 'Upload Picture', value: 0, status: 'IMAGE_UPLOAD', options: [] },
-      { name: 'Date of Birth', value: 0, status: 'DATE', options: [] },
+      { name: 'Full Name', value: 0, status: 'SHORT_TEXT', isRequired: true, options: [] },
+      { name: 'Upload Picture', value: 0, status: 'IMAGE_UPLOAD', isRequired: true, options: [] },
+      { name: 'Date of Birth', value: 0, status: 'DATE', isRequired: true, options: [] },
       {
         name: 'Gender',
         value: 0,
         status: 'DROPDOWN',
+        isRequired: true,
         options: [
           { label: 'Male', value: 'Male' },
           { label: 'Female', value: 'Female' },
         ],
       },
-      { name: 'Phone Number', value: 0, status: 'PHONE_NUMBER', options: [] },
-      { name: 'Email', value: 0, status: 'EMAIL', options: [] },
-      { name: 'Address', value: 0, status: 'LONG_TEXT', options: [] },
+      { name: 'Phone Number', value: 0, status: 'PHONE_NUMBER', isRequired: true, options: [] },
+      { name: 'Email', value: 0, status: 'EMAIL', isRequired: true, options: [] },
+      { name: 'Address', value: 0, status: 'LONG_TEXT', isRequired: true, options: [] },
     ],
   },
   vettingForm: {
@@ -132,15 +136,28 @@ export const defaultValues: ProgramSchema = {
     manualTotalScore: 30,
     manualPassScore: 15,
     manualFields: [
-      { name: 'How old is your business?', value: 10, status: 'SHORT_TEXT', options: [] },
-      { name: 'Why do you deserve this grant?', value: 10, status: 'LONG_TEXT', options: [] },
-      { name: 'What is your plan if you were to receive the grant?', value: 10, status: 'LONG_TEXT', options: [] },
+      {
+        name: 'How old is your business?',
+        value: 10,
+        status: 'SHORT_TEXT',
+        isRequired: true,
+        options: [],
+      },
+      { name: 'Why do you deserve this grant?', value: 10, status: 'LONG_TEXT', isRequired: true, options: [] },
+      {
+        name: 'What is your plan if you were to receive the grant?',
+        value: 10,
+        status: 'LONG_TEXT',
+        isRequired: true,
+        options: [],
+      },
     ],
     automatedFields: [
       {
         name: 'Beneficiary age',
         value: 20,
         status: 'MULTIPLE_CHOICE',
+        isRequired: true,
         options: [
           {
             label: '46-55',
@@ -168,6 +185,7 @@ export const defaultValues: ProgramSchema = {
         name: 'Years in Service',
         value: 20,
         status: 'MULTIPLE_CHOICE',
+        isRequired: true,
         options: [
           {
             label: '16-20',
@@ -195,6 +213,7 @@ export const defaultValues: ProgramSchema = {
         name: 'Upload CAC File',
         value: 0,
         status: 'FILE_UPLOAD',
+        isRequired: true,
         options: [],
       },
     ],

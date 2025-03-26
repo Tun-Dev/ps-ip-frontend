@@ -71,7 +71,7 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
               <Text variant="Body2Semibold" color="grey.500" mb="2">
                 {answer.key}
               </Text>
-              {answer.key === 'Picture' && typeof answer.value === 'string' ? (
+              {answer.key === 'Picture' && typeof answer.value === 'string' && answer.value ? (
                 <Box pos="relative" boxSize="6.25rem" rounded="sm" overflow="hidden">
                   <Image
                     src={getImageUrl(answer.value)}
@@ -82,7 +82,7 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
                   />
                 </Box>
               ) : (
-                <Text variant="Body1Regular">{value}</Text>
+                <Text variant="Body1Regular">{value || 'N/A'}</Text>
               )}
             </Box>
           );

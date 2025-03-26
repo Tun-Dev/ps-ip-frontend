@@ -2,35 +2,23 @@
 
 import { Link } from '@chakra-ui/next-js';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react';
-import { useParams, usePathname, useSearchParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 
-import { useGetGroup } from '@/hooks/useGetGroup';
-import { useGetModules } from '@/hooks/useGetModules';
+import { useGetGroupById } from '@/hooks/useGetGroupById';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
-import { useProgramStore } from '@/providers/programs-store-provider';
 
 const ProgramsBreadcrumbs = () => {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { programID, folderID } = useParams();
   const segments = pathname.split('/');
   const currentModule = segments[segments.length - 1];
-  const step = useProgramStore((state) => state.step);
-  const activeModuleId = useProgramStore((state) => state.activeModuleId);
-  const { data: modules } = useGetModules(!!activeModuleId);
-  const activeModule = modules?.body.find((module) => module.id === activeModuleId);
 
-  const { data: groups } = useGetGroup({ page: 1, pageSize: 10 });
+  const { response: group } = useGetGroupById(folderID?.toString());
 
-  const data = groups?.body.data ?? [];
-  const folderName = data.find((item) => item.id === folderID);
+  const folderName = group?.body.name ?? '...';
 
   const { response } = useGetProgramById(programID?.toString());
   const programName = response?.body.name ?? '...';
-  const agent = searchParams.get('agent');
-
-  const isEditing = pathname === `/super-admin/programs/${folderID}/edit/${programID}`;
-  const isCreating = pathname === `/super-admin/programs/${folderID}/create`;
 
   return (
     <Breadcrumb
@@ -42,7 +30,7 @@ const ProgramsBreadcrumbs = () => {
       isTruncated
     >
       <BreadcrumbItem>
-        <BreadcrumbLink as={Link} href="/super-admin/programs">
+        <BreadcrumbLink as={Link} href="/clients/programs">
           Programs
         </BreadcrumbLink>
       </BreadcrumbItem>
@@ -53,11 +41,11 @@ const ProgramsBreadcrumbs = () => {
         >
           <BreadcrumbLink
             as={!!folderID && !programID ? 'span' : Link}
-            href={`/super-admin/programs/${folderID}`}
+            href={`/clients/programs/${folderID}`}
             maxW="15rem"
             isTruncated
           >
-            {folderName?.name}
+            {folderName}
           </BreadcrumbLink>
         </BreadcrumbItem>
       )}
@@ -68,7 +56,7 @@ const ProgramsBreadcrumbs = () => {
         >
           <BreadcrumbLink
             as={!!programID && !currentModule ? 'span' : Link}
-            href={`/super-admin/programs/${folderID}/${programID}/application`}
+            href={`/clients/programs/${folderID}/${programID}/application`}
             maxW="15rem"
             isTruncated
           >
@@ -76,73 +64,17 @@ const ProgramsBreadcrumbs = () => {
           </BreadcrumbLink>
         </BreadcrumbItem>
       )}
-      {!!programID && !!currentModule && pathname !== `/super-admin/programs/${folderID}/edit/${programID}` && (
+      {!!programID && !!currentModule && (
         <BreadcrumbItem
-          isCurrentPage={!!programID && !!currentModule && !agent}
-          color={!!programID && !!currentModule && !agent ? 'primary.600' : 'inherit'}
+          isCurrentPage={!!programID && !!currentModule}
+          color={!!programID && !!currentModule ? 'primary.600' : 'inherit'}
         >
           <BreadcrumbLink
-            as={!!programID && !!currentModule && !agent ? 'span' : Link}
-            href={`/super-admin/programs/${folderID}/${programID}/${currentModule}`}
+            as={!!programID && !!currentModule ? 'span' : Link}
+            href={`/clients/programs/${folderID}/${programID}/${currentModule}`}
             textTransform="capitalize"
           >
             {currentModule}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      )}
-      {!!programID && !!currentModule && !!agent && (
-        <BreadcrumbItem
-          isCurrentPage={!!programID && !!currentModule && !!agent}
-          color={!!programID && !!currentModule && !!agent ? 'primary.600' : 'inherit'}
-        >
-          <BreadcrumbLink
-            as={!!programID && !!currentModule && !!agent ? 'span' : Link}
-            href={`/super-admin/programs/${folderID}/${programID}/${currentModule}?agent=${encodeURIComponent(agent)}`}
-            textTransform="capitalize"
-          >
-            Agent ({agent})
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      )}
-      {isCreating && (
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} href={`/super-admin/programs/${folderID}/create`}>
-            Create New Program
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      )}
-      {(isCreating || isEditing) && step === 1 && (
-        <BreadcrumbItem isCurrentPage={step === 1} color={step === 1 ? 'primary.600' : 'inherit'}>
-          <BreadcrumbLink as={step === 1 ? 'span' : Link} href={`/super-admin/programs/${folderID}/create`}>
-            Select Modules
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      )}
-      {(isCreating || isEditing) && step === 2 && (
-        <BreadcrumbItem isCurrentPage={!activeModule} color={!activeModule ? 'primary.600' : 'inherit'}>
-          <BreadcrumbLink as={!activeModule ? 'span' : Link} href={`/super-admin/programs/${folderID}/create`}>
-            Edit Modules
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      )}
-      {(isCreating || isEditing) && step === 3 && (
-        <BreadcrumbItem isCurrentPage={!activeModule} color={!activeModule ? 'primary.600' : 'inherit'}>
-          <BreadcrumbLink as={!activeModule ? 'span' : Link} href={`/super-admin/programs/${folderID}/create`}>
-            Admin Settings
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      )}
-      {(isCreating || isEditing) && step === 4 && (
-        <BreadcrumbItem isCurrentPage={!activeModule} color={!activeModule ? 'primary.600' : 'inherit'}>
-          <BreadcrumbLink as={!activeModule ? 'span' : Link} href={`/super-admin/programs/${folderID}/create`}>
-            Review
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      )}
-      {(isCreating || isEditing) && step !== 1 && activeModule && (
-        <BreadcrumbItem isCurrentPage={!!activeModule} color={!!activeModule ? 'primary.600' : 'inherit'}>
-          <BreadcrumbLink as={!!activeModule ? 'span' : Link} href={`/super-admin/programs/${folderID}/create`}>
-            {activeModule.name}
           </BreadcrumbLink>
         </BreadcrumbItem>
       )}

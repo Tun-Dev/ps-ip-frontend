@@ -1,11 +1,17 @@
 'use client';
 
-import { Grid, GridItem, Input, SimpleGrid, Stack, Text } from '@chakra-ui/react';
+import { Grid, GridItem, HStack, Input, SimpleGrid, Stack, Text } from '@chakra-ui/react';
 import { MdPerson } from 'react-icons/md';
 
 type Props = {
   name: string;
-  fields: { name: string; value: number; status: string }[];
+  fields: {
+    name: string;
+    status: string;
+    value: number;
+    isRequired: boolean;
+    options: { label: string; value: string }[];
+  }[];
 };
 
 export const BuilderReview = ({ name, fields }: Props) => {
@@ -18,9 +24,21 @@ export const BuilderReview = ({ name, fields }: Props) => {
         {fields.map((field, index) => (
           <GridItem key={index} colSpan={field.status === 'LONG_TEXT' ? 2 : undefined}>
             <Stack align="flex-start" spacing="2" flex="1">
-              <Text as="label" variant="Body2Semibold" color="grey.500">
-                {name === 'Vetting Form' ? `${field.name}: ${field.value}` : field.name}
-              </Text>
+              <HStack>
+                <Text variant="Body2Semibold" color="grey.500">
+                  {field.name}{' '}
+                  {field.isRequired && (
+                    <Text as="span" color="red">
+                      *
+                    </Text>
+                  )}
+                </Text>
+                {name === 'Vetting Form' && (
+                  <Text variant="Body2Semibold" color="primary.500">
+                    Score: {field.value}
+                  </Text>
+                )}
+              </HStack>
               {field.status === 'IMAGE_UPLOAD' ? (
                 <Grid
                   mx="2"

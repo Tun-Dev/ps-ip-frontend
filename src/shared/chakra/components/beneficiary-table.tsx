@@ -92,6 +92,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   const totalPages = data?.body.totalPages ?? 1;
 
   const tableData = useMemo(() => (data ? data.body.data : []), [data]);
+  console.log('tableData', tableData);
 
   const resetFilters = () => {
     setPage(1);

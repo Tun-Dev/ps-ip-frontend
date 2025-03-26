@@ -46,7 +46,7 @@ export function Question({ globalIndex, answer }: QuestionProps) {
           {answer.question.total ?? 0} points
         </Text>
       </Flex>
-      {isFile || isImage ? (
+      {(isFile || isImage) && answer.value ? (
         <Box
           rounded="0.375rem"
           overflow="hidden"
@@ -72,7 +72,7 @@ export function Question({ globalIndex, answer }: QuestionProps) {
           rounded="0.375rem"
           px="2"
           py="1"
-          defaultValue={answer.value}
+          defaultValue={answer.value || 'N/A'}
           onChange={(e) => handleValueChange(answer.answerId, e.target.value)}
           isReadOnly
         />
@@ -84,7 +84,7 @@ export function Question({ globalIndex, answer }: QuestionProps) {
           rounded="0.375rem"
           px="2"
           py="1"
-          defaultValue={answer.value}
+          defaultValue={answer.value || 'N/A'}
           onChange={(e) => handleValueChange(answer.answerId, e.target.value)}
           isReadOnly
         />

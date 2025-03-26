@@ -13,6 +13,7 @@ type Item = {
   name: string;
   value: number;
   status: string;
+  isRequired: boolean;
   options: { label: string; value: string; weight: number }[];
 };
 
@@ -94,6 +95,7 @@ const AutomatedVettingForm = memo(({ display }: { display: string }) => {
                   name: 'New Question',
                   value: 20,
                   status: 'MULTIPLE_CHOICE',
+                  isRequired: true,
                   options: [
                     {
                       label: 'Option 1',
@@ -131,7 +133,9 @@ const AutomatedVettingForm = memo(({ display }: { display: string }) => {
               variant="tertiary"
               size="default"
               leftIcon={<MdAddCircle color="var(--chakra-colors-primary-600)" size="1.5rem" />}
-              onClick={() => append({ name: 'Upload File', status: 'FILE_UPLOAD', value: 0, options: [] })}
+              onClick={() =>
+                append({ name: 'Upload File', status: 'FILE_UPLOAD', value: 0, isRequired: true, options: [] })
+              }
               border="1px dashed"
               borderColor="grey.300"
               py="1rem"

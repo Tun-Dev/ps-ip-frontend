@@ -3,6 +3,7 @@
 import { useDeleteGroup } from '@/hooks/useDeleteGroup';
 import { useGetGroup } from '@/hooks/useGetGroup';
 import { DeleteModal, FolderCard } from '@/shared';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import CreateFileModal from '@/shared/chakra/modals/CreateFileModal';
 import { EditFileModal } from '@/shared/chakra/modals/EditFileModal';
 import { GroupEditPayload } from '@/types';
@@ -27,10 +28,15 @@ import ProgramsBreadcrumbs from './programs-breadcrumbs';
 const ProgramsFolderPage = () => {
   const toast = useToast();
   const router = useRouter();
+  const [page, setPage] = useState(1);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
   const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure();
-  const { data: groups, isPending } = useGetGroup({ page: 1, pageSize: 10 });
+
+  const { data: groups, isLoading, isPlaceholderData } = useGetGroup({ page, pageSize: 12 });
+
+  const totalPages = groups?.body.totalPages ?? 1;
 
   const [selectedGroup, setSelectedGroup] = useState<GroupEditPayload>();
 
@@ -64,7 +70,7 @@ const ProgramsFolderPage = () => {
             <Text>Create New Folder</Text>
           </Button>
         </Flex>
-        {isPending ? (
+        {isLoading ? (
           <LoadingSkeleton />
         ) : data.length < 1 ? (
           <EmptyState />
@@ -89,6 +95,17 @@ const ProgramsFolderPage = () => {
             ))}
           </SimpleGrid>
         )}
+        <TablePagination
+          handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+          handlePageChange={(pageNumber) => setPage(pageNumber)}
+          isNextDisabled={page >= totalPages}
+          isPrevDisabled={page <= 1}
+          currentPage={page}
+          totalPages={totalPages}
+          isDisabled={isLoading || isPlaceholderData}
+          display={totalPages > 1 ? 'flex' : 'none'}
+        />
       </Stack>
       <CreateFileModal onClose={onClose} isOpen={isOpen} />
       <EditFileModal onClose={onCloseEdit} isOpen={isOpenEdit} initialValues={selectedGroup} />

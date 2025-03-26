@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Grid, Icon, Input, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Icon, Input, Stack, Switch, Text } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useMemo } from 'react';
@@ -14,6 +14,7 @@ type Field = {
   name: string;
   status: string;
   value: number;
+  isRequired: boolean;
   options: { value: string; label: string }[];
 };
 
@@ -77,7 +78,7 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
               />
               <Icon as={MdEdit} aria-label={`Edit ${field.name}`} color="primary.500" boxSize="3" />
             </Flex>
-            <Flex align="center" gap="2">
+            <Flex align="center" gap="2" flexShrink="0">
               <Text as="label" variant="Body2Semibold" color="primary.500" whiteSpace="nowrap">
                 Score
               </Text>
@@ -94,6 +95,15 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
                 color="grey.500"
                 {...register(`vettingForm.manualFields.${index}.value`)}
               />
+            </Flex>
+            <Flex align="center" gap="2.5" flexShrink="0">
+              <Text as="label" variant="Body2Regular" color="grey.500" htmlFor={`${field.id}-is-compulsory`}>
+                Required{' '}
+                <Text as="span" color="red">
+                  *
+                </Text>
+              </Text>
+              <Switch id={`${field.id}-is-compulsory`} {...register(`vettingForm.manualFields.${index}.isRequired`)} />
             </Flex>
           </Flex>
           {field.status === 'IMAGE_UPLOAD' ? (

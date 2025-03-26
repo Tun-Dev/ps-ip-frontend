@@ -187,7 +187,7 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
         question: field.name,
         type: getType(field.status),
         options: field.options.map((option) => ({ ...option, value: option.label })),
-        mandatory: true,
+        mandatory: field.isRequired,
       })),
     };
 
@@ -229,7 +229,7 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
         type: getType(field.status),
         total: Number(field.value),
         options: field.options.map((option) => ({ ...option, value: option.label })),
-        mandatory: true,
+        mandatory: field.isRequired,
       })),
     };
 

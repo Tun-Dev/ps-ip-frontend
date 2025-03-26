@@ -20,29 +20,23 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { MdArrowRightAlt, MdLink } from 'react-icons/md';
 
-// import { useDeleteProgram } from '@/hooks/useDeleteProgram';
-// import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
-// import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { useGetGroupById } from '@/hooks/useGetGroupById';
+import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
 import { Program, ProgramModules } from '@/types';
 
 const ProgramsPage = () => {
   const [selectedId, setSelectedId] = useState('');
-  // const [page, setPage] = useState(1);
   const { folderID } = useParams();
 
-  // const { data: programs, isLoading, isPlaceholderData } = useGetPrograms({ page, pageSize: 10 });
   const { response, isLoading } = useGetGroupById(folderID.toString());
 
   const programCount = response?.body.programs.length ?? 0;
   const programList = response?.body.programs ?? [];
-  // const totalPages = programs?.body.totalPages ?? 1;
 
   const selectedProgram = programList.find((program) => program.id === selectedId);
 
   return (
-    <Stack pos="relative" overflow="hidden" p="6" spacing="0" justify="space-between" w="full">
+    <Stack pos="relative" overflow="hidden" spacing="0" pt="5" justify="space-between" w="full">
       {isLoading ? (
         <LoadingSkeleton />
       ) : programCount < 1 ? (
@@ -62,17 +56,6 @@ const ProgramsPage = () => {
           ))}
         </SimpleGrid>
       )}
-      {/* <TablePagination
-        handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-        handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
-        handlePageChange={(pageNumber) => setPage(pageNumber)}
-        isNextDisabled={page >= totalPages}
-        isPrevDisabled={page <= 1}
-        currentPage={page}
-        totalPages={totalPages}
-        isDisabled={isLoading || isPlaceholderData}
-        display={totalPages > 1 ? 'flex' : 'none'}
-      /> */}
       <AnimatePresence>
         {selectedProgram && <ProgramDrawer program={selectedProgram} onClose={() => setSelectedId('')} />}
       </AnimatePresence>
@@ -86,7 +69,6 @@ const EmptyState = () => (
       <Image src="/icons/Blank.svg" alt="" />
     </Flex>
     <Text variant="Body2Semibold">No Products Available.</Text>
-    <Text variant="Body2Semibold">Please create a new product.</Text>
   </Grid>
 );
 

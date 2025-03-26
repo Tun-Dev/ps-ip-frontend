@@ -2,19 +2,25 @@
 
 import { useGetGroup } from '@/hooks/useGetGroup';
 import { FolderCard } from '@/shared';
+import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Flex, Grid, Icon, Image, SimpleGrid, SkeletonText, Stack, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { MdFolder } from 'react-icons/md';
 import ProgramsBreadcrumbs from './programs-breadcrumbs';
 
 const ProgramsFolderPage = () => {
   const router = useRouter();
-  const { data: groups, isPending } = useGetGroup({ page: 1, pageSize: 10 });
+  const [page, setPage] = useState(1);
 
+  const { data: groups, isLoading, isPlaceholderData } = useGetGroup({ page, pageSize: 12 });
+
+  const totalPages = groups?.body.totalPages ?? 1;
   const data = groups?.body.data ?? [];
+
   return (
     <>
-      <Stack pos="relative" overflow="hidden" p="6" spacing="0" w="full" h="100%">
+      <Stack pos="relative" overflow="hidden" spacing="0" w="full" h="100%">
         <Flex
           h="72px"
           py="24px"
@@ -25,12 +31,12 @@ const ProgramsFolderPage = () => {
         >
           <ProgramsBreadcrumbs />
         </Flex>
-        {isPending ? (
+        {isLoading ? (
           <LoadingSkeleton />
         ) : data.length < 1 ? (
           <EmptyState />
         ) : (
-          <SimpleGrid columns={{ base: 3, xl: 4 }} spacingY="6" spacingX="5" mt="20px">
+          <SimpleGrid columns={{ base: 3, xl: 4 }} spacingY="6" spacingX="5" pt="5">
             {data?.map((item, index) => (
               <FolderCard
                 key={index}
@@ -41,6 +47,17 @@ const ProgramsFolderPage = () => {
             ))}
           </SimpleGrid>
         )}
+        <TablePagination
+          handleNextPage={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          handlePrevPage={() => setPage((prev) => Math.max(prev - 1, 1))}
+          handlePageChange={(pageNumber) => setPage(pageNumber)}
+          isNextDisabled={page >= totalPages}
+          isPrevDisabled={page <= 1}
+          currentPage={page}
+          totalPages={totalPages}
+          isDisabled={isLoading || isPlaceholderData}
+          display={totalPages > 1 ? 'flex' : 'none'}
+        />
       </Stack>
     </>
   );

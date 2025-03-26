@@ -4,7 +4,7 @@ import { Link } from '@chakra-ui/next-js';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react';
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
 
-import { useGetGroup } from '@/hooks/useGetGroup';
+import { useGetGroupById } from '@/hooks/useGetGroupById';
 import { useGetModules } from '@/hooks/useGetModules';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useProgramStore } from '@/providers/programs-store-provider';
@@ -20,10 +20,9 @@ const ProgramsBreadcrumbs = () => {
   const { data: modules } = useGetModules(!!activeModuleId);
   const activeModule = modules?.body.find((module) => module.id === activeModuleId);
 
-  const { data: groups } = useGetGroup({ page: 1, pageSize: 10 });
+  const { response: group } = useGetGroupById(folderID?.toString());
 
-  const data = groups?.body.data ?? [];
-  const folderName = data.find((item) => item.id === folderID);
+  const folderName = group?.body.name ?? '...';
 
   const { response } = useGetProgramById(programID?.toString());
   const programName = response?.body.name ?? '...';
@@ -57,7 +56,7 @@ const ProgramsBreadcrumbs = () => {
             maxW="15rem"
             isTruncated
           >
-            {folderName?.name}
+            {folderName}
           </BreadcrumbLink>
         </BreadcrumbItem>
       )}

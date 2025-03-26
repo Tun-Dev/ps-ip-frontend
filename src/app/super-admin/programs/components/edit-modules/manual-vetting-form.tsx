@@ -13,6 +13,7 @@ type Item = {
   name: string;
   status: string;
   value: number;
+  isRequired: boolean;
   options: { label: string; value: string }[];
 };
 
@@ -26,6 +27,7 @@ const ManualVettingForm = memo(({ display }: { display: string }) => {
     update(idx, {
       name: getValues(`vettingForm.manualFields.${idx}.name`),
       value: getValues(`vettingForm.manualFields.${idx}.value`),
+      isRequired: getValues(`vettingForm.manualFields.${idx}.isRequired`),
       status: status,
       options: [],
     });
@@ -105,7 +107,9 @@ const ManualVettingForm = memo(({ display }: { display: string }) => {
             variant="tertiary"
             size="default"
             leftIcon={<MdAddCircle color="var(--chakra-colors-primary-600)" size="1.5rem" />}
-            onClick={() => append({ name: 'New Question', value: 0, status: 'SHORT_TEXT', options: [] })}
+            onClick={() =>
+              append({ name: 'New Question', value: 0, status: 'SHORT_TEXT', isRequired: true, options: [] })
+            }
             border="1px dashed"
             borderColor="grey.300"
             py="1rem"
