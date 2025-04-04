@@ -57,13 +57,6 @@ export const FILE_SIZE_LIMITS = {
   documents: 20 * 1024 * 1024, // 20MB
 };
 
-export interface VerificationFilters {
-  gender?: 'Male' | 'Female';
-  state?: number;
-  lga?: number;
-  formStatus?: FormStatus;
-}
-
 export enum IdType {
   NIN = 'NIN_SLIP',
   BVN = 'BVN',

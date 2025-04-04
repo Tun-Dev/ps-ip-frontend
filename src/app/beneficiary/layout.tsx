@@ -4,7 +4,6 @@ import { Image, Link } from '@chakra-ui/next-js';
 import { Box, Grid, Stack } from '@chakra-ui/react';
 import { usePathname } from 'next/navigation';
 
-import { withDesktopOnlyOverlay } from '@/shared/chakra/components/desktop-only-overlay';
 import { CoverPhoto } from './components/cover-photo';
 
 const BeneficiaryLayout = ({ children }: { children: React.ReactNode }) => {
@@ -79,4 +78,4 @@ const BeneficiaryLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default withDesktopOnlyOverlay(BeneficiaryLayout);
+export default BeneficiaryLayout;

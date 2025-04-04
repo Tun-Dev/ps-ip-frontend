@@ -1,7 +1,7 @@
-import { BeneficiaryTable } from '@/shared/chakra/components/beneficiary-table';
+import VerificationTable from '@/shared/chakra/components/verification-table';
 
-const VerificationPage = () => {
-  return <BeneficiaryTable moduleName="Verification" />;
+const ApplicationPage = () => {
+  return <VerificationTable />;
 };
 
-export default VerificationPage;
+export default ApplicationPage;

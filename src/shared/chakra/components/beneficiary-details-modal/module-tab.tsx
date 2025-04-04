@@ -46,7 +46,11 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
                 <Text variant="Body2Semibold" color="grey.500">
                   {answer.type}
                 </Text>
-                {answer.status ? <Icon as={MdCheckCircle} color="green" /> : <Icon as={MdCancel} color="red" />}
+                {answer.status === true ? (
+                  <Icon as={MdCheckCircle} color="green" />
+                ) : answer.status === false ? (
+                  <Icon as={MdCancel} color="red" />
+                ) : null}
               </Flex>
               {answer.type === 'Picture' && typeof answer.value === 'string' ? (
                 <Box pos="relative" boxSize="6.25rem" rounded="sm" overflow="hidden">

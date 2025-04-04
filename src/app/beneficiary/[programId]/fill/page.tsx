@@ -31,7 +31,7 @@ const BeneficiaryApplication = () => {
     );
 
   return (
-    <Stack py="6" px="10" flex="1">
+    <Stack py="6" px={{ base: '4', xs: '10' }} flex="1">
       <ModuleForm />
     </Stack>
   );

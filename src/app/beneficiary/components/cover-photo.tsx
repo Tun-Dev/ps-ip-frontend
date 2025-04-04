@@ -50,7 +50,7 @@ export function CoverPhoto(props: StackProps) {
             priority
           />
         )}
-        <Text as="h1" variant={{ base: 'Body2Semibold', xs: 'Header1Bold' }} color="white" pos="relative">
+        <Text as="h1" variant={{ base: 'Body1Semibold', xs: 'Header1Bold' }} color="white" pos="relative">
           {programName}
         </Text>
       </Stack>

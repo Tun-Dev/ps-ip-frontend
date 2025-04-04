@@ -1,5 +1,8 @@
+'us client';
+
 import { useDeleteAggregatorFromProgram } from '@/hooks/useDeleteAggregatorFromProgram';
 import { useGetAggregatorsByID } from '@/hooks/useGetAggregatorByID';
+import { useGetAggregatorCode } from '@/hooks/useGetAggregatorCode';
 import type { Aggregator, AggregatorDetails } from '@/types';
 import { formatErrorMessage } from '@/utils';
 import {
@@ -15,17 +18,21 @@ import {
   Spinner,
   Stack,
   Text,
+  useClipboard,
+  useToast,
 } from '@chakra-ui/react';
 import { Dispatch, SetStateAction } from 'react';
+import { MdContentCopy } from 'react-icons/md';
 
-type Props = {
-  onClose: () => void;
-  aggregator: Aggregator;
-  setScreen: Dispatch<SetStateAction<'list' | 'assign'>>;
-};
+type Props = { onClose: () => void; aggregator: Aggregator; setScreen: Dispatch<SetStateAction<'list' | 'assign'>> };
 
 export const AggregatorProgramList = ({ onClose, aggregator, setScreen }: Props) => {
+  const toast = useToast();
   const { data, isPending, isError, error } = useGetAggregatorsByID(aggregator.id);
+  const { data: aggregatorCode, isPending: isAggregatorCodePending } = useGetAggregatorCode({
+    params: { aggregatorId: aggregator.id },
+  });
+  const { onCopy: onCopyCode } = useClipboard(aggregatorCode?.body || '');
 
   return (
     <ModalContent maxW="42.375rem">
@@ -36,8 +43,31 @@ export const AggregatorProgramList = ({ onClose, aggregator, setScreen }: Props)
         <ModalCloseButton />
       </ModalHeader>
       <ModalBody>
+        {!isAggregatorCodePending && (
+          <Flex flexDir="column" justify="space-between" mb="5" gap="10px">
+            <Text variant="Body2Semibold" color="grey.500">
+              Aggregator Code
+            </Text>
+            <Flex gap="12px">
+              <Text variant="Body1Semibold" color="#343434" padding="4px 12px" bg="#D9E8E0" borderRadius="6px">
+                {aggregatorCode?.body}
+              </Text>
+              <Button
+                size="sm"
+                variant="secondary"
+                leftIcon={<MdContentCopy />}
+                onClick={() => {
+                  onCopyCode();
+                  toast({ title: 'Code copied to clipboard', status: 'success' });
+                }}
+              >
+                Copy
+              </Button>
+            </Flex>
+          </Flex>
+        )}
         <Stack gap="4">
-          {isPending ? (
+          {isPending || isAggregatorCodePending ? (
             <Grid placeItems="center" h="10rem">
               <Spinner />
             </Grid>

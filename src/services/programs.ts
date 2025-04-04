@@ -9,9 +9,10 @@ import type {
   ProgramDetails,
   ProgramPayload,
   ProgramUploadResponse,
+  VerificationFilters,
   VerifyDataPayload,
 } from '@/types';
-import { FormStatus, VerificationFilters } from '@/utils';
+import { FormStatus } from '@/utils';
 
 export const getPrograms = async ({ queryKey }: { queryKey: QueryKey }) => {
   const [, params] = queryKey;
@@ -76,7 +77,16 @@ export const processModule = async ({ moduleid, status }: { moduleid: string; st
 };
 
 export const processVerification = async (programId: string, filters?: VerificationFilters) => {
-  const { data } = await axiosInstance.post<APIResponse<any>>(`/process-verification/${programId}`, filters || {});
+  const searchParams = new URLSearchParams();
+
+  if (filters)
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) searchParams.append(key, value.toString());
+    });
+
+  const { data } = await axiosInstance.post<APIResponse<boolean>>(
+    `/program/process-verification/${programId}?${searchParams.toString()}`
+  );
   return data;
 };
 

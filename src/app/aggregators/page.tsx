@@ -15,7 +15,7 @@ import { OverviewCard } from '@/shared/chakra/components/overview';
 import type { AggregatorActivity, AggregatorActivityTable } from '@/types';
 
 const AggregatorsDashboard = () => {
-  useGetAggregatorCode();
+  useGetAggregatorCode({});
   const router = useRouter();
   const { data, isPending, isError } = useGetAggregatorDashboard();
   return (

@@ -14,6 +14,7 @@ import {
   ModalOverlay,
   Stack,
   Text,
+  useClipboard,
   useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,11 +30,10 @@ import { useGetStates } from '@/hooks/useGetStates';
 import { AgentProgramDetails } from '@/types';
 import { Dropdown } from '../components';
 import { PhoneNumberInput } from '../components/phone-number-input';
+import { MdContentCopy, MdLink } from 'react-icons/md';
+import { useGetAggregatorCode } from '@/hooks/useGetAggregatorCode';
 
-type ModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-};
+type ModalProps = { isOpen: boolean; onClose: () => void };
 
 const Schema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -65,6 +65,7 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
   const { data: currentUser } = useGetCurrentUser();
   const { data: programs } = useGetAllAggregatorPrograms({ enabled: isOpen });
   const { data: states } = useGetStates(isOpen);
+  const { data: aggregatorCode } = useGetAggregatorCode({});
 
   const programOptions = useMemo(() => {
     if (!programs) return [];
@@ -134,6 +135,9 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
     return null;
   };
 
+  const { onCopy } = useClipboard(`${window.origin}/agents/signup`);
+  const { onCopy: onCopyCode } = useClipboard(aggregatorCode?.body || '');
+
   function onSuccess() {
     onClose();
     reset();
@@ -143,11 +147,43 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
     <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent as="form" onSubmit={handleSubmit(onSubmit)} maxW="42.375rem" borderRadius="12px">
-        <ModalHeader>
+        <ModalHeader display="flex" justifyContent="space-between" alignItems="center" mt="24px">
           <Text variant="Body1Semibold">Add New Agent</Text>
+          <Button
+            variant="secondary"
+            size="sm"
+            leftIcon={<MdLink />}
+            onClick={() => {
+              onCopy();
+              toast({ title: 'Link copied to clipboard', status: 'success' });
+            }}
+          >
+            Copy Agent Sign-up Link
+          </Button>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
+          <Flex flexDir="column" justify="space-between" mb="5" gap="10px">
+            <Text variant="Body2Semibold" color="grey.500">
+              Aggregator Code
+            </Text>
+            <Flex gap="12px">
+              <Text variant="Body1Semibold" color="#343434" padding="4px 12px" bg="#D9E8E0" borderRadius="6px">
+                {aggregatorCode?.body}
+              </Text>
+              <Button
+                size="sm"
+                variant="secondary"
+                leftIcon={<MdContentCopy />}
+                onClick={() => {
+                  onCopyCode();
+                  toast({ title: 'Code copied to clipboard', status: 'success' });
+                }}
+              >
+                Copy
+              </Button>
+            </Flex>
+          </Flex>
           <Stack spacing="5">
             <FormControl isInvalid={!!errors.firstName} isRequired>
               <FormLabel htmlFor="firstName">

@@ -32,7 +32,7 @@ const BeneficiaryPage = () => {
   };
 
   return (
-    <Stack align="center" justify="center" gap="8" p="6" flex="1">
+    <Stack align="center" justify="center" gap="8" p={{ base: '4', xs: '6' }} flex="1">
       <LocationPermissionModal />
       <Stack gap="6">
         <Text textAlign="center" variant="Body1Semibold" color="primary.500">

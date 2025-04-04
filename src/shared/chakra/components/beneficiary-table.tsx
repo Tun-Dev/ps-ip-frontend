@@ -13,8 +13,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Spinner,
-  Switch,
   Text,
   useDisclosure,
   useToast,
@@ -27,9 +25,6 @@ import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetModules } from '@/hooks/useGetModules';
-import { useGetProgramById } from '@/hooks/useGetProgramById';
-import { useGetVerificationStatus } from '@/hooks/useGetVerificationStatus';
-import { useToggleVerification } from '@/hooks/useToggleAutomaticVerification';
 import { ReusableTable } from '@/shared';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
@@ -57,26 +52,11 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
-  const { response } = useGetProgramById(programID.toString());
   const { data: modules } = useGetModules();
 
   const moduleId = useMemo(
     () => modules?.body?.find((module) => module.name === moduleName)?.id ?? 0,
     [modules, moduleName]
-  );
-
-  const toggleVerificationMutation = useToggleVerification();
-
-  const { data: verficationStatus, isLoading: isVerificationLoading } = useGetVerificationStatus(programID.toString());
-
-  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newStatus = event.target.checked;
-    toggleVerificationMutation.mutate({ programId: programID as string, status: newStatus });
-  };
-
-  const isProgramCompleted = useMemo(
-    () => response?.body?.programModules?.find((module) => module.module === moduleName)?.isCompleted ?? true,
-    [response, moduleName]
   );
 
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
@@ -92,7 +72,6 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   const totalPages = data?.body.totalPages ?? 1;
 
   const tableData = useMemo(() => (data ? data.body.data : []), [data]);
-  console.log('tableData', tableData);
 
   const resetFilters = () => {
     setPage(1);
@@ -191,7 +170,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
           id: 'actions',
           header: () => (
             <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-              Actions
+              Actions/Status
             </Text>
           ),
           cell: (info) =>
@@ -312,26 +291,9 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
               </InputGroup>
             </Flex>
             <Flex gap="16px">
-              {moduleName === 'Verification' && (
-                <Flex alignItems="center" gap="8px">
-                  <Text as="label" htmlFor="automatic-verification" variant="Body2Semibold" color="grey.500">
-                    Automatic verification:
-                  </Text>
-                  {!!verficationStatus ? (
-                    <Switch
-                      id="automatic-verification"
-                      onChange={handleToggle}
-                      defaultChecked={verficationStatus.body}
-                      isDisabled={toggleVerificationMutation.isPending || isVerificationLoading}
-                    />
-                  ) : (
-                    <Spinner size="xs" color="grey.400" />
-                  )}
-                </Flex>
-              )}
               <Button
                 leftIcon={<MdDownload size="0.875rem" />}
-                variant={isProgramCompleted ? 'primary' : 'secondary'}
+                variant={moduleName === 'Nomination' ? 'secondary' : 'primary'}
                 size="medium"
               >
                 Download Report

@@ -6,6 +6,7 @@ import {
   Flex,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   HStack,
   Icon,
@@ -33,34 +34,56 @@ import { useVerifyData } from '@/hooks/useVerifyData';
 import { Dropdown } from '@/shared/chakra/components';
 import { PhoneNumberInput } from '@/shared/chakra/components/phone-number-input';
 import { QuestionDetails } from '@/types';
-import { fileSchema, IdType } from '@/utils';
+import { fileSchema, getImageUrl, IdType } from '@/utils';
 import { useParams } from 'next/navigation';
 
 type FormInputProps = {
   question: QuestionDetails;
   form: UseFormReturn;
   stateQuestionId?: string;
+  previousStateQuestionId?: string;
   number?: number;
   inputOnly?: boolean;
 };
 
-const FormInput = ({ question, form, number = 0, stateQuestionId, inputOnly }: FormInputProps) => {
+const FormInput = ({
+  question,
+  form,
+  number = 0,
+  stateQuestionId,
+  previousStateQuestionId,
+  inputOnly,
+}: FormInputProps) => {
   const InputComponent = getFormInput(question.type);
 
   if (question.type === 'GPS') return <GPSInput question={question} form={form} />;
 
+  const isStateQuestion =
+    question.type === 'DROPDOWN' &&
+    (question.question === 'State' || question.question === 'State ofOrigin' || question.question === 'Previous State');
+
+  const isLgaQuestion =
+    question.type === 'DROPDOWN' && (question.question === 'Lga' || question.question === 'Previous LGA');
+
   if (inputOnly)
-    return question.question === 'State' && question.type === 'DROPDOWN' ? (
+    return isStateQuestion ? (
       <StateInput question={question} form={form} />
-    ) : question.question === 'Lga' && question.type === 'DROPDOWN' ? (
-      <LGAInput question={question} form={form} stateQuestionId={stateQuestionId} />
+    ) : isLgaQuestion ? (
+      <LGAInput
+        question={question}
+        form={form}
+        stateQuestionId={question.question === 'Previous LGA' ? previousStateQuestionId : stateQuestionId}
+      />
     ) : (
       <InputComponent question={question} form={form} />
     );
 
   return (
     <Box p="4" border="1px solid" borderColor="grey.200" borderRadius="md">
-      <FormControl isInvalid={!!form.formState.errors[question.id]} isRequired={question.mandatory}>
+      <FormControl
+        isInvalid={!!form.formState.errors[question.id] || !!form.formState.errors[`confirm-${question.id}`]}
+        isRequired={question.mandatory}
+      >
         <FormLabel htmlFor={question.id} mb={getSpacing(question.type)}>
           <Text as="span" variant="Body2Semibold" color="text" display="inline-flex" gap="2.5" alignItems="center">
             <Text
@@ -80,18 +103,24 @@ const FormInput = ({ question, form, number = 0, stateQuestionId, inputOnly }: F
             {question.question}
           </Text>
         </FormLabel>
-        {question.question === 'State' && question.type === 'DROPDOWN' ? (
+        {isStateQuestion ? (
           <StateInput question={question} form={form} />
-        ) : question.question === 'Lga' && question.type === 'DROPDOWN' ? (
-          <LGAInput question={question} form={form} stateQuestionId={stateQuestionId} />
+        ) : isLgaQuestion ? (
+          <LGAInput
+            question={question}
+            form={form}
+            stateQuestionId={question.question === 'Previous LGA' ? previousStateQuestionId : stateQuestionId}
+          />
         ) : (
           <InputComponent question={question} form={form} />
         )}
         <FormErrorMessage
           px={question.type === 'IMAGE_UPLOAD' || question.type === 'FILE_UPLOAD' ? { xs: '1.875rem' } : undefined}
         >
-          {form.formState.errors[question.id]?.message?.toString()}
+          {form.formState.errors[question.id]?.message?.toString() ||
+            form.formState.errors[`confirm-${question.id}`]?.message?.toString()}
         </FormErrorMessage>
+        {question.type === 'KYC' && <FormHelperText>Ensure you enter valid information</FormHelperText>}
       </FormControl>
     </Box>
   );
@@ -121,6 +150,26 @@ const TextInput = ({ question, form }: FormInputProps) => {
       isRequired={question.mandatory}
       isReadOnly={question.question === 'User code'}
     />
+  );
+};
+
+const EmailInput = ({ question, form }: FormInputProps) => {
+  return (
+    <Stack spacing="4">
+      <Input
+        {...form.register(question.id)}
+        id={question.id}
+        type="email"
+        placeholder="Email"
+        isRequired={question.mandatory}
+      />
+      <Input
+        {...form.register(`confirm-${question.id}`)}
+        type="email"
+        placeholder="Confirm email"
+        isRequired={question.mandatory}
+      />
+    </Stack>
   );
 };
 
@@ -220,17 +269,23 @@ const TextareaInput = ({ question, form }: FormInputProps) => {
 
 const RadioInput = ({ question, form }: FormInputProps) => {
   return (
-    <RadioGroup id={question.id}>
-      <HStack rowGap="2" columnGap="8" flexWrap="wrap">
-        {question.options.map((option) => (
-          <Radio {...form.register(question.id)} key={option.id} value={option.value} isRequired={question.mandatory}>
-            <Text as="span" variant="Body2Semibold">
-              {option.label}
-            </Text>
-          </Radio>
-        ))}
-      </HStack>
-    </RadioGroup>
+    <Controller
+      name={question.id}
+      control={form.control}
+      render={({ field }) => (
+        <RadioGroup {...field} id={question.id} onChange={field.onChange} value={field.value || ''}>
+          <HStack rowGap="2" columnGap="8" flexWrap="wrap">
+            {question.options.map((option) => (
+              <Radio key={option.id} value={option.value}>
+                <Text as="span" variant="Body2Semibold">
+                  {option.label}
+                </Text>
+              </Radio>
+            ))}
+          </HStack>
+        </RadioGroup>
+      )}
+    />
   );
 };
 
@@ -260,7 +315,9 @@ const DropdownInput = ({ question, form }: FormInputProps) => {
 
 const ImageInput = ({ question, form }: FormInputProps) => {
   const toast = useToast();
-  const [preview, setPreview] = useState('');
+  const [preview, setPreview] = useState(() =>
+    form.getValues(question.id) ? getImageUrl(form.getValues(question.id)) : ''
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { mutate: uploadFile, isPending } = useUploadFile();
@@ -378,6 +435,7 @@ const GPSInput = ({ question, form }: FormInputProps) => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         form.setValue(question.id, `${position.coords.latitude},${position.coords.longitude}`);
+        form.clearErrors(question.id);
       },
       () =>
         toast({
@@ -388,6 +446,15 @@ const GPSInput = ({ question, form }: FormInputProps) => {
           duration: null,
         })
     );
+
+    if (form.formState.errors[question.id])
+      toast({
+        status: 'error',
+        title: 'Error',
+        description: 'Please allow location access to proceed',
+        isClosable: false,
+        duration: null,
+      });
   }, [toast, form, question]);
 
   return <Input type="hidden" {...form.register(question.id)} />;
@@ -490,6 +557,8 @@ const getFormInput = (type: string) => {
       return PhoneInput;
     case 'KYC':
       return KYCInput;
+    case 'EMAIL':
+      return EmailInput;
     default:
       return TextInput;
   }

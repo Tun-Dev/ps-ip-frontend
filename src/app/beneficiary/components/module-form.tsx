@@ -23,6 +23,7 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
   const { programId, userCode } = useParams();
   const [code, setCode] = useState('');
   const [stateQuestionId, setStateQuestionId] = useState('');
+  const [previousStateQuestionId, setPreviousStateQuestionId] = useState<string | undefined>(undefined);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -57,7 +58,9 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
           break;
         case 'PHONE_NUMBER':
           fieldSchema = question.mandatory
-            ? z.string().refine(isValidPhoneNumber, 'Invalid phone number')
+            ? z
+                .string({ invalid_type_error: 'This field is required' })
+                .refine(isValidPhoneNumber, 'Invalid phone number')
             : z
                 .string()
                 .nullable()
@@ -85,23 +88,39 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
       }
 
       schemaFields[question.id] = question.mandatory ? fieldSchema : fieldSchema.or(z.literal(''));
+
+      // Add confirm field for email type
+      if (question.type === 'EMAIL') schemaFields[`confirm-${question.id}`] = schemaFields[question.id];
     });
 
-    return z.object(schemaFields);
+    let schema: z.ZodTypeAny = z.object(schemaFields);
+
+    const emailFields = questions.filter((question) => question.type === 'EMAIL');
+
+    // Add validation for each confirm email field
+    emailFields.forEach((emailField) => {
+      schema = schema.refine((data) => data[`confirm-${emailField.id}`] === data[emailField.id], {
+        message: "Emails don't match",
+        path: [`confirm-${emailField.id}`],
+      });
+    });
+
+    return schema;
   }, [questions]);
 
   const Schema = generateSchema();
   type FormValues = z.infer<typeof Schema>;
 
   const defaultValues = useMemo(() => {
-    const savedData = localStorage.getItem(`form-${programId}`);
+    const savedData = localStorage.getItem(`form-${programId}-${userCode}`);
     const parsedData = savedData ? JSON.parse(savedData) : {};
+
+    if (savedData) return parsedData;
 
     return questions.reduce(
       (acc, question) => ({
         ...acc,
-        [question.id]:
-          question.question === 'User code' ? parsedData.userCode || userCode || '' : parsedData[question.id] || '',
+        [question.id]: question.question === 'User code' && userCode ? userCode.toString() : '',
       }),
       {} as FormValues
     );
@@ -122,21 +141,22 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
 
     const formId = beneficiaryForm?.id ?? programForm.body.form?.id ?? '';
 
-    const formAnswers = Object.entries(data).map(([question, value]) => {
-      const questionInfo = questions.find((q) => q.id === question);
-      if (!questionInfo) return { label: '', value: '', question: '' };
-      const label = questionInfo.question;
-      const bankCode = form.getValues('bankCode');
-      const isAccountNumber = label.toLowerCase() === 'recipient account number';
-      return { label, value: isAccountNumber ? `${value}, ${bankCode}` : value, question };
-    });
+    const formAnswers = Object.entries(data)
+      .filter(([question]) => questions.some((q) => q.id === question))
+      .map(([question, value]) => {
+        const questionInfo = questions.find((q) => q.id === question)!;
+        const label = questionInfo.question;
+        const bankCode = form.getValues('bankCode');
+        const isAccountNumber = label.toLowerCase() === 'recipient account number';
+        return { label, value: isAccountNumber ? `${value}, ${bankCode}` : (value as string), question };
+      });
 
     fillForm(
       [{ programId: programId.toString(), formId, moduleName: moduleName || programForm.body.moduleName, formAnswers }],
       {
         onSuccess: (response) => {
           setCode(response.body[0].code);
-          localStorage.removeItem(`form-${programId}`);
+          localStorage.removeItem(`form-${programId}-${userCode}`);
           onOpen();
         },
       }
@@ -145,7 +165,7 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
 
   const handleSaveProgress = () => {
     const formData = { ...form.getValues(), userCode };
-    localStorage.setItem(`form-${programId}`, JSON.stringify(formData));
+    localStorage.setItem(`form-${programId}-${userCode}`, JSON.stringify(formData));
     toast({
       title: 'Progress saved',
       description: 'You can continue later.',
@@ -158,6 +178,11 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
   useEffect(() => {
     const stateQuestion = questions.find((question) => question.question === 'State');
     if (stateQuestion) setStateQuestionId(stateQuestion.id);
+  }, [questions]);
+
+  useEffect(() => {
+    const previousStateQuestion = questions.find((question) => question.question === 'Previous State');
+    if (previousStateQuestion) setPreviousStateQuestionId(previousStateQuestion.id);
   }, [questions]);
 
   if (!questions || questions.length === 0)
@@ -178,18 +203,11 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
             form={form}
             number={index + 1}
             stateQuestionId={stateQuestionId}
+            previousStateQuestionId={previousStateQuestionId}
           />
         ))}
-        <Stack direction="row" spacing={4}>
-          <Button
-            variant="secondary"
-            size="default"
-            w="full"
-            maxW="20rem"
-            ml="auto"
-            mt="2"
-            onClick={handleSaveProgress}
-          >
+        <Stack direction={{ base: 'column', xs: 'row' }} spacing={4} mt="2">
+          <Button variant="secondary" size="default" w="full" maxW={{ xs: '20rem' }} onClick={handleSaveProgress}>
             Save to Continue Later
           </Button>
           <Button
@@ -197,9 +215,7 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
             variant="primary"
             size="default"
             w="full"
-            maxW="20rem"
-            ml="auto"
-            mt="2"
+            maxW={{ xs: '20rem' }}
             isDisabled={hasErrors}
             isLoading={isPending}
           >

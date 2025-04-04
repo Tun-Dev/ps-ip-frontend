@@ -1,8 +1,8 @@
 import { updateVendorById } from '@/services/vendors';
 import { Vendor } from '@/types';
+import { formatErrorMessage } from '@/utils';
 import { useToast } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
 
 export const useUpdateVendorById = (id: string) => {
   const queryClient = useQueryClient();
@@ -15,10 +15,7 @@ export const useUpdateVendorById = (id: string) => {
       toast({ title: 'Success', status: 'success', description: 'Vendor edited successfully' });
     },
     onError: (error) => {
-      let message = 'An unknown error occurred';
-      if (error instanceof Error) message = error.message;
-      if (error instanceof AxiosError) message = error.response?.data.message || message;
-      toast({ title: 'Error', description: message, status: 'error' });
+      toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });
     },
   });
 };

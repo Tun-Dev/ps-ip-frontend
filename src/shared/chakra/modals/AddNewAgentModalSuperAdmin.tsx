@@ -14,6 +14,7 @@ import {
   ModalOverlay,
   Stack,
   Text,
+  useClipboard,
   useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,11 +32,9 @@ import { useGetAggregators } from '@/hooks/useGetAggregators';
 import { Dropdown } from '../components';
 import { PhoneNumberInput } from '../components/phone-number-input';
 import { useGetAggregatorsByID } from '@/hooks/useGetAggregatorByID';
+import { MdLink } from 'react-icons/md';
 
-type ModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-};
+type ModalProps = { isOpen: boolean; onClose: () => void };
 
 const Schema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -46,11 +45,7 @@ const Schema = z.object({
   email: z.string().min(1, 'Email is required'),
   gender: z.string().min(1, 'Gender is required'),
   aggregator: z.string().min(1, 'Aggregator is required'),
-  programDetails: z.array(
-    z.object({
-      programId: z.string().min(1, 'Program is required'),
-    })
-  ),
+  programDetails: z.array(z.object({ programId: z.string().min(1, 'Program is required') })),
 });
 
 type FormValues = z.infer<typeof Schema>;
@@ -88,9 +83,7 @@ export const AddNewAgentModalSuperAdmin = ({ isOpen, onClose }: ModalProps) => {
     formState: { errors },
     reset,
     watch,
-  } = useForm<FormValues>({
-    resolver: zodResolver(Schema),
-  });
+  } = useForm<FormValues>({ resolver: zodResolver(Schema) });
 
   const aggregatorValue = watch('aggregator');
   const { data: programs, isPending: programIsPending } = useGetAggregatorsByID(aggregatorValue);
@@ -134,12 +127,25 @@ export const AddNewAgentModalSuperAdmin = ({ isOpen, onClose }: ModalProps) => {
     reset();
   }
 
+  const { onCopy } = useClipboard(`${window.origin}/agents/signup`);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent as="form" onSubmit={handleSubmit(onSubmit)} maxW="42.375rem" borderRadius="12px">
-        <ModalHeader>
+        <ModalHeader display="flex" justifyContent="space-between" alignItems="center" mt="24px">
           <Text variant="Body1Semibold">Add New Agent</Text>
+          <Button
+            variant="secondary"
+            size="sm"
+            leftIcon={<MdLink />}
+            onClick={() => {
+              onCopy();
+              toast({ title: 'Link copied to clipboard', status: 'success' });
+            }}
+          >
+            Copy Agent Sign-up Link
+          </Button>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>

@@ -1,8 +1,9 @@
-import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
-import { AxiosError } from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { processVerification } from '@/services/programs';
-import { VerificationFilters } from '@/utils';
+import { VerificationFilters } from '@/types';
+import { formatErrorMessage } from '@/utils';
 
 export const useProcessVerification = () => {
   const queryClient = useQueryClient();
@@ -13,7 +14,7 @@ export const useProcessVerification = () => {
       processVerification(programId, filters),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['programs'] });
+      queryClient.invalidateQueries({ queryKey: ['beneficiaries'] });
       toast({
         title: 'Success',
         description: 'Verification processing started successfully',
@@ -22,10 +23,7 @@ export const useProcessVerification = () => {
     },
 
     onError: (error) => {
-      let message = 'An unknown error occurred';
-      if (error instanceof Error) message = error.message;
-      if (error instanceof AxiosError) message = error.response?.data.message || message;
-      toast({ title: 'Error', description: message, status: 'error' });
+      toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });
     },
   });
 };

@@ -48,7 +48,7 @@ const BeneficiaryDashboard = () => {
   }
 
   return (
-    <Stack gap="3rem" p="6" flex="1">
+    <Stack gap="3rem" py="6" px={{ base: '4', xs: '6' }} flex="1">
       <Stack gap="6">
         <Text variant="Body1Regular" color="#343434">
           {programForm.body.description}
@@ -131,7 +131,7 @@ const BeneficiaryDashboard = () => {
       <Flex justify="end">
         <Button
           w="full"
-          maxW="15rem"
+          maxW={{ xs: '15rem' }}
           h="3rem"
           variant="primary"
           isDisabled={!isChecked}

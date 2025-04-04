@@ -3,6 +3,8 @@
 import { getAggregatorCode } from '@/services/aggregators';
 import { useQuery } from '@tanstack/react-query';
 
-export const useGetAggregatorCode = () => {
-  return useQuery({ queryKey: ['aggregatorCode'], queryFn: getAggregatorCode });
+type Params = Partial<{ aggregatorId: string }>;
+
+export const useGetAggregatorCode = ({ enabled = true, params }: { enabled?: boolean; params?: Params }) => {
+  return useQuery({ queryKey: ['aggregatorCode', params], queryFn: getAggregatorCode, enabled: enabled });
 };

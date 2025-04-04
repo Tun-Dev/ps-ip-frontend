@@ -939,3 +939,10 @@ export type VerifyDataPayload = {
   type: IdType;
   bankCode?: string;
 };
+
+export type VerificationFilters = {
+  gender?: string;
+  state?: number;
+  lga?: number;
+  status?: FormStatus;
+};

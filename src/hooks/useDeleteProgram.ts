@@ -1,7 +1,7 @@
-import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { useToast } from '@chakra-ui/react';
-import { AxiosError } from 'axios';
 import { deleteProgram } from '@/services/programs';
+import { formatErrorMessage } from '@/utils';
+import { useToast } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const useDeleteProgram = () => {
   const queryClient = useQueryClient();
@@ -13,10 +13,7 @@ export const useDeleteProgram = () => {
       queryClient.invalidateQueries({ queryKey: ['group'] });
     },
     onError: (error) => {
-      let message = 'An unknown error occurred';
-      if (error instanceof Error) message = error.message;
-      if (error instanceof AxiosError) message = error.response?.data.message || message;
-      toast({ title: 'Error', description: message, status: 'error' });
+      toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });
     },
   });
 };

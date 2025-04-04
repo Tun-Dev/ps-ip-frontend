@@ -123,8 +123,9 @@ export const getPendingAgents = async ({ queryKey, signal }: { queryKey: QueryKe
   return response.data;
 };
 
-export const getAggregatorCode = async () => {
-  const response = await axiosInstance.get<APIResponse<string>>('/aggregator/aggregatorCode');
+export const getAggregatorCode = async ({ queryKey }: { queryKey: QueryKey }) => {
+  const [, params] = queryKey;
+  const response = await axiosInstance.get<APIResponse<string>>('/aggregator/aggregatorCode', { params });
   return response.data;
 };
 

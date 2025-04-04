@@ -99,6 +99,7 @@ const mapSurveyFields = (module?: ProgramModulesDetails, questionTypes?: Questio
     name: question.question,
     value: questionTypes?.find((type) => type.status === question.type)?.value ?? 0,
     status: question.type,
+    isRequired: question.mandatory,
     options: question.options?.map((option) => ({ label: option.label, value: option.value })) ?? [],
   }));
 };
@@ -109,6 +110,7 @@ const mapVettingFields = (module?: ProgramModulesDetails) => {
     name: question.question,
     value: question.total,
     status: question.type,
+    isRequired: question.mandatory,
     options:
       question.options?.map((option) => ({ label: option.label, value: option.value, weight: option.weight })) ?? [],
   }));
