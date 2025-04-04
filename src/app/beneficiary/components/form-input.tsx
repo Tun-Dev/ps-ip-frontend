@@ -60,7 +60,9 @@ const FormInput = ({
 
   const isStateQuestion =
     question.type === 'DROPDOWN' &&
-    (question.question === 'State' || question.question === 'State ofOrigin' || question.question === 'Previous State');
+    (question.question === 'State' ||
+      question.question === 'State of Origin' ||
+      question.question === 'Previous State');
 
   const isLgaQuestion =
     question.type === 'DROPDOWN' && (question.question === 'Lga' || question.question === 'Previous LGA');
