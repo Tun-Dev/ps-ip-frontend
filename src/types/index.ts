@@ -144,6 +144,10 @@ export type ProgramPayload = {
   logo: number;
   target: number;
   programTypeId: number;
+  coverPhoto: number;
+  eligibilityCriteria?: string[] | EligibilityCriteriaType[];
+  eligibilityCriterion?: string[] | EligibilityCriteriaType[];
+  hasAutomaticVerification: boolean;
   programModules: {
     moduleId: number;
     formId?: string;

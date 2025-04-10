@@ -47,7 +47,7 @@ const ClientTab = () => {
     isRefetchError,
     isRefetching,
     refetch,
-  } = useGetClients({ page: 1, pageSize: 10, query: search, programId: program });
+  } = useGetClients({ page, pageSize: 10, query: search, programId: program });
   const totalPages = clients?.body.totalPages ?? 1;
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [selectedClientId, setSelectedClientId] = useState('');

@@ -84,6 +84,7 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
               </Text>
               <Input
                 type="number"
+                onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 step={5}
                 maxW="3rem"

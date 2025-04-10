@@ -24,14 +24,14 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useCreateAgent } from '@/hooks/useCreateAgent';
+import { useGetAggregatorCode } from '@/hooks/useGetAggregatorCode';
 import { useGetAllAggregatorPrograms } from '@/hooks/useGetAllAggregatorPrograms';
 import { useGetCurrentUser } from '@/hooks/useGetCurrentUser';
 import { useGetStates } from '@/hooks/useGetStates';
 import { AgentProgramDetails } from '@/types';
+import { MdContentCopy, MdLink } from 'react-icons/md';
 import { Dropdown } from '../components';
 import { PhoneNumberInput } from '../components/phone-number-input';
-import { MdContentCopy, MdLink } from 'react-icons/md';
-import { useGetAggregatorCode } from '@/hooks/useGetAggregatorCode';
 
 type ModalProps = { isOpen: boolean; onClose: () => void };
 
@@ -324,6 +324,7 @@ export const AddNewAgentModal = ({ isOpen, onClose }: ModalProps) => {
                     id={`objective-${field.id}`}
                     variant="primary"
                     type="number"
+                    onWheel={(e) => e.currentTarget.blur()}
                     placeholder="300"
                     {...register(`programDetails.${index}.objective`)}
                   />

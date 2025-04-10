@@ -74,6 +74,7 @@ const ProgramDetails = memo((props: FlexProps) => {
       <Wrapper title="Target Beneficiaries" maxW="34.625rem" icon>
         <Input
           type="number"
+          onWheel={(e) => e.currentTarget.blur()}
           border="1px dashed"
           borderColor={!!formState.errors.target ? 'red' : 'grey.300'}
           {...register('target')}

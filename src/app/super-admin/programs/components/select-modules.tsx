@@ -61,10 +61,7 @@ const SelectModules = memo((props: BoxProps) => {
   const isEditing = pathname === `/super-admin/programs/${folderID}/edit/${programID}`;
 
   const { data: modules } = useGetModules();
-  const { fields, replace } = useFieldArray({
-    name: 'programModules',
-    control,
-  });
+  const { fields, replace } = useFieldArray({ name: 'programModules', control });
 
   const handleRemove = (moduleId: number) => {
     const updatedSelectedModuleIds = new Set(selectedModuleIds.ids);

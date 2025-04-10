@@ -74,6 +74,7 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
                 </Text>
                 <Input
                   type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
                   min={0}
                   step={5}
                   maxW="3rem"
@@ -137,6 +138,7 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
                     </Text>
                     <Input
                       type="number"
+                      onWheel={(e) => e.currentTarget.blur()}
                       min={0}
                       step={5}
                       maxW="3rem"

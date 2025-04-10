@@ -1,7 +1,7 @@
 // import { useDeleteAggregatorFromProgram } from '@/hooks/useDeleteAggregatorFromProgram';
 import { useGetClientByID } from '@/hooks/useGetClientByID';
 import type { Client, ClientDetails } from '@/types';
-import { formatErrorMessage } from '@/utils';
+import { formatCurrency, formatErrorMessage } from '@/utils';
 import {
   Button,
   Flex,
@@ -84,7 +84,7 @@ const Item = ({ item }: { item: ClientDetails }) => {
             <Text variant="Body2Semibold" color="grey.500">
               Amount Disbursable
             </Text>
-            <Text variant="Body1Semibold">{item.amountDisbursed}</Text>
+            <Text variant="Body1Semibold">{formatCurrency(Number(item.amountDisbursed ?? '0'))}</Text>
           </Stack>
         </SimpleGrid>
         {/* <Button

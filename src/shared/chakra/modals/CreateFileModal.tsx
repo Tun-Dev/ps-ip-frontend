@@ -72,7 +72,7 @@ const CreateFileModal = ({ isOpen, onClose }: ModalProps) => {
           <ModalCloseButton />
           <ModalBody>
             <Flex direction="column">
-              <FormControl isInvalid={!!errors.name}>
+              <FormControl isInvalid={!!errors.name} isRequired>
                 <FormLabel htmlFor="name">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     File Name

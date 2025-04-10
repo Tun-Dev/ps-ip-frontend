@@ -252,7 +252,8 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
         </Flex>
         <Flex flexDir="column" height="100%">
           <Box mb="2.94rem" flex="1 1 0%">
-            {selectedModules.ids.size < 1 && step !== 1 ? <EmptyState /> : children}
+            <EmptyState isVisible={selectedModules.ids.size < 1 && step !== 1} />
+            <Box display={selectedModules.ids.size < 1 && step !== 1 ? 'none' : 'block'}>{children}</Box>
           </Box>
           <Flex
             pos="sticky"
@@ -287,13 +288,13 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
         </Flex>
       </Stack>
       {/* Module list */}
-      {step > 1 ? <ModulesList /> : null}
+      <ModulesList display={step > 1 ? 'block' : 'none'} />
     </Flex>
   );
 };
 
-const EmptyState = () => (
-  <Grid placeContent="center" color="grey.500" minH="30rem">
+const EmptyState = ({ isVisible }: { isVisible: boolean }) => (
+  <Grid placeContent="center" color="grey.500" minH="30rem" display={isVisible ? 'grid' : 'none'}>
     <Text variant="Body2Semibold" textAlign="center">
       No module selected.
     </Text>

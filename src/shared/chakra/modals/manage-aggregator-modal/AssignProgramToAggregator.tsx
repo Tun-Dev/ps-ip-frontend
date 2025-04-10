@@ -91,16 +91,23 @@ export const AssignProgramToAggregator = ({ aggregator, setScreen }: ModalProps)
             </FormLabel>
             <Input id="name" variant="primary" defaultValue={aggregator.name} isReadOnly />
           </FormControl>
-          <FormControl isInvalid={!!errors.maxAgents}>
+          <FormControl isInvalid={!!errors.maxAgents} isRequired>
             <FormLabel htmlFor="maxAgents">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 Set Maximum Agents
               </Text>
             </FormLabel>
-            <Input id="maxAgents" variant="primary" type="number" placeholder="300" {...register('maxAgents')} />
+            <Input
+              id="maxAgents"
+              variant="primary"
+              type="number"
+              onWheel={(e) => e.currentTarget.blur()}
+              placeholder="300"
+              {...register('maxAgents')}
+            />
             <FormErrorMessage>{errors.maxAgents && errors.maxAgents.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isInvalid={!!errors.programId}>
+          <FormControl isInvalid={!!errors.programId} isRequired>
             <FormLabel htmlFor="programId">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 Assign Program

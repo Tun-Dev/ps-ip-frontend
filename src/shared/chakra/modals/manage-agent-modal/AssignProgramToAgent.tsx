@@ -125,7 +125,7 @@ export const AssignProgramToAgent = ({ agent, setScreen }: ModalProps) => {
             </FormLabel>
             <Input id="name" variant="primary" defaultValue={`${agent.firstName} ${agent.lastName}`} isReadOnly />
           </FormControl>
-          <FormControl isInvalid={!!errors.programId}>
+          <FormControl isInvalid={!!errors.programId} isRequired>
             <FormLabel htmlFor="programId">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 Assign Program
@@ -150,7 +150,7 @@ export const AssignProgramToAgent = ({ agent, setScreen }: ModalProps) => {
             />
             <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isInvalid={!!errors.lgaId}>
+          <FormControl isInvalid={!!errors.lgaId} isRequired>
             <FormLabel htmlFor="lgaId">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 Local Government Area to Enumerate
@@ -175,13 +175,20 @@ export const AssignProgramToAgent = ({ agent, setScreen }: ModalProps) => {
             />
             <FormErrorMessage>{errors.lgaId && errors.lgaId.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isInvalid={!!errors.objective}>
+          <FormControl isInvalid={!!errors.objective} isRequired>
             <FormLabel htmlFor="objective">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 Set Objective
               </Text>
             </FormLabel>
-            <Input id="objective" variant="primary" type="number" placeholder="300" {...register('objective')} />
+            <Input
+              id="objective"
+              variant="primary"
+              type="number"
+              onWheel={(e) => e.currentTarget.blur()}
+              placeholder="300"
+              {...register('objective')}
+            />
             <FormErrorMessage>{errors.objective && errors.objective.message}</FormErrorMessage>
           </FormControl>
         </Stack>

@@ -82,7 +82,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
         <ModalCloseButton />
         <ModalBody>
           <Flex direction="column" gap={3}>
-            <FormControl isInvalid={!!errors.name}>
+            <FormControl isInvalid={!!errors.name} isRequired>
               <FormLabel htmlFor="name">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Vendor Name
@@ -91,7 +91,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
               <Input id="name" variant="primary" placeholder="NURTW" {...register('name')} />
               <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.service}>
+            <FormControl isInvalid={!!errors.service} isRequired>
               <FormLabel htmlFor="service">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Products/Services offered
@@ -122,7 +122,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
               <FormErrorMessage>{errors.service && errors.service.message}</FormErrorMessage>
             </FormControl>
             {showProductField && (
-              <FormControl isInvalid={!!errors.product}>
+              <FormControl isInvalid={!!errors.product} isRequired>
                 <FormLabel htmlFor="product">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Type of Product
@@ -132,7 +132,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
                 <FormErrorMessage>{errors.product && errors.product.message}</FormErrorMessage>
               </FormControl>
             )}
-            <FormControl isInvalid={!!errors.email}>
+            <FormControl isInvalid={!!errors.email} isRequired>
               <FormLabel htmlFor="email">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Corporate Email
@@ -145,7 +145,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
             <Divider orientation="horizontal" />
 
             <Text variant="Body1Semibold">Contact Information</Text>
-            <FormControl isInvalid={!!errors.firstName}>
+            <FormControl isInvalid={!!errors.firstName} isRequired>
               <FormLabel htmlFor="firstName">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   First Name
@@ -154,7 +154,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
               <Input id="firstName" variant="primary" {...register('firstName')} />
               <FormErrorMessage>{errors.firstName && errors.firstName.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.lastName}>
+            <FormControl isInvalid={!!errors.lastName} isRequired>
               <FormLabel htmlFor="lastName">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Last Name
@@ -163,7 +163,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
               <Input id="lastName" variant="primary" {...register('lastName')} />
               <FormErrorMessage>{errors.lastName && errors.lastName.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.contactEmail}>
+            <FormControl isInvalid={!!errors.contactEmail} isRequired>
               <FormLabel htmlFor="contactEmail">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Email
@@ -172,7 +172,7 @@ const EditVendorModal = ({ isOpen, onClose, initialValues }: ModalProps) => {
               <Input id="contactEmail" type="contactEmail" variant="primary" {...register('contactEmail')} />
               <FormErrorMessage>{errors.contactEmail && errors.contactEmail.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.contactPhone}>
+            <FormControl isInvalid={!!errors.contactPhone} isRequired>
               <FormLabel htmlFor="contactPhone">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Phone Number

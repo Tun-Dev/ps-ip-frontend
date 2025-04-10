@@ -39,6 +39,12 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
     questions.forEach((question) => {
       let fieldSchema: z.ZodTypeAny = z.string();
       const questionLabel = question.question.toLowerCase();
+      const isStateOrLga =
+        questionLabel === 'state' ||
+        questionLabel === 'lga' ||
+        questionLabel === 'previous state' ||
+        questionLabel === 'previous lga' ||
+        questionLabel === 'state of origin';
 
       switch (question.type) {
         case 'NUMBER':
@@ -73,10 +79,7 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
           fieldSchema = z.coerce.date();
           break;
         case 'DROPDOWN':
-          fieldSchema =
-            questionLabel === 'state' || questionLabel === 'lga'
-              ? z.coerce.number()
-              : z.string().min(1, 'This field is required');
+          fieldSchema = isStateOrLga ? z.coerce.number() : z.string().min(1, 'This field is required');
           break;
         case 'GENDER':
           fieldSchema = z.enum(['Male', 'Female'], {

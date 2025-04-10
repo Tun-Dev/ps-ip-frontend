@@ -20,12 +20,12 @@ import { Dispatch, SetStateAction, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { useGetPrograms } from '@/hooks/useGetPrograms';
-import { Dropdown } from '@/shared/chakra/components';
-import type { Client } from '@/types';
-import { useGetStates } from '@/hooks/useGetStates';
 import { useAddClientToProgram } from '@/hooks/useAddClientToProgram';
 import { useGetClientByID } from '@/hooks/useGetClientByID';
+import { useGetPrograms } from '@/hooks/useGetPrograms';
+import { useGetStates } from '@/hooks/useGetStates';
+import { Dropdown } from '@/shared/chakra/components';
+import type { Client } from '@/types';
 
 type ModalProps = {
   client: Client;
@@ -36,7 +36,7 @@ const Schema = z.object({
   objective: z.coerce.number().min(1),
   programId: z.string().min(1, 'Program is required'),
   stateId: z.coerce.number().min(1),
-  amountDisbursed: z.coerce.number().min(1),
+  amountDisbursed: z.coerce.number(),
 });
 
 type FormValues = z.infer<typeof Schema>;
@@ -118,22 +118,30 @@ export const AssignProgramToClient = ({ client, setScreen }: ModalProps) => {
                 id="amountDisbursed"
                 variant="primary"
                 type="number"
+                onWheel={(e) => e.currentTarget.blur()}
                 placeholder="300000"
                 {...register('amountDisbursed')}
               />
             </InputGroup>
             <FormErrorMessage>{errors.amountDisbursed && errors.amountDisbursed.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isInvalid={!!errors.objective}>
+          <FormControl isInvalid={!!errors.objective} isRequired>
             <FormLabel htmlFor="objective">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 No. of Beneficiaries
               </Text>
             </FormLabel>
-            <Input id="objective" variant="primary" type="number" placeholder="300" {...register('objective')} />
+            <Input
+              id="objective"
+              variant="primary"
+              type="number"
+              onWheel={(e) => e.currentTarget.blur()}
+              placeholder="300"
+              {...register('objective')}
+            />
             <FormErrorMessage>{errors.objective && errors.objective.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isInvalid={!!errors.stateId}>
+          <FormControl isInvalid={!!errors.stateId} isRequired>
             <FormLabel htmlFor="stateId">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 State
@@ -158,7 +166,7 @@ export const AssignProgramToClient = ({ client, setScreen }: ModalProps) => {
             />
             <FormErrorMessage>{errors.stateId && errors.stateId.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isInvalid={!!errors.programId}>
+          <FormControl isInvalid={!!errors.programId} isRequired>
             <FormLabel htmlFor="programId">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 Assign Program

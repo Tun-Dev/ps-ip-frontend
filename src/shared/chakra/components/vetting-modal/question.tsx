@@ -95,6 +95,7 @@ export function Question({ globalIndex, answer }: QuestionProps) {
             placeholder="Enter score"
             variant="primary"
             type="number"
+            onWheel={(e) => e.currentTarget.blur()}
             border="1px dashed"
             borderColor="grey.300"
             rounded="0.375rem"

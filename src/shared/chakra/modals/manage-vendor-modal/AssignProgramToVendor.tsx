@@ -86,7 +86,7 @@ export const AssignProgramToVendor = ({ vendor, setScreen }: ModalProps) => {
             </FormLabel>
             <Input id="name" variant="primary" defaultValue={vendor.name} isReadOnly />
           </FormControl>
-          <FormControl isInvalid={!!errors.programId}>
+          <FormControl isInvalid={!!errors.programId} isRequired>
             <FormLabel htmlFor="programId">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 Assign Program

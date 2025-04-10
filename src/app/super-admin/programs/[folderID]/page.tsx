@@ -25,11 +25,12 @@ import { MdArrowRightAlt, MdLink } from 'react-icons/md';
 
 import { useDeleteProgramFromGroup } from '@/hooks/useDeleteProgramFromGroup';
 import { useGetGroupById } from '@/hooks/useGetGroupById';
+import { useToggleNotification } from '@/hooks/useToggleNotification';
 import { DeleteModal } from '@/shared';
 import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
+import { DuplicateProgramModal } from '@/shared/chakra/modals/DuplicateProgramModal';
 import { Program, ProgramModules } from '@/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToggleNotification } from '@/hooks/useToggleNotification';
 
 const ProgramsPage = () => {
   const [selectedId, setSelectedId] = useState('');
@@ -106,23 +107,22 @@ const LoadingSkeleton = () => (
   </SimpleGrid>
 );
 
-const ProgramDrawer = ({
-  program,
-  onClose,
-  isLoading,
-}: {
+type ProgramDrawerProps = {
   program: Program;
   onClose: () => void;
   isLoading: boolean;
-}) => {
+};
+
+const ProgramDrawer = ({ program, onClose, isLoading }: ProgramDrawerProps) => {
   const toast = useToast();
-  const { isOpen, onOpen, onClose: deleteModalOnClose } = useDisclosure();
   const router = useRouter();
-  const { onCopy } = useClipboard(`${window.origin}/beneficiary/${program?.id}`);
   const { folderID } = useParams();
   const queryClient = useQueryClient();
-
   const { mutate: deleProgramFromGroup, isPending } = useDeleteProgramFromGroup();
+
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+  const { isOpen: isDuplicateOpen, onOpen: onDuplicateOpen, onClose: onDuplicateClose } = useDisclosure();
+  const { onCopy } = useClipboard(`${window.origin}/beneficiary/${program?.id}`);
 
   const handleEdit = (itemId: string) => {
     router.push(`/super-admin/programs/${folderID}/edit/${itemId}`);
@@ -154,12 +154,13 @@ const ProgramDrawer = ({
   return (
     <>
       <DeleteModal
-        isOpen={isOpen}
-        onClose={deleteModalOnClose}
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
         action={handleDelete}
         isLoading={isPending}
         text="Are you sure you want to delete this program. Proceeding will erase all programs data."
       />
+      <DuplicateProgramModal isOpen={isDuplicateOpen} onClose={onDuplicateClose} program={program} />
       <Stack
         spacing="0"
         as={motion.div}
@@ -232,10 +233,13 @@ const ProgramDrawer = ({
                 <Button fontSize="10px" w="full" variant="accept" onClick={() => handleEdit(program.id)}>
                   Edit Product
                 </Button>
-                <Button fontSize="10px" w="full" variant="cancel" onClick={onOpen}>
+                <Button fontSize="10px" w="full" variant="cancel" onClick={onDeleteOpen}>
                   Delete Product
                 </Button>
               </Flex>
+              <Button fontSize="sm" w="full" variant="primary" onClick={onDuplicateOpen}>
+                Duplicate Product
+              </Button>
               <Flex alignItems="center" gap="8px">
                 <Text
                   as="label"

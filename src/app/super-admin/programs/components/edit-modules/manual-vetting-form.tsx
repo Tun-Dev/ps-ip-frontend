@@ -54,6 +54,7 @@ const ManualVettingForm = memo(({ display }: { display: string }) => {
               size="sm"
               {...register('vettingForm.manualTotalScore')}
               type="number"
+              onWheel={(e) => e.currentTarget.blur()}
               min={0}
               step={10}
             />
@@ -62,7 +63,15 @@ const ManualVettingForm = memo(({ display }: { display: string }) => {
             <Text as="label" variant="Body2Semibold" color="primary.500" whiteSpace="nowrap">
               Pass Score:
             </Text>
-            <Input maxW="5rem" size="sm" {...register('vettingForm.manualPassScore')} type="number" min={0} step={10} />
+            <Input
+              maxW="5rem"
+              size="sm"
+              {...register('vettingForm.manualPassScore')}
+              type="number"
+              onWheel={(e) => e.currentTarget.blur()}
+              min={0}
+              step={10}
+            />
           </Flex>
         </Stack>
         <Flex align="center" gap="4">

@@ -4,12 +4,12 @@ import { useProgramStore } from '@/providers/programs-store-provider';
 import { ModuleCard } from '@/shared/chakra/components';
 import { Module } from '@/types';
 import { renameKey } from '@/utils';
-import { Box, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { Box, type BoxProps, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useMemo } from 'react';
 
 const EDITABLE_MODULES = ['Application', 'Enumeration', 'Vetting', 'Survey', 'Nomination'];
 
-export function ModulesList() {
+export function ModulesList(props: BoxProps) {
   const step = useProgramStore((state) => state.step);
   const activeModuleId = useProgramStore((state) => state.activeModuleId);
   const setActiveModuleId = useProgramStore((state) => state.setActiveModuleId);
@@ -34,7 +34,7 @@ export function ModulesList() {
     const isVetting = module.name === 'Vetting';
     const manualGuideline = module.moduleGuidelines.find((guideline) => guideline.identifier === 'MANUAL');
 
-    setSelectedModuleIds({ ids: new Set(selectedModuleIds.ids.add(module.id)) });
+    setSelectedModuleIds({ ids: new Set(selectedModuleIds.ids).add(module.id) });
     const newModule = {
       moduleId: module.id,
       order: 0,
@@ -50,7 +50,7 @@ export function ModulesList() {
     (step === 4 && module.module === 'Vetting');
 
   return (
-    <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200" h="100%" ml="5">
+    <Box py="3" pl="5" borderLeft="1px solid" borderColor="grey.200" h="100%" ml="5" {...props}>
       <Text variant="Body2Semibold" color="grey.400" mb="2">
         Modules
       </Text>

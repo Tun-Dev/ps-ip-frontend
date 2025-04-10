@@ -81,7 +81,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
         <ModalBody>
           <Stack spacing="5">
             <Text variant="Body1Semibold">Corporate Details</Text>
-            <FormControl isInvalid={!!errors.name}>
+            <FormControl isInvalid={!!errors.name} isRequired>
               <FormLabel htmlFor="name">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Aggregator Name
@@ -90,7 +90,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
               <Input id="name" variant="primary" placeholder="NURTW" {...register('name')} />
               <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.email}>
+            <FormControl isInvalid={!!errors.email} isRequired>
               <FormLabel htmlFor="corporateEmail">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Corporate Email
@@ -103,7 +103,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
             <Divider orientation="horizontal" />
 
             <Text variant="Body1Semibold">Contact Information</Text>
-            <FormControl isInvalid={!!errors.firstName}>
+            <FormControl isInvalid={!!errors.firstName} isRequired>
               <FormLabel htmlFor="firstName">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   First Name
@@ -112,7 +112,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
               <Input id="firstName" variant="primary" {...register('firstName')} />
               <FormErrorMessage>{errors.firstName && errors.firstName.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.lastName}>
+            <FormControl isInvalid={!!errors.lastName} isRequired>
               <FormLabel htmlFor="lastName">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Last Name
@@ -121,7 +121,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
               <Input id="lastName" variant="primary" {...register('lastName')} />
               <FormErrorMessage>{errors.lastName && errors.lastName.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.contactEmail}>
+            <FormControl isInvalid={!!errors.contactEmail} isRequired>
               <FormLabel htmlFor="contactEmail">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Email
@@ -130,7 +130,7 @@ const EditAggregatorModal = ({ isOpen, onClose, initialValues }: ModalProps) => 
               <Input id="email" type="email" variant="primary" {...register('contactEmail')} />
               <FormErrorMessage>{errors.contactEmail && errors.contactEmail.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.contactPhone}>
+            <FormControl isInvalid={!!errors.contactPhone} isRequired>
               <FormLabel htmlFor="contactPhone">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Phone number

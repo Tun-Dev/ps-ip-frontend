@@ -288,6 +288,7 @@ export const EditAgentModal = ({ isOpen, onClose }: ModalProps) => {
                     id={`objective-${field.id}`}
                     variant="primary"
                     type="number"
+                    onWheel={(e) => e.currentTarget.blur()}
                     placeholder="300"
                     {...register(`programDetails.${index}.objective`)}
                   />

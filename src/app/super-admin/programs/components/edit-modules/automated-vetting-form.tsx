@@ -39,13 +39,29 @@ const AutomatedVettingForm = memo(({ display }: { display: string }) => {
             <Text as="label" variant="Body2Semibold" color="primary.500" whiteSpace="nowrap">
               Total Score:
             </Text>
-            <Input maxW="5rem" size="sm" {...register('vettingForm.totalScore')} type="number" min={0} step={10} />
+            <Input
+              maxW="5rem"
+              size="sm"
+              {...register('vettingForm.totalScore')}
+              type="number"
+              onWheel={(e) => e.currentTarget.blur()}
+              min={0}
+              step={10}
+            />
           </Flex>
           <Flex align="center" gap="4">
             <Text as="label" variant="Body2Semibold" color="primary.500" whiteSpace="nowrap">
               Pass Score:
             </Text>
-            <Input maxW="5rem" size="sm" {...register('vettingForm.passScore')} type="number" min={0} step={10} />
+            <Input
+              maxW="5rem"
+              size="sm"
+              {...register('vettingForm.passScore')}
+              type="number"
+              onWheel={(e) => e.currentTarget.blur()}
+              min={0}
+              step={10}
+            />
           </Flex>
         </Stack>
         <Flex align="center" gap="4">

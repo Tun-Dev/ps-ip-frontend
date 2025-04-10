@@ -1,5 +1,7 @@
 // import page from '@/app/page';
 // import { useFilterVendors } from '@/hooks/useFilterVendors';
+import { useEditWhiteList } from '@/hooks/useEditWhitelist';
+import { WhitelistDetails } from '@/types';
 import {
   Button,
   Flex,
@@ -18,15 +20,10 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  useMemo,
-  // useState
-} from 'react';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Dropdown } from '../components';
-import { WhitelistDetails } from '@/types';
-import { useEditWhiteList } from '@/hooks/useEditWhitelist';
 
 type ModalProps = {
   isOpen: boolean;
@@ -123,7 +120,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
           <ModalCloseButton />
           <ModalBody>
             <Flex direction="column" gap="20px">
-              <FormControl isInvalid={!!errors.name}>
+              <FormControl isInvalid={!!errors.name} isRequired>
                 <FormLabel htmlFor="name">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Name
@@ -133,7 +130,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
                 <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
               </FormControl>
               {(programType === 'Equipment' || programType === 'Capacity building') && (
-                <FormControl isInvalid={!!errors.vendorId}>
+                <FormControl isInvalid={!!errors.vendorId} isRequired>
                   <FormLabel htmlFor="gender">
                     <Text as="span" variant="Body2Semibold" color="grey.500">
                       Vendor
@@ -169,7 +166,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
               )}
 
               {/* {(programType === 'Grants' || programType === 'Loans') && (
-                <FormControl isInvalid={!!errors.name}>
+                <FormControl isInvalid={!!errors.name} isRequired>
                   <FormLabel htmlFor="amount">
                     <Text as="span" variant="Body2Semibold" color="grey.500">
                       Amount
@@ -177,6 +174,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
                   </FormLabel>
                   <Input
                     type="number"
+                    onWheel={(e) => e.currentTarget.blur()}
                     id="amount"
                     variant="primary"
                     placeholder="500000"
@@ -185,7 +183,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
                   <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
                 </FormControl>
               )} */}
-              <FormControl isInvalid={!!errors.beneficiariesNo}>
+              <FormControl isInvalid={!!errors.beneficiariesNo} isRequired>
                 <FormLabel htmlFor="beneficiariesNo">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Number of Beneficiaries
@@ -193,6 +191,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
                 </FormLabel>
                 <Input
                   type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
                   id="beneficiariesNo"
                   variant="primary"
                   placeholder="1500"

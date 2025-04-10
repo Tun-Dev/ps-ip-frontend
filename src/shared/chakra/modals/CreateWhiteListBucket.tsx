@@ -111,7 +111,7 @@ const CreateWhiteListBucket = ({ isOpen, onClose, programId, beneficiariesIds, p
           <ModalCloseButton />
           <ModalBody>
             <Flex direction="column" gap="20px">
-              <FormControl isInvalid={!!errors.name}>
+              <FormControl isInvalid={!!errors.name} isRequired>
                 <FormLabel htmlFor="name">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Name
@@ -121,7 +121,7 @@ const CreateWhiteListBucket = ({ isOpen, onClose, programId, beneficiariesIds, p
                 <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
               </FormControl>
               {(programType === 'Equipment' || programType === 'Capacity building') && (
-                <FormControl isInvalid={!!errors.vendorId}>
+                <FormControl isInvalid={!!errors.vendorId} isRequired>
                   <FormLabel htmlFor="vendorId">
                     <Text as="span" variant="Body2Semibold" color="grey.500">
                       Vendor
@@ -149,7 +149,7 @@ const CreateWhiteListBucket = ({ isOpen, onClose, programId, beneficiariesIds, p
               )}
 
               {(programType === 'Grants' || programType === 'Loans') && (
-                <FormControl isInvalid={!!errors.amount}>
+                <FormControl isInvalid={!!errors.amount} isRequired>
                   <FormLabel htmlFor="amount">
                     <Text as="span" variant="Body2Semibold" color="grey.500">
                       Amount
@@ -160,7 +160,14 @@ const CreateWhiteListBucket = ({ isOpen, onClose, programId, beneficiariesIds, p
                     <InputLeftElement>
                       <Text>₦</Text>
                     </InputLeftElement>
-                    <Input type="number" id="amount" variant="primary" placeholder="500000" {...register('amount')} />
+                    <Input
+                      type="number"
+                      onWheel={(e) => e.currentTarget.blur()}
+                      id="amount"
+                      variant="primary"
+                      placeholder="500000"
+                      {...register('amount')}
+                    />
                   </InputGroup>
 
                   <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>

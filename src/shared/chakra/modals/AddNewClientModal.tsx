@@ -32,7 +32,7 @@ import { PhoneNumberInput } from '../components/phone-number-input';
 const Schema = z.object({
   name: z.string().min(1, 'Name is required'),
   // programId: z.string().min(1, 'Program is required'),
-  amount: z.coerce.number().min(0, 'Amount is required'),
+  amount: z.coerce.number(),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().min(1, 'Corporate Email is required'),
@@ -81,7 +81,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
           <ModalCloseButton />
           <ModalBody>
             <Flex direction="column" gap={3}>
-              <FormControl isInvalid={!!errors.name}>
+              <FormControl isInvalid={!!errors.name} isRequired>
                 <FormLabel htmlFor="name">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Client Name
@@ -91,7 +91,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                 <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
               </FormControl>
 
-              {/* <FormControl isInvalid={!!errors.programId}>
+              {/* <FormControl isInvalid={!!errors.programId} isRequired>
                 <FormLabel htmlFor="programId">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Program
@@ -126,11 +126,17 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                   <InputLeftElement>
                     <Text>₦</Text>
                   </InputLeftElement>
-                  <Input type="number" id="amount" placeholder="50000000" {...register('amount')}></Input>
+                  <Input
+                    type="number"
+                    onWheel={(e) => e.currentTarget.blur()}
+                    id="amount"
+                    placeholder="50000000"
+                    {...register('amount')}
+                  ></Input>
                 </InputGroup>
                 <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={!!errors.email}>
+              <FormControl isInvalid={!!errors.email} isRequired>
                 <FormLabel htmlFor="email">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Corporate Email
@@ -143,7 +149,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
               <Divider orientation="horizontal" />
 
               <Text variant="Body1Semibold">Contact Information</Text>
-              <FormControl isInvalid={!!errors.firstName}>
+              <FormControl isInvalid={!!errors.firstName} isRequired>
                 <FormLabel htmlFor="firstName">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     First Name
@@ -152,7 +158,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                 <Input id="firstName" variant="primary" {...register('firstName')} />
                 <FormErrorMessage>{errors.firstName && errors.firstName.message}</FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={!!errors.lastName}>
+              <FormControl isInvalid={!!errors.lastName} isRequired>
                 <FormLabel htmlFor="lastName">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Last Name
@@ -161,7 +167,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                 <Input id="lastName" variant="primary" {...register('lastName')} />
                 <FormErrorMessage>{errors.lastName && errors.lastName.message}</FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={!!errors.contactEmail}>
+              <FormControl isInvalid={!!errors.contactEmail} isRequired>
                 <FormLabel htmlFor="contactEmail">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Email
@@ -170,7 +176,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                 <Input id="contactEmail" type="email" variant="primary" {...register('contactEmail')} />
                 <FormErrorMessage>{errors.contactEmail && errors.contactEmail.message}</FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={!!errors.contactPhone}>
+              <FormControl isInvalid={!!errors.contactPhone} isRequired>
                 <FormLabel htmlFor="contactPhone">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Phone number

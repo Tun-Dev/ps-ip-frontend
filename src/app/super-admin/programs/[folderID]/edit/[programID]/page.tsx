@@ -63,22 +63,30 @@ const ProgramEditPage = () => {
         guidelines: module.moduleGuidelines.map((guideline) => guideline.id),
         dataPoints: mapDataPoints(module),
       })),
-      surveyForm: {
-        id: surveyFormId,
-        fields: surveyModule ? mapSurveyFields(surveyModule, questionTypes?.body) : defaultValues.surveyForm.fields,
-      },
-      vettingForm: {
-        id: vettingFormId,
-        type: isManualVetting ? 'manual' : 'automated',
-        totalScore: isManualVetting ? defaultValues.vettingForm.totalScore : vettingModule?.form.totalFormScore,
-        passScore: isManualVetting ? defaultValues.vettingForm.passScore : vettingModule?.form.minVetScore,
-        manualTotalScore: isManualVetting
-          ? vettingModule?.form.totalFormScore
-          : defaultValues.vettingForm.manualTotalScore,
-        manualPassScore: isManualVetting ? vettingModule?.form.minVetScore : defaultValues.vettingForm.manualPassScore,
-        manualFields: isManualVetting ? mapVettingFields(vettingModule) : defaultValues.vettingForm.manualFields,
-        automatedFields: isManualVetting ? defaultValues.vettingForm.automatedFields : mapVettingFields(vettingModule),
-      },
+      surveyForm: surveyFormId
+        ? {
+            id: surveyFormId,
+            fields: surveyModule ? mapSurveyFields(surveyModule, questionTypes?.body) : defaultValues.surveyForm.fields,
+          }
+        : defaultValues.surveyForm,
+      vettingForm: vettingFormId
+        ? {
+            id: vettingFormId,
+            type: isManualVetting ? 'manual' : 'automated',
+            totalScore: isManualVetting ? defaultValues.vettingForm.totalScore : vettingModule?.form.totalFormScore,
+            passScore: isManualVetting ? defaultValues.vettingForm.passScore : vettingModule?.form.minVetScore,
+            manualTotalScore: isManualVetting
+              ? vettingModule?.form.totalFormScore
+              : defaultValues.vettingForm.manualTotalScore,
+            manualPassScore: isManualVetting
+              ? vettingModule?.form.minVetScore
+              : defaultValues.vettingForm.manualPassScore,
+            manualFields: isManualVetting ? mapVettingFields(vettingModule) : defaultValues.vettingForm.manualFields,
+            automatedFields: isManualVetting
+              ? defaultValues.vettingForm.automatedFields
+              : mapVettingFields(vettingModule),
+          }
+        : defaultValues.vettingForm,
     });
   }, [reset, modules, programTypes, questionTypes, response]);
 

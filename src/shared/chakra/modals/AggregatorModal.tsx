@@ -90,7 +90,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
         <ModalBody>
           <Stack spacing="5">
             <Text variant="Body1Semibold">Corporate Details</Text>
-            <FormControl isInvalid={!!errors.name}>
+            <FormControl isInvalid={!!errors.name} isRequired>
               <FormLabel htmlFor="name">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Aggregator Name
@@ -99,16 +99,23 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="name" variant="primary" placeholder="NURTW" {...register('name')} />
               <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.maxAgents}>
+            <FormControl isInvalid={!!errors.maxAgents} isRequired>
               <FormLabel htmlFor="maxAgents">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Set Maximum Agents
                 </Text>
               </FormLabel>
-              <Input id="maxAgents" variant="primary" type="number" placeholder="300" {...register('maxAgents')} />
+              <Input
+                id="maxAgents"
+                variant="primary"
+                type="number"
+                onWheel={(e) => e.currentTarget.blur()}
+                placeholder="300"
+                {...register('maxAgents')}
+              />
               <FormErrorMessage>{errors.maxAgents && errors.maxAgents.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.programId}>
+            <FormControl isInvalid={!!errors.programId} isRequired>
               <FormLabel htmlFor="programId">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Assign Program
@@ -133,7 +140,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
               />
               <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.email}>
+            <FormControl isInvalid={!!errors.email} isRequired>
               <FormLabel htmlFor="corporateEmail">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Corporate Email
@@ -146,7 +153,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
             <Divider orientation="horizontal" />
 
             <Text variant="Body1Semibold">Contact Information</Text>
-            <FormControl isInvalid={!!errors.firstname}>
+            <FormControl isInvalid={!!errors.firstname} isRequired>
               <FormLabel htmlFor="firstname">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   First Name
@@ -155,7 +162,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="firstname" variant="primary" {...register('firstname')} />
               <FormErrorMessage>{errors.firstname && errors.firstname.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.lastname}>
+            <FormControl isInvalid={!!errors.lastname} isRequired>
               <FormLabel htmlFor="lastname">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Last Name
@@ -164,7 +171,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="lastname" variant="primary" {...register('lastname')} />
               <FormErrorMessage>{errors.lastname && errors.lastname.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.contactEmail}>
+            <FormControl isInvalid={!!errors.contactEmail} isRequired>
               <FormLabel htmlFor="contactEmail">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Email
@@ -173,7 +180,7 @@ const AggregatorModal = ({ isOpen, onClose }: ModalProps) => {
               <Input id="email" type="email" variant="primary" {...register('contactEmail')} />
               <FormErrorMessage>{errors.contactEmail && errors.contactEmail.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.contactPhone}>
+            <FormControl isInvalid={!!errors.contactPhone} isRequired>
               <FormLabel htmlFor="contactPhone">
                 <Text as="span" variant="Body2Semibold" color="grey.500">
                   Phone number

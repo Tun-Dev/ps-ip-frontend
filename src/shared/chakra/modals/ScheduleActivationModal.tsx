@@ -112,7 +112,7 @@ export const ScheduleActivationModal = ({ isOpen, onClose, agents }: ModalProps)
           <ModalCloseButton />
           <ModalBody>
             <Stack gap="4">
-              <FormControl isInvalid={!!formState.errors.programId}>
+              <FormControl isInvalid={!!formState.errors.programId} isRequired>
                 <FormLabel htmlFor="programId">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Program
@@ -148,7 +148,7 @@ export const ScheduleActivationModal = ({ isOpen, onClose, agents }: ModalProps)
                 </HStack>
               </Stack>
               <SimpleGrid columns={2} gap="4">
-                <FormControl isInvalid={!!formState.errors.startDate}>
+                <FormControl isInvalid={!!formState.errors.startDate} isRequired>
                   <FormLabel htmlFor="startDate">
                     <Text as="span" variant="Body2Semibold" color="grey.500">
                       Start Date
@@ -159,7 +159,7 @@ export const ScheduleActivationModal = ({ isOpen, onClose, agents }: ModalProps)
                     {formState.errors.startDate && formState.errors.startDate.message}
                   </FormErrorMessage>
                 </FormControl>
-                <FormControl isInvalid={!!formState.errors.endDate}>
+                <FormControl isInvalid={!!formState.errors.endDate} isRequired>
                   <FormLabel htmlFor="endDate">
                     <Text as="span" variant="Body2Semibold" color="grey.500">
                       End Date
@@ -170,7 +170,7 @@ export const ScheduleActivationModal = ({ isOpen, onClose, agents }: ModalProps)
                 </FormControl>
               </SimpleGrid>
               <SimpleGrid columns={2} gap="4">
-                <FormControl isInvalid={!!formState.errors.startTime}>
+                <FormControl isInvalid={!!formState.errors.startTime} isRequired>
                   <FormLabel htmlFor="startTime">
                     <Text as="span" variant="Body2Semibold" color="grey.500">
                       Start Time
@@ -181,7 +181,7 @@ export const ScheduleActivationModal = ({ isOpen, onClose, agents }: ModalProps)
                     {formState.errors.startTime && formState.errors.startTime.message}
                   </FormErrorMessage>
                 </FormControl>
-                <FormControl isInvalid={!!formState.errors.endTime}>
+                <FormControl isInvalid={!!formState.errors.endTime} isRequired>
                   <FormLabel htmlFor="endTime">
                     <Text as="span" variant="Body2Semibold" color="grey.500">
                       End Time

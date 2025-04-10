@@ -87,7 +87,7 @@ export const ApproveAgentModal = ({ isOpen, onClose, agents }: ModalProps) => {
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <FormControl isInvalid={!!errors.programId}>
+          <FormControl isInvalid={!!errors.programId} isRequired>
             <FormLabel htmlFor="programId">
               <Text as="span" variant="Body2Semibold" color="grey.500">
                 Assign Program
