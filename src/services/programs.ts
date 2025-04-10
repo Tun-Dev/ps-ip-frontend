@@ -108,3 +108,45 @@ export const verifyData = async ({ programId, ...params }: VerifyDataPayload) =>
   );
   return data;
 };
+
+export const toggleNotification = async (programId: string, status: string) => {
+  const { data } = await axiosInstance.put<APIResponse<any>>(`/program/notification/toggle/${programId}/${status}`);
+  return data;
+};
+
+export const getNotificationStatus = async ({ queryKey, signal }: { queryKey: QueryKey; signal: AbortSignal }) => {
+  const [, programId] = queryKey;
+  const { data } = await axiosInstance.get<APIResponse<boolean>>(`/program/notify/${programId}`, { signal });
+  return data;
+};
+
+export const requestOtp = async () => {
+  const { data } = await axiosInstance.get<APIResponse<boolean>>(`/disbursement/otp/request`);
+  return data;
+};
+
+export const downloadDisbursementList = async (programId: string, otp: string) => {
+  const response = await axiosInstance.post(
+    `/disbursement/download/${programId}`,
+    { otp },
+    {
+      responseType: 'blob',
+    }
+  );
+
+  return response;
+};
+
+export const uploadDisbursementList = async (programId: string, otp: string, file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('otp', otp); // assuming the API expects this in the form body
+
+  const response = await axiosInstance.post(`/disbursement/upload/${programId}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+};

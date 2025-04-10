@@ -376,7 +376,6 @@ const OrderPage = () => {
             isError={isError || isRefetchError}
             onRefresh={refetch}
             onClick={(e) => {
-              // console.log(e);
               const searchParams = new URLSearchParams();
               searchParams.set('programId', `${e.id}`);
               router.push(`/clients/vendors/orders?${searchParams.toString()}`);

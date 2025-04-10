@@ -32,6 +32,9 @@ import { Beneficiary } from '@/types';
 import { formatDateForInput, FormStatus } from '@/utils';
 import { useParams } from 'next/navigation';
 import NominationModal from '../modals/NominationModal';
+import DownloadDisbursementListModal from '../modals/DownloadDisbursementListModal';
+import { Dropdown } from './dropdown';
+import UploadDisbursementListModal from '../modals/UploadDisbursementListModal';
 
 const columnHelper = createColumnHelper<Beneficiary>();
 
@@ -44,7 +47,25 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const statusOptions = useMemo(
+    () => [
+      { label: 'Disbursed', value: 'disbursed' },
+      { label: 'Not Disbursed', value: 'not-disbursed' },
+    ],
+    []
+  );
+
   const { isOpen: isNominationOpen, onOpen: onNominationOpen, onClose: onNominationClose } = useDisclosure();
+  const {
+    isOpen: isDownloadDisbursementOpen,
+    onOpen: onDownloadDisbursementOpen,
+    onClose: onDownloadDisbursementClose,
+  } = useDisclosure();
+  const {
+    isOpen: isUploadDisbursementOpen,
+    onOpen: onUploadDisbursementOpen,
+    onClose: onUploadDisbursementClose,
+  } = useDisclosure();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
@@ -252,6 +273,16 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   return (
     <>
       <NominationModal isOpen={isNominationOpen} onClose={onNominationClose} programId={programID?.toLocaleString()} />
+      <DownloadDisbursementListModal
+        isOpen={isDownloadDisbursementOpen}
+        onClose={onDownloadDisbursementClose}
+        programId={programID?.toLocaleString()}
+      />
+      <UploadDisbursementListModal
+        isOpen={isUploadDisbursementOpen}
+        onClose={onUploadDisbursementClose}
+        programId={programID?.toLocaleString()}
+      />
       {!isLoading && !isRefetching && tableData.length < 1 && moduleName === 'Nomination' ? (
         <Flex height="100%" flexDir="column" alignItems="center" gap="16px" pt="80px">
           <Image src="/icons/empty_nom.svg" alt="Empty state" w="100px" />
@@ -289,6 +320,12 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                   }}
                 />
               </InputGroup>
+              {moduleName === 'Disbursement' && (
+                <Flex gap="2" alignItems="center" w="400px">
+                  <Text>Status</Text>
+                  <Dropdown options={statusOptions} />
+                </Flex>
+              )}
             </Flex>
             <Flex gap="16px">
               <Button
@@ -306,6 +343,26 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                   onClick={() => onNominationOpen()}
                 >
                   Upload Nomination List
+                </Button>
+              )}
+              {moduleName === 'Disbursement' && (
+                <Button
+                  leftIcon={<MdOutlineUploadFile />}
+                  variant="primary"
+                  size="medium"
+                  onClick={() => onUploadDisbursementOpen()}
+                >
+                  Upload Nomination List
+                </Button>
+              )}
+              {moduleName === 'Disbursement' && (
+                <Button
+                  leftIcon={<MdDownload />}
+                  variant="primary"
+                  size="medium"
+                  onClick={() => onDownloadDisbursementOpen()}
+                >
+                  Download Disbursement List
                 </Button>
               )}
             </Flex>

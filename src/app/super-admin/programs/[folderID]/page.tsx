@@ -10,7 +10,9 @@ import {
   SimpleGrid,
   SkeletonCircle,
   SkeletonText,
+  Spinner,
   Stack,
+  Switch,
   Text,
   useClipboard,
   useDisclosure,
@@ -27,6 +29,7 @@ import { DeleteModal } from '@/shared';
 import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
 import { Program, ProgramModules } from '@/types';
 import { useQueryClient } from '@tanstack/react-query';
+import { useToggleNotification } from '@/hooks/useToggleNotification';
 
 const ProgramsPage = () => {
   const [selectedId, setSelectedId] = useState('');
@@ -61,7 +64,9 @@ const ProgramsPage = () => {
         </SimpleGrid>
       )}
       <AnimatePresence>
-        {selectedProgram && <ProgramDrawer program={selectedProgram} onClose={() => setSelectedId('')} />}
+        {selectedProgram && (
+          <ProgramDrawer program={selectedProgram} onClose={() => setSelectedId('')} isLoading={isLoading} />
+        )}
       </AnimatePresence>
     </Stack>
   );
@@ -101,7 +106,15 @@ const LoadingSkeleton = () => (
   </SimpleGrid>
 );
 
-const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => void }) => {
+const ProgramDrawer = ({
+  program,
+  onClose,
+  isLoading,
+}: {
+  program: Program;
+  onClose: () => void;
+  isLoading: boolean;
+}) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose: deleteModalOnClose } = useDisclosure();
   const router = useRouter();
@@ -123,6 +136,13 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
         onClose();
       },
     });
+  };
+
+  const toggleNotificationMutation = useToggleNotification();
+
+  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newStatus = event.target.checked;
+    toggleNotificationMutation.mutate({ programId: program.id, status: newStatus });
   };
 
   const transition: Transition = { duration: 0.5, ease: 'easeInOut' };
@@ -215,6 +235,27 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
                 <Button fontSize="10px" w="full" variant="cancel" onClick={onOpen}>
                   Delete Product
                 </Button>
+              </Flex>
+              <Flex alignItems="center" gap="8px">
+                <Text
+                  as="label"
+                  whiteSpace="nowrap"
+                  htmlFor="allow-sms-notifications"
+                  variant="Body2Semibold"
+                  color="grey.500"
+                >
+                  Allow SMS Notifications:
+                </Text>
+                {!!program ? (
+                  <Switch
+                    id="allow-sms-notifications"
+                    onChange={handleToggle}
+                    defaultChecked={program.canSendSms}
+                    isDisabled={isPending || isLoading}
+                  />
+                ) : (
+                  <Spinner size="xs" color="grey.400" />
+                )}
               </Flex>
             </Flex>
           </Flex>

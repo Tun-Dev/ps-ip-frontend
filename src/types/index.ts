@@ -135,6 +135,7 @@ export type Program = {
   programType: string;
   moduleCount: string;
   programModules: ProgramModules[];
+  canSendSms?: boolean;
 };
 
 export type ProgramPayload = {
