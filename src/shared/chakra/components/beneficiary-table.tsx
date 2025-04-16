@@ -35,6 +35,7 @@ import NominationModal from '../modals/NominationModal';
 import DownloadDisbursementListModal from '../modals/DownloadDisbursementListModal';
 import { Dropdown } from './dropdown';
 import UploadDisbursementListModal from '../modals/UploadDisbursementListModal';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
 
 const columnHelper = createColumnHelper<Beneficiary>();
 
@@ -72,6 +73,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+  const { response: programDetails } = useGetProgramById(programID?.toString());
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
   const { data: modules } = useGetModules();
 
@@ -277,11 +279,13 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
         isOpen={isDownloadDisbursementOpen}
         onClose={onDownloadDisbursementClose}
         programId={programID?.toLocaleString()}
+        programName={programDetails?.body?.name || ''}
       />
       <UploadDisbursementListModal
         isOpen={isUploadDisbursementOpen}
         onClose={onUploadDisbursementClose}
         programId={programID?.toLocaleString()}
+        programName={programDetails?.body?.name || ''}
       />
       {!isLoading && !isRefetching && tableData.length < 1 && moduleName === 'Nomination' ? (
         <Flex height="100%" flexDir="column" alignItems="center" gap="16px" pt="80px">

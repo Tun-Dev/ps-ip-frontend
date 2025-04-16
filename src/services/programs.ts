@@ -120,8 +120,8 @@ export const getNotificationStatus = async ({ queryKey, signal }: { queryKey: Qu
   return data;
 };
 
-export const requestOtp = async () => {
-  const { data } = await axiosInstance.get<APIResponse<boolean>>(`/disbursement/otp/request`);
+export const requestOtp = async (payload: { firstName: string; programName: string }) => {
+  const { data } = await axiosInstance.post<APIResponse<boolean>>(`/disbursement/otp/request`, payload);
   return data;
 };
 

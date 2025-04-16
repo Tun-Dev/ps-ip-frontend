@@ -84,6 +84,7 @@ const SelectModules = memo((props: BoxProps) => {
         setItems={(item) => {
           const oldFields = getValues('programModules');
           const reorderedFields = item.map((id) => oldFields.find((field) => field.moduleId === id)!);
+          setSelectedModuleIds({ ids: new Set(item as number[]) });
           replace(reorderedFields);
         }}
         sortingStrategy={rectSortingStrategy}

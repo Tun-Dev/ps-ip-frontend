@@ -9,7 +9,7 @@ import { useGetProgramTypes } from '@/hooks/useGetProgramTypes';
 import { useGetQuestionTypes } from '@/hooks/useGetQuestionTypes';
 import { defaultValues, useProgramForm } from '@/providers/form-provider';
 import { useProgramStore } from '@/providers/programs-store-provider';
-import type { ProgramModulesDetails, QuestionType } from '@/types';
+import type { Module, ProgramModulesDetails, QuestionType } from '@/types';
 import AdminSettings from '../../../components/admin-settings';
 import EditModules from '../../../components/edit-modules';
 import ProgramDetails from '../../../components/program-details';
@@ -54,15 +54,7 @@ const ProgramEditPage = () => {
           : program.eligibilityCriteria,
       logoFile: program.logo,
       coverPhotoFile: program.coverPhoto,
-      programModules: program.programModules.map((module) => ({
-        id: module.id,
-        order: module.order,
-        formId: module.formId,
-        isBase: false,
-        moduleId: modules?.body.find((md) => md.name === module.module)?.id ?? 0,
-        guidelines: module.moduleGuidelines.map((guideline) => guideline.id),
-        dataPoints: mapDataPoints(module),
-      })),
+      programModules: mapProgramModules(program.programModules, modules?.body ?? []),
       surveyForm: surveyFormId
         ? {
             id: surveyFormId,
@@ -99,6 +91,19 @@ const ProgramEditPage = () => {
       <Review display={step === 5 ? 'block' : 'none'} />
     </>
   );
+};
+
+const mapProgramModules = (programModules: ProgramModulesDetails[], modules: Module[]) => {
+  const sortedModules = programModules.sort((a, b) => a.order - b.order);
+  return sortedModules.map((module) => ({
+    id: module.id,
+    order: module.order,
+    formId: module.formId,
+    isBase: false,
+    moduleId: modules.find((md) => md.name === module.module)?.id ?? 0,
+    guidelines: module.moduleGuidelines.map((guideline) => guideline.id),
+    dataPoints: mapDataPoints(module),
+  }));
 };
 
 const mapSurveyFields = (module?: ProgramModulesDetails, questionTypes?: QuestionType[]) => {

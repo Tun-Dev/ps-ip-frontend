@@ -11,7 +11,7 @@ export const useToggleNotification = () => {
     mutationFn: ({ programId, status }: { programId: string; status: boolean }) =>
       toggleNotification(programId, status.toString()),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notificationStatus', 'group'] });
+      queryClient.invalidateQueries({ queryKey: ['group'], exact: false });
       toast({
         title: 'Success',
         description: 'SMS Notification status updated successfully',

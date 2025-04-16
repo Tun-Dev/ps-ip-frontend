@@ -17,23 +17,31 @@ import {
 } from '@chakra-ui/react';
 import { useRequestOtp } from '@/hooks/useRequestOtp';
 import { useDownloadDisbursementList } from '@/hooks/useDownloadDisbursementList';
+import { useUserStore } from '@/providers/user-store-provider';
 
 type DownloadDisbursementListModalProps = {
   isOpen: boolean;
   onClose: () => void;
   programId: string;
+  programName: string;
 };
 
-const DownloadDisbursementListModal = ({ isOpen, onClose, programId }: DownloadDisbursementListModalProps) => {
+const DownloadDisbursementListModal = ({
+  isOpen,
+  onClose,
+  programId,
+  programName,
+}: DownloadDisbursementListModalProps) => {
+  const user = useUserStore((state) => state.user);
   const [otp, setOtp] = useState('');
   const { isPending: isRequestingOTP, mutate } = useRequestOtp({});
   const { mutate: download, isPending: isDownloading } = useDownloadDisbursementList();
 
   useEffect(() => {
     if (isOpen) {
-      mutate();
+      mutate({ firstName: user?.firstName || '', programName: programName });
     }
-  }, [isOpen, mutate]);
+  }, [isOpen, mutate, user, programName]);
   return (
     <Modal
       isOpen={isOpen}
@@ -74,6 +82,17 @@ const DownloadDisbursementListModal = ({ isOpen, onClose, programId }: DownloadD
                 <PinInputField />
               </PinInput>
             </HStack>
+            <Text mt={4}>
+              Didn’t receive OTP?{' '}
+              <Button
+                variant="link"
+                onClick={() => {
+                  mutate({ firstName: user?.firstName || '', programName: programName });
+                }}
+              >
+                Resend
+              </Button>
+            </Text>
             <Button
               variant="primary"
               width="402px"

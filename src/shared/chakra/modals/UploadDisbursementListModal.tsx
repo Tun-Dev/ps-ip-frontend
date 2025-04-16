@@ -22,11 +22,13 @@ import { IconType } from 'react-icons';
 import { MdDeleteForever, MdUploadFile } from 'react-icons/md';
 import { useRequestOtp } from '@/hooks/useRequestOtp';
 import { useUploadDisbursementList } from '@/hooks/useUploadDisbursementList';
+import { useUserStore } from '@/providers/user-store-provider';
 
 type UploadDisbursementListModalProps = {
   isOpen: boolean;
   onClose: () => void;
   programId: string;
+  programName: string;
 };
 
 const UploadArea = ({
@@ -132,7 +134,8 @@ const UploadArea = ({
   );
 };
 
-const UploadDisbursementListModal = ({ isOpen, onClose, programId }: UploadDisbursementListModalProps) => {
+const UploadDisbursementListModal = ({ isOpen, onClose, programId, programName }: UploadDisbursementListModalProps) => {
+  const user = useUserStore((state) => state.user);
   const [step, setStep] = useState(1);
   const [file, setFile] = useState<File | null>(null);
   const [otp, setOtp] = useState('');
@@ -152,9 +155,9 @@ const UploadDisbursementListModal = ({ isOpen, onClose, programId }: UploadDisbu
 
   useEffect(() => {
     if (isOpen) {
-      mutate();
+      mutate({ firstName: user?.firstName || '', programName: programName });
     }
-  }, [isOpen, mutate]);
+  }, [isOpen, mutate, user, programName]);
 
   return (
     <Modal
@@ -200,11 +203,22 @@ const UploadDisbursementListModal = ({ isOpen, onClose, programId }: UploadDisbu
                     <PinInputField />
                   </PinInput>
                 </HStack>
+                <Text mt={4}>
+                  Didn’t receive OTP?{' '}
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      mutate({ firstName: user?.firstName || '', programName: programName });
+                    }}
+                  >
+                    Resend
+                  </Button>
+                </Text>
               </>
             ) : (
               <>
                 <UploadArea
-                  text="Upload Nomination File"
+                  text="Upload Disbursement List"
                   bg="#FBF7EE"
                   borderColor="#EEDDBC"
                   icon={MdUploadFile}
