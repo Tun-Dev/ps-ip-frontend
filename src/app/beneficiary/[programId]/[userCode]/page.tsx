@@ -4,11 +4,14 @@ import { useParams } from 'next/navigation';
 
 import { useGetBeneficiaryForm } from '@/hooks/useGetBeneficiaryForm';
 import { useGetBeneficiaryStatus } from '@/hooks/useGetBeneficiaryStatus';
-import { formatErrorMessage, MODULE_STATUS } from '@/utils';
+import {
+  formatErrorMessage,
+  //  MODULE_STATUS
+} from '@/utils';
 import { Box, Grid, Spinner, Stack, Text } from '@chakra-ui/react';
 import ModuleForm from '../../components/module-form';
 import ModuleStatus from '../../components/module-status';
-import { MultiStepHeaderBen } from '../../components/MultiStepHeaderBen';
+// import { MultiStepHeaderBen } from '../../components/MultiStepHeaderBen';
 
 export default function BeneficiaryUserPage() {
   const { programId, userCode } = useParams();
@@ -36,10 +39,11 @@ export default function BeneficiaryUserPage() {
       <Stack flex="1" gap="10" align="stretch">
         {beneficiaryStatus && (
           <Box maxW="full" overflowX="auto">
-            <MultiStepHeaderBen
+            {/* <MultiStepHeaderBen
               availableModules={beneficiaryStatus.body.availableModules ?? []}
               currentModule={beneficiaryStatus.body.currentModule as keyof typeof MODULE_STATUS}
-            />
+            /> */}
+            <Text variant="Header1Bold">{beneficiaryStatus.body.currentModule}</Text>
           </Box>
         )}
         {data.body.form ? (

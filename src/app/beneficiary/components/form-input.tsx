@@ -144,13 +144,19 @@ const TextInput = ({ question, form }: FormInputProps) => {
 
   if (isKYCField) return <KYCInput question={question} form={form} />;
 
+  const inputType = getInputType(question.type);
+  console.log(getInputType(question.type));
+  const isDateType = inputType === 'date';
+  const today = new Date().toISOString().split('T')[0];
+
   return (
     <Input
       {...form.register(question.id)}
       id={question.id}
-      type={getInputType(question.type)}
+      type={inputType}
       isRequired={question.mandatory}
       isReadOnly={question.question === 'User code'}
+      max={isDateType ? today : undefined}
     />
   );
 };

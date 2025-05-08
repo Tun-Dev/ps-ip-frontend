@@ -17,6 +17,8 @@ export const ManageClientModal = ({ isOpen, onClose, client }: ModalProps) => {
     setScreen('list');
   }, [isOpen]);
 
+  if (!isOpen) return null; // ← don’t render anything when closed
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside" isCentered>
       <ModalOverlay />

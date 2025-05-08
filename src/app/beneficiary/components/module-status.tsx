@@ -73,7 +73,7 @@ export default function ModuleStatus({ user }: Props) {
           <Flex align="center" gap="1">
             <Text variant={{ base: 'Body2Semibold', xs: 'Body1Semibold' }} color="text">
               {beneficiaryStatus.body.status === FormStatus.DISAPPROVED
-                ? 'You were rejected from this program.'
+                ? 'We have carefully reviewed your application and you are ineligible for this Program.'
                 : 'Your information has been recorded.'}
             </Text>
             {beneficiaryStatus.body.status === FormStatus.DISAPPROVED ? (

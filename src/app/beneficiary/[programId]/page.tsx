@@ -56,7 +56,7 @@ const BeneficiaryPage = () => {
           <FormControl isInvalid={!!form.formState.errors.code}>
             <FormLabel htmlFor="code">
               <Text as="span" variant="Body2Semibold">
-                User Code
+                User Code/Phone Number
               </Text>
             </FormLabel>
             <Input id="code" {...form.register('code')} isRequired />

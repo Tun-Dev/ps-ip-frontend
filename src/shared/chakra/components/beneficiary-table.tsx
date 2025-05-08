@@ -356,7 +356,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                   size="medium"
                   onClick={() => onUploadDisbursementOpen()}
                 >
-                  Upload Nomination List
+                  Upload Disbursement List
                 </Button>
               )}
               {moduleName === 'Disbursement' && (

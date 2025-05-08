@@ -33,10 +33,10 @@ const ProgramDetails = memo((props: FlexProps) => {
       <Wrapper title="Cover Photo">
         <ProgramCover hasError={!!formState.errors.coverPhotoID} />
       </Wrapper>
-      <Wrapper title="Program Name" maxW="34.625rem" icon>
+      <Wrapper title="Product Name" maxW="34.625rem" icon>
         <Input border="1px dashed" borderColor={!!formState.errors.name ? 'red' : 'grey.300'} {...register('name')} />
       </Wrapper>
-      <Wrapper title="Program Type" maxW="34.625rem" icon>
+      <Wrapper title="Product Type" maxW="34.625rem" icon>
         <Controller
           control={control}
           name="programTypeId"

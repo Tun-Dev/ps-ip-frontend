@@ -271,14 +271,26 @@ const WhitelistingPage = () => {
     if (!whitelistTableData || whitelistTableData.length === 0) return [];
     const keys = Object.keys(whitelistTableData[0]);
 
+    console.log(keys);
+
     const otherColumns = keys
       .filter((key) => key !== 'vendorId' && key !== 'id' && key !== 'status')
       .map((key) => ({
-        header: () => (
-          <Text variant="Body3Semibold" textAlign="left">
-            {keyRename(key)}
-          </Text>
-        ),
+        header: () => {
+          if (key === 'beneficiariesNo') {
+            return (
+              <Text variant="Body3Semibold" textAlign="left">
+                No. of Beneficiaries
+              </Text>
+            );
+          }
+
+          return (
+            <Text variant="Body3Semibold" textAlign="left">
+              {keyRename(key)}
+            </Text>
+          );
+        },
         accessorKey: key,
         cell: (info) => {
           const value = info.getValue() as string | number | undefined;
@@ -361,6 +373,8 @@ const WhitelistingPage = () => {
 
     return [...otherColumns, statusColumn];
   }, [whitelistTableData]);
+
+  console.log(dynamicColumnsWhitelist);
 
   const openBeneficiaryModal = (beneficiary: Beneficiary) => {
     setBeneficiary(beneficiary);
