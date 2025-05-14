@@ -51,6 +51,7 @@ import { Beneficiary, WhitelistDetails } from '@/types';
 import { FormStatus } from '@/utils';
 import { Image } from '@chakra-ui/next-js';
 // import { parsePhoneNumber } from 'libphonenumber-js/min';
+import { formatDateForInput } from '@/utils';
 import { useParams } from 'next/navigation';
 
 const columnHelper = createColumnHelper<Beneficiary>();
@@ -185,6 +186,17 @@ const WhitelistingPage = () => {
           ),
           meta: { isCentered: true },
         }),
+        selectedWhitelistId
+          ? columnHelper.accessor('whitelistDate', {
+              header: 'Whitelist Date',
+              cell: (info) => (
+                <Text as="span" variant="Body2Regular">
+                  {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
+                </Text>
+              ),
+              meta: { isCentered: true },
+            })
+          : undefined,
         columnHelper.display({
           id: 'actions',
           header: () => (

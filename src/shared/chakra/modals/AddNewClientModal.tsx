@@ -9,8 +9,8 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
-  InputGroup,
-  InputLeftElement,
+  // InputGroup,
+  // InputLeftElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -32,7 +32,7 @@ import { PhoneNumberInput } from '../components/phone-number-input';
 const Schema = z.object({
   name: z.string().min(1, 'Name is required'),
   // programId: z.string().min(1, 'Program is required'),
-  amount: z.coerce.number(),
+  // amount: z.coerce.number(),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().min(1, 'Corporate Email is required'),
@@ -116,7 +116,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                 />
                 <FormErrorMessage>{errors.programId && errors.programId.message}</FormErrorMessage>
               </FormControl> */}
-              <FormControl isInvalid={!!errors.amount}>
+              {/* <FormControl isInvalid={!!errors.amount}>
                 <FormLabel htmlFor="amount">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Disbursable Amount
@@ -135,7 +135,7 @@ const AddNewClientModal = ({ isOpen, onClose }: ModalProps) => {
                   ></Input>
                 </InputGroup>
                 <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
-              </FormControl>
+              </FormControl> */}
               <FormControl isInvalid={!!errors.email} isRequired>
                 <FormLabel htmlFor="email">
                   <Text as="span" variant="Body2Semibold" color="grey.500">

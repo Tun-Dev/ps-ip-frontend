@@ -300,7 +300,7 @@ export type Client = {
 
 export type ClientPayload = {
   // programId: string;
-  amount: number;
+  // amount: number;
   name: string;
   firstName: string;
   lastName: string;
@@ -390,6 +390,7 @@ export type Beneficiary = {
   moduleName: string;
   age: number;
   tradeType: string;
+  whitelistDate: string;
 };
 
 export type BeneficiaryDetails = {
