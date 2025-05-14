@@ -388,6 +388,8 @@ export type Beneficiary = {
   vetScore: number;
   status: FormStatus;
   moduleName: string;
+  age: number;
+  tradeType: string;
 };
 
 export type BeneficiaryDetails = {

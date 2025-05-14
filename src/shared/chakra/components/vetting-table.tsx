@@ -33,7 +33,8 @@ import { VettingModalProvider } from '@/providers/vetting-modal-provider';
 import { ReusableTable } from '@/shared';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { formatDateForInput, FormStatus } from '@/utils';
+import { FormStatus } from '@/utils';
+// import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { useParams } from 'next/navigation';
 import { VettingModal } from './vetting-modal';
 
@@ -168,22 +169,6 @@ export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
             </Text>
           ),
         }),
-        columnHelper.accessor('email', {
-          header: 'Email',
-          cell: (info) => (
-            <Text as="span" variant="Body2Regular">
-              {info.getValue() ?? 'N/A'}
-            </Text>
-          ),
-        }),
-        columnHelper.accessor('phoneNumber', {
-          header: 'Phone Number',
-          cell: (info) => (
-            <Text as="span" variant="Body2Regular">
-              {info.getValue() ?? 'N/A'}
-            </Text>
-          ),
-        }),
         columnHelper.accessor('gender', {
           header: 'Gender',
           cell: (info) => (
@@ -191,22 +176,20 @@ export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
               {info.getValue() ?? 'N/A'}
             </Text>
           ),
-          meta: { isCentered: true },
         }),
-        columnHelper.accessor('dob', {
-          header: 'Date of Birth',
+        columnHelper.accessor('age', {
+          header: 'Age',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
-              {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
+              {info.getValue() ?? 'N/A'}
             </Text>
           ),
-          meta: { isCentered: true },
         }),
-        columnHelper.accessor('isFlagged', {
-          header: 'Flagged',
+        columnHelper.accessor('tradeType', {
+          header: 'Trade Type',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
-              {info.getValue() === true ? 'Yes' : info.getValue() === false ? 'No' : 'N/A'}
+              {info.getValue() ?? 'N/A'}
             </Text>
           ),
           meta: { isCentered: true },

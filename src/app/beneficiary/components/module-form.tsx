@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Stack, Text, useDisclosure, useToast } from '@chakra-ui/react';
+import { Button, Flex, Icon, Stack, Text, useDisclosure, useToast } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -12,19 +12,25 @@ import { useGetProgramForm } from '@/hooks/useGetProgramForm';
 import { BeneficiarySuccessModal } from '@/shared/chakra/modals/BeneficiarySuccessModal';
 import { Form } from '@/types';
 import { isValidPhoneNumber } from 'libphonenumber-js';
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import FormInput from './form-input';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   beneficiaryForm?: Form;
   moduleName?: string;
 };
 
+const itemsPerPage = 5;
+
 export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
   const { programId, userCode } = useParams();
+  const [currentPage, setCurrentPage] = useState(1);
   const [code, setCode] = useState('');
   const [stateQuestionId, setStateQuestionId] = useState('');
   const [previousStateQuestionId, setPreviousStateQuestionId] = useState<string | undefined>(undefined);
   const toast = useToast();
+  const route = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { data: programForm } = useGetProgramForm(`${programId}`);
@@ -129,6 +135,23 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
     );
   }, [questions, userCode, programId]);
 
+  const visibleQuestions = useMemo(() => questions.filter((q) => q.type !== 'GPS'), [questions]);
+
+  const paginatedQuestions = useMemo(() => {
+    if (moduleName !== 'Vetting') return visibleQuestions;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return visibleQuestions.slice(startIndex, startIndex + itemsPerPage);
+  }, [visibleQuestions, currentPage, moduleName]);
+
+  const totalPages = useMemo(() => {
+    if (moduleName !== 'Vetting') return 1;
+    return Math.ceil(visibleQuestions.length / itemsPerPage);
+  }, [visibleQuestions, moduleName]);
+
+  const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+
+  const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+
   const form = useForm<FormValues>({ resolver: zodResolver(Schema), defaultValues });
 
   useEffect(() => {
@@ -176,6 +199,7 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
       duration: 3000,
       isClosable: true,
     });
+    route.push(`/beneficiary/${programId}`);
   };
 
   useEffect(() => {
@@ -199,16 +223,60 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
     <Stack flex="1">
       <BeneficiarySuccessModal isOpen={isOpen} onClose={onClose} code={code} isApplication={!beneficiaryForm} />
       <Stack gap="4" as="form" onSubmit={form.handleSubmit(onSubmit)}>
-        {questions.map((question, index) => (
-          <FormInput
-            key={question.id}
-            question={question}
-            form={form}
-            number={index + 1}
-            stateQuestionId={stateQuestionId}
-            previousStateQuestionId={previousStateQuestionId}
-          />
-        ))}
+        {questions
+          .filter((q) => q.type === 'GPS')
+          .map((question) => (
+            <FormInput
+              key={question.id}
+              question={question}
+              form={form}
+              stateQuestionId={stateQuestionId}
+              previousStateQuestionId={previousStateQuestionId}
+            />
+          ))}
+        {paginatedQuestions.map((question, index) => {
+          const globalIndex = moduleName === 'Vetting' ? (currentPage - 1) * itemsPerPage + index : index;
+          return (
+            <FormInput
+              key={question.id}
+              question={question}
+              form={form}
+              number={globalIndex + 1}
+              stateQuestionId={stateQuestionId}
+              previousStateQuestionId={previousStateQuestionId}
+            />
+          );
+        })}
+        {moduleName === 'Vetting' && totalPages > 1 && (
+          <Flex justify="flex-end" align="center" gap="4">
+            <Button
+              variant="secondary"
+              size="medium"
+              h="auto"
+              py="1.5"
+              px="3"
+              gap="2"
+              onClick={handlePrevPage}
+              isDisabled={currentPage === 1}
+            >
+              <Icon as={MdKeyboardArrowLeft} boxSize="3.5" flexShrink="0" />
+              Prev page
+            </Button>
+            <Button
+              variant="secondary"
+              size="medium"
+              h="auto"
+              py="1.5"
+              px="3"
+              gap="2"
+              onClick={handleNextPage}
+              isDisabled={currentPage === totalPages}
+            >
+              Next page
+              <Icon as={MdKeyboardArrowRight} boxSize="3.5" flexShrink="0" />
+            </Button>
+          </Flex>
+        )}
         <Stack direction={{ base: 'column', xs: 'row' }} spacing={4} mt="2">
           <Button variant="secondary" size="default" w="full" maxW={{ xs: '20rem' }} onClick={handleSaveProgress}>
             Save to Continue Later

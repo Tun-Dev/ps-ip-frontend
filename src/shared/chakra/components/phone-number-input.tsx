@@ -6,7 +6,5 @@ import RPNInput from 'react-phone-number-input/react-hook-form-input';
 export function PhoneNumberInput<FormValues extends FieldValues>(
   props: ComponentProps<typeof RPNInput<InputProps, FormValues>>
 ) {
-  return (
-    <RPNInput variant="primary" inputComponent={Input} country="NG" withCountryCallingCode international {...props} />
-  );
+  return <RPNInput variant="primary" inputComponent={Input} country="NG" international {...props} />;
 }

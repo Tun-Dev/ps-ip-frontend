@@ -274,10 +274,7 @@ const CollapsibleGroup = ({
         <Stack spacing="3">
           {dataPoints.map((field) => {
             const checkedDataPoint = checkedDataPoints.get(field.id);
-            const isCompulsory =
-              field.question.toLowerCase() === 'state' ||
-              field.question.toLowerCase() === 'lga' ||
-              field.question.toLowerCase() === 'gps';
+            const isCompulsory = checkIsCompulsory(field.question);
 
             return (
               <Flex
@@ -354,5 +351,22 @@ const LoadingSkeleton = () => (
     </Stack>
   </>
 );
+
+const checkIsCompulsory = (question: string) => {
+  const COMPULSORY_QUESTIONS = [
+    'state',
+    'lga',
+    'gps',
+    'first name',
+    'middle name',
+    'last name',
+    'date of birth',
+    'gender',
+    'age',
+    'business name',
+    'trade type',
+  ];
+  return COMPULSORY_QUESTIONS.includes(question.toLowerCase());
+};
 
 export default CheckboxForm;

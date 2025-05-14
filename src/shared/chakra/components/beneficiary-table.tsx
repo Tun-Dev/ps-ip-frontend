@@ -25,17 +25,18 @@ import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetModules } from '@/hooks/useGetModules';
+import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { ReusableTable } from '@/shared';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
-import { formatDateForInput, FormStatus } from '@/utils';
+import { FormStatus } from '@/utils';
+// import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { useParams } from 'next/navigation';
-import NominationModal from '../modals/NominationModal';
 import DownloadDisbursementListModal from '../modals/DownloadDisbursementListModal';
-import { Dropdown } from './dropdown';
+import NominationModal from '../modals/NominationModal';
 import UploadDisbursementListModal from '../modals/UploadDisbursementListModal';
-import { useGetProgramById } from '@/hooks/useGetProgramById';
+import { Dropdown } from './dropdown';
 
 const columnHelper = createColumnHelper<Beneficiary>();
 
@@ -119,6 +120,154 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
     [approveBeneficiary, programID, moduleId, toast]
   );
 
+  // const columns = useMemo(
+  //   () =>
+  //     [
+  //       columnHelper.accessor('firstname', {
+  //         header: 'First Name',
+  //         cell: (info) => (
+  //           <Text as="span" variant="Body2Regular">
+  //             {info.getValue() ?? 'N/A'}
+  //           </Text>
+  //         ),
+  //       }),
+  //       columnHelper.accessor('lastname', {
+  //         header: 'Last Name',
+  //         cell: (info) => (
+  //           <Text as="span" variant="Body2Regular">
+  //             {info.getValue() ?? 'N/A'}
+  //           </Text>
+  //         ),
+  //       }),
+  //       columnHelper.accessor('otherNames', {
+  //         header: 'Other Names',
+  //         cell: (info) => (
+  //           <Text as="span" variant="Body2Regular">
+  //             {info.getValue() ?? 'N/A'}
+  //           </Text>
+  //         ),
+  //       }),
+  //       columnHelper.accessor('email', {
+  //         header: 'Email',
+  //         cell: (info) => (
+  //           <Text as="span" variant="Body2Regular">
+  //             {info.getValue() ?? 'N/A'}
+  //           </Text>
+  //         ),
+  //       }),
+  //       columnHelper.accessor('phoneNumber', {
+  //         header: 'Phone Number',
+  //         cell: (info) => (
+  //           <Text as="span" variant="Body2Regular">
+  //             {info.getValue() ? '0' + parsePhoneNumber(info.getValue()).nationalNumber : 'N/A'}
+  //           </Text>
+  //         ),
+  //       }),
+  //       columnHelper.accessor('gender', {
+  //         header: 'Gender',
+  //         cell: (info) => (
+  //           <Text as="span" variant="Body2Regular">
+  //             {info.getValue() ?? 'N/A'}
+  //           </Text>
+  //         ),
+  //         meta: { isCentered: true },
+  //       }),
+  //       columnHelper.accessor('dob', {
+  //         header: 'Date of Birth',
+  //         cell: (info) => (
+  //           <Text as="span" variant="Body2Regular">
+  //             {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
+  //           </Text>
+  //         ),
+  //         meta: { isCentered: true },
+  //       }),
+  //       columnHelper.accessor('isFlagged', {
+  //         header: 'Flagged',
+  //         cell: (info) => (
+  //           <Text as="span" variant="Body2Regular">
+  //             {info.getValue() === true ? 'Yes' : info.getValue() === false ? 'No' : 'N/A'}
+  //           </Text>
+  //         ),
+  //         meta: { isCentered: true },
+  //       }),
+  //       columnHelper.display({
+  //         id: 'actions',
+  //         header: () => (
+  //           <Text variant="Body3Semibold" color="grey.500" textAlign="center">
+  //             Actions/Status
+  //           </Text>
+  //         ),
+  //         cell: (info) =>
+  //           info.row.original.status === FormStatus.APPROVED ? (
+  //             <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
+  //               Approved
+  //             </Text>
+  //           ) : info.row.original.status === FormStatus.DISAPPROVED ? (
+  //             <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
+  //               Denied
+  //             </Text>
+  //           ) : info.row.original.status === FormStatus.DISBURSED ? (
+  //             <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
+  //               Disbursed
+  //             </Text>
+  //           ) : (
+  //             <Menu>
+  //               <MenuButton
+  //                 as={IconButton}
+  //                 variant="ghost"
+  //                 aria-label="Actions"
+  //                 icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
+  //                 minW="0"
+  //                 h="auto"
+  //                 mx="auto"
+  //                 display="flex"
+  //                 p="1"
+  //                 onClick={(e) => e.stopPropagation()}
+  //               />
+  //               <MenuList>
+  //                 {moduleName === 'Disbursement' ? (
+  //                   <MenuItem
+  //                     onClick={(e) => {
+  //                       e.stopPropagation();
+  //                       onApprove({ status: FormStatus.DISBURSED, ids: [info.row.original.id] });
+  //                     }}
+  //                   >
+  //                     <Text as="span" variant="Body2Regular" w="full">
+  //                       Mark as Disbursed
+  //                     </Text>
+  //                   </MenuItem>
+  //                 ) : (
+  //                   <>
+  //                     <MenuItem
+  //                       onClick={(e) => {
+  //                         e.stopPropagation();
+  //                         onApprove({ status: FormStatus.APPROVED, ids: [info.row.original.id] });
+  //                       }}
+  //                     >
+  //                       <Text as="span" variant="Body2Regular" w="full">
+  //                         Approve
+  //                       </Text>
+  //                     </MenuItem>
+  //                     <MenuItem
+  //                       onClick={(e) => {
+  //                         e.stopPropagation();
+  //                         onApprove({ status: FormStatus.DISAPPROVED, ids: [info.row.original.id] });
+  //                       }}
+  //                     >
+  //                       <Text as="span" variant="Body2Regular" w="full">
+  //                         Deny
+  //                       </Text>
+  //                     </MenuItem>
+  //                   </>
+  //                 )}
+  //               </MenuList>
+  //             </Menu>
+  //           ),
+  //       }),
+  //     ] as ColumnDef<Beneficiary>[],
+  //   [onApprove, moduleName]
+  // );
+
   const columns = useMemo(
     () =>
       [
@@ -146,22 +295,6 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
             </Text>
           ),
         }),
-        columnHelper.accessor('email', {
-          header: 'Email',
-          cell: (info) => (
-            <Text as="span" variant="Body2Regular">
-              {info.getValue() ?? 'N/A'}
-            </Text>
-          ),
-        }),
-        columnHelper.accessor('phoneNumber', {
-          header: 'Phone Number',
-          cell: (info) => (
-            <Text as="span" variant="Body2Regular">
-              {info.getValue() ?? 'N/A'}
-            </Text>
-          ),
-        }),
         columnHelper.accessor('gender', {
           header: 'Gender',
           cell: (info) => (
@@ -169,22 +302,20 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
               {info.getValue() ?? 'N/A'}
             </Text>
           ),
-          meta: { isCentered: true },
         }),
-        columnHelper.accessor('dob', {
-          header: 'Date of Birth',
+        columnHelper.accessor('age', {
+          header: 'Age',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
-              {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
+              {info.getValue() ?? 'N/A'}
             </Text>
           ),
-          meta: { isCentered: true },
         }),
-        columnHelper.accessor('isFlagged', {
-          header: 'Flagged',
+        columnHelper.accessor('tradeType', {
+          header: 'Trade Type',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
-              {info.getValue() === true ? 'Yes' : info.getValue() === false ? 'No' : 'N/A'}
+              {info.getValue() ?? 'N/A'}
             </Text>
           ),
           meta: { isCentered: true },
@@ -271,6 +402,8 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
     setBeneficiary(beneficiary);
     onOpen();
   };
+
+  console.log(tableData);
 
   return (
     <>

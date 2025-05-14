@@ -36,6 +36,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { MdCancel, MdCheckCircle, MdDownload, MdMoreHoriz, MdOutlineChecklistRtl, MdSearch } from 'react-icons/md';
@@ -218,7 +219,7 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
           header: 'Phone Number',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
-              {info.getValue() || 'N/A'}
+              {info.getValue() ? '0' + parsePhoneNumber(info.getValue()).nationalNumber : 'N/A'}
             </Text>
           ),
         }),

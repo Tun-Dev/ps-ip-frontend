@@ -6,6 +6,7 @@ import { useGetModules } from '@/hooks/useGetModules';
 import type { ModuleDetail } from '@/types';
 import { formatDateForInput, getImageUrl } from '@/utils';
 import { Image } from '@chakra-ui/next-js';
+import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { MdCancel, MdCheckCircle } from 'react-icons/md';
 
 type Props = {
@@ -39,7 +40,7 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
     <Box>
       <Grid templateColumns="1fr 1fr" columnGap="4.5rem" rowGap="1.5rem" mb="4rem">
         {module?.verifications?.map((answer) => {
-          const value = answer.type === 'Date of Birth' ? formatDateForInput(answer.value) : answer.value;
+          const value = formatValue(answer.value, answer.type);
           return (
             <Box key={answer.type}>
               <Flex gap="1" align="center" mb="2">
@@ -69,7 +70,7 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
           );
         })}
         {module?.formAnswers?.map((answer) => {
-          const value = answer.key === 'Date of Birth' ? formatDateForInput(answer.value) : answer.value;
+          const value = formatValue(answer.value, answer.key);
           return (
             <Box key={answer.key}>
               <Text variant="Body2Semibold" color="grey.500" mb="2">
@@ -105,5 +106,11 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
     </Box>
   );
 }
+
+const formatValue = (value: string, type: string) => {
+  if (type === 'Date of Birth') return formatDateForInput(value);
+  if (type === 'Phone Number') return '0' + parsePhoneNumber(value).nationalNumber;
+  return value;
+};
 
 export default ModuleTab;

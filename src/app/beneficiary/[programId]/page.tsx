@@ -2,6 +2,7 @@
 
 import { Button, FormControl, FormErrorMessage, FormLabel, Input, Stack, Text } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { parsePhoneNumber } from 'libphonenumber-js/min';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -22,7 +23,12 @@ const BeneficiaryPage = () => {
 
   const hasErrors = Object.keys(form.formState.errors).length > 0;
 
-  const onSubmit = ({ code: userCode }: FormValues) => {
+  const onSubmit = ({ code }: FormValues) => {
+    let userCode = code;
+    try {
+      const parsed = parsePhoneNumber(code, 'NG');
+      if (parsed.isValid()) userCode = parsed.number;
+    } catch {}
     mutate(
       { programId: programId.toString(), userCode },
       {
