@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
@@ -138,6 +139,7 @@ const WhitelistingPage = () => {
     () =>
       [
         columnHelper.accessor('firstname', {
+          id: 'firstname',
           header: 'First Name',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
@@ -146,6 +148,7 @@ const WhitelistingPage = () => {
           ),
         }),
         columnHelper.accessor('lastname', {
+          id: 'lastname',
           header: 'Last Name',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
@@ -154,6 +157,7 @@ const WhitelistingPage = () => {
           ),
         }),
         columnHelper.accessor('otherNames', {
+          id: 'otherNames',
           header: 'Other Names',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
@@ -162,6 +166,7 @@ const WhitelistingPage = () => {
           ),
         }),
         columnHelper.accessor('gender', {
+          id: 'gender',
           header: 'Gender',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
@@ -170,6 +175,7 @@ const WhitelistingPage = () => {
           ),
         }),
         columnHelper.accessor('age', {
+          id: 'age',
           header: 'Age',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
@@ -178,6 +184,7 @@ const WhitelistingPage = () => {
           ),
         }),
         columnHelper.accessor('tradeType', {
+          id: 'tradeType',
           header: 'Trade Type',
           cell: (info) => (
             <Text as="span" variant="Body2Regular">
@@ -186,17 +193,38 @@ const WhitelistingPage = () => {
           ),
           meta: { isCentered: true },
         }),
-        selectedWhitelistId
-          ? columnHelper.accessor('whitelistDate', {
-              header: 'Whitelist Date',
-              cell: (info) => (
-                <Text as="span" variant="Body2Regular">
-                  {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
-                </Text>
-              ),
-              meta: { isCentered: true },
-            })
-          : undefined,
+        // columnHelper.accessor('whitelistDate', {
+        //   id: 'whitelistDate',
+        //   header: () => {
+        //     return !selectedWhitelistId ? (
+        //       <Text variant="Body3Semibold" textAlign="left">
+        //         Whitelist Date
+        //       </Text>
+        //     ) : undefined;
+        //   },
+        //   cell: (info) => {
+        //     return !selectedWhitelistId ? (
+        //       <Text as="span" variant="Body2Regular">
+        //         {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
+        //       </Text>
+        //     ) : undefined;
+        //   },
+
+        //   meta: { isCentered: true },
+        //   enableSorting: !selectedWhitelistId ? true : false,
+        // }),
+        // selectedWhitelistId
+        //   ? columnHelper.accessor('whitelistDate', {
+        //       id: 'whitelistDate',
+        //       header: 'Whitelist Date',
+        //       cell: (info) => (
+        //         <Text as="span" variant="Body2Regular">
+        //           {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
+        //         </Text>
+        //       ),
+        //       meta: { isCentered: true },
+        //     })
+        //   : undefined,
         columnHelper.display({
           id: 'actions',
           header: () => (
@@ -271,11 +299,20 @@ const WhitelistingPage = () => {
     const otherColumns = keys
       .filter((key) => key !== 'vendorId' && key !== 'id' && key !== 'status')
       .map((key) => ({
+        id: key,
         header: () => {
           if (key === 'beneficiariesNo') {
             return (
               <Text variant="Body3Semibold" textAlign="left">
                 No. of Beneficiaries
+              </Text>
+            );
+          }
+
+          if (key === 'dateCreated') {
+            return (
+              <Text variant="Body3Semibold" textAlign="left">
+                Date Created
               </Text>
             );
           }
@@ -297,6 +334,14 @@ const WhitelistingPage = () => {
               </Box>
             );
 
+          if (key === 'dateCreated' && typeof value === 'string') {
+            return (
+              <Text as="span" textAlign="left" display="block" variant="Body2Regular">
+                {value ? formatDateForInput(value) : 'N/A'}
+              </Text>
+            );
+          }
+
           return (
             <Text as="span" textAlign="left" display="block" variant="Body2Regular">
               {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
@@ -307,6 +352,7 @@ const WhitelistingPage = () => {
       }));
 
     const statusColumn: ColumnDef<WhitelistDetails> = {
+      id: 'statusss',
       header: () => (
         <Text variant="Body3Semibold" textAlign="center">
           Status
@@ -370,6 +416,24 @@ const WhitelistingPage = () => {
   }, [whitelistTableData]);
 
   console.log(dynamicColumnsWhitelist);
+
+  const selectedWhitelistColumns: ColumnDef<Beneficiary, any>[] = useMemo(() => {
+    const whitelistDateColumn = columnHelper.accessor('whitelistDate', {
+      id: 'whitelistDate',
+      header: 'Whitelist Date',
+      cell: (info) => (
+        <Text as="span" variant="Body2Regular">
+          {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
+        </Text>
+      ),
+      meta: { isCentered: true },
+    });
+
+    const beforeLast = columns.slice(0, -1);
+    const last = columns[columns.length - 1];
+    return [...beforeLast, whitelistDateColumn, last];
+    // return [...columns, whitelistDateColumn];
+  }, []);
 
   const openBeneficiaryModal = (beneficiary: Beneficiary) => {
     setBeneficiary(beneficiary);
@@ -550,7 +614,7 @@ const WhitelistingPage = () => {
                   </Flex>
                   <ReusableTable
                     data={selectedWhitelistTableData}
-                    columns={columns}
+                    columns={selectedWhitelistColumns}
                     selectable
                     isLoading={isWhitelistLoading || isWhitelistRefetching}
                     isError={isWhitelistError || isWhitelistRefetchError}
