@@ -12,6 +12,7 @@ export const useEditProgram = () => {
   return useMutation({
     mutationFn: editProgram,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['group'] });
       queryClient.invalidateQueries({ queryKey: ['programs'] });
     },
     onError: (error) => {

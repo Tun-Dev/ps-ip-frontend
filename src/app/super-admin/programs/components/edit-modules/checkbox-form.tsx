@@ -75,9 +75,6 @@ type RenderGroupProps = {
 };
 
 const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: RenderGroupProps) => {
-  const [checkedDataPoints, setCheckedDataPoints] = useState<
-    Map<string, { dataPoint: DataPoint; isRequired: boolean }>
-  >(new Map());
   const selectedModuleIds = useProgramStore((state) => state.selectedModules);
   const moduleIndex = Array.from(selectedModuleIds.ids).indexOf(moduleId);
   const {
@@ -90,7 +87,42 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
   const { response: program } = useGetProgramById(programID?.toString());
   const { data: modules } = useGetModules();
 
+  const dataPointEntries = useMemo(() => {
+    if (!data) return [];
+    return Object.entries(data.body.data);
+  }, [data]);
+
+  const hasMoreData = useMemo(() => {
+    if (!data) return false;
+    const { total, currentPage } = data.body;
+    return currentPage * pageSize < total;
+  }, [data, pageSize]);
+
+  const [checkedDataPoints, setCheckedDataPoints] = useState<
+    Map<string, { dataPoint: DataPoint; isRequired: boolean }>
+  >(() => {
+    const map = new Map();
+    const defaultDataPoints = dataPointEntries.find(([heading]) => heading === 'Default');
+    // If there is no program (only when creating and not editing) or default data points, return an empty map
+    if (program || !defaultDataPoints) return map;
+    const [, dataPoints] = defaultDataPoints;
+    dataPoints.forEach((dataPoint) => map.set(dataPoint.id, { dataPoint, isRequired: true }));
+    return map;
+  });
+
   const [allCompulsory, setAllCompulsory] = useState(false);
+
+  const toggleCompulsory = () => {
+    const shouldMakeCompulsory = !allCompulsory;
+
+    setCheckedDataPoints((prev) => {
+      const newMap = new Map(prev);
+      prev.forEach((value, key) => {
+        newMap.set(key, { dataPoint: value.dataPoint, isRequired: shouldMakeCompulsory });
+      });
+      return newMap;
+    });
+  };
 
   // Check if all selected data points are compulsory when the selection changes
   useEffect(() => {
@@ -142,29 +174,6 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
       programModules.map((module) => (module.moduleId === moduleId ? { ...module, dataPoints } : module))
     );
   }, [moduleId, checkedDataPoints, programModules, setValue, moduleIndex]);
-
-  const dataPointEntries = useMemo(() => {
-    if (!data) return [];
-    return Object.entries(data.body.data);
-  }, [data]);
-
-  const hasMoreData = useMemo(() => {
-    if (!data) return false;
-    const { total, currentPage } = data.body;
-    return currentPage * pageSize < total;
-  }, [data, pageSize]);
-
-  const toggleCompulsory = () => {
-    const shouldMakeCompulsory = !allCompulsory;
-
-    setCheckedDataPoints((prev) => {
-      const newMap = new Map(prev);
-      prev.forEach((value, key) => {
-        newMap.set(key, { dataPoint: value.dataPoint, isRequired: shouldMakeCompulsory });
-      });
-      return newMap;
-    });
-  };
 
   return (
     <>
@@ -230,88 +239,91 @@ type CollapsibleGroupProps = {
   setCheckedDataPoints: Dispatch<SetStateAction<Map<string, { dataPoint: DataPoint; isRequired: boolean }>>>;
 };
 
-const CollapsibleGroup = ({
-  heading,
-  dataPoints,
-  isPlaceholderData,
-  checkedDataPoints,
-  setCheckedDataPoints,
-}: CollapsibleGroupProps) => {
-  const handleCheckboxChange = useCallback(
-    (dataPoint: DataPoint) => {
-      setCheckedDataPoints((prev) => {
-        const newMap = new Map(prev);
-        if (newMap.has(dataPoint.id)) newMap.delete(dataPoint.id);
-        else newMap.set(dataPoint.id, { dataPoint, isRequired: false });
-        return newMap;
-      });
-    },
-    [setCheckedDataPoints]
-  );
+const CollapsibleGroup = memo(
+  ({ heading, dataPoints, isPlaceholderData, checkedDataPoints, setCheckedDataPoints }: CollapsibleGroupProps) => {
+    const handleCheckboxChange = useCallback(
+      (dataPoint: DataPoint) => {
+        setCheckedDataPoints((prev) => {
+          const newMap = new Map(prev);
+          if (newMap.has(dataPoint.id)) newMap.delete(dataPoint.id);
+          else newMap.set(dataPoint.id, { dataPoint, isRequired: false });
+          return newMap;
+        });
+      },
+      [setCheckedDataPoints]
+    );
 
-  const handleCompulsoryChange = useCallback(
-    (dataPoint: DataPoint, isRequired: boolean) => {
-      setCheckedDataPoints((prev) => {
-        const newMap = new Map(prev);
-        if (newMap.has(dataPoint.id)) newMap.set(dataPoint.id, { dataPoint, isRequired });
-        return newMap;
-      });
-    },
-    [setCheckedDataPoints]
-  );
+    const handleCompulsoryChange = useCallback(
+      (dataPoint: DataPoint, isRequired: boolean) => {
+        setCheckedDataPoints((prev) => {
+          const newMap = new Map(prev);
+          if (newMap.has(dataPoint.id)) newMap.set(dataPoint.id, { dataPoint, isRequired });
+          return newMap;
+        });
+      },
+      [setCheckedDataPoints]
+    );
 
-  return (
-    <AccordionItem _first={{ borderTop: 'none' }}>
-      <h3>
-        <AccordionButton px="0">
-          <Text as="span" flex="1" textAlign="left" variant="Body1Semibold" color="primary.500">
-            {heading}
-          </Text>
-          <AccordionIcon color="primary.500" />
-        </AccordionButton>
-      </h3>
-      <AccordionPanel px="0">
-        <Stack spacing="3">
-          {dataPoints.map((field) => {
-            const checkedDataPoint = checkedDataPoints.get(field.id);
-            const isCompulsory = checkIsCompulsory(field.question);
+    return (
+      <AccordionItem _first={{ borderTop: 'none' }}>
+        <h3>
+          <AccordionButton px="0">
+            <Text as="span" flex="1" textAlign="left" variant="Body1Semibold" color="primary.500">
+              {heading}
+            </Text>
+            <AccordionIcon color="primary.500" />
+          </AccordionButton>
+        </h3>
+        <AccordionPanel px="0">
+          <Stack spacing="3">
+            {dataPoints.map((field) => {
+              const isChecked = checkedDataPoints.has(field.id);
+              const isRequired = checkedDataPoints.get(field.id)?.isRequired || false;
 
-            return (
-              <Flex
-                key={field.id}
-                align="center"
-                justify="space-between"
-                rounded="0.5rem"
-                border="1px solid"
-                borderColor="grey.200"
-                p="2"
-              >
-                <Checkbox
-                  isDisabled={isPlaceholderData || isCompulsory}
-                  isChecked={isCompulsory || !!checkedDataPoint}
-                  onChange={() => handleCheckboxChange(field)}
+              return (
+                <Flex
+                  key={field.id}
+                  align="center"
+                  justify="space-between"
+                  rounded="0.5rem"
+                  border="1px solid"
+                  borderColor="grey.200"
+                  p="2"
                 >
-                  {field.question}
-                </Checkbox>
-                <Flex align="center" gap="0.625rem">
-                  <Text as="label" htmlFor={`${field.question}-is-compulsory`} color="grey.500" variant="Body2Regular">
-                    Mark as Compulsory
-                  </Text>
-                  <Switch
-                    id={`${field.question}-is-compulsory`}
-                    isDisabled={isCompulsory || isPlaceholderData || !checkedDataPoint}
-                    isChecked={isCompulsory || checkedDataPoint?.isRequired || false}
-                    onChange={(e) => handleCompulsoryChange(field, e.target.checked)}
-                  />
+                  <Checkbox
+                    isDisabled={isPlaceholderData}
+                    isChecked={isChecked}
+                    onChange={() => handleCheckboxChange(field)}
+                  >
+                    {field.question}
+                  </Checkbox>
+                  <Flex align="center" gap="0.625rem">
+                    <Text
+                      as="label"
+                      htmlFor={`${field.question}-is-compulsory`}
+                      color="grey.500"
+                      variant="Body2Regular"
+                    >
+                      Mark as Compulsory
+                    </Text>
+                    <Switch
+                      id={`${field.question}-is-compulsory`}
+                      isDisabled={isPlaceholderData || !isChecked}
+                      isChecked={isRequired}
+                      onChange={(e) => handleCompulsoryChange(field, e.target.checked)}
+                    />
+                  </Flex>
                 </Flex>
-              </Flex>
-            );
-          })}
-        </Stack>
-      </AccordionPanel>
-    </AccordionItem>
-  );
-};
+              );
+            })}
+          </Stack>
+        </AccordionPanel>
+      </AccordionItem>
+    );
+  }
+);
+
+CollapsibleGroup.displayName = 'CollapsibleGroup';
 
 const LoadingSkeleton = () => (
   <>
@@ -351,22 +363,5 @@ const LoadingSkeleton = () => (
     </Stack>
   </>
 );
-
-const checkIsCompulsory = (question: string) => {
-  const COMPULSORY_QUESTIONS = [
-    'state',
-    'lga',
-    'gps',
-    'first name',
-    'middle name',
-    'last name',
-    'date of birth',
-    'gender',
-    'age',
-    'business name',
-    'trade type',
-  ];
-  return COMPULSORY_QUESTIONS.includes(question.toLowerCase());
-};
 
 export default CheckboxForm;

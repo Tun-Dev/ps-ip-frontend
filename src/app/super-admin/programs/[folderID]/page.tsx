@@ -149,8 +149,6 @@ const ProgramDrawer = ({ program, onClose, isLoading }: ProgramDrawerProps) => {
 
   const modules = reorderDescending(program.programModules);
 
-  const moduleUrl = findFirstActiveObject(modules);
-
   return (
     <>
       <DeleteModal
@@ -210,7 +208,9 @@ const ProgramDrawer = ({ program, onClose, isLoading }: ProgramDrawerProps) => {
                 h="48px"
                 w="full"
                 onClick={() =>
-                  router.push(`/super-admin/programs/${folderID}/${program.id}/${moduleUrl?.name.toLowerCase()}`)
+                  router.push(
+                    `/super-admin/programs/${folderID}/${program.id}/${program.programModules[0].name.toLowerCase()}`
+                  )
                 }
               >
                 View More
@@ -285,8 +285,4 @@ export default ProgramsPage;
 
 function reorderDescending(items: ProgramModules[]): ProgramModules[] {
   return items.sort((a, b) => a.order - b.order);
-}
-
-function findFirstActiveObject(items: ProgramModules[]) {
-  return items.find((item) => item.isActive && !item.isCompleted);
 }

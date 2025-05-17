@@ -37,7 +37,7 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
   const { data: questionTypes } = useGetQuestionTypes();
   const { mutate: editProgram, isPending } = useEditProgram();
   const { mutate: editForm } = useEditForm();
-  const { programID } = useParams();
+  const { folderID, programID } = useParams();
   const { response: program, isLoading } = useGetProgramById(programID?.toString());
 
   useEffect(() => {
@@ -169,7 +169,7 @@ const EditProgramLayout = ({ children }: { children: React.ReactNode }) => {
     editProgram(payload, {
       onSuccess: () => {
         toast({ title: 'Changes saved', status: 'success' });
-        router.push('/super-admin/programs');
+        router.push(`/super-admin/programs/${folderID}`);
       },
     });
   };
