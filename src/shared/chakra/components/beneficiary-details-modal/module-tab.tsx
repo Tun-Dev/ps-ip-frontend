@@ -3,19 +3,22 @@ import { useParams } from 'next/navigation';
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetModules } from '@/hooks/useGetModules';
-import type { ModuleDetail } from '@/types';
+import type { FormAnswer, ModuleDetail } from '@/types';
 import { formatDateForInput, getImageUrl } from '@/utils';
 import { Image } from '@chakra-ui/next-js';
 import { parsePhoneNumber } from 'libphonenumber-js/min';
-import { MdCancel, MdCheckCircle } from 'react-icons/md';
+import { Dispatch, SetStateAction } from 'react';
+import { MdCancel, MdCheckCircle, MdImage, MdInsertDriveFile } from 'react-icons/md';
 
 type Props = {
   module: ModuleDetail;
   beneficiaryId: string;
+  setMedia: Dispatch<SetStateAction<FormAnswer | null>>;
   status?: string;
+  userCode?: string;
 };
 
-function ModuleTab({ module, beneficiaryId, status }: Props) {
+function ModuleTab({ module, beneficiaryId, status, userCode, setMedia }: Props) {
   const toast = useToast();
   const { programID } = useParams();
 
@@ -39,6 +42,14 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
   return (
     <Box>
       <Grid templateColumns="1fr 1fr" columnGap="4.5rem" rowGap="1.5rem" mb="4rem">
+        {userCode && (module.moduleName === 'Application' || module.moduleName === 'Nomination') && (
+          <Box>
+            <Text variant="Body2Semibold" color="grey.500" mb="2">
+              User Code
+            </Text>
+            <Text variant="Body1Regular">{userCode || 'N/A'}</Text>
+          </Box>
+        )}
         {module?.verifications?.map((answer) => {
           const value = formatValue(answer.value, answer.type);
           return (
@@ -64,13 +75,35 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
                   />
                 </Box>
               ) : (
-                <Text variant="Body1Regular">{value}</Text>
+                <>
+                  <Text variant="Body1Regular">{value}</Text>
+                  {answer.status === false && (
+                    <>
+                      {!answer.verName || answer.verName === null ? (
+                        <Text variant="Body3Semibold" color="red">
+                          {`Invalid ${answer.title}`}
+                        </Text>
+                      ) : (
+                        <>
+                          <Text variant="Body3Semibold" color="red">
+                            Name mismatch
+                          </Text>
+                          <Text variant="Body3Semibold" color="red">{`${answer.title} Name: ${answer.verName}`}</Text>
+                          <Text variant="Body3Semibold" color="red">{`Match Score: ${answer.score}`}</Text>
+                        </>
+                      )}
+                    </>
+                  )}
+                </>
               )}
             </Box>
           );
         })}
         {module?.formAnswers?.map((answer) => {
           const value = formatValue(answer.value, answer.key);
+          const isFile = answer.question?.type === 'FILE_UPLOAD';
+          const isImage = answer.question?.type === 'IMAGE_UPLOAD';
+          const isUpload = isFile || isImage;
           return (
             <Box key={answer.key}>
               <Text variant="Body2Semibold" color="grey.500" mb="2">
@@ -85,6 +118,24 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
                     sx={{ objectFit: 'cover' }}
                     fill
                   />
+                </Box>
+              ) : isUpload ? (
+                <Box
+                  rounded="0.375rem"
+                  overflow="hidden"
+                  as="button"
+                  type="button"
+                  outlineColor="transparent"
+                  _focusVisible={{ boxShadow: 'outline' }}
+                  textAlign="left"
+                  onClick={() => setMedia(answer)}
+                >
+                  <Grid py="2" bgColor="grey.100" placeItems="center">
+                    <Icon as={isFile ? MdInsertDriveFile : MdImage} boxSize="8" color="grey.300" />
+                  </Grid>
+                  <Text variant="Body3Semibold" px="2" py="1" bgColor="primary.100" noOfLines={1}>
+                    {answer.value.split('/').pop() || answer.value}
+                  </Text>
                 </Box>
               ) : (
                 <Text variant="Body1Regular">{value || 'N/A'}</Text>
@@ -108,8 +159,11 @@ function ModuleTab({ module, beneficiaryId, status }: Props) {
 }
 
 const formatValue = (value: string, type: string) => {
-  if (type === 'Date of Birth') return formatDateForInput(value);
-  if (type === 'Phone Number') return '0' + parsePhoneNumber(value).nationalNumber;
+  const transformedType = type.toLowerCase();
+  if (transformedType === 'date of birth' || transformedType === 'date_of_birth' || transformedType === 'dob')
+    return formatDateForInput(value);
+  if (transformedType === 'phone number' || transformedType === 'phone')
+    return '0' + parsePhoneNumber(value).nationalNumber;
   return value;
 };
 

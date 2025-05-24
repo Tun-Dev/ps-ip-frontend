@@ -60,12 +60,13 @@ const FormInput = ({
 
   const isStateQuestion =
     question.type === 'DROPDOWN' &&
-    (question.question === 'State' ||
-      question.question === 'State of Origin' ||
-      question.question === 'Previous State');
+    (question.question.toLowerCase() === 'state' ||
+      question.question.toLowerCase() === 'state of origin' ||
+      question.question.toLowerCase() === 'previous state');
 
   const isLgaQuestion =
-    question.type === 'DROPDOWN' && (question.question === 'Lga' || question.question === 'Previous LGA');
+    question.type === 'DROPDOWN' &&
+    (question.question.toLowerCase() === 'lga' || question.question.toLowerCase() === 'previous lga');
 
   if (inputOnly)
     return isStateQuestion ? (
@@ -74,7 +75,7 @@ const FormInput = ({
       <LGAInput
         question={question}
         form={form}
-        stateQuestionId={question.question === 'Previous LGA' ? previousStateQuestionId : stateQuestionId}
+        stateQuestionId={question.question.toLowerCase() === 'previous lga' ? previousStateQuestionId : stateQuestionId}
       />
     ) : (
       <InputComponent question={question} form={form} />
@@ -111,7 +112,9 @@ const FormInput = ({
           <LGAInput
             question={question}
             form={form}
-            stateQuestionId={question.question === 'Previous LGA' ? previousStateQuestionId : stateQuestionId}
+            stateQuestionId={
+              question.question.toLowerCase() === 'previous lga' ? previousStateQuestionId : stateQuestionId
+            }
           />
         ) : (
           <InputComponent question={question} form={form} />
@@ -145,9 +148,11 @@ const TextInput = ({ question, form }: FormInputProps) => {
   if (isKYCField) return <KYCInput question={question} form={form} />;
 
   const inputType = getInputType(question.type);
-  console.log(getInputType(question.type));
   const isDateType = inputType === 'date';
   const today = new Date().toISOString().split('T')[0];
+  const eighteenYearsAgo = new Date();
+  eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+  const maxDate = eighteenYearsAgo.toISOString().split('T')[0];
 
   return (
     <Input
@@ -156,7 +161,7 @@ const TextInput = ({ question, form }: FormInputProps) => {
       type={inputType}
       isRequired={question.mandatory}
       isReadOnly={question.question === 'User code'}
-      max={isDateType ? today : undefined}
+      max={isDateType ? (question.question.toLowerCase() === 'date of birth' ? maxDate : today) : undefined}
     />
   );
 };
@@ -298,7 +303,45 @@ const RadioInput = ({ question, form }: FormInputProps) => {
 };
 
 const DropdownInput = ({ question, form }: FormInputProps) => {
-  const options = question.options.map((option) => ({ label: option.label, value: option.value }));
+  const selectedTradeType = form.watch('tradeType');
+  const selectedDisabilityType = form.watch('disabilityType');
+  const isTradeType = question.question.toLowerCase() === 'trade type';
+  const isTradeSubtype = question.question.toLowerCase() === 'trade subtype';
+  const isDisabilityType = question.question.toLowerCase() === 'disability type';
+  const isDisabilitySubtype = question.question.toLowerCase() === 'disability subtype';
+
+  const options = useMemo(() => {
+    if (isTradeSubtype && selectedTradeType)
+      return question.options
+        .filter((option) => selectedTradeType === option.parentValue)
+        .map((option) => ({ label: option.label, value: option.value, parentValue: option.parentValue }));
+
+    if (isDisabilitySubtype && selectedDisabilityType)
+      return question.options
+        .filter((option) => selectedDisabilityType === option.parentValue)
+        .map((option) => ({ label: option.label, value: option.value, parentValue: option.parentValue }));
+
+    return question.options.map((option) => ({
+      label: option.label,
+      value: option.value,
+      parentValue: option.parentValue,
+    }));
+  }, [isTradeSubtype, selectedTradeType, question.options, isDisabilitySubtype, selectedDisabilityType]);
+
+  const currentOption = useCallback(
+    (value: string | undefined) => (value !== undefined ? options.find((option) => option.value === value) : undefined),
+    [options]
+  );
+
+  useEffect(() => {
+    // Reset trade subtype value when state changes
+    if (isTradeSubtype && selectedTradeType) form.resetField(question.id);
+  }, [form, question.id, isTradeSubtype, selectedTradeType]);
+
+  useEffect(() => {
+    // Reset disability subtype value when state changes
+    if (isDisabilitySubtype && selectedDisabilityType) form.resetField(question.id);
+  }, [form, question.id, isDisabilitySubtype, selectedDisabilityType]);
 
   return (
     <Controller
@@ -310,8 +353,13 @@ const DropdownInput = ({ question, form }: FormInputProps) => {
           id={question.id}
           name={name}
           options={options}
-          value={options.find((option) => option.value === value)}
-          onChange={(value) => value && onChange(value.value)}
+          value={currentOption(value) ?? ''}
+          onChange={(value) => {
+            if (!value || typeof value === 'string') return;
+            if (isTradeType && value.parentValue) form.setValue('tradeType', value.parentValue);
+            if (isDisabilityType && value.parentValue) form.setValue('disabilityType', value.parentValue);
+            onChange(value.value);
+          }}
           onBlur={onBlur}
           isDisabled={disabled}
           isRequired={question.mandatory}

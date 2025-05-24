@@ -28,8 +28,6 @@ type Props = {
 export const VendorProgramList = ({ onClose, vendor, setScreen, type = 'super-admin' }: Props) => {
   const { data, isPending, isError, error } = useGetVendorDetails(vendor.id);
 
-  console.log('data', data);
-
   return (
     <ModalContent maxW="42.375rem">
       <ModalHeader>

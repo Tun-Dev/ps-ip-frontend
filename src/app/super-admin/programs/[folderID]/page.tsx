@@ -10,13 +10,17 @@ import {
   SimpleGrid,
   SkeletonCircle,
   SkeletonText,
-  Spinner,
   Stack,
-  Switch,
   Text,
   useClipboard,
   useDisclosure,
   useToast,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverArrow,
+  PopoverCloseButton,
 } from '@chakra-ui/react';
 import { AnimatePresence, motion, type Transition } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
@@ -25,12 +29,11 @@ import { MdArrowRightAlt, MdLink } from 'react-icons/md';
 
 import { useDeleteProgramFromGroup } from '@/hooks/useDeleteProgramFromGroup';
 import { useGetGroupById } from '@/hooks/useGetGroupById';
-import { useToggleNotification } from '@/hooks/useToggleNotification';
 import { DeleteModal } from '@/shared';
 import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
-import { DuplicateProgramModal } from '@/shared/chakra/modals/DuplicateProgramModal';
 import { Program, ProgramModules } from '@/types';
 import { useQueryClient } from '@tanstack/react-query';
+import { useToggleNotification } from '@/hooks/useToggleNotification';
 
 const ProgramsPage = () => {
   const [selectedId, setSelectedId] = useState('');
@@ -107,22 +110,15 @@ const LoadingSkeleton = () => (
   </SimpleGrid>
 );
 
-type ProgramDrawerProps = {
-  program: Program;
-  onClose: () => void;
-  isLoading: boolean;
-};
-
-const ProgramDrawer = ({ program, onClose, isLoading }: ProgramDrawerProps) => {
+const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => void; isLoading: boolean }) => {
   const toast = useToast();
+  const { isOpen, onOpen, onClose: deleteModalOnClose } = useDisclosure();
   const router = useRouter();
+  const { onCopy } = useClipboard(`${window.origin}/beneficiary/${program?.id}`);
   const { folderID } = useParams();
   const queryClient = useQueryClient();
-  const { mutate: deleProgramFromGroup, isPending } = useDeleteProgramFromGroup();
 
-  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
-  const { isOpen: isDuplicateOpen, onOpen: onDuplicateOpen, onClose: onDuplicateClose } = useDisclosure();
-  const { onCopy } = useClipboard(`${window.origin}/beneficiary/${program?.id}`);
+  const { mutate: deleProgramFromGroup, isPending } = useDeleteProgramFromGroup();
 
   const handleEdit = (itemId: string) => {
     router.push(`/super-admin/programs/${folderID}/edit/${itemId}`);
@@ -140,25 +136,55 @@ const ProgramDrawer = ({ program, onClose, isLoading }: ProgramDrawerProps) => {
 
   const toggleNotificationMutation = useToggleNotification();
 
-  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newStatus = event.target.checked;
-    toggleNotificationMutation.mutate({ programId: program.id, status: newStatus });
+  const handleToggle = (event: boolean | undefined) => {
+    const status = event ? true : false;
+
+    const toastId = toast({
+      title: 'Updating notification...',
+      status: 'loading',
+      duration: null,
+      isClosable: false,
+      position: 'top-right',
+    });
+
+    toggleNotificationMutation.mutate(
+      { programId: program.id, status: !status },
+      {
+        onSuccess: () => {
+          toast.update(toastId, {
+            title: 'Notification updated',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+        },
+        onError: () => {
+          toast.update(toastId, {
+            title: 'Failed to update notification',
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
+        },
+      }
+    );
   };
 
   const transition: Transition = { duration: 0.5, ease: 'easeInOut' };
 
   const modules = reorderDescending(program.programModules);
 
+  const moduleUrl = findFirstActiveObject(modules);
+
   return (
     <>
       <DeleteModal
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
+        isOpen={isOpen}
+        onClose={deleteModalOnClose}
         action={handleDelete}
         isLoading={isPending}
         text="Are you sure you want to delete this program. Proceeding will erase all programs data."
       />
-      <DuplicateProgramModal isOpen={isDuplicateOpen} onClose={onDuplicateClose} program={program} />
       <Stack
         spacing="0"
         as={motion.div}
@@ -208,9 +234,7 @@ const ProgramDrawer = ({ program, onClose, isLoading }: ProgramDrawerProps) => {
                 h="48px"
                 w="full"
                 onClick={() =>
-                  router.push(
-                    `/super-admin/programs/${folderID}/${program.id}/${program.programModules[0].name.toLowerCase()}`
-                  )
+                  router.push(`/super-admin/programs/${folderID}/${program.id}/${moduleUrl?.name.toLowerCase()}`)
                 }
               >
                 View More
@@ -229,38 +253,36 @@ const ProgramDrawer = ({ program, onClose, isLoading }: ProgramDrawerProps) => {
                 <MdLink style={{ width: '14px', height: '14px', marginRight: '8px' }} />
                 Copy Link
               </Button>
-              <Flex gap="16px">
-                <Button fontSize="10px" w="full" variant="accept" onClick={() => handleEdit(program.id)}>
-                  Edit Product
-                </Button>
-                <Button fontSize="10px" w="full" variant="cancel" onClick={onDeleteOpen}>
-                  Delete Product
-                </Button>
-              </Flex>
-              <Button fontSize="sm" w="full" variant="primary" onClick={onDuplicateOpen}>
-                Duplicate Product
-              </Button>
-              <Flex alignItems="center" gap="8px">
-                <Text
-                  as="label"
-                  whiteSpace="nowrap"
-                  htmlFor="allow-sms-notifications"
-                  variant="Body2Semibold"
-                  color="grey.500"
-                >
-                  Allow SMS Notifications:
-                </Text>
-                {!!program ? (
-                  <Switch
-                    id="allow-sms-notifications"
-                    onChange={handleToggle}
-                    defaultChecked={program.canSendSms}
-                    isDisabled={isPending || isLoading}
-                  />
-                ) : (
-                  <Spinner size="xs" color="grey.400" />
-                )}
-              </Flex>
+              <Popover>
+                <PopoverTrigger>
+                  <Button bg="white" color="#D5AB57" h="48px" w="full" fontSize="13px">
+                    ... More Actions
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <PopoverArrow />
+                  <PopoverCloseButton />
+                  <PopoverBody>
+                    <Flex flexDirection="column">
+                      <Button bg="white" h="32px" w="full" fontSize="13px" onClick={() => handleEdit(program.id)}>
+                        Edit Product
+                      </Button>
+                      <Button bg="white" h="32px" w="full" fontSize="13px" onClick={onOpen}>
+                        Delete Product
+                      </Button>
+                      <Button
+                        bg="white"
+                        h="32px"
+                        w="full"
+                        fontSize="13px"
+                        onClick={() => handleToggle(program.canSendSms)}
+                      >
+                        {program.canSendSms ? 'Enable SMS Notifications' : 'Disable SMS Notifications'}
+                      </Button>
+                    </Flex>
+                  </PopoverBody>
+                </PopoverContent>
+              </Popover>
             </Flex>
           </Flex>
           <Flex flexWrap="wrap" gap="16px">
@@ -285,4 +307,8 @@ export default ProgramsPage;
 
 function reorderDescending(items: ProgramModules[]): ProgramModules[] {
   return items.sort((a, b) => a.order - b.order);
+}
+
+function findFirstActiveObject(items: ProgramModules[]) {
+  return items.find((item) => item.isActive && !item.isCompleted);
 }

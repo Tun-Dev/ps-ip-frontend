@@ -16,8 +16,6 @@ const VendorLayout = ({ children }: { children: React.ReactNode }) => {
 
   const programId = useSearchParams().get('program');
 
-  console.log(programId);
-
   const cards = useMemo(
     () => [
       {

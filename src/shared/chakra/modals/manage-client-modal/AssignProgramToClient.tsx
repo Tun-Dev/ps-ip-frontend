@@ -63,8 +63,6 @@ export const AssignProgramToClient = ({ client, setScreen }: ModalProps) => {
     return states.body.map((state) => ({ label: state.name, value: state.id }));
   }, [states]);
 
-  console.log(stateOptions);
-
   const {
     control,
     register,

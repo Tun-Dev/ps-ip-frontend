@@ -24,7 +24,6 @@ import { useGetDataPoints } from '@/hooks/useGetDataPoints';
 import { useGetModules } from '@/hooks/useGetModules';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useProgramForm } from '@/providers/form-provider';
-import { useProgramStore } from '@/providers/programs-store-provider';
 import { DataPoint } from '@/types';
 import { useParams } from 'next/navigation';
 
@@ -75,8 +74,6 @@ type RenderGroupProps = {
 };
 
 const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: RenderGroupProps) => {
-  const selectedModuleIds = useProgramStore((state) => state.selectedModules);
-  const moduleIndex = Array.from(selectedModuleIds.ids).indexOf(moduleId);
   const {
     form: { setValue, getValues },
   } = useProgramForm();
@@ -173,7 +170,7 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
       'programModules',
       programModules.map((module) => (module.moduleId === moduleId ? { ...module, dataPoints } : module))
     );
-  }, [moduleId, checkedDataPoints, programModules, setValue, moduleIndex]);
+  }, [checkedDataPoints, moduleId, programModules, setValue]);
 
   return (
     <>

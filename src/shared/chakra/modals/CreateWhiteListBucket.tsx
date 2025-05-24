@@ -56,8 +56,6 @@ const CreateWhiteListBucket = ({ isOpen, onClose, programId, beneficiariesIds, p
 
   const { response: data } = useFilterVendors({ program: programId, page: 1, pageSize: 999 });
 
-  console.log(data);
-
   const vendors = useMemo(() => {
     if (!data) return [];
     return data.body.data.map((vendor) => ({
@@ -65,8 +63,6 @@ const CreateWhiteListBucket = ({ isOpen, onClose, programId, beneficiariesIds, p
       value: vendor.programDetails.find((program) => program.programId === programId)?.vendorId ?? 0,
     }));
   }, [data, programId]);
-
-  console.log(vendors);
 
   const currentVendor = useCallback((value: number) => vendors.find((vendor) => vendor.value === value), [vendors]);
 

@@ -294,8 +294,6 @@ const WhitelistingPage = () => {
     if (!whitelistTableData || whitelistTableData.length === 0) return [];
     const keys = Object.keys(whitelistTableData[0]);
 
-    console.log(keys);
-
     const otherColumns = keys
       .filter((key) => key !== 'vendorId' && key !== 'id' && key !== 'status')
       .map((key) => ({
@@ -414,8 +412,6 @@ const WhitelistingPage = () => {
 
     return [...otherColumns, statusColumn];
   }, [whitelistTableData]);
-
-  console.log(dynamicColumnsWhitelist);
 
   const selectedWhitelistColumns: ColumnDef<Beneficiary, any>[] = useMemo(() => {
     const whitelistDateColumn = columnHelper.accessor('whitelistDate', {

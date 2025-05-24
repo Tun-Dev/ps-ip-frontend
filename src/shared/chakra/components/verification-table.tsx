@@ -271,8 +271,6 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
 
   const { data: verificationStatus, isLoading: isVerificationLoading } = useGetVerificationStatus(programID.toString());
 
-  console.log(verificationStatus);
-
   return (
     <Flex direction="column" gap="1.5rem" h="full">
       <Stack gap="4">

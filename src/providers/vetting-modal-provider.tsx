@@ -75,7 +75,9 @@ export const VettingModalProvider = ({ beneficiary, children }: VettingModalProv
   }, [programModules]);
 
   const profile = useMemo(
-    () => moduleDetails?.find((module) => module.moduleName === 'Application')?.formAnswers ?? [],
+    () =>
+      moduleDetails?.find((module) => module.moduleName === 'Application' || module.moduleName === 'Nomination')
+        ?.formAnswers ?? [],
     [moduleDetails]
   );
 

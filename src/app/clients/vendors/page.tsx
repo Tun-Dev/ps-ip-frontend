@@ -170,7 +170,6 @@ const VendorPage = () => {
   });
   const vendors = useMemo(() => data?.body.data ?? [], [data]);
   const totalPages = data?.body.totalPages ?? 0;
-  console.log(data);
 
   return (
     <Stack gap="6" w="full" flex="1">

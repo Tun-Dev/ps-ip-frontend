@@ -248,6 +248,7 @@ export type Option = {
   id?: string;
   label: string;
   value: string;
+  parentValue?: number;
   weight?: number;
 };
 
@@ -398,6 +399,7 @@ export type BeneficiaryDetails = {
   email: string;
   date: string;
   phoneNumber: string;
+  userCode: string;
   moduleDetails: ModuleDetail[];
   progressLog: ProgressLog[];
 };
@@ -420,6 +422,9 @@ export type Verification = {
   type: string;
   value: string;
   status: boolean;
+  verName: string;
+  score: number;
+  title: string;
 };
 
 export type ProgressLog = {

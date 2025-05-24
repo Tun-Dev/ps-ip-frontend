@@ -50,7 +50,6 @@ const OrderPage = () => {
     isRefetchError: isDetailsRefetchError,
     refetch: refetchDetails,
   } = useGetVendorsOrdersDetails(programId);
-  console.log(details);
 
   const router = useRouter();
 
@@ -273,8 +272,6 @@ const OrderPage = () => {
     ],
     []
   );
-
-  console.log(detailsColumns);
 
   // const [program, setProgram] = useState<number | undefined>(undefined);
 

@@ -55,8 +55,6 @@ const AggregatorTab = () => {
   const aggregators = useMemo(() => data?.body.data ?? [], [data]);
   const totalPages = data?.body.totalPages ?? 1;
 
-  console.log('aggregators', aggregators);
-
   const resetFilters = () => {
     setPage(1);
     setProgramId('');

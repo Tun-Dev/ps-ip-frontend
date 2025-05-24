@@ -1,5 +1,3 @@
-'use client';
-
 import {
   Button,
   Flex,
@@ -10,7 +8,9 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  SimpleGrid,
   Spinner,
+  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -18,12 +18,13 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { MdClose, MdDownload } from 'react-icons/md';
 
 import { useGetBeneficiaryDetails } from '@/hooks/useGetBeneficiaryDetails';
 import { useUserStore } from '@/providers/user-store-provider';
-import type { Beneficiary, ModuleDetail } from '@/types';
+import type { Beneficiary, FormAnswer, ModuleDetail } from '@/types';
 import ModuleTab from './module-tab';
 import { SummaryTab } from './summary-tab';
 
@@ -36,6 +37,7 @@ type BeneficiaryDetailsModalProps = {
 
 function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary, moduleName }: BeneficiaryDetailsModalProps) {
   const user = useUserStore((state) => state.user);
+  const [media, setMedia] = useState<FormAnswer | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
 
   const { data: beneficiaryDetails, isLoading } = useGetBeneficiaryDetails(beneficiary.id);
@@ -67,7 +69,14 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary, moduleName }: B
   }, [moduleName, moduleTabs, isOpen]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        onClose();
+        setMedia(null);
+      }}
+      scrollBehavior="inside"
+    >
       <ModalOverlay />
       <ModalContent p="0" maxW="57.5rem">
         <ModalHeader p="0" mb="6">
@@ -103,6 +112,8 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary, moduleName }: B
             <Grid placeItems="center" h="30rem">
               <Spinner />
             </Grid>
+          ) : media ? (
+            <MediaViewer media={media} setMedia={setMedia} />
           ) : (
             <Tabs index={tabIndex} onChange={handleTabsChange} variant="unstyled">
               <TabList>
@@ -119,7 +130,13 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary, moduleName }: B
               <TabPanels>
                 {moduleTabs.map((module) => (
                   <TabPanel key={module.moduleName} px="0" py="1.25rem">
-                    <ModuleTab beneficiaryId={beneficiary.id} module={module} status={getModuleStatus(module)} />
+                    <ModuleTab
+                      beneficiaryId={beneficiary.id}
+                      module={module}
+                      status={getModuleStatus(module)}
+                      userCode={beneficiaryDetails?.body.userCode}
+                      setMedia={setMedia}
+                    />
                   </TabPanel>
                 ))}
                 <TabPanel px="0" py="1.25rem">
@@ -133,4 +150,48 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary, moduleName }: B
     </Modal>
   );
 }
+
+export function MediaViewer({
+  media,
+  setMedia,
+}: {
+  media: FormAnswer | null;
+  setMedia: Dispatch<SetStateAction<FormAnswer | null>>;
+}) {
+  if (!media)
+    return (
+      <Text variant="Body2Semibold" textAlign="center">
+        No media found
+      </Text>
+    );
+
+  const uri = `/api/file?url=${encodeURIComponent(media.value)}`;
+
+  return (
+    <Stack spacing="1.75rem">
+      <DocViewer
+        documents={[{ uri }]}
+        pluginRenderers={DocViewerRenderers}
+        config={{ header: { disableHeader: true, disableFileName: true } }}
+      />
+      <SimpleGrid columns={2} gap="6" pos="sticky" left="0" right="0" bottom="0" zIndex={3}>
+        <Button variant="secondary" size="default" w="full" onClick={() => setMedia(null)}>
+          Go back
+        </Button>
+        <Button
+          as="a"
+          variant="primary"
+          size="default"
+          w="full"
+          href={uri}
+          target="_blank"
+          download={media.value.split('/').pop()}
+        >
+          Download {media.question.type === 'FILE_UPLOAD' ? 'file' : 'image'}
+        </Button>
+      </SimpleGrid>
+    </Stack>
+  );
+}
+
 export default BeneficiaryDetailsModal;

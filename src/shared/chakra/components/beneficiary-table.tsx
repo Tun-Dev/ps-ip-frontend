@@ -403,8 +403,6 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
     onOpen();
   };
 
-  console.log(tableData);
-
   return (
     <>
       <NominationModal isOpen={isNominationOpen} onClose={onNominationClose} programId={programID?.toLocaleString()} />

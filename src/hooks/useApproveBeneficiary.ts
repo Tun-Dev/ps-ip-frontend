@@ -15,6 +15,7 @@ export const useApproveBeneficiary = () => {
       queryClient.invalidateQueries({ queryKey: ['whitelist'] });
       queryClient.invalidateQueries({ queryKey: ['beneficiaries'] });
       queryClient.invalidateQueries({ queryKey: ['beneficiaryDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['vettingOfficersBeneficiaries'] });
       queryClient.invalidateQueries({ queryKey: ['uploadStatus'] });
     },
     onError: (error) => {

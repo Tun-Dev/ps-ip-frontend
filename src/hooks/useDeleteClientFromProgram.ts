@@ -1,20 +1,18 @@
-'use client';
-
 import { useToast } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { fillForm } from '@/services/form';
 import { formatErrorMessage } from '@/utils';
+import { removeClientFromProgram } from '@/services/clients';
 
-export const useFillForm = () => {
-  const toast = useToast();
+export const useDeleteClientFromProgram = (id?: string) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
+
   return useMutation({
-    mutationFn: fillForm,
+    mutationFn: removeClientFromProgram,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['programForm'] });
-      queryClient.invalidateQueries({ queryKey: ['beneficiaryForm'] });
-      queryClient.invalidateQueries({ queryKey: ['beneficiaryStatus'] });
+      queryClient.invalidateQueries({ queryKey: ['clients', id] });
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
     },
     onError: (error) => {
       toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });

@@ -2,19 +2,18 @@
 
 import { Button, Flex, Icon, Stack, Text, useDisclosure, useToast } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useParams } from 'next/navigation';
+import { isValidPhoneNumber } from 'libphonenumber-js';
+import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { z } from 'zod';
 
 import { useFillForm } from '@/hooks/useFillForm';
 import { useGetProgramForm } from '@/hooks/useGetProgramForm';
 import { BeneficiarySuccessModal } from '@/shared/chakra/modals/BeneficiarySuccessModal';
 import { Form } from '@/types';
-import { isValidPhoneNumber } from 'libphonenumber-js';
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import FormInput from './form-input';
-import { useRouter } from 'next/navigation';
 
 type Props = {
   beneficiaryForm?: Form;
@@ -82,7 +81,18 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
                 );
           break;
         case 'DATE':
-          fieldSchema = z.coerce.date();
+          fieldSchema =
+            questionLabel === 'date of birth'
+              ? z.coerce.date().refine((date) => {
+                  const today = new Date();
+                  const birthDate = new Date(date);
+                  const age = today.getFullYear() - birthDate.getFullYear();
+                  const monthDiff = today.getMonth() - birthDate.getMonth();
+                  const dayDiff = today.getDate() - birthDate.getDate();
+                  const isEighteen = age > 18 || (age === 18 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
+                  return isEighteen;
+                }, 'You must be at least 18 years old')
+              : z.coerce.date();
           break;
         case 'DROPDOWN':
           fieldSchema = isStateOrLga ? z.coerce.number() : z.string().min(1, 'This field is required');
@@ -203,12 +213,12 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
   };
 
   useEffect(() => {
-    const stateQuestion = questions.find((question) => question.question === 'State');
+    const stateQuestion = questions.find((question) => question.question.toLowerCase() === 'state');
     if (stateQuestion) setStateQuestionId(stateQuestion.id);
   }, [questions]);
 
   useEffect(() => {
-    const previousStateQuestion = questions.find((question) => question.question === 'Previous State');
+    const previousStateQuestion = questions.find((question) => question.question.toLowerCase() === 'previous state');
     if (previousStateQuestion) setPreviousStateQuestionId(previousStateQuestion.id);
   }, [questions]);
 

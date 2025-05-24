@@ -1,4 +1,5 @@
 // import { useDeleteAggregatorFromProgram } from '@/hooks/useDeleteAggregatorFromProgram';
+import { useDeleteClientFromProgram } from '@/hooks/useDeleteClientFromProgram';
 import { useGetClientByID } from '@/hooks/useGetClientByID';
 import type { Client, ClientDetails } from '@/types';
 import { formatCurrency, formatErrorMessage } from '@/utils';
@@ -26,6 +27,8 @@ type Props = {
 
 export const ClientProgramList = ({ onClose, client, setScreen }: Props) => {
   const { data, isPending, isError, error } = useGetClientByID(client.id);
+
+  console.log(data);
 
   return (
     <ModalContent maxW="42.375rem">
@@ -63,7 +66,7 @@ export const ClientProgramList = ({ onClose, client, setScreen }: Props) => {
 };
 
 const Item = ({ item }: { item: ClientDetails }) => {
-  // const { mutate, isPending } = useDeleteAggregatorFromProgram();
+  const { mutate, isPending } = useDeleteClientFromProgram();
   return (
     <Stack border="1px solid" borderColor="grey.200" borderRadius="12px" p="4">
       <Flex pb="8px" justifyContent="space-between" borderBottom="1px solid" borderBottomColor="grey.200">
@@ -87,17 +90,17 @@ const Item = ({ item }: { item: ClientDetails }) => {
             <Text variant="Body1Semibold">{formatCurrency(Number(item.amountDisbursed ?? '0'))}</Text>
           </Stack>
         </SimpleGrid>
-        {/* <Button
+        <Button
           w="156px"
           h="2rem"
           variant="cancel"
           fontSize="10px"
           fontWeight="600"
           isLoading={isPending}
-          onClick={() => mutate(item.aggregatorProgramId)}
+          onClick={() => mutate(item.programId)}
         >
-          Remove Program
-        </Button> */}
+          Unassign Program
+        </Button>
       </Flex>
     </Stack>
   );

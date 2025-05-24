@@ -44,8 +44,6 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
     // amount: z.coerce.number().nullable(),
   });
 
-  // console.log(initialValue);
-
   type FormValues = z.infer<typeof Schema>;
 
   const {
@@ -57,7 +55,6 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
   } = useForm<FormValues>({ resolver: zodResolver(Schema), defaultValues: initialValue });
 
   const onSubmit = (data: FormValues) => {
-    // console.log('working');
     const { vendorId, ...rest } = data;
     const payload = {
       programId: programId,
@@ -65,8 +62,6 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
       ...rest,
       ...(vendorId ? { vendorId: Number(vendorId) } : {}),
     };
-
-    console.log('payload', payload);
 
     editWhitelist(payload, {
       onSuccess: () => {
@@ -76,8 +71,6 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
       },
     });
   };
-
-  // console.log(programId);
 
   // const {
   //   response: data,
@@ -92,7 +85,6 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
   //   pageSize: 999,
   // });
   // const vendors = useMemo(() => data?.body.data ?? [], [data]);
-  // console.log(vendors);
   //   const totalPages = data?.body.totalPages ?? 0;
 
   const genderOptions = useMemo(

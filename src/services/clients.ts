@@ -41,3 +41,9 @@ export const getClientById = async ({ queryKey, signal }: { queryKey: string[]; 
   });
   return data;
 };
+
+export const removeClientFromProgram = async (id: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const response = await axiosInstance.post<APIResponse<any>>(`/client/programs/remove/${id}`);
+  return response.data;
+};

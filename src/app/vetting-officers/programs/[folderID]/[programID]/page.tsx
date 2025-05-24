@@ -5,7 +5,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useGetModules } from '@/hooks/useGetModules';
 import { useGetVettingOfficersAnalytics } from '@/hooks/useGetVettingOfficersAnalytics';
 import { useGetVettingOfficersBeneficiaries } from '@/hooks/useGetVettingOfficersBeneficiaries';
-import { useUserStore } from '@/providers/user-store-provider';
 import { VettingModalProvider } from '@/providers/vetting-modal-provider';
 import { ReusableTable } from '@/shared';
 import { OverviewCard } from '@/shared/chakra/components/overview';
@@ -126,8 +125,6 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
   const toast = useToast();
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const user = useUserStore((state) => state.user);
-  const isVettingOfficer = user?.roles.includes('Vetting Officer') ?? false;
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
@@ -275,17 +272,6 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
               <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
                 Denied
               </Text>
-            ) : isVettingOfficer ? (
-              <Text
-                as="span"
-                display="block"
-                color="text"
-                textAlign="center"
-                variant="Body3Semibold"
-                textTransform="capitalize"
-              >
-                {info.row.original.status.toString().toLowerCase()}
-              </Text>
             ) : (
               <Menu>
                 <MenuButton
@@ -326,7 +312,7 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
             ),
         }),
       ] as ColumnDef<Beneficiary>[],
-    [onApprove, isVettingOfficer]
+    [onApprove]
   );
 
   return (

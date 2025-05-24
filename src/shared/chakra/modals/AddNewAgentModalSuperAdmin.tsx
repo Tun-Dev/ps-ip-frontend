@@ -28,11 +28,11 @@ import { useCreateAgent } from '@/hooks/useCreateAgent';
 // import { useGetCurrentUser } from '@/hooks/useGetCur/rentUser';
 // import { useGetStates } from '@/hooks/useGetStates';
 // import { AgentProgramDetails } from '@/types';
+import { useGetAggregatorsByID } from '@/hooks/useGetAggregatorByID';
 import { useGetAggregators } from '@/hooks/useGetAggregators';
+import { MdLink } from 'react-icons/md';
 import { Dropdown } from '../components';
 import { PhoneNumberInput } from '../components/phone-number-input';
-import { useGetAggregatorsByID } from '@/hooks/useGetAggregatorByID';
-import { MdLink } from 'react-icons/md';
 
 type ModalProps = { isOpen: boolean; onClose: () => void };
 
@@ -64,7 +64,6 @@ export const AddNewAgentModalSuperAdmin = ({ isOpen, onClose }: ModalProps) => {
   //   const { data: states } = useGetStates(isOpen);
 
   const { data: aggregators } = useGetAggregators({ page: 1, pageSize: 1000 });
-  // console.log(aggregators);
 
   const aggregatorOptions = useMemo(() => {
     if (!aggregators) return [];

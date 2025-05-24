@@ -26,47 +26,6 @@ type SuperAdmin = {
 };
 
 const SuperAdminTab = () => {
-  const superAdmins: SuperAdmin[] = [
-    {
-      firstName: 'John',
-      lastName: 'Doe',
-      gender: 'Male',
-      dateAdded: 'Feb 28, 2025',
-    },
-    {
-      firstName: 'Aisha',
-      lastName: 'Bello',
-      gender: 'Female',
-      dateAdded: 'Feb 27, 2025',
-    },
-    {
-      firstName: 'Chen',
-      lastName: 'Wei',
-      gender: 'Male',
-      dateAdded: 'Feb 26, 2025',
-    },
-    {
-      firstName: 'Fatima',
-      lastName: 'Omar',
-      gender: 'Female',
-      dateAdded: 'Feb 25, 2025',
-    },
-    {
-      firstName: 'David',
-      lastName: 'Smith',
-      gender: 'Male',
-      dateAdded: 'Feb 24, 2025',
-    },
-    {
-      firstName: 'Nkechi',
-      lastName: 'Okafor',
-      gender: 'Female',
-      dateAdded: 'Feb 23, 2025',
-    },
-  ];
-
-  console.log(superAdmins);
-
   const columns: ColumnDef<SuperAdmin>[] = [
     {
       header: 'Agents',
@@ -166,9 +125,7 @@ const SuperAdminTab = () => {
           Download Report
         </Button>
       </Flex>
-      <>
-        <ReusableTable selectable data={[]} columns={columns} isLoading={false} />
-      </>
+      <ReusableTable selectable data={[]} columns={columns} isLoading={false} />
     </Flex>
   );
 };
