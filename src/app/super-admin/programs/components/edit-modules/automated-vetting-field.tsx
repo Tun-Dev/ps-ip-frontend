@@ -63,6 +63,7 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
                 fontSize="13px"
                 fontWeight="semibold"
                 lineHeight="20px"
+                placeholder="Enter Question"
                 {...register(`vettingForm.automatedFields.${index}.name`)}
               />
               <Icon as={MdEdit} aria-label={`Edit ${field.name}`} color="primary.500" boxSize="3" />
@@ -128,6 +129,7 @@ export function AutomatedVettingField({ field, onDelete, index }: Props) {
                       fontSize="13px"
                       fontWeight="semibold"
                       lineHeight="20px"
+                      placeholder="Enter Option"
                       {...register(`vettingForm.automatedFields.${index}.options.${idx}.label`)}
                     />
                     <Icon as={MdEdit} aria-label={`Edit ${field.name}`} color="primary.500" boxSize="3" />

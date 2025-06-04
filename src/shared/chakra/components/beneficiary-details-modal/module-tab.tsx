@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useGetModules } from '@/hooks/useGetModules';
 import type { FormAnswer, ModuleDetail } from '@/types';
-import { formatDateForInput, getImageUrl } from '@/utils';
+import { formatDateForInput, getImageUrl, snakeToTitleCase } from '@/utils';
 import { Image } from '@chakra-ui/next-js';
 import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { Dispatch, SetStateAction } from 'react';
@@ -107,7 +107,7 @@ function ModuleTab({ module, beneficiaryId, status, userCode, setMedia }: Props)
           return (
             <Box key={answer.key}>
               <Text variant="Body2Semibold" color="grey.500" mb="2">
-                {answer.key}
+                {module.moduleName === 'Nomination' ? snakeToTitleCase(answer.key) : answer.key}
               </Text>
               {answer.key === 'Picture' && typeof answer.value === 'string' && answer.value ? (
                 <Box pos="relative" boxSize="6.25rem" rounded="sm" overflow="hidden">

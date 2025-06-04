@@ -147,12 +147,6 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
 
   const visibleQuestions = useMemo(() => questions.filter((q) => q.type !== 'GPS'), [questions]);
 
-  const paginatedQuestions = useMemo(() => {
-    if (moduleName !== 'Vetting') return visibleQuestions;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return visibleQuestions.slice(startIndex, startIndex + itemsPerPage);
-  }, [visibleQuestions, currentPage, moduleName]);
-
   const totalPages = useMemo(() => {
     if (moduleName !== 'Vetting') return 1;
     return Math.ceil(visibleQuestions.length / itemsPerPage);
@@ -244,17 +238,19 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
               previousStateQuestionId={previousStateQuestionId}
             />
           ))}
-        {paginatedQuestions.map((question, index) => {
-          const globalIndex = moduleName === 'Vetting' ? (currentPage - 1) * itemsPerPage + index : index;
+        {visibleQuestions.map((question, index) => {
+          const isVisible = moduleName !== 'Vetting' || Math.floor(index / itemsPerPage) + 1 === currentPage;
+
           return (
-            <FormInput
-              key={question.id}
-              question={question}
-              form={form}
-              number={globalIndex + 1}
-              stateQuestionId={stateQuestionId}
-              previousStateQuestionId={previousStateQuestionId}
-            />
+            <div key={question.id} style={{ display: isVisible ? 'block' : 'none' }}>
+              <FormInput
+                question={question}
+                form={form}
+                number={index + 1}
+                stateQuestionId={stateQuestionId}
+                previousStateQuestionId={previousStateQuestionId}
+              />
+            </div>
           );
         })}
         {moduleName === 'Vetting' && totalPages > 1 && (

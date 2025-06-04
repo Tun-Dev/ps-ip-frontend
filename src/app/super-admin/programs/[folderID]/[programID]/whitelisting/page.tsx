@@ -53,7 +53,7 @@ import { FormStatus } from '@/utils';
 import { Image } from '@chakra-ui/next-js';
 // import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { formatDateForInput } from '@/utils';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 
 const columnHelper = createColumnHelper<Beneficiary>();
 
@@ -67,6 +67,9 @@ const options = [
 type Option = (typeof options)[number];
 
 const WhitelistingPage = () => {
+  const pathname = usePathname();
+  const hideDownload = pathname?.includes('clients');
+
   const [page, setPage] = useState(1);
   const [bucketPage, setBucketPage] = useState(1);
   const [selectedWLPage, setSelectedWLPage] = useState(1);
@@ -474,9 +477,11 @@ const WhitelistingPage = () => {
                   </InputGroup>
                 </Flex>
                 <ButtonGroup size="medium" spacing="4">
-                  <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
-                    Download Report
-                  </Button>
+                  {!hideDownload && (
+                    <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
+                      Download Report
+                    </Button>
+                  )}
                   <Button
                     rightIcon={<MdArrowRightAlt />}
                     variant="primary"
@@ -556,9 +561,11 @@ const WhitelistingPage = () => {
                   </InputGroup>
                 </Flex>
                 <ButtonGroup size="medium" spacing="4">
-                  <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
-                    Download Report
-                  </Button>
+                  {!hideDownload && (
+                    <Button leftIcon={<MdDownload size="0.875rem" />} variant="secondary">
+                      Download Report
+                    </Button>
+                  )}
                   <Button
                     rightIcon={<MdArrowRightAlt />}
                     variant="primary"

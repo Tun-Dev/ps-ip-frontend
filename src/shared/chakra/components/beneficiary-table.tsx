@@ -42,9 +42,10 @@ const columnHelper = createColumnHelper<Beneficiary>();
 
 type Props = {
   moduleName: string;
+  dashboardType?: 'general' | 'client';
 };
 
-export const BeneficiaryTable = ({ moduleName }: Props) => {
+export const BeneficiaryTable = ({ moduleName, dashboardType }: Props) => {
   const toast = useToast();
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -463,42 +464,48 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
               )}
             </Flex>
             <Flex gap="16px">
-              <Button
-                leftIcon={<MdDownload size="0.875rem" />}
-                variant={moduleName === 'Nomination' ? 'secondary' : 'primary'}
-                size="medium"
-              >
-                Download Report
-              </Button>
-              {moduleName === 'Nomination' && (
+              {dashboardType !== 'client' && (
                 <Button
-                  leftIcon={<MdOutlineUploadFile />}
-                  variant="primary"
+                  leftIcon={<MdDownload size="0.875rem" />}
+                  variant={moduleName === 'Nomination' ? 'secondary' : 'primary'}
                   size="medium"
-                  onClick={() => onNominationOpen()}
                 >
-                  Upload Nomination List
+                  Download Report
                 </Button>
               )}
-              {moduleName === 'Disbursement' && (
-                <Button
-                  leftIcon={<MdOutlineUploadFile />}
-                  variant="primary"
-                  size="medium"
-                  onClick={() => onUploadDisbursementOpen()}
-                >
-                  Upload Disbursement List
-                </Button>
-              )}
-              {moduleName === 'Disbursement' && (
-                <Button
-                  leftIcon={<MdDownload />}
-                  variant="primary"
-                  size="medium"
-                  onClick={() => onDownloadDisbursementOpen()}
-                >
-                  Download Disbursement List
-                </Button>
+              {dashboardType !== 'client' && (
+                <>
+                  {moduleName === 'Nomination' && (
+                    <Button
+                      leftIcon={<MdOutlineUploadFile />}
+                      variant="primary"
+                      size="medium"
+                      onClick={() => onNominationOpen()}
+                    >
+                      Upload Nomination List
+                    </Button>
+                  )}
+                  {moduleName === 'Disbursement' && (
+                    <Button
+                      leftIcon={<MdOutlineUploadFile />}
+                      variant="primary"
+                      size="medium"
+                      onClick={() => onUploadDisbursementOpen()}
+                    >
+                      Upload Disbursement List
+                    </Button>
+                  )}
+                  {moduleName === 'Disbursement' && (
+                    <Button
+                      leftIcon={<MdDownload />}
+                      variant="primary"
+                      size="medium"
+                      onClick={() => onDownloadDisbursementOpen()}
+                    >
+                      Download Disbursement List
+                    </Button>
+                  )}
+                </>
               )}
             </Flex>
           </Flex>

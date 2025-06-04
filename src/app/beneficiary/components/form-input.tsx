@@ -453,11 +453,14 @@ const FileInput = ({ question, form }: FormInputProps) => {
       {
         onSuccess: (data) => {
           form.setValue(question.id, data.body[0].fileName);
+          form.setValue(`${question.id}-file`, file.name);
           form.clearErrors(question.id);
         },
       }
     );
   };
+
+  const uploadedFileName = form.getValues(`${question.id}-file`);
 
   return (
     <Box pos="relative">
@@ -467,10 +470,15 @@ const FileInput = ({ question, form }: FormInputProps) => {
         h="auto"
         py="2"
         type="file"
-        isRequired={question.mandatory}
+        isRequired={question.mandatory && !uploadedFileName}
         onChange={handleFile}
         disabled={isPending}
       />
+      {uploadedFileName && (
+        <Text variant="Body2Regular" mt="2">
+          File attached: {uploadedFileName}
+        </Text>
+      )}
       {isPending && <Spinner size="sm" opacity="0.4" pos="absolute" right="4" insetBlock="0" my="auto" />}
     </Box>
   );

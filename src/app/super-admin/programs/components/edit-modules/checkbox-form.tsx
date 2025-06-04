@@ -103,7 +103,9 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
     // If there is no program (only when creating and not editing) or default data points, return an empty map
     if (program || !defaultDataPoints) return map;
     const [, dataPoints] = defaultDataPoints;
-    dataPoints.forEach((dataPoint) => map.set(dataPoint.id, { dataPoint, isRequired: true }));
+    dataPoints
+      .filter((datapoint) => !SUB_TYPES.includes(datapoint.question))
+      .forEach((dataPoint) => map.set(dataPoint.id, { dataPoint, isRequired: true }));
     return map;
   });
 
@@ -236,6 +238,8 @@ type CollapsibleGroupProps = {
   setCheckedDataPoints: Dispatch<SetStateAction<Map<string, { dataPoint: DataPoint; isRequired: boolean }>>>;
 };
 
+const SUB_TYPES = ['trade subtype', 'lga', 'disability subtype'];
+
 const CollapsibleGroup = memo(
   ({ heading, dataPoints, isPlaceholderData, checkedDataPoints, setCheckedDataPoints }: CollapsibleGroupProps) => {
     const handleCheckboxChange = useCallback(
@@ -261,6 +265,11 @@ const CollapsibleGroup = memo(
       [setCheckedDataPoints]
     );
 
+    const filteredDataPoints = useMemo(
+      () => dataPoints.filter((field) => !SUB_TYPES.includes(field.question.toLowerCase())),
+      [dataPoints]
+    );
+
     return (
       <AccordionItem _first={{ borderTop: 'none' }}>
         <h3>
@@ -273,7 +282,7 @@ const CollapsibleGroup = memo(
         </h3>
         <AccordionPanel px="0">
           <Stack spacing="3">
-            {dataPoints.map((field) => {
+            {filteredDataPoints.map((field) => {
               const isChecked = checkedDataPoints.has(field.id);
               const isRequired = checkedDataPoints.get(field.id)?.isRequired || false;
 

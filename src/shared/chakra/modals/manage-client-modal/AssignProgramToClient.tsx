@@ -44,7 +44,7 @@ type FormValues = z.infer<typeof Schema>;
 export const AssignProgramToClient = ({ client, setScreen }: ModalProps) => {
   const { data: aggregatorDetails } = useGetClientByID(client.id);
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
-  const { mutate, isPending: isAdding } = useAddClientToProgram();
+  const { mutate, isPending: isAdding } = useAddClientToProgram({ id: client.id });
 
   const filteredProgramsOptions = useMemo(() => {
     if (!aggregatorDetails || !programs) return [];

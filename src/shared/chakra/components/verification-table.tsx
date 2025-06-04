@@ -30,7 +30,7 @@ import {
 } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 // import { parsePhoneNumber } from 'libphonenumber-js/min';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { MdCheckCircle, MdDownload, MdSearch } from 'react-icons/md';
 import BeneficiaryDetailsModal from './beneficiary-details-modal';
@@ -85,6 +85,9 @@ type BeneficiaryPanelProps = {
 const columnHelper = createColumnHelper<Beneficiary>();
 
 const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
+  const pathname = usePathname();
+  const hideDownload = pathname?.includes('clients');
+
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
@@ -293,30 +296,35 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
             </InputGroup>
           </Flex>
           <Flex gap="16px">
-            <Flex alignItems="center" gap="8px">
-              <Text
-                as="label"
-                whiteSpace="nowrap"
-                htmlFor="automatic-verification"
-                variant="Body2Semibold"
-                color="grey.500"
-              >
-                Automatic verification:
-              </Text>
-              {!!verificationStatus ? (
-                <Switch
-                  id="automatic-verification"
-                  onChange={handleToggle}
-                  defaultChecked={verificationStatus.body}
-                  isDisabled={toggleVerificationMutation.isPending || isVerificationLoading}
-                />
-              ) : (
-                <Spinner size="xs" color="grey.400" />
-              )}
-            </Flex>
-            <Button leftIcon={<MdDownload size="0.875rem" />} variant="primary" size="medium">
-              Download Report
-            </Button>
+            {!hideDownload && (
+              <>
+                <Flex alignItems="center" gap="8px">
+                  <Text
+                    as="label"
+                    whiteSpace="nowrap"
+                    htmlFor="automatic-verification"
+                    variant="Body2Semibold"
+                    color="grey.500"
+                  >
+                    Automatic verification:
+                  </Text>
+                  {!!verificationStatus ? (
+                    <Switch
+                      id="automatic-verification"
+                      onChange={handleToggle}
+                      defaultChecked={verificationStatus.body}
+                      isDisabled={toggleVerificationMutation.isPending || isVerificationLoading}
+                    />
+                  ) : (
+                    <Spinner size="xs" color="grey.400" />
+                  )}
+                </Flex>
+
+                <Button leftIcon={<MdDownload size="0.875rem" />} variant="primary" size="medium">
+                  Download Report
+                </Button>
+              </>
+            )}
           </Flex>
         </Flex>
         <Flex align="center" justify="space-between">
@@ -367,7 +375,7 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
               />
             </Flex>
           </Flex>
-          {status === FormStatus.PENDING && (
+          {status === FormStatus.PENDING && !hideDownload && (
             <Button
               variant="accept"
               size="medium"

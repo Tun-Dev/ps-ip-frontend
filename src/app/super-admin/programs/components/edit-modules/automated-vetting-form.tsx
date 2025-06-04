@@ -108,31 +108,15 @@ const AutomatedVettingForm = memo(({ display }: { display: string }) => {
                     description: 'Increase total score to add more questions',
                   });
                 append({
-                  name: 'New Question',
+                  name: '',
                   value: 20,
                   status: 'MULTIPLE_CHOICE',
                   isRequired: true,
                   options: [
-                    {
-                      label: 'Option 1',
-                      value: 'Option 1',
-                      weight: 20,
-                    },
-                    {
-                      label: 'Option 2',
-                      value: 'Option 2',
-                      weight: 15,
-                    },
-                    {
-                      label: 'Option 3',
-                      value: 'Option 3',
-                      weight: 10,
-                    },
-                    {
-                      label: 'Option 4',
-                      value: 'Option 4',
-                      weight: 5,
-                    },
+                    { label: '', value: 'Option 1', weight: 20 },
+                    { label: '', value: 'Option 2', weight: 15 },
+                    { label: '', value: 'Option 3', weight: 10 },
+                    { label: '', value: 'Option 4', weight: 5 },
                   ],
                 });
               }}

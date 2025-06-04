@@ -136,6 +136,13 @@ export const formatDateForInput = (isoString: string) => {
   }
 };
 
+export const snakeToTitleCase = (str: string) => {
+  return str
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 export const getDashboardRoute = (user: User | null) => {
   if (!user || !user.roles || user.roles.length < 1) return '/login';
   switch (user.roles[0]) {

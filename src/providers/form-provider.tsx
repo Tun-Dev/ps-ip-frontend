@@ -131,8 +131,8 @@ export const defaultValues: ProgramSchema = {
   },
   vettingForm: {
     type: 'manual',
-    totalScore: 40,
-    passScore: 40,
+    totalScore: 20,
+    passScore: 20,
     manualTotalScore: 30,
     manualPassScore: 15,
     manualFields: [
@@ -154,67 +154,16 @@ export const defaultValues: ProgramSchema = {
     ],
     automatedFields: [
       {
-        name: 'Beneficiary age',
+        name: '',
         value: 20,
         status: 'MULTIPLE_CHOICE',
         isRequired: true,
         options: [
-          {
-            label: '46-55',
-            value: '46-55',
-            weight: 20,
-          },
-          {
-            label: '36-45',
-            value: '36-45',
-            weight: 15,
-          },
-          {
-            label: '26-35',
-            value: '26-35',
-            weight: 10,
-          },
-          {
-            label: '18-25',
-            value: '18-25',
-            weight: 5,
-          },
+          { label: '', value: 'Option 1', weight: 20 },
+          { label: '', value: 'Option 2', weight: 15 },
+          { label: '', value: 'Option 3', weight: 10 },
+          { label: '', value: 'Option 4', weight: 5 },
         ],
-      },
-      {
-        name: 'Years in Service',
-        value: 20,
-        status: 'MULTIPLE_CHOICE',
-        isRequired: true,
-        options: [
-          {
-            label: '16-20',
-            value: '16-20',
-            weight: 20,
-          },
-          {
-            label: '11-15',
-            value: '11-15',
-            weight: 15,
-          },
-          {
-            label: '6-10',
-            value: '6-10',
-            weight: 10,
-          },
-          {
-            label: '0-5',
-            value: '0-5',
-            weight: 5,
-          },
-        ],
-      },
-      {
-        name: 'Upload CAC File',
-        value: 0,
-        status: 'FILE_UPLOAD',
-        isRequired: true,
-        options: [],
       },
     ],
   },

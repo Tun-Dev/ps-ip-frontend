@@ -11,8 +11,8 @@ export const useDeleteClientFromProgram = (id?: string) => {
   return useMutation({
     mutationFn: removeClientFromProgram,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients', id] });
-      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['client', id] });
+      queryClient.invalidateQueries({ queryKey: ['client'] });
     },
     onError: (error) => {
       toast({ title: 'Error', description: formatErrorMessage(error), status: 'error' });

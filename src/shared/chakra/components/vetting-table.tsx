@@ -35,7 +35,7 @@ import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { Beneficiary } from '@/types';
 import { FormStatus } from '@/utils';
 // import { parsePhoneNumber } from 'libphonenumber-js/min';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { VettingModal } from './vetting-modal';
 
 const moduleName = 'Vetting';
@@ -92,6 +92,9 @@ type BeneficiaryPanelProps = {
 const columnHelper = createColumnHelper<Beneficiary>();
 
 export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
+  const pathname = usePathname();
+  const hideDownload = pathname?.includes('clients');
+
   const toast = useToast();
   const [page, setPage] = useState(1);
   const { programID } = useParams();
@@ -279,13 +282,15 @@ export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
           </InputGroup>
         </Flex>
         <Flex gap="16px">
-          <Button
-            leftIcon={<MdDownload size="0.875rem" />}
-            variant={isProgramCompleted ? 'primary' : 'secondary'}
-            size="medium"
-          >
-            Download Report
-          </Button>
+          {!hideDownload && (
+            <Button
+              leftIcon={<MdDownload size="0.875rem" />}
+              variant={isProgramCompleted ? 'primary' : 'secondary'}
+              size="medium"
+            >
+              Download Report
+            </Button>
+          )}
         </Flex>
       </Flex>
       <ReusableTable

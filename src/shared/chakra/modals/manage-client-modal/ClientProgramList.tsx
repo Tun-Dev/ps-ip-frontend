@@ -66,7 +66,7 @@ export const ClientProgramList = ({ onClose, client, setScreen }: Props) => {
 };
 
 const Item = ({ item }: { item: ClientDetails }) => {
-  const { mutate, isPending } = useDeleteClientFromProgram();
+  const { mutate, isPending } = useDeleteClientFromProgram(item?.programId);
   return (
     <Stack border="1px solid" borderColor="grey.200" borderRadius="12px" p="4">
       <Flex pb="8px" justifyContent="space-between" borderBottom="1px solid" borderBottomColor="grey.200">
