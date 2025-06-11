@@ -926,7 +926,19 @@ export type ExitingWhitelistPayload = {
 
 export type BeneficiaryForm = {
   form: APIResponse<Form>;
-  user: { firstName: string; lastName: string; company: string; userCode: string };
+  user: {
+    firstName: string;
+    lastName: string;
+    company: string;
+    gender: string;
+    otherNames: string;
+    dob: string;
+    lga: string;
+    tradeType: string;
+    email: string;
+    userCode: string;
+    state: string;
+  };
   moduleName: string;
 };
 

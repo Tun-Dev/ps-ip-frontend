@@ -54,6 +54,8 @@ import { Image } from '@chakra-ui/next-js';
 // import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { formatDateForInput } from '@/utils';
 import { useParams, usePathname } from 'next/navigation';
+import * as XLSX from 'xlsx';
+// import { format } from 'date-fns';
 
 const columnHelper = createColumnHelper<Beneficiary>();
 
@@ -83,6 +85,7 @@ const WhitelistingPage = () => {
   const { response } = useGetProgramById(programID?.toString());
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedWhitelistId, setSelectedWhitelistId] = useState<string>('');
+  const [selectedDownloadWhitelistId, setSelectedDownloadWhitelistId] = useState<string>('');
   const [selectedWL, setSelectedWL] = useState<WhitelistDetails>();
   const { data: modules } = useGetModules();
 
@@ -137,6 +140,41 @@ const WhitelistingPage = () => {
   const selectedWhitelistTableData = useMemo(() => {
     return selectedWhitelistBucket ? selectedWhitelistBucket.body.data : [];
   }, [selectedWhitelistBucket]);
+
+  const { refetch: refetchAll } = useGetBeneficiariesById({
+    page: 1,
+    pageSize: 100000,
+    programId: programID.toString(),
+    moduleId,
+    whitelistId: selectedDownloadWhitelistId,
+    enabled: !!selectedDownloadWhitelistId,
+  });
+
+  const handleDownloadWhitelist = async (bucket: WhitelistDetails) => {
+    setSelectedDownloadWhitelistId(bucket.id.toString());
+    const result = await refetchAll();
+    if (result.data?.body.data.length === 0) refetchAll(); // Ensure we have the latest data
+    const allRows = result.data?.body.data ?? [];
+    console.log('allRows', allRows);
+
+    const payload = allRows.map((row) => ({
+      'First Name': row.firstname ?? 'N/A',
+      'Last Name': row.lastname ?? 'N/A',
+      'Other Names': row.otherNames ?? 'N/A',
+      Gender: row.gender ?? 'N/A',
+      Age: row.age ?? 'N/A',
+      'Trade Type': row.tradeType ?? 'N/A',
+      'Whitelist Date': row.whitelistDate ? formatDateForInput(row.whitelistDate) : 'N/A',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(payload);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Whitelist');
+
+    // const ts = format(new Date(), 'dd/MM/yyyy H:mm:ss');
+    const baseName = bucket?.name ?? 'Whitelist';
+    XLSX.writeFile(wb, `${baseName}.xlsx`);
+  };
 
   const columns = useMemo(
     () =>
@@ -393,6 +431,17 @@ const WhitelistingPage = () => {
               >
                 <Text as="span" variant="Body2Regular" w="full">
                   Edit
+                </Text>
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('test download');
+                  handleDownloadWhitelist(info.row.original);
+                }}
+              >
+                <Text as="span" variant="Body2Regular" w="full">
+                  Download whitelist
                 </Text>
               </MenuItem>
               {/* <MenuItem

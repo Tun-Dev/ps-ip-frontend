@@ -11,31 +11,36 @@ import { z } from 'zod';
 
 import { useFillForm } from '@/hooks/useFillForm';
 import { useGetProgramForm } from '@/hooks/useGetProgramForm';
+import { useGetStates } from '@/hooks/useGetStates';
 import { BeneficiarySuccessModal } from '@/shared/chakra/modals/BeneficiarySuccessModal';
-import { Form } from '@/types';
+import { BeneficiaryForm, State } from '@/types';
 import FormInput from './form-input';
 
 type Props = {
-  beneficiaryForm?: Form;
-  moduleName?: string;
+  beneficiaryForm?: BeneficiaryForm;
 };
 
 const itemsPerPage = 5;
 
-export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
+export default function ModuleForm({ beneficiaryForm }: Props) {
+  const toast = useToast();
+  const route = useRouter();
   const { programId, userCode } = useParams();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [code, setCode] = useState('');
   const [stateQuestionId, setStateQuestionId] = useState('');
   const [previousStateQuestionId, setPreviousStateQuestionId] = useState<string | undefined>(undefined);
-  const toast = useToast();
-  const route = useRouter();
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const formData = beneficiaryForm?.form?.body;
+  const moduleName = beneficiaryForm?.moduleName;
+
+  const { data: states } = useGetStates();
   const { data: programForm } = useGetProgramForm(`${programId}`);
   const questions = useMemo(
-    () => beneficiaryForm?.questions ?? programForm?.body.form?.questions ?? [],
-    [programForm, beneficiaryForm]
+    () => formData?.questions ?? programForm?.body.form?.questions ?? [],
+    [programForm, formData]
   );
 
   const generateSchema = useCallback(() => {
@@ -136,14 +141,16 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
 
     if (savedData) return parsedData;
 
-    return questions.reduce(
-      (acc, question) => ({
+    return questions.reduce((acc, question) => {
+      const isUserCodeQuestion = question.question === 'User code' && userCode;
+      return {
         ...acc,
-        [question.id]: question.question === 'User code' && userCode ? userCode.toString() : '',
-      }),
-      {} as FormValues
-    );
-  }, [questions, userCode, programId]);
+        [question.id]: isUserCodeQuestion
+          ? userCode.toString()
+          : getMatchingQuestionValue(question.question, beneficiaryForm?.user, states?.body),
+      };
+    }, {} as FormValues);
+  }, [questions, userCode, programId, beneficiaryForm, states]);
 
   const visibleQuestions = useMemo(() => questions.filter((q) => q.type !== 'GPS'), [questions]);
 
@@ -169,7 +176,7 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
   const onSubmit = (data: FormValues) => {
     if (!programForm) return;
 
-    const formId = beneficiaryForm?.id ?? programForm.body.form?.id ?? '';
+    const formId = formData?.id ?? programForm.body.form?.id ?? '';
 
     const formAnswers = Object.entries(data)
       .filter(([question]) => questions.some((q) => q.id === question))
@@ -225,7 +232,7 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
 
   return (
     <Stack flex="1">
-      <BeneficiarySuccessModal isOpen={isOpen} onClose={onClose} code={code} isApplication={!beneficiaryForm} />
+      <BeneficiarySuccessModal isOpen={isOpen} onClose={onClose} code={code} isApplication={!formData} />
       <Stack gap="4" as="form" onSubmit={form.handleSubmit(onSubmit)}>
         {questions
           .filter((q) => q.type === 'GPS')
@@ -303,3 +310,31 @@ export default function ModuleForm({ beneficiaryForm, moduleName }: Props) {
     </Stack>
   );
 }
+
+const getMatchingQuestionValue = (question: string, user?: BeneficiaryForm['user'], states?: State[]) => {
+  if (!user) return '';
+  switch (question.toLowerCase()) {
+    case 'first name':
+      return user.firstName || '';
+    case 'last name':
+      return user.lastName || '';
+    case 'company name':
+      return user.company || '';
+    case 'gender':
+      return user.gender || '';
+    case 'middle name':
+      return user.otherNames || '';
+    case 'date of birth':
+      return user.dob ? user.dob.split('T')[0] : '';
+    case 'state':
+      return states ? states.find((s) => s.name === user.state)?.id || '' : '';
+    case 'lga':
+      return states ? states.find((s) => s.name === user.state)?.LGAs.find((l) => l.name === user.lga)?.id || '' : '';
+    case 'trade type':
+      return user.tradeType || '';
+    case 'email':
+      return user.email || '';
+    default:
+      return '';
+  }
+};

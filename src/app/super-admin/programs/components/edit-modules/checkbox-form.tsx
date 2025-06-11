@@ -97,17 +97,7 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
 
   const [checkedDataPoints, setCheckedDataPoints] = useState<
     Map<string, { dataPoint: DataPoint; isRequired: boolean }>
-  >(() => {
-    const map = new Map();
-    const defaultDataPoints = dataPointEntries.find(([heading]) => heading === 'Default');
-    // If there is no program (only when creating and not editing) or default data points, return an empty map
-    if (program || !defaultDataPoints) return map;
-    const [, dataPoints] = defaultDataPoints;
-    dataPoints
-      .filter((datapoint) => !SUB_TYPES.includes(datapoint.question))
-      .forEach((dataPoint) => map.set(dataPoint.id, { dataPoint, isRequired: true }));
-    return map;
-  });
+  >(new Map());
 
   const [allCompulsory, setAllCompulsory] = useState(false);
 
@@ -122,6 +112,22 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
       return newMap;
     });
   };
+
+  useEffect(() => {
+    const map = new Map();
+    const defaultDataPoints = dataPointEntries.find(([heading]) => heading === 'Default');
+
+    // Does not run if there are no default data points or when editing.
+    if (program || !defaultDataPoints) return;
+
+    const [, dataPoints] = defaultDataPoints;
+
+    dataPoints
+      .filter((datapoint) => !SUB_TYPES.includes(datapoint.question))
+      .forEach((dataPoint) => map.set(dataPoint.id, { dataPoint, isRequired: true }));
+
+    setCheckedDataPoints(map);
+  }, [dataPointEntries, program]);
 
   // Check if all selected data points are compulsory when the selection changes
   useEffect(() => {

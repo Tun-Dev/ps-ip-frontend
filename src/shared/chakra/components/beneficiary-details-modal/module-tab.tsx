@@ -144,7 +144,7 @@ function ModuleTab({ module, beneficiaryId, status, userCode, setMedia }: Props)
           );
         })}
       </Grid>
-      {status === 'PENDING' && (
+      {status === 'PENDING' && module.moduleName !== 'Verification' && (
         <Grid templateColumns="1fr 1fr" gap="6">
           <Button variant="accept" w="full" size="default" onClick={() => onApprove('APPROVED')}>
             Approve
