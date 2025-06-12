@@ -7,7 +7,6 @@ import { formatErrorMessage } from '@/utils';
 
 interface UploadDisbursementListParams {
   programId: string;
-  otp: string;
   file: File;
 }
 
@@ -15,8 +14,7 @@ export const useUploadDisbursementList = ({ onClose }: { onClose: () => void }) 
   const toast = useToast();
 
   return useMutation({
-    mutationFn: ({ programId, otp, file }: UploadDisbursementListParams) =>
-      uploadDisbursementList(programId, otp, file),
+    mutationFn: ({ programId, file }: UploadDisbursementListParams) => uploadDisbursementList(programId, file),
     onSuccess: () => {
       onClose();
       toast({

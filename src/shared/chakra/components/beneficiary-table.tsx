@@ -33,10 +33,11 @@ import { Beneficiary } from '@/types';
 import { FormStatus } from '@/utils';
 // import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { useParams } from 'next/navigation';
-import DownloadDisbursementListModal from '../modals/DownloadDisbursementListModal';
 import NominationModal from '../modals/NominationModal';
-import UploadDisbursementListModal from '../modals/UploadDisbursementListModal';
+// import DownloadDisbursementListModal from '../modals/DownloadDisbursementListModal';
 import { Dropdown } from './dropdown';
+import UploadDisbursementListModal from '../modals/UploadDisbursementListModal';
+import { useDownloadDisbursementList } from '@/hooks/useDownloadDisbursementList';
 
 const columnHelper = createColumnHelper<Beneficiary>();
 
@@ -45,7 +46,7 @@ type Props = {
   dashboardType?: 'general' | 'client';
 };
 
-export const BeneficiaryTable = ({ moduleName, dashboardType }: Props) => {
+export const BeneficiaryTable = ({ moduleName }: Props) => {
   const toast = useToast();
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -59,11 +60,11 @@ export const BeneficiaryTable = ({ moduleName, dashboardType }: Props) => {
   );
 
   const { isOpen: isNominationOpen, onOpen: onNominationOpen, onClose: onNominationClose } = useDisclosure();
-  const {
-    isOpen: isDownloadDisbursementOpen,
-    onOpen: onDownloadDisbursementOpen,
-    onClose: onDownloadDisbursementClose,
-  } = useDisclosure();
+  // const {
+  //   isOpen: isDownloadDisbursementOpen,
+  //   onOpen: onDownloadDisbursementOpen,
+  //   onClose: onDownloadDisbursementClose,
+  // } = useDisclosure();
   const {
     isOpen: isUploadDisbursementOpen,
     onOpen: onUploadDisbursementOpen,
@@ -78,6 +79,8 @@ export const BeneficiaryTable = ({ moduleName, dashboardType }: Props) => {
   const { response: programDetails } = useGetProgramById(programID?.toString());
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
   const { data: modules } = useGetModules();
+
+  const { mutate: download, isPending: isDownloading } = useDownloadDisbursementList();
 
   const moduleId = useMemo(
     () => modules?.body?.find((module) => module.name === moduleName)?.id ?? 0,
@@ -407,12 +410,12 @@ export const BeneficiaryTable = ({ moduleName, dashboardType }: Props) => {
   return (
     <>
       <NominationModal isOpen={isNominationOpen} onClose={onNominationClose} programId={programID?.toLocaleString()} />
-      <DownloadDisbursementListModal
+      {/* <DownloadDisbursementListModal
         isOpen={isDownloadDisbursementOpen}
         onClose={onDownloadDisbursementClose}
         programId={programID?.toLocaleString()}
         programName={programDetails?.body?.name || ''}
-      />
+      /> */}
       <UploadDisbursementListModal
         isOpen={isUploadDisbursementOpen}
         onClose={onUploadDisbursementClose}
@@ -464,48 +467,43 @@ export const BeneficiaryTable = ({ moduleName, dashboardType }: Props) => {
               )}
             </Flex>
             <Flex gap="16px">
-              {dashboardType !== 'client' && (
+              <Button
+                leftIcon={<MdDownload size="0.875rem" />}
+                variant={moduleName === 'Nomination' ? 'secondary' : 'primary'}
+                size="medium"
+              >
+                Download Report
+              </Button>
+              {moduleName === 'Nomination' && (
                 <Button
-                  leftIcon={<MdDownload size="0.875rem" />}
-                  variant={moduleName === 'Nomination' ? 'secondary' : 'primary'}
+                  leftIcon={<MdOutlineUploadFile />}
+                  variant="primary"
                   size="medium"
+                  onClick={() => onNominationOpen()}
                 >
-                  Download Report
+                  Upload Nomination List
                 </Button>
               )}
-              {dashboardType !== 'client' && (
-                <>
-                  {moduleName === 'Nomination' && (
-                    <Button
-                      leftIcon={<MdOutlineUploadFile />}
-                      variant="primary"
-                      size="medium"
-                      onClick={() => onNominationOpen()}
-                    >
-                      Upload Nomination List
-                    </Button>
-                  )}
-                  {moduleName === 'Disbursement' && (
-                    <Button
-                      leftIcon={<MdOutlineUploadFile />}
-                      variant="primary"
-                      size="medium"
-                      onClick={() => onUploadDisbursementOpen()}
-                    >
-                      Upload Disbursement List
-                    </Button>
-                  )}
-                  {moduleName === 'Disbursement' && (
-                    <Button
-                      leftIcon={<MdDownload />}
-                      variant="primary"
-                      size="medium"
-                      onClick={() => onDownloadDisbursementOpen()}
-                    >
-                      Download Disbursement List
-                    </Button>
-                  )}
-                </>
+              {moduleName === 'Disbursement' && (
+                <Button
+                  leftIcon={<MdOutlineUploadFile />}
+                  variant="primary"
+                  size="medium"
+                  onClick={() => onUploadDisbursementOpen()}
+                >
+                  Upload Nomination List
+                </Button>
+              )}
+              {moduleName === 'Disbursement' && (
+                <Button
+                  leftIcon={<MdDownload />}
+                  variant="primary"
+                  size="medium"
+                  onClick={() => download({ programId: programID?.toLocaleString() })}
+                  isLoading={isDownloading}
+                >
+                  Download Disbursement List
+                </Button>
               )}
             </Flex>
           </Flex>

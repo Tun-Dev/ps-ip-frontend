@@ -881,6 +881,7 @@ export type CreateWhiteListBucketPayload = {
   amount?: number;
   beneficiaries?: string[];
   whitelistId?: string;
+  otp?: string;
 };
 
 export type VettingOfficersDashboard = {
@@ -922,6 +923,7 @@ export type ExitingWhitelistPayload = {
   whitelistId: string;
   programId: string;
   beneficiaryIds: string[];
+  otp: string;
 };
 
 export type BeneficiaryForm = {

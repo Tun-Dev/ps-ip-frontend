@@ -121,26 +121,21 @@ export const getNotificationStatus = async ({ queryKey, signal }: { queryKey: Qu
 };
 
 export const requestOtp = async (payload: { firstName: string; programName: string }) => {
-  const { data } = await axiosInstance.post<APIResponse<boolean>>(`/disbursement/otp/request`, payload);
+  const { data } = await axiosInstance.post<APIResponse<boolean>>(`/whitelist/otp/request`, payload);
   return data;
 };
 
-export const downloadDisbursementList = async (programId: string, otp: string) => {
-  const response = await axiosInstance.post(
-    `/disbursement/download/${programId}`,
-    { otp },
-    {
-      responseType: 'blob',
-    }
-  );
+export const downloadDisbursementList = async (programId: string) => {
+  const response = await axiosInstance.post(`/disbursement/download/${programId}`, {
+    responseType: 'blob',
+  });
 
   return response;
 };
 
-export const uploadDisbursementList = async (programId: string, otp: string, file: File) => {
+export const uploadDisbursementList = async (programId: string, file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('otp', otp); // assuming the API expects this in the form body
 
   const response = await axiosInstance.post(`/disbursement/upload/${programId}`, formData, {
     headers: {

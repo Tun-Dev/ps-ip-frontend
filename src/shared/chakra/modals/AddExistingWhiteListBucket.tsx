@@ -1,6 +1,8 @@
 // import { useGetVendorDetails } from '@/hooks/useGetVendorDetails';
 import { useAddExistingWhiteList } from '@/hooks/useAddExistingWhiteList';
 import { useGetWhitelistByProgramId } from '@/hooks/useGetWhitelistByProgramId';
+import { useRequestOtp } from '@/hooks/useRequestOtp';
+import { useUserStore } from '@/providers/user-store-provider';
 import { WhitelistDetails } from '@/types';
 // import { useRemoveVendorProgram } from '@/hooks/useRemoveVendorProgram';
 // import type { VendorDetails, WhitelistDetails } from '@/types';
@@ -10,6 +12,7 @@ import {
   Button,
   Flex,
   Grid,
+  HStack,
   //   Grid,
   Modal,
   ModalBody,
@@ -18,6 +21,9 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  PinInput,
+  PinInputField,
+  SimpleGrid,
   // SimpleGrid,
   Spinner,
   //   Spinner,
@@ -25,18 +31,24 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
   beneficiariesIds: string[];
   programID: string | string[];
+  programName: string;
   selectedIds: string[];
   //   setScreen: Dispatch<SetStateAction<'list' | 'assign'>>;
 };
 
-export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, programID }: Props) => {
+export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, programID, programName }: Props) => {
   const toast = useToast();
+  const user = useUserStore((state) => state.user);
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState(1);
+  const { isPending: isRequestingOTP, mutate } = useRequestOtp({});
   const { data, isPending, isError, error } = useGetWhitelistByProgramId(
     { page: 1, pageSize: 999 },
     programID?.toLocaleString()
@@ -44,11 +56,18 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
 
   const { mutate: addExistingWhitelist } = useAddExistingWhiteList();
 
+  useEffect(() => {
+    if (isOpen) {
+      mutate({ firstName: user?.firstName || '', programName: programName });
+    }
+  }, [isOpen, mutate, user, programName]);
+
   const onSubmit = (id: string) => {
     const payload = {
       programId: programID?.toLocaleString(),
       whitelistId: id,
       beneficiaryIds: beneficiariesIds,
+      otp: otp,
     };
 
     addExistingWhitelist(payload, {
@@ -60,7 +79,16 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside" isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        setOtp('');
+        setStep(1);
+        onClose();
+      }}
+      scrollBehavior="inside"
+      isCentered
+    >
       <ModalOverlay />
       <ModalContent maxW="42.375rem">
         <ModalHeader>
@@ -70,33 +98,89 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
           <ModalCloseButton />
         </ModalHeader>
         <ModalBody>
-          <Stack gap="4">
-            {isPending ? (
-              <Grid placeItems="center" h="10rem">
-                <Spinner />
-              </Grid>
-            ) : isError ? (
-              <Text>{formatErrorMessage(error)}</Text>
-            ) : (
-              data.body.data.map((item) => <Item key={item.id} item={item} onClick={() => onSubmit(item.id)} />)
-            )}
-            {/* <Item item={data} /> */}
-          </Stack>
+          {step === 1 ? (
+            <Flex flexDir="column" alignItems="center" gap="4">
+              <Text align="center">Please enter OTP to proceed</Text>
+              <HStack>
+                <PinInput
+                  otp
+                  size="lg"
+                  isDisabled={isRequestingOTP}
+                  type="alphanumeric"
+                  onChange={(e) => {
+                    setOtp(e);
+                  }}
+                >
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                </PinInput>
+              </HStack>
+              <Text mt={4}>
+                Didn’t receive OTP?{' '}
+                <Button
+                  variant="link"
+                  onClick={() => {
+                    mutate({ firstName: user?.firstName || '', programName: programName });
+                  }}
+                >
+                  Resend
+                </Button>
+              </Text>
+            </Flex>
+          ) : (
+            <Stack gap="4">
+              {isPending ? (
+                <Grid placeItems="center" h="10rem">
+                  <Spinner />
+                </Grid>
+              ) : isError ? (
+                <Text>{formatErrorMessage(error)}</Text>
+              ) : (
+                data.body.data.map((item) => <Item key={item.id} item={item} onClick={() => onSubmit(item.id)} />)
+              )}
+              {/* <Item item={data} /> */}
+            </Stack>
+          )}
         </ModalBody>
         <ModalFooter>
-          {/* <SimpleGrid w="full" gap="4" columns={2}>
-            <Button variant="cancel" height="3rem" w="full" onClick={onClose}>
-              Close
-            </Button>
-            <Button
-              variant="primary"
-              height="3rem"
-              w="full"
-              // onClick={() => setScreen('assign')}
-            >
-              Assign Program
-            </Button>
-          </SimpleGrid> */}
+          {step === 1 ? (
+            <SimpleGrid w="full" gap="4" columns={2}>
+              <Button variant="cancel" height="3rem" w="full" onClick={onClose}>
+                Close
+              </Button>
+              <Button
+                variant="primary"
+                height="3rem"
+                w="full"
+                onClick={() => {
+                  if (otp.length === 8) setStep(2);
+                }}
+                disabled={otp.length !== 8}
+              >
+                Next Step
+              </Button>
+            </SimpleGrid>
+          ) : (
+            <SimpleGrid w="full" gap="4">
+              <Button variant="cancel" height="3rem" w="full" onClick={onClose}>
+                Close
+              </Button>
+              {/* <Button
+                variant="primary"
+                height="3rem"
+                w="full"
+                // onClick={() => setScreen('assign')}
+              >
+                Assign Program
+              </Button> */}
+            </SimpleGrid>
+          )}
         </ModalFooter>
       </ModalContent>
     </Modal>

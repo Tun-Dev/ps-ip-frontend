@@ -700,6 +700,7 @@ const WhitelistingPage = () => {
         programId={programID.toString()}
         programType={programType}
         beneficiariesIds={selectedIds}
+        programName={response?.body?.name ?? ''}
       />
       {selectedWL && (
         <EditWhiteListBucket
@@ -717,6 +718,7 @@ const WhitelistingPage = () => {
         onClose={onCloseExisting}
         beneficiariesIds={selectedIds}
         programID={programID}
+        programName={response?.body?.name ?? ''}
         selectedIds={selectedIds}
       />
     </>

@@ -7,13 +7,12 @@ import { formatErrorMessage } from '@/utils';
 
 interface DownloadDisbursementListParams {
   programId: string;
-  otp: string;
 }
 
 export const useDownloadDisbursementList = () => {
   const toast = useToast();
   return useMutation({
-    mutationFn: ({ programId, otp }: DownloadDisbursementListParams) => downloadDisbursementList(programId, otp),
+    mutationFn: ({ programId }: DownloadDisbursementListParams) => downloadDisbursementList(programId),
     onSuccess: (response) => {
       const blob = new Blob([response.data], { type: response.headers['content-type'] });
       const url = window.URL.createObjectURL(blob);

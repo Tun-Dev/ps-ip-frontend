@@ -1,11 +1,11 @@
 'use client';
 
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
 import {
   Box,
   Button,
   Flex,
-  HStack,
+  // HStack,
   Icon,
   Input,
   Modal,
@@ -14,15 +14,15 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  PinInput,
-  PinInputField,
+  // PinInput,
+  // PinInputField,
   Text,
 } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
 import { MdDeleteForever, MdUploadFile } from 'react-icons/md';
-import { useRequestOtp } from '@/hooks/useRequestOtp';
+// import { useRequestOtp } from '@/hooks/useRequestOtp';
 import { useUploadDisbursementList } from '@/hooks/useUploadDisbursementList';
-import { useUserStore } from '@/providers/user-store-provider';
+// import { useUserStore } from '@/providers/user-store-provider';
 
 type UploadDisbursementListModalProps = {
   isOpen: boolean;
@@ -134,30 +134,30 @@ const UploadArea = ({
   );
 };
 
-const UploadDisbursementListModal = ({ isOpen, onClose, programId, programName }: UploadDisbursementListModalProps) => {
-  const user = useUserStore((state) => state.user);
-  const [step, setStep] = useState(1);
+const UploadDisbursementListModal = ({ isOpen, onClose, programId }: UploadDisbursementListModalProps) => {
+  // const user = useUserStore((state) => state.user);
+  // const [step, setStep] = useState(1);
   const [file, setFile] = useState<File | null>(null);
-  const [otp, setOtp] = useState('');
+  // const [otp, setOtp] = useState('');
   const resetStuff = () => {
     onClose();
     setFile(null);
-    setOtp('');
-    setStep(1);
+    // setOtp('');
+    // setStep(1);
   };
 
-  const { isPending: isRequestingOTP, mutate } = useRequestOtp({});
+  // const { isPending: isRequestingOTP, mutate } = useRequestOtp({});
   const { mutate: upload, isPending: isUploading } = useUploadDisbursementList({ onClose: resetStuff });
 
   const handleUpload = async (file: File) => {
-    upload({ programId, otp, file });
+    upload({ programId, file });
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      mutate({ firstName: user?.firstName || '', programName: programName });
-    }
-  }, [isOpen, mutate, user, programName]);
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     mutate({ firstName: user?.firstName || '', programName: programName });
+  //   }
+  // }, [isOpen, mutate, user, programName]);
 
   return (
     <Modal
@@ -165,8 +165,8 @@ const UploadDisbursementListModal = ({ isOpen, onClose, programId, programName }
       onClose={() => {
         onClose();
         setFile(null);
-        setOtp('');
-        setStep(1);
+        // setOtp('');
+        // setStep(1);
       }}
       scrollBehavior="inside"
       isCentered
@@ -180,7 +180,7 @@ const UploadDisbursementListModal = ({ isOpen, onClose, programId, programName }
         <ModalCloseButton />
         <ModalBody padding="">
           <Flex align="center" flexDir="column" gap="4">
-            {step === 1 ? (
+            {/* {step === 1 ? (
               <>
                 <Text>Please enter OTP to proceed</Text>
                 <HStack>
@@ -215,20 +215,19 @@ const UploadDisbursementListModal = ({ isOpen, onClose, programId, programName }
                   </Button>
                 </Text>
               </>
-            ) : (
-              <>
-                <UploadArea
-                  text="Upload Disbursement List"
-                  bg="#FBF7EE"
-                  borderColor="#EEDDBC"
-                  icon={MdUploadFile}
-                  iconColor="#D5AB57"
-                  textColor="#D5AB57"
-                  file={file}
-                  setFile={setFile}
-                />
-              </>
-            )}
+            ) : ( */}
+            <>
+              <UploadArea
+                text="Upload Disbursement List"
+                bg="#FBF7EE"
+                borderColor="#EEDDBC"
+                icon={MdUploadFile}
+                iconColor="#D5AB57"
+                textColor="#D5AB57"
+                file={file}
+                setFile={setFile}
+              />
+            </>
 
             <Button
               variant="primary"
@@ -236,15 +235,11 @@ const UploadDisbursementListModal = ({ isOpen, onClose, programId, programName }
               height="48px"
               mt="40px"
               mb="40px"
-              isDisabled={otp.length !== 8 || isUploading}
+              isDisabled={!file || isUploading}
               isLoading={isUploading}
               onClick={() => {
-                if (step === 1) {
-                  if (otp.length === 8) setStep(2);
-                } else {
-                  if (otp && programId && file) {
-                    handleUpload(file);
-                  }
+                if (programId && file) {
+                  handleUpload(file);
                 }
               }}
             >
