@@ -16,6 +16,7 @@ type Field = {
   value: number;
   isRequired: boolean;
   options: { value: string; label: string }[];
+  placeholder?: string;
 };
 
 type Props = {
@@ -32,7 +33,7 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
   });
 
   const {
-    form: { control, register },
+    form: { control, register, getValues },
   } = useProgramForm();
   const { fields, remove, append } = useFieldArray({ name: `vettingForm.manualFields.${index}.options`, control });
 
@@ -51,6 +52,8 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
   }, [questionTypes]);
 
   const currentOption = useMemo(() => options.find((opt) => opt.status === field.status), [field.status, options]);
+
+  console.log(field.name === '');
 
   return (
     <Box
@@ -74,6 +77,7 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
                 fontSize="13px"
                 fontWeight="semibold"
                 lineHeight="20px"
+                placeholder={field.placeholder}
                 {...inputProps}
               />
               <Icon as={MdEdit} aria-label={`Edit ${field.name}`} color="primary.500" boxSize="3" />
@@ -121,7 +125,16 @@ export function ManualVettingField({ field, inputProps, onDelete, onChange, inde
               </Grid>
             </Flex>
           ) : (
-            <Input placeholder={field.name} border="1px dashed" borderColor="grey.300" isReadOnly />
+            <Input
+              placeholder={
+                getValues(`vettingForm.manualFields.${index}.name`) === ''
+                  ? getValues(`vettingForm.manualFields.${index}.placeholder`)
+                  : getValues(`vettingForm.manualFields.${index}.name`)
+              }
+              border="1px dashed"
+              borderColor="grey.300"
+              isReadOnly
+            />
           )}
         </Stack>
         <Flex alignItems="center" gap="4">

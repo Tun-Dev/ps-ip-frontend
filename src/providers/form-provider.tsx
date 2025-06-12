@@ -32,6 +32,7 @@ const vettingFormSchema = z.object({
       status: z.string(),
       isRequired: z.boolean(),
       options: z.array(z.object({ label: z.string(), value: z.string() })),
+      placeholder: z.string().optional(),
     })
   ),
   automatedFields: z.array(
@@ -137,19 +138,28 @@ export const defaultValues: ProgramSchema = {
     manualPassScore: 15,
     manualFields: [
       {
-        name: 'How old is your business?',
+        name: '',
         value: 10,
         status: 'SHORT_TEXT',
         isRequired: true,
         options: [],
+        placeholder: 'How old is your business?',
       },
-      { name: 'Why do you deserve this grant?', value: 10, status: 'LONG_TEXT', isRequired: true, options: [] },
       {
-        name: 'What is your plan if you were to receive the grant?',
+        name: '',
         value: 10,
         status: 'LONG_TEXT',
         isRequired: true,
         options: [],
+        placeholder: 'Why do you deserve this grant?',
+      },
+      {
+        name: '',
+        value: 10,
+        status: 'LONG_TEXT',
+        isRequired: true,
+        options: [],
+        placeholder: 'What is your plan if you were to receive the grant?',
       },
     ],
     automatedFields: [

@@ -117,7 +117,14 @@ const ManualVettingForm = memo(({ display }: { display: string }) => {
             size="default"
             leftIcon={<MdAddCircle color="var(--chakra-colors-primary-600)" size="1.5rem" />}
             onClick={() =>
-              append({ name: 'New Question', value: 0, status: 'SHORT_TEXT', isRequired: true, options: [] })
+              append({
+                name: '',
+                value: 0,
+                status: 'SHORT_TEXT',
+                isRequired: true,
+                options: [],
+                placeholder: 'New Question',
+              })
             }
             border="1px dashed"
             borderColor="grey.300"

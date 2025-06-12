@@ -165,18 +165,25 @@ export default function ModuleForm({ beneficiaryForm }: Props) {
 
   const form = useForm<FormValues>({ resolver: zodResolver(Schema), defaultValues });
 
-  useEffect(() => {
-    form.reset(defaultValues);
-  }, [defaultValues, form]);
+  // useEffect(() => {
+  //   form.reset(defaultValues);
+  // }, [defaultValues, form]);
 
   const hasErrors = Object.keys(form.formState.errors).length > 0;
 
+  console.log(form.getValues());
+
   const { mutate: fillForm, isPending } = useFillForm();
 
+  // console.log(programForm);
+
   const onSubmit = (data: FormValues) => {
+    console.log('Submitting data:', data);
     if (!programForm) return;
 
     const formId = formData?.id ?? programForm.body.form?.id ?? '';
+
+    console.log('works');
 
     const formAnswers = Object.entries(data)
       .filter(([question]) => questions.some((q) => q.id === question))
@@ -229,6 +236,8 @@ export default function ModuleForm({ beneficiaryForm }: Props) {
         No questions found
       </Text>
     );
+
+  console.log(questions.filter((q) => q.type === 'GPS'));
 
   return (
     <Stack flex="1">
