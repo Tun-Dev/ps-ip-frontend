@@ -102,7 +102,7 @@ const DownloadDisbursementListModal = ({
               isLoading={isDownloading}
               isDisabled={otp.length !== 8 || isDownloading}
               onClick={() => {
-                download({ programId, otp });
+                download({ programId });
                 onClose();
               }}
             >
