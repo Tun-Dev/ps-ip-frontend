@@ -30,6 +30,7 @@ import type { Client } from '@/types';
 type ModalProps = {
   client: Client;
   setScreen: Dispatch<SetStateAction<'list' | 'assign'>>;
+  onClose: () => void;
 };
 
 const Schema = z.object({
@@ -41,7 +42,7 @@ const Schema = z.object({
 
 type FormValues = z.infer<typeof Schema>;
 
-export const AssignProgramToClient = ({ client, setScreen }: ModalProps) => {
+export const AssignProgramToClient = ({ client, setScreen, onClose }: ModalProps) => {
   const { data: aggregatorDetails } = useGetClientByID(client.id);
   const { data: programs } = useGetPrograms({ page: 1, pageSize: 999 });
   const { mutate, isPending: isAdding } = useAddClientToProgram({ id: client.id });
@@ -80,6 +81,7 @@ export const AssignProgramToClient = ({ client, setScreen }: ModalProps) => {
     mutate(payload, {
       onSuccess: () => {
         setScreen('list');
+        onClose();
       },
     });
   };

@@ -17,7 +17,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 
 type Props = {
   onClose: () => void;
@@ -26,9 +26,13 @@ type Props = {
 };
 
 export const ClientProgramList = ({ onClose, client, setScreen }: Props) => {
-  const { data, isPending, isError, error } = useGetClientByID(client.id);
+  const { data, isPending, isError, error, refetch } = useGetClientByID(client.id);
 
-  console.log(data);
+  // console.log(data);
+
+  useEffect(() => {
+    refetch();
+  }, [client.id, refetch]);
 
   return (
     <ModalContent maxW="42.375rem">
@@ -46,8 +50,10 @@ export const ClientProgramList = ({ onClose, client, setScreen }: Props) => {
             </Grid>
           ) : isError ? (
             <Text>{formatErrorMessage(error)}</Text>
-          ) : (
+          ) : data.body.length > 0 ? (
             data.body.map((item) => <Item key={item.programId} item={item} />)
+          ) : (
+            <Text>No program assigned</Text>
           )}
         </Stack>
       </ModalBody>

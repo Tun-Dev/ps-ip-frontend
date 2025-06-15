@@ -34,6 +34,7 @@ import { GeepComponent, ModuleProgressCard } from '@/shared/chakra/components';
 import { Program, ProgramModules } from '@/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToggleNotification } from '@/hooks/useToggleNotification';
+import { DuplicateProgramModal } from '@/shared/chakra/modals/DuplicateProgramModal';
 
 const ProgramsPage = () => {
   const [selectedId, setSelectedId] = useState('');
@@ -113,6 +114,7 @@ const LoadingSkeleton = () => (
 const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => void; isLoading: boolean }) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose: deleteModalOnClose } = useDisclosure();
+  const { isOpen: isOpenDuplicate, onOpen: onOpenDuplicate, onClose: duplicateModalOnClose } = useDisclosure();
   const router = useRouter();
   const { onCopy } = useClipboard(`${window.origin}/beneficiary/${program?.id}`);
   const { folderID } = useParams();
@@ -185,6 +187,7 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
         isLoading={isPending}
         text="Are you sure you want to delete this program. Proceeding will erase all programs data."
       />
+      <DuplicateProgramModal isOpen={isOpenDuplicate} onClose={duplicateModalOnClose} program={program} />
       <Stack
         spacing="0"
         as={motion.div}
@@ -266,6 +269,9 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
                     <Flex flexDirection="column">
                       <Button bg="white" h="32px" w="full" fontSize="13px" onClick={() => handleEdit(program.id)}>
                         Edit Product
+                      </Button>
+                      <Button bg="white" h="32px" w="full" fontSize="13px" onClick={onOpenDuplicate}>
+                        Duplicate Product
                       </Button>
                       <Button bg="white" h="32px" w="full" fontSize="13px" onClick={onOpen}>
                         Delete Product

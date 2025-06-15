@@ -13,6 +13,7 @@ export const useAddClientToProgram = ({ onSuccess, id }: { onSuccess?: () => voi
     onSuccess: () => {
       toast({ title: 'Success', description: 'Assigned Successfully', status: 'success' });
       queryClient.invalidateQueries({ queryKey: ['client', id] });
+      queryClient.invalidateQueries({ queryKey: ['client'] });
       //   queryClient.invalidateQueries({ queryKey: ['aggregatorsOverview'] });
       //   queryClient.invalidateQueries({ queryKey: ['allAggregatorPrograms'] });
       onSuccess?.();

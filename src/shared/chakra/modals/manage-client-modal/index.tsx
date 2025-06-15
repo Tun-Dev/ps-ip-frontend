@@ -25,7 +25,7 @@ export const ManageClientModal = ({ isOpen, onClose, client }: ModalProps) => {
       {screen === 'list' ? (
         <ClientProgramList onClose={onClose} setScreen={setScreen} client={client} />
       ) : (
-        <AssignProgramToClient setScreen={setScreen} client={client} />
+        <AssignProgramToClient setScreen={setScreen} client={client} onClose={onClose} />
       )}
     </Modal>
   );

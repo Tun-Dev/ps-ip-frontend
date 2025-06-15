@@ -262,7 +262,7 @@ const CreateWhiteListBucket = ({
               </SimpleGrid>
             ) : (
               <Button variant="primary" w="25.125rem" h="3rem" mx="auto" type="submit" isLoading={isPending}>
-                Create Wishlist
+                Create Whitelist
               </Button>
             )}
           </ModalFooter>

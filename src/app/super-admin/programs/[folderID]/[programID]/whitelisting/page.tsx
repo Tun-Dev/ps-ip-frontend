@@ -234,6 +234,14 @@ const WhitelistingPage = () => {
           ),
           meta: { isCentered: true },
         }),
+        columnHelper.accessor('state', {
+          header: 'State',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
         // columnHelper.accessor('whitelistDate', {
         //   id: 'whitelistDate',
         //   header: () => {

@@ -324,6 +324,14 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
           ),
           meta: { isCentered: true },
         }),
+        columnHelper.accessor('state', {
+          header: 'State',
+          cell: (info) => (
+            <Text as="span" variant="Body2Regular">
+              {info.getValue() ?? 'N/A'}
+            </Text>
+          ),
+        }),
         columnHelper.display({
           id: 'actions',
           header: () => (
@@ -491,7 +499,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                   size="medium"
                   onClick={() => onUploadDisbursementOpen()}
                 >
-                  Upload Nomination List
+                  Upload Disbursement List
                 </Button>
               )}
               {moduleName === 'Disbursement' && (

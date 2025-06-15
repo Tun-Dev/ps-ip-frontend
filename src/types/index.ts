@@ -392,6 +392,7 @@ export type Beneficiary = {
   age: number;
   tradeType: string;
   whitelistDate: string;
+  state: string;
 };
 
 export type BeneficiaryDetails = {
