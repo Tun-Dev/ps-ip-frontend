@@ -52,7 +52,7 @@ export const uploadNominationFile = async ({ programId, file }: { programId: str
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await axiosInstance.post<APIResponse<{ file: FormData }>>(
+  const response = await axiosInstance.post<APIResponse<{ successful: never[]; failed: never[] }>>(
     `/nomination/upload/${programId}`,
     formData,
     {

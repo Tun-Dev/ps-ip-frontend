@@ -328,7 +328,7 @@ const getMatchingQuestionValue = (question: string, user?: BeneficiaryForm['user
     case 'last name':
       return user.lastName || '';
     case 'company name':
-      return user.company || '';
+      return user.company || user.companyName || '';
     case 'gender':
       return user.gender || '';
     case 'middle name':

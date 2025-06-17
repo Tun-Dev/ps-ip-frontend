@@ -933,6 +933,7 @@ export type BeneficiaryForm = {
     firstName: string;
     lastName: string;
     company: string;
+    companyName: string;
     gender: string;
     otherNames: string;
     dob: string;

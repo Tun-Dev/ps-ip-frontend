@@ -50,6 +50,7 @@ const CreateWhiteListBucket = ({
   programType,
   programName,
 }: ModalProps) => {
+  const shouldSkipOtp = !beneficiariesIds || beneficiariesIds.length === 0;
   const toast = useToast();
   const user = useUserStore((state) => state.user);
   const [otp, setOtp] = useState('');
@@ -76,15 +77,13 @@ const CreateWhiteListBucket = ({
 
   useEffect(() => {
     if (isOpen) {
-      const shouldSkipOtp = !beneficiariesIds || beneficiariesIds.length === 0;
-
       if (shouldSkipOtp) {
         setStep(2);
       } else {
         mutate({ firstName: user?.firstName || '', programName: programName });
       }
     }
-  }, [isOpen, mutate, user, programName, beneficiariesIds]);
+  }, [isOpen, mutate, user, programName, beneficiariesIds, shouldSkipOtp]);
 
   const vendors = useMemo(() => {
     if (!data) return [];
@@ -128,13 +127,7 @@ const CreateWhiteListBucket = ({
         isCentered
       >
         <ModalOverlay />
-        <ModalContent
-          as="form"
-          maxW="42.375rem"
-          minH="calc(100% - 8rem)"
-          borderRadius="12px"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <ModalContent as="form" maxW="42.375rem" borderRadius="12px" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>
             <Text variant="Body1Semibold">Create Whitelist</Text>
           </ModalHeader>
@@ -261,9 +254,23 @@ const CreateWhiteListBucket = ({
                 </Button>
               </SimpleGrid>
             ) : (
-              <Button variant="primary" w="25.125rem" h="3rem" mx="auto" type="submit" isLoading={isPending}>
-                Create Whitelist
-              </Button>
+              <>
+                {!shouldSkipOtp && (
+                  <Button
+                    variant="primary"
+                    height="3rem"
+                    w="full"
+                    onClick={() => {
+                      setStep(1);
+                    }}
+                  >
+                    Previous Step
+                  </Button>
+                )}
+                <Button variant="primary" w="full" h="3rem" mx="auto" type="submit" isLoading={isPending}>
+                  Create Wishlist
+                </Button>
+              </>
             )}
           </ModalFooter>
         </ModalContent>

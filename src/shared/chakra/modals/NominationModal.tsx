@@ -20,11 +20,12 @@ import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { IconType } from 'react-icons';
 import { MdDeleteForever, MdDownload, MdUploadFile } from 'react-icons/md';
 import { Dropdown } from '../components';
+import * as XLSX from 'xlsx';
 
 const NominationModal = ({
   isOpen,
   onClose,
-  action,
+  // action,
   programId,
 }: {
   isOpen: boolean;
@@ -34,6 +35,7 @@ const NominationModal = ({
   isLoading?: boolean;
   programId?: string;
 }) => {
+  const [response, setResponse] = useState<{ successful: never[]; failed: never[] }>({ successful: [], failed: [] });
   const toast = useToast();
   const templates = [
     {
@@ -75,9 +77,16 @@ const NominationModal = ({
 
   const { mutate: uploadNominationFile, isPending: isUploading } = useUploadNominationFile(onClose);
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (file) {
-      uploadNominationFile({ file: file, programId: programId || '' });
+      uploadNominationFile(
+        { file: file, programId: programId || '' },
+        {
+          onSuccess: (data) => {
+            setResponse(data.body);
+          },
+        }
+      );
     }
   };
 
@@ -100,6 +109,23 @@ const NominationModal = ({
   };
 
   const [file, setFile] = useState<File | null>(null);
+
+  const downloadAsXLSX = (data: never[], filename: string) => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+    const blob = new Blob([XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside" isCentered>
@@ -151,11 +177,23 @@ const NominationModal = ({
               isLoading={isUploading}
               onClick={() => {
                 handleUpload();
-                action?.();
               }}
             >
               Upload File
             </Button>
+            <Flex gap={4}>
+              {response?.successful?.length > 0 && (
+                <Button colorScheme="green" onClick={() => downloadAsXLSX(response.successful!, 'successful.xlsx')}>
+                  {`Successful (${response.successful.length})`}
+                </Button>
+              )}
+
+              {response?.failed?.length > 0 && (
+                <Button colorScheme="red" onClick={() => downloadAsXLSX(response.failed!, 'failed.xlsx')}>
+                  {`Failed (${response.failed.length})`}
+                </Button>
+              )}
+            </Flex>
           </Flex>
         </ModalBody>
       </ModalContent>

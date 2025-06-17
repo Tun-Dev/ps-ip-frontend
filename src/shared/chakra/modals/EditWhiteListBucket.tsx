@@ -102,7 +102,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
         <ModalContent
           as="form"
           maxW="42.375rem"
-          minH="calc(100% - 8rem)"
+          // minH="calc(100% - 8rem)"
           borderRadius="12px"
           onSubmit={handleSubmit(onSubmit)}
         >

@@ -123,7 +123,7 @@ const RenderGroup = memo(({ debouncedQuery, moduleId, pageSize, setPageSize }: R
     const [, dataPoints] = defaultDataPoints;
 
     dataPoints
-      .filter((datapoint) => !SUB_TYPES.includes(datapoint.question))
+      .filter((datapoint) => !SUB_TYPES.includes(datapoint.question.toLowerCase()))
       .forEach((dataPoint) => map.set(dataPoint.id, { dataPoint, isRequired: true }));
 
     setCheckedDataPoints(map);

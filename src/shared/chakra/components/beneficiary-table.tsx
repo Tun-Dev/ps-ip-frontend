@@ -19,13 +19,13 @@ import {
 } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { useCallback, useMemo, useState } from 'react';
-import { MdCancel, MdCheckCircle, MdDownload, MdMoreHoriz, MdOutlineUploadFile, MdSearch } from 'react-icons/md';
+import { MdCancel, MdCheckCircle, MdMoreHoriz, MdOutlineUploadFile, MdSearch } from 'react-icons/md';
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetModules } from '@/hooks/useGetModules';
-import { useGetProgramById } from '@/hooks/useGetProgramById';
+// import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { ReusableTable } from '@/shared';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
@@ -36,8 +36,7 @@ import { useParams } from 'next/navigation';
 import NominationModal from '../modals/NominationModal';
 // import DownloadDisbursementListModal from '../modals/DownloadDisbursementListModal';
 import { Dropdown } from './dropdown';
-import UploadDisbursementListModal from '../modals/UploadDisbursementListModal';
-import { useDownloadDisbursementList } from '@/hooks/useDownloadDisbursementList';
+// import UploadDisbursementListModal from '../modals/UploadDisbursementListModal';
 
 const columnHelper = createColumnHelper<Beneficiary>();
 
@@ -65,22 +64,22 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   //   onOpen: onDownloadDisbursementOpen,
   //   onClose: onDownloadDisbursementClose,
   // } = useDisclosure();
-  const {
-    isOpen: isUploadDisbursementOpen,
-    onOpen: onUploadDisbursementOpen,
-    onClose: onUploadDisbursementClose,
-  } = useDisclosure();
+  // const {
+  //   isOpen: isUploadDisbursementOpen,
+  //   onOpen: onUploadDisbursementOpen,
+  //   onClose: onUploadDisbursementClose,
+  // } = useDisclosure();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const { response: programDetails } = useGetProgramById(programID?.toString());
+  // const { response: programDetails } = useGetProgramById(programID?.toString());
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
   const { data: modules } = useGetModules();
 
-  const { mutate: download, isPending: isDownloading } = useDownloadDisbursementList();
+  // const { mutate: download, isPending: isDownloading } = useDownloadDisbursementList();
 
   const moduleId = useMemo(
     () => modules?.body?.find((module) => module.name === moduleName)?.id ?? 0,
@@ -415,6 +414,11 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
     onOpen();
   };
 
+  const selectedBeneficiaries = tableData.filter((row) => selectedIds.includes(row.id.toString()));
+  const anyAlreadyApprovedOrDisbursed = selectedBeneficiaries.some((row) =>
+    [FormStatus.APPROVED, FormStatus.DISAPPROVED, FormStatus.DISBURSED].includes(row.status)
+  );
+
   return (
     <>
       <NominationModal isOpen={isNominationOpen} onClose={onNominationClose} programId={programID?.toLocaleString()} />
@@ -424,12 +428,12 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
         programId={programID?.toLocaleString()}
         programName={programDetails?.body?.name || ''}
       /> */}
-      <UploadDisbursementListModal
+      {/* <UploadDisbursementListModal
         isOpen={isUploadDisbursementOpen}
         onClose={onUploadDisbursementClose}
         programId={programID?.toLocaleString()}
         programName={programDetails?.body?.name || ''}
-      />
+      /> */}
       {!isLoading && !isRefetching && tableData.length < 1 && moduleName === 'Nomination' ? (
         <Flex height="100%" flexDir="column" alignItems="center" gap="16px" pt="80px">
           <Image src="/icons/empty_nom.svg" alt="Empty state" w="100px" />
@@ -475,13 +479,13 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
               )}
             </Flex>
             <Flex gap="16px">
-              <Button
+              {/* <Button
                 leftIcon={<MdDownload size="0.875rem" />}
                 variant={moduleName === 'Nomination' ? 'secondary' : 'primary'}
                 size="medium"
               >
                 Download Report
-              </Button>
+              </Button> */}
               {moduleName === 'Nomination' && (
                 <Button
                   leftIcon={<MdOutlineUploadFile />}
@@ -492,7 +496,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                   Upload Nomination List
                 </Button>
               )}
-              {moduleName === 'Disbursement' && (
+              {/* {moduleName === 'Disbursement' && (
                 <Button
                   leftIcon={<MdOutlineUploadFile />}
                   variant="primary"
@@ -501,8 +505,8 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                 >
                   Upload Disbursement List
                 </Button>
-              )}
-              {moduleName === 'Disbursement' && (
+              )} */}
+              {/* {moduleName === 'Disbursement' && (
                 <Button
                   leftIcon={<MdDownload />}
                   variant="primary"
@@ -512,7 +516,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                 >
                   Download Disbursement List
                 </Button>
-              )}
+              )} */}
             </Flex>
           </Flex>
           <ReusableTable
@@ -536,7 +540,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                 >
                   Disburse selected
                 </Button>
-              ) : (
+              ) : !anyAlreadyApprovedOrDisbursed ? (
                 <>
                   <Button
                     variant="accept"
@@ -555,7 +559,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                     Deny selected
                   </Button>
                 </>
-              )
+              ) : null
             }
           />
           <TablePagination

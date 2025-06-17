@@ -15,6 +15,8 @@ export const useProcessVerification = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['beneficiaries'] });
+      queryClient.invalidateQueries({ queryKey: ['verificationStatus'] });
+      queryClient.invalidateQueries({ queryKey: ['beneficiaryDetails'] });
       toast({
         title: 'Success',
         description: 'Verification processing started successfully',
