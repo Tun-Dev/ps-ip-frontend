@@ -75,7 +75,7 @@ const NominationModal = ({
     setDownloadUrl(link);
   };
 
-  const { mutate: uploadNominationFile, isPending: isUploading } = useUploadNominationFile(onClose);
+  const { mutate: uploadNominationFile, isPending: isUploading } = useUploadNominationFile();
 
   const handleUpload = async () => {
     if (file) {
@@ -84,6 +84,7 @@ const NominationModal = ({
         {
           onSuccess: (data) => {
             setResponse(data.body);
+            if (!data.body.failed.length) onClose();
           },
         }
       );
@@ -172,7 +173,7 @@ const NominationModal = ({
               variant="primary"
               width="402px"
               height="48px"
-              mt="200px"
+              mt="20px"
               mb="40px"
               isLoading={isUploading}
               onClick={() => {
@@ -181,19 +182,28 @@ const NominationModal = ({
             >
               Upload File
             </Button>
-            <Flex gap={4}>
-              {response?.successful?.length > 0 && (
+            {response.failed.length > 0 && (
+              <Flex gap={4} flexDir="column" alignItems="center" mb="40px" mt="-40px">
+                {/* {response?.successful?.length > 0 && (
                 <Button colorScheme="green" onClick={() => downloadAsXLSX(response.successful!, 'successful.xlsx')}>
                   {`Successful (${response.successful.length})`}
                 </Button>
-              )}
+              )} */}
 
-              {response?.failed?.length > 0 && (
-                <Button colorScheme="red" onClick={() => downloadAsXLSX(response.failed!, 'failed.xlsx')}>
-                  {`Failed (${response.failed.length})`}
-                </Button>
-              )}
-            </Flex>
+                <Text variant="Body1Regular">{`Uploaded file has ${response.failed.length} failed entries, download below`}</Text>
+
+                {response?.failed?.length > 0 && (
+                  <Button
+                    colorScheme="red"
+                    onClick={() => downloadAsXLSX(response.failed!, 'failed.xlsx')}
+                    variant="secondary"
+                  >
+                    {/* {`Failed (${response.failed.length})`} */}
+                    Download Failed Entries
+                  </Button>
+                )}
+              </Flex>
+            )}
           </Flex>
         </ModalBody>
       </ModalContent>
