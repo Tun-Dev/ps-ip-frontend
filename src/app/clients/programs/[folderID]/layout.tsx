@@ -1,41 +1,56 @@
 'use client';
 
-import { Button, Flex, Text, Grid, Menu, MenuButton, MenuItem, MenuList, Spinner, useToast } from '@chakra-ui/react';
-import { Suspense, useCallback, type PropsWithChildren } from 'react';
+import {
+  //  Button,
+  Flex,
+  // Text,
+  Grid,
+  // Menu,
+  // MenuButton,
+  // MenuItem,
+  // MenuList,
+  Spinner,
+  // useToast,
+} from '@chakra-ui/react';
+import {
+  Suspense,
+  //  useCallback,
+  type PropsWithChildren,
+} from 'react';
 
 import ProgramsBreadcrumbs from '../programs-breadcrumbs';
-import { MdMoreHoriz } from 'react-icons/md';
-import { useBulkProcessAction } from '@/hooks/useBulkProcessAction';
-import { usePathname, useParams } from 'next/navigation';
+// import { MdMoreHoriz } from 'react-icons/md';
+// import { useBulkProcessAction } from '@/hooks/useBulkProcessAction';
+// import { usePathname, useParams } from 'next/navigation';
 // import { useRouter } from 'next/router';
-import { useGetProgramById } from '@/hooks/useGetProgramById';
+// import { useGetProgramById } from '@/hooks/useGetProgramById';
 
 const ProgramsLayout = ({ children }: PropsWithChildren) => {
-  const toast = useToast();
+  // const toast = useToast();
   // const router = useRouter();
-  const pathname = usePathname();
-  const { folderID, programID } = useParams();
-  const { mutate } = useBulkProcessAction();
+  // const pathname = usePathname();
+  // const { folderID, programID } = useParams();
+  // const { mutate } = useBulkProcessAction();
 
-  const lastPart = pathname.split('/').pop();
+  // const lastPart = pathname.split('/').pop();
 
-  const { response } = useGetProgramById(programID?.toString());
-  const programModuleId =
-    response?.body?.programModules?.find((module) => module.module.toLowerCase() === lastPart)?.id.toString() ?? '';
+  // const { response } = useGetProgramById(programID?.toString());
+  // const programModuleId =
+  //   response?.body?.programModules?.find((module) => module.module.toLowerCase() === lastPart)?.id.toString() ?? '';
 
-  const BulkAction = useCallback(
-    ({ status }: { status: string }) => {
-      mutate(
-        { programModuleId, status },
-        {
-          onSuccess: () => {
-            toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
-          },
-        }
-      );
-    },
-    [mutate, programModuleId, toast]
-  );
+  // const BulkAction = useCallback(
+  //   ({ status }: { status: string }) => {
+  //     mutate(
+  //       { programModuleId, status },
+  //       {
+  //         onSuccess: () => {
+  //           toast({ title: `${status === 'Disapproved' ? 'Denied' : status} successfully`, status: 'success' });
+  //         },
+  //       }
+  //     );
+  //   },
+  //   [mutate, programModuleId, toast]
+  // );
 
   return (
     <Flex flexDir="column" h="full">
@@ -49,7 +64,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
         gap="4"
       >
         <ProgramsBreadcrumbs />
-        {pathname.includes(`/clients/programs/${folderID}/${programID}`) && (
+        {/* {pathname.includes(`/clients/programs/${folderID}/${programID}`) && (
           <Menu>
             <Button
               as={MenuButton}
@@ -91,7 +106,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
               </MenuItem>
             </MenuList>
           </Menu>
-        )}
+        )} */}
       </Flex>
       <Flex flex="1 1 0%" w="100%" h="full">
         <Suspense

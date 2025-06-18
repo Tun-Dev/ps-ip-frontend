@@ -1,3 +1,4 @@
+import { FormStatus } from '@/utils';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -34,7 +35,7 @@ type MetaType = {
   isCentered?: boolean;
 };
 
-interface ReusableTableProps<T extends object> extends Omit<StackProps, 'onClick'> {
+interface ReusableTableProps<T extends { status?: FormStatus }> extends Omit<StackProps, 'onClick'> {
   data: T[];
   columns: ColumnDef<T>[];
   onClick?: (row: T) => void;
@@ -47,7 +48,7 @@ interface ReusableTableProps<T extends object> extends Omit<StackProps, 'onClick
   selectedChildren?: React.ReactNode;
 }
 
-function ReusableTable<T extends object>({
+function ReusableTable<T extends { status?: FormStatus }>({
   data,
   columns,
   onClick,
@@ -67,13 +68,31 @@ function ReusableTable<T extends object>({
   const selectionColumn: ColumnDef<T> = React.useMemo(
     () => ({
       id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          isChecked={table.getIsAllRowsSelected()}
-          isIndeterminate={table.getIsSomeRowsSelected()}
-          onChange={table.getToggleAllRowsSelectedHandler()}
-        />
-      ),
+      header: ({ table }) => {
+        const rows = table.getRowModel().rows;
+        const eligible = rows.filter(
+          (row) => row.original.status !== FormStatus.APPROVED && row.original.status !== FormStatus.DISAPPROVED
+        );
+        const allSelected = eligible.length > 0 && eligible.every((r) => r.getIsSelected());
+        const someSelected = eligible.some((r) => r.getIsSelected()) && !allSelected;
+
+        return (
+          <Checkbox
+            isChecked={allSelected}
+            isIndeterminate={someSelected}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              const newSelection: RowSelectionState = {};
+              if (checked) {
+                eligible.forEach((r) => {
+                  newSelection[r.id] = true;
+                });
+              }
+              table.setRowSelection(newSelection);
+            }}
+          />
+        );
+      },
       cell: ({ row }) => (
         <Flex onClick={(e) => e.stopPropagation()}>
           <Checkbox

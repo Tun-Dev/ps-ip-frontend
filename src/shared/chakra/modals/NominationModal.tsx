@@ -129,7 +129,16 @@ const NominationModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside" isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        setResponse({ successful: [], failed: [] });
+        setFile(null);
+        onClose();
+      }}
+      scrollBehavior="inside"
+      isCentered
+    >
       <ModalOverlay />
 
       <ModalContent maxWidth="678px" borderRadius="12px" padding="0" gap="10px">
@@ -137,75 +146,75 @@ const NominationModal = ({
           <Text variant="Body1Semibold">Upload Nomination list</Text>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody padding="">
-          <Flex flexDir="column" alignItems="center" gap="40px">
-            <Dropdown
-              id={`templates`}
-              variant="whiteDropdown"
-              placeholder="Select template"
-              name="templates"
-              options={templates}
-              onChange={(e) => e && onChange(e.value)}
-              menuPosition="absolute"
-            />
-            <DownloadArea
-              text="Download Sample Template"
-              bg="#F2F7F5"
-              borderColor="#CCE0D6"
-              icon={MdDownload}
-              iconColor="#006430"
-              textColor="#006430"
-              onClick={handleDownload}
-            />
+        {response.failed.length > 0 ? (
+          <ModalBody padding="">
+            <Flex gap={4} flexDir="column" alignItems="center" mb="40px" mt="">
+              <Text variant="Body1Regular">{`Uploaded file has ${response.failed.length} failed entries, download below`}</Text>
 
-            <UploadArea
-              text="Upload Nomination File"
-              bg="#FBF7EE"
-              borderColor="#EEDDBC"
-              icon={MdUploadFile}
-              iconColor="#D5AB57"
-              textColor="#D5AB57"
-              file={file}
-              setFile={setFile}
-            />
-
-            <Button
-              variant="primary"
-              width="402px"
-              height="48px"
-              mt="20px"
-              mb="40px"
-              isLoading={isUploading}
-              onClick={() => {
-                handleUpload();
-              }}
-            >
-              Upload File
-            </Button>
-            {response.failed.length > 0 && (
-              <Flex gap={4} flexDir="column" alignItems="center" mb="40px" mt="-40px">
-                {/* {response?.successful?.length > 0 && (
-                <Button colorScheme="green" onClick={() => downloadAsXLSX(response.successful!, 'successful.xlsx')}>
-                  {`Successful (${response.successful.length})`}
+              {response?.failed?.length > 0 && (
+                <Button
+                  colorScheme="red"
+                  onClick={() => downloadAsXLSX(response.failed!, 'failed.xlsx')}
+                  variant="secondary"
+                >
+                  {/* {`Failed (${response.failed.length})`} */}
+                  Download Failed Entries
                 </Button>
-              )} */}
+              )}
+            </Flex>
+          </ModalBody>
+        ) : (
+          <>
+            <ModalBody padding="">
+              <Flex flexDir="column" alignItems="center" gap="40px">
+                <Dropdown
+                  id={`templates`}
+                  variant="whiteDropdown"
+                  placeholder="Select template"
+                  name="templates"
+                  options={templates}
+                  onChange={(e) => e && onChange(e.value)}
+                  menuPosition="absolute"
+                />
+                <DownloadArea
+                  text="Download Sample Template"
+                  bg="#F2F7F5"
+                  borderColor="#CCE0D6"
+                  icon={MdDownload}
+                  iconColor="#006430"
+                  textColor="#006430"
+                  onClick={handleDownload}
+                />
 
-                <Text variant="Body1Regular">{`Uploaded file has ${response.failed.length} failed entries, download below`}</Text>
+                <UploadArea
+                  text="Upload Nomination File"
+                  bg="#FBF7EE"
+                  borderColor="#EEDDBC"
+                  icon={MdUploadFile}
+                  iconColor="#D5AB57"
+                  textColor="#D5AB57"
+                  file={file}
+                  setFile={setFile}
+                />
 
-                {response?.failed?.length > 0 && (
-                  <Button
-                    colorScheme="red"
-                    onClick={() => downloadAsXLSX(response.failed!, 'failed.xlsx')}
-                    variant="secondary"
-                  >
-                    {/* {`Failed (${response.failed.length})`} */}
-                    Download Failed Entries
-                  </Button>
-                )}
+                <Button
+                  variant="primary"
+                  width="402px"
+                  height="48px"
+                  mt="20px"
+                  mb="40px"
+                  isLoading={isUploading}
+                  disabled={!file || isUploading}
+                  onClick={() => {
+                    handleUpload();
+                  }}
+                >
+                  Upload File
+                </Button>
               </Flex>
-            )}
-          </Flex>
-        </ModalBody>
+            </ModalBody>
+          </>
+        )}
       </ModalContent>
     </Modal>
   );

@@ -75,10 +75,10 @@ export const VettingTable = () => {
           <BeneficiaryPanel status={FormStatus.RECOMMENDED} />
         </TabPanel>
         <TabPanel px="0" py="1.25rem" h="100%">
-          <BeneficiaryPanel status={FormStatus.DISAPPROVED} />
+          <BeneficiaryPanel status={FormStatus.DISAPPROVED} selectable={false} />
         </TabPanel>
         <TabPanel px="0" py="1.25rem" h="100%">
-          <BeneficiaryPanel status={FormStatus.APPROVED} />
+          <BeneficiaryPanel status={FormStatus.APPROVED} selectable={false} />
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -87,11 +87,12 @@ export const VettingTable = () => {
 
 type BeneficiaryPanelProps = {
   status?: FormStatus;
+  selectable?: boolean;
 };
 
 const columnHelper = createColumnHelper<Beneficiary>();
 
-export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
+export const BeneficiaryPanel = ({ status, selectable = true }: BeneficiaryPanelProps) => {
   const pathname = usePathname();
   const hideDownload = pathname?.includes('clients');
 
@@ -278,6 +279,11 @@ export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
     onOpen();
   };
 
+  const selectedBeneficiaries = tableData.filter((row) => selectedIds.includes(row.id.toString()));
+  const anyAlreadyApprovedOrDisbursed = selectedBeneficiaries.some((row) =>
+    [FormStatus.APPROVED, FormStatus.DISAPPROVED, FormStatus.DISBURSED].includes(row.status)
+  );
+
   return (
     <Flex direction="column" gap="1.5rem" h="full">
       <Flex align="center" justify="space-between">
@@ -305,7 +311,7 @@ export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
         data={tableData}
         columns={columns}
         onClick={openBeneficiaryModal}
-        selectable
+        selectable={selectable}
         isLoading={isLoading || isRefetching}
         isError={isError || isRefetchError}
         onRefresh={refetch}
@@ -314,22 +320,26 @@ export const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
         }}
         selectedChildren={
           <>
-            <Button
-              variant="accept"
-              size="medium"
-              leftIcon={<MdCheckCircle />}
-              onClick={() => onApprove({ status: FormStatus.APPROVED, ids: selectedIds })}
-            >
-              Approve selected
-            </Button>
-            <Button
-              variant="cancel"
-              size="medium"
-              leftIcon={<MdCancel />}
-              onClick={() => onApprove({ status: FormStatus.DISAPPROVED, ids: selectedIds })}
-            >
-              Deny selected
-            </Button>
+            {!anyAlreadyApprovedOrDisbursed ? (
+              <>
+                <Button
+                  variant="accept"
+                  size="medium"
+                  leftIcon={<MdCheckCircle />}
+                  onClick={() => onApprove({ status: FormStatus.APPROVED, ids: selectedIds })}
+                >
+                  Approve selected
+                </Button>
+                <Button
+                  variant="cancel"
+                  size="medium"
+                  leftIcon={<MdCancel />}
+                  onClick={() => onApprove({ status: FormStatus.DISAPPROVED, ids: selectedIds })}
+                >
+                  Deny selected
+                </Button>
+              </>
+            ) : null}
           </>
         }
       />

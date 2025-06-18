@@ -52,7 +52,8 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary, moduleName }: B
 
   const moduleTabs = useMemo(() => {
     if (!beneficiaryDetails || !user) return [];
-    if (user.roles.includes('Super Admin')) return beneficiaryDetails.body.moduleDetails;
+    if (user.roles.includes('Super Admin') || user.roles.includes('Client'))
+      return beneficiaryDetails.body.moduleDetails;
     if (user.roles.includes('Aggregator'))
       return beneficiaryDetails.body.moduleDetails.filter((module) => module.moduleName === 'Enumeration');
     if (user.roles.includes('Vetting Officer'))

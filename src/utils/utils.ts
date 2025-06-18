@@ -154,8 +154,6 @@ export const getDashboardRoute = (user: User | null) => {
       return '/aggregators';
     case 'Client':
       return '/clients';
-    case 'Client':
-      return '/clients';
     case 'Vetting Officer':
       return '/vetting-officers';
     default:
