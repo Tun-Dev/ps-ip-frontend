@@ -7,7 +7,7 @@ import { renameKey } from '@/utils';
 import { Box, type BoxProps, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useMemo } from 'react';
 
-const EDITABLE_MODULES = ['Application', 'Enumeration', 'Vetting', 'Survey', 'Nomination'];
+const EDITABLE_MODULES = ['Application', 'Enumeration', 'Vetting', 'Survey'];
 
 export function ModulesList(props: BoxProps) {
   const step = useProgramStore((state) => state.step);

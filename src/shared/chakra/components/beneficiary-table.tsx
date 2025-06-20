@@ -531,7 +531,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
               setSelectedIds(selectedRows.map((row) => row.id.toString()));
             }}
             selectedChildren={
-              moduleName === 'Disbursement' ? (
+              moduleName === 'Disbursement' && !anyAlreadyApprovedOrDisbursed ? (
                 <Button
                   variant="accept"
                   size="medium"

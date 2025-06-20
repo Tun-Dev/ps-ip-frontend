@@ -7,12 +7,13 @@ import CheckboxForm from './checkbox-form';
 import SurveyForm from './survey-form';
 import VettingForm from './vetting-form';
 import { renameKey } from '@/utils';
-import { NominationForm } from './nomination';
+// import { NominationForm } from './nomination';
 
 const EditModules = memo((props: BoxProps) => {
   const { data: modules } = useGetModules();
   const activeModuleId = useProgramStore((state) => state.activeModuleId);
   const selectedModuleIds = useProgramStore((state) => state.selectedModules);
+  console.log(activeModuleId, selectedModuleIds);
 
   if (!activeModuleId || !selectedModuleIds.ids.has(activeModuleId)) return null;
 
@@ -35,9 +36,10 @@ const EditModules = memo((props: BoxProps) => {
               <VettingForm />
             ) : correctedModule?.module === 'Survey' ? (
               <SurveyForm />
-            ) : correctedModule?.module === 'Nomination' ? (
-              <NominationForm />
             ) : (
+              //  correctedModule?.module === 'Nomination' ? (
+              //   <NominationForm />
+              // ) :
               <Text variant="Body2Semibold" textAlign="center" color="grey.500">
                 Cannot edit this module.
               </Text>

@@ -58,9 +58,22 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
 
   useEffect(() => {
     if (isOpen) {
-      mutate({ firstName: user?.firstName || '', programName: programName });
+      setStep(1);
     }
-  }, [isOpen, mutate, user, programName]);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (step === 2) {
+      mutate(
+        { firstName: user?.firstName || '', programName },
+        {
+          onSuccess: () => {
+            toast({ title: 'Success', description: `OTP sent to ${user?.email}`, status: 'success' });
+          },
+        }
+      );
+    }
+  }, [step, mutate, user, programName, toast]);
 
   const onSubmit = (id: string) => {
     const payload = {
@@ -98,27 +111,23 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
           <ModalCloseButton />
         </ModalHeader>
         <ModalBody>
-          {step === 1 ? (
+          {step === 1 && (
+            <Flex flexDir="column" alignItems="center" gap="4">
+              <Text textAlign="center">An OTP will be sent to {user?.email} email to continue.</Text>
+              <Button mt={4} variant="primary" onClick={() => setStep(2)}>
+                Proceed
+              </Button>
+            </Flex>
+          )}
+
+          {step === 2 && (
             <Flex flexDir="column" alignItems="center" gap="4">
               <Text align="center">Please enter OTP to proceed</Text>
               <HStack>
-                <PinInput
-                  otp
-                  size="lg"
-                  isDisabled={isRequestingOTP}
-                  type="alphanumeric"
-                  onChange={(e) => {
-                    setOtp(e);
-                  }}
-                >
-                  <PinInputField />
-                  <PinInputField />
-                  <PinInputField />
-                  <PinInputField />
-                  <PinInputField />
-                  <PinInputField />
-                  <PinInputField />
-                  <PinInputField />
+                <PinInput otp size="lg" isDisabled={isRequestingOTP} type="alphanumeric" onChange={(e) => setOtp(e)}>
+                  {[...Array(8)].map((_, i) => (
+                    <PinInputField key={i} />
+                  ))}
                 </PinInput>
               </HStack>
               <Text mt={4}>
@@ -126,14 +135,16 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
                 <Button
                   variant="link"
                   onClick={() => {
-                    mutate({ firstName: user?.firstName || '', programName: programName });
+                    mutate({ firstName: user?.firstName || '', programName });
                   }}
                 >
                   Resend
                 </Button>
               </Text>
             </Flex>
-          ) : (
+          )}
+
+          {step === 3 && (
             <Stack gap="4">
               {isPending ? (
                 <Grid placeItems="center" h="10rem">
@@ -141,15 +152,16 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
                 </Grid>
               ) : isError ? (
                 <Text>{formatErrorMessage(error)}</Text>
-              ) : (
+              ) : data.body.data.length > 0 ? (
                 data.body.data.map((item) => <Item key={item.id} item={item} onClick={() => onSubmit(item.id)} />)
+              ) : (
+                <Text variant="Body1Regular">No existing whitelist</Text>
               )}
-              {/* <Item item={data} /> */}
             </Stack>
           )}
         </ModalBody>
         <ModalFooter>
-          {step === 1 ? (
+          {step === 2 && (
             <SimpleGrid w="full" gap="4" columns={2}>
               <Button variant="cancel" height="3rem" w="full" onClick={onClose}>
                 Close
@@ -159,26 +171,20 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
                 height="3rem"
                 w="full"
                 onClick={() => {
-                  if (otp.length === 8) setStep(2);
+                  if (otp.length === 8) setStep(3);
                 }}
                 disabled={otp.length !== 8}
               >
                 Next Step
               </Button>
             </SimpleGrid>
-          ) : (
+          )}
+
+          {step === 3 && (
             <SimpleGrid w="full" gap="4">
               <Button variant="cancel" height="3rem" w="full" onClick={onClose}>
                 Close
               </Button>
-              {/* <Button
-                variant="primary"
-                height="3rem"
-                w="full"
-                // onClick={() => setScreen('assign')}
-              >
-                Assign Program
-              </Button> */}
             </SimpleGrid>
           )}
         </ModalFooter>

@@ -8,6 +8,7 @@ import { MdAddCircle, MdMoreHoriz } from 'react-icons/md';
 import ProgramsBreadcrumbs from '../programs-breadcrumbs';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useBulkProcessAction } from '@/hooks/useBulkProcessAction';
+import { FormStatus } from '@/utils';
 
 const ProgramsLayout = ({ children }: PropsWithChildren) => {
   const toast = useToast();
@@ -17,6 +18,7 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
   const { mutate } = useBulkProcessAction();
 
   const lastPart = pathname.split('/').pop();
+  console.log(lastPart);
 
   const { response } = useGetProgramById(programID?.toString());
   const programModuleId =
@@ -35,6 +37,8 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
     },
     [mutate, programModuleId, toast]
   );
+
+  const isDisbursement = pathname.includes('disbursement');
 
   return (
     <Flex flexDir="column" h="full">
@@ -82,25 +86,27 @@ const ProgramsLayout = ({ children }: PropsWithChildren) => {
               <MenuItem
                 onClick={(e) => {
                   e.stopPropagation();
-                  BulkAction({ status: 'APPROVED' });
+                  BulkAction({ status: isDisbursement ? FormStatus.DISBURSED : FormStatus.APPROVED });
                   // onApprove({ status: 'Approved', id: info.row.original.id });
                 }}
               >
                 <Text as="span" variant="Body2Regular" w="full">
-                  Approve all
+                  {isDisbursement ? 'Mark all as disbursed' : 'Approve all'}
                 </Text>
               </MenuItem>
-              <MenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  BulkAction({ status: 'DISAPPROVED' });
-                  // onApprove({ status: 'Disapproved', id: info.row.original.id });
-                }}
-              >
-                <Text as="span" variant="Body2Regular" w="full">
-                  Deny all
-                </Text>
-              </MenuItem>
+              {!isDisbursement && (
+                <MenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    BulkAction({ status: FormStatus.DISAPPROVED });
+                    // onApprove({ status: 'Disapproved', id: info.row.original.id });
+                  }}
+                >
+                  <Text as="span" variant="Body2Regular" w="full">
+                    Deny all
+                  </Text>
+                </MenuItem>
+              )}
             </MenuList>
           </Menu>
         )}

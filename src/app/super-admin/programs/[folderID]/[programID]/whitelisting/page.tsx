@@ -675,6 +675,7 @@ const WhitelistingPage = () => {
                   <ReusableTable
                     data={selectedWhitelistTableData}
                     columns={selectedWhitelistColumns}
+                    onClick={openBeneficiaryModal}
                     selectable
                     isLoading={isWhitelistLoading || isWhitelistRefetching}
                     isError={isWhitelistError || isWhitelistRefetchError}
@@ -696,7 +697,14 @@ const WhitelistingPage = () => {
                 </>
               )}
 
-              {/* {beneficiary && <BeneficiaryDetailsModal isOpen={isOpen} onClose={onClose} beneficiary={beneficiary} />} */}
+              {beneficiary && (
+                <BeneficiaryDetailsModal
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  beneficiary={beneficiary}
+                  moduleName="Whitelisting"
+                />
+              )}
             </Flex>
           </TabPanel>
         </TabPanels>

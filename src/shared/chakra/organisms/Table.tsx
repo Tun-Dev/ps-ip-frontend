@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormStatus } from '@/utils';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import {
@@ -35,7 +36,7 @@ type MetaType = {
   isCentered?: boolean;
 };
 
-interface ReusableTableProps<T extends { status?: FormStatus }> extends Omit<StackProps, 'onClick'> {
+interface ReusableTableProps<T extends object> extends Omit<StackProps, 'onClick'> {
   data: T[];
   columns: ColumnDef<T>[];
   onClick?: (row: T) => void;
@@ -48,7 +49,7 @@ interface ReusableTableProps<T extends { status?: FormStatus }> extends Omit<Sta
   selectedChildren?: React.ReactNode;
 }
 
-function ReusableTable<T extends { status?: FormStatus }>({
+function ReusableTable<T extends object>({
   data,
   columns,
   onClick,
@@ -70,9 +71,15 @@ function ReusableTable<T extends { status?: FormStatus }>({
       id: 'select',
       header: ({ table }) => {
         const rows = table.getRowModel().rows;
-        const eligible = rows.filter(
-          (row) => row.original.status !== FormStatus.APPROVED && row.original.status !== FormStatus.DISAPPROVED
-        );
+        // const eligible = rows.filter(
+        //   (row) => row.original.status !== FormStatus.APPROVED && row.original.status !== FormStatus.DISAPPROVED
+        // );
+        // if row.original has no status field, treat it as “not approved/disapproved”
+        const eligible = rows.filter((row) => {
+          const st = (row.original as any).status as FormStatus | undefined;
+          return st !== FormStatus.APPROVED && st !== FormStatus.DISAPPROVED;
+        });
+
         const allSelected = eligible.length > 0 && eligible.every((r) => r.getIsSelected());
         const someSelected = eligible.some((r) => r.getIsSelected()) && !allSelected;
 

@@ -77,13 +77,22 @@ const CreateWhiteListBucket = ({
 
   useEffect(() => {
     if (isOpen) {
-      if (shouldSkipOtp) {
-        setStep(2);
-      } else {
-        mutate({ firstName: user?.firstName || '', programName: programName });
-      }
+      setStep(shouldSkipOtp ? 3 : 1); // Go straight to form if no OTP needed
     }
-  }, [isOpen, mutate, user, programName, beneficiariesIds, shouldSkipOtp]);
+  }, [isOpen, shouldSkipOtp]);
+
+  useEffect(() => {
+    if (step === 2) {
+      mutate(
+        { firstName: user?.firstName || '', programName },
+        {
+          onSuccess: () => {
+            toast({ title: 'Success', description: `OTP sent to ${user?.email}`, status: 'success' });
+          },
+        }
+      );
+    }
+  }, [step, mutate, user, programName, toast]);
 
   const vendors = useMemo(() => {
     if (!data) return [];
@@ -119,8 +128,6 @@ const CreateWhiteListBucket = ({
           reset();
           setOtp('');
           setStep(1);
-          setOtp('');
-          setStep(1);
           onClose();
         }}
         scrollBehavior="inside"
@@ -133,27 +140,24 @@ const CreateWhiteListBucket = ({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {step === 1 ? (
+            {step === 1 && (
+              <Flex flexDir="column" alignItems="center" gap="4">
+                <Text textAlign="center">
+                  An OTP will be sent to {user?.email} to continue with whitelist creation.
+                </Text>
+                <Button mt={4} variant="primary" onClick={() => setStep(2)}>
+                  Proceed
+                </Button>
+              </Flex>
+            )}
+            {step === 2 && (
               <Flex flexDir="column" alignItems="center" gap="4">
                 <Text align="center">Please enter OTP to proceed</Text>
                 <HStack>
-                  <PinInput
-                    otp
-                    size="lg"
-                    isDisabled={isRequestingOTP}
-                    type="alphanumeric"
-                    onChange={(e) => {
-                      setOtp(e);
-                    }}
-                  >
-                    <PinInputField />
-                    <PinInputField />
-                    <PinInputField />
-                    <PinInputField />
-                    <PinInputField />
-                    <PinInputField />
-                    <PinInputField />
-                    <PinInputField />
+                  <PinInput otp size="lg" isDisabled={isRequestingOTP} type="alphanumeric" onChange={(e) => setOtp(e)}>
+                    {[...Array(8)].map((_, i) => (
+                      <PinInputField key={i} />
+                    ))}
                   </PinInput>
                 </HStack>
                 <Text mt={4}>
@@ -161,14 +165,15 @@ const CreateWhiteListBucket = ({
                   <Button
                     variant="link"
                     onClick={() => {
-                      mutate({ firstName: user?.firstName || '', programName: programName });
+                      mutate({ firstName: user?.firstName || '', programName });
                     }}
                   >
                     Resend
                   </Button>
                 </Text>
               </Flex>
-            ) : (
+            )}
+            {step === 3 && (
               <Flex direction="column" gap="20px">
                 <FormControl isInvalid={!!errors.name} isRequired>
                   <FormLabel htmlFor="name">
@@ -211,7 +216,7 @@ const CreateWhiteListBucket = ({
                   <FormControl isInvalid={!!errors.amount} isRequired>
                     <FormLabel htmlFor="amount">
                       <Text as="span" variant="Body2Semibold" color="grey.500">
-                        Amount
+                        Amount Per Beneficiary
                       </Text>
                     </FormLabel>
 
@@ -236,7 +241,7 @@ const CreateWhiteListBucket = ({
             )}
           </ModalBody>
           <ModalFooter>
-            {step === 1 ? (
+            {step === 2 && (
               <SimpleGrid w="full" gap="4" columns={2}>
                 <Button variant="cancel" height="3rem" w="full" onClick={onClose}>
                   Close
@@ -246,29 +251,24 @@ const CreateWhiteListBucket = ({
                   height="3rem"
                   w="full"
                   onClick={() => {
-                    if (otp.length === 8) setStep(2);
+                    if (otp.length === 8) setStep(3);
                   }}
                   disabled={otp.length !== 8}
                 >
                   Next Step
                 </Button>
               </SimpleGrid>
-            ) : (
+            )}
+
+            {step === 3 && (
               <>
                 {!shouldSkipOtp && (
-                  <Button
-                    variant="primary"
-                    height="3rem"
-                    w="full"
-                    onClick={() => {
-                      setStep(1);
-                    }}
-                  >
+                  <Button variant="primary" height="3rem" w="full" onClick={() => setStep(2)}>
                     Previous Step
                   </Button>
                 )}
                 <Button variant="primary" w="full" h="3rem" mx="auto" type="submit" isLoading={isPending}>
-                  Create Wishlist
+                  Create Whitelist
                 </Button>
               </>
             )}

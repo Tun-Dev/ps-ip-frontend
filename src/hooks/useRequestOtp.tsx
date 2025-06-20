@@ -9,11 +9,6 @@ export const useRequestOtp = ({ onSuccess }: { onSuccess?: () => void }) => {
   const mutation = useMutation({
     mutationFn: requestOtp,
     onSuccess: () => {
-      toast({
-        title: 'Success',
-        description: 'OTP sent to email',
-        status: 'success',
-      });
       onSuccess?.();
     },
     onError: (error) => {

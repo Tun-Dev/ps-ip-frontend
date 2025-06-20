@@ -1,7 +1,15 @@
 'use client';
 
-import { Grid, GridItem, HStack, Input, SimpleGrid, Stack, Text } from '@chakra-ui/react';
-import { MdPerson } from 'react-icons/md';
+import {
+  // Grid,
+  GridItem,
+  HStack,
+  // Input,
+  SimpleGrid,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
+// import { MdPerson } from 'react-icons/md';
 
 type Props = {
   name: string;
@@ -39,7 +47,7 @@ export const BuilderReview = ({ name, fields }: Props) => {
                   </Text>
                 )}
               </HStack>
-              {field.status === 'IMAGE_UPLOAD' ? (
+              {/* {field.status === 'IMAGE_UPLOAD' ? (
                 <Grid
                   mx="2"
                   placeItems="center"
@@ -53,7 +61,7 @@ export const BuilderReview = ({ name, fields }: Props) => {
                 </Grid>
               ) : (
                 <Input placeholder={field.name} isReadOnly />
-              )}
+              )} */}
             </Stack>
           </GridItem>
         ))}

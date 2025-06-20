@@ -283,7 +283,7 @@ const ProgramDrawer = ({ program, onClose }: { program: Program; onClose: () => 
                         fontSize="13px"
                         onClick={() => handleToggle(program.canSendSms)}
                       >
-                        {program.canSendSms ? 'Enable SMS Notifications' : 'Disable SMS Notifications'}
+                        {program.canSendSms ? 'Disable SMS Notifications' : 'Enable SMS Notifications'}
                       </Button>
                     </Flex>
                   </PopoverBody>

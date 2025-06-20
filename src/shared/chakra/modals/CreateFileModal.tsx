@@ -62,7 +62,7 @@ const CreateFileModal = ({ isOpen, onClose }: ModalProps) => {
         <ModalContent
           as="form"
           maxW="42.375rem"
-          minH="calc(100% - 8rem)"
+          // minH="calc(100% - 8rem)"
           borderRadius="12px"
           onSubmit={handleSubmit(onSubmit)}
         >
@@ -83,7 +83,7 @@ const CreateFileModal = ({ isOpen, onClose }: ModalProps) => {
               </FormControl>
             </Flex>
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter mb="40px">
             <Button variant="primary" w="25.125rem" h="3rem" mx="auto" type="submit" isLoading={isPending}>
               Create New File
             </Button>

@@ -72,6 +72,40 @@ const SummaryColumn = ({ logs, withHeading }: { logs: ProgressLog[]; withHeading
               Rejected
               <MdCancel color="var(--chakra-colors-red)" size="0.75rem" />
             </Text>
+          ) : log.status === 'WHITELISTED' ? (
+            <Text
+              variant="Body3Regular"
+              px="2"
+              py="1"
+              bgColor="primary.200"
+              rounded="6px"
+              color="primary.500"
+              border="1px solid"
+              borderColor="primary.400"
+              display="inline-flex"
+              alignItems="center"
+              gap="2px"
+            >
+              Whitelisted
+              <MdCheckCircle color="var(--chakra-colors-primary-500)" size="0.75rem" />
+            </Text>
+          ) : log.status === 'DISBURSED' ? (
+            <Text
+              variant="Body3Regular"
+              px="2"
+              py="1"
+              bgColor="primary.200"
+              rounded="6px"
+              color="primary.500"
+              border="1px solid"
+              borderColor="primary.400"
+              display="inline-flex"
+              alignItems="center"
+              gap="2px"
+            >
+              Disbursed
+              <MdCheckCircle color="var(--chakra-colors-primary-500)" size="0.75rem" />
+            </Text>
           ) : (
             <Text
               variant="Body3Regular"

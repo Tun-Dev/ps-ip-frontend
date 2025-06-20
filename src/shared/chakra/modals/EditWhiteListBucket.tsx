@@ -107,7 +107,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
           onSubmit={handleSubmit(onSubmit)}
         >
           <ModalHeader>
-            <Text variant="Body1Semibold">Create Whitelist</Text>
+            <Text variant="Body1Semibold">Edit Whitelist</Text>
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -175,7 +175,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
                   <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
                 </FormControl>
               )} */}
-              <FormControl isInvalid={!!errors.beneficiariesNo} isRequired>
+              {/* <FormControl isInvalid={!!errors.beneficiariesNo} isRequired>
                 <FormLabel htmlFor="beneficiariesNo">
                   <Text as="span" variant="Body2Semibold" color="grey.500">
                     Number of Beneficiaries
@@ -190,7 +190,7 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
                   {...register('beneficiariesNo', { valueAsNumber: true })}
                 />
                 <FormErrorMessage>{errors.beneficiariesNo && errors.beneficiariesNo.message}</FormErrorMessage>
-              </FormControl>
+              </FormControl> */}
             </Flex>
           </ModalBody>
           <ModalFooter>
