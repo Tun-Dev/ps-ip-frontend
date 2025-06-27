@@ -41,6 +41,7 @@ import { QuestionDetails } from '@/types';
 import { fileSchema, getImageUrl, IdType } from '@/utils';
 import { useParams } from 'next/navigation';
 import Webcam from 'react-webcam';
+import { isMobile } from 'react-device-detect';
 
 type FormInputProps = {
   question: QuestionDetails;
@@ -494,6 +495,15 @@ const ImageInput = ({ question, form }: FormInputProps) => {
       });
   };
 
+  // <-- new helper
+  const handleTakePhoto = () => {
+    if (isMobile) {
+      inputRef.current?.click();
+    } else {
+      setWebcamMode(true);
+    }
+  };
+
   return (
     <Flex gap={{ base: '4', xs: '8' }} px={{ xs: '1.875rem' }} align="center">
       <Flex flexDir="column" align="center">
@@ -506,14 +516,17 @@ const ImageInput = ({ question, form }: FormInputProps) => {
               borderRadius="50%"
               border="1px dashed"
               borderColor="grey.300"
-              align="center"
-              justify="center"
+              // align="center"
+              // justify="center"
+              alignItems="center"
+              justifyContent="center"
               pos="relative"
               outlineColor="transparent"
               overflow="hidden"
               cursor="pointer"
               _focusVisible={{ boxShadow: 'outline' }}
               flexShrink="0"
+              sx={{ span: { display: 'flex', justifyContent: 'center', alignItems: 'center' } }}
             >
               <input type="file" hidden accept="image/*" onChange={handleFile} ref={inputRef} disabled={isPending} />
               {preview ? (
@@ -530,9 +543,9 @@ const ImageInput = ({ question, form }: FormInputProps) => {
               )}
               {isPending && <Spinner color="text" size="sm" pos="absolute" inset="0" m="auto" />}
             </MenuButton>
-            <MenuList>
+            <MenuList textAlign="center">
               <MenuItem onClick={() => inputRef.current?.click()}>Upload Photo</MenuItem>
-              <MenuItem onClick={() => setWebcamMode(true)}>Take Photo</MenuItem>
+              <MenuItem onClick={handleTakePhoto}>Take Photo</MenuItem>
             </MenuList>
           </Menu>
         ) : (
@@ -540,7 +553,12 @@ const ImageInput = ({ question, form }: FormInputProps) => {
             <Webcam
               ref={webcamRef}
               screenshotFormat="image/jpeg"
-              videoConstraints={{ facingMode: 'user' }}
+              videoConstraints={{
+                facingMode: { ideal: 'user' }, // More compatible than just 'user'
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+              }}
+              playsInline
               style={{ width: '6rem', height: '6rem', borderRadius: '50%' }}
             />
             <Flex mt="2" gap="2">

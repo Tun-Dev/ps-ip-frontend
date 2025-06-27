@@ -38,6 +38,7 @@
     "nigeria-banks-list": "^1.1.8",
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
+    "react-device-detect": "^2.2.3",
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
     "react-icons": "^5.3.0",
