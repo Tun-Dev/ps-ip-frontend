@@ -40,10 +40,18 @@ type Props = {
   programID: string | string[];
   programName: string;
   selectedIds: string[];
+  isBulk?: boolean;
   //   setScreen: Dispatch<SetStateAction<'list' | 'assign'>>;
 };
 
-export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, programID, programName }: Props) => {
+export const AddExistingWhiteListBucket = ({
+  isOpen,
+  onClose,
+  beneficiariesIds,
+  programID,
+  programName,
+  isBulk = false,
+}: Props) => {
   const toast = useToast();
   const user = useUserStore((state) => state.user);
   const [otp, setOtp] = useState('');
@@ -77,6 +85,7 @@ export const AddExistingWhiteListBucket = ({ isOpen, onClose, beneficiariesIds, 
 
   const onSubmit = (id: string) => {
     const payload = {
+      isBulk: isBulk,
       programId: programID?.toLocaleString(),
       whitelistId: id,
       beneficiaryIds: beneficiariesIds,

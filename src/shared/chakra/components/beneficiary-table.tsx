@@ -70,6 +70,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   //   onClose: onUploadDisbursementClose,
   // } = useDisclosure();
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
@@ -89,7 +90,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
     useGetBeneficiariesById({
       page: page,
-      pageSize: 10,
+      pageSize: pageSize,
       query: debouncedQuery === '' ? undefined : debouncedQuery,
       programId: programID.toString(),
       moduleId: moduleId,
@@ -97,6 +98,7 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
     });
 
   const totalPages = data?.body.totalPages ?? 1;
+  const totalCount = data?.body.total ?? 0;
 
   const tableData = useMemo(() => (data ? data.body.data : []), [data]);
 
@@ -571,7 +573,13 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
             currentPage={page}
             totalPages={totalPages}
             isDisabled={isLoading || isPlaceholderData}
-            display={totalPages > 1 ? 'flex' : 'none'}
+            display={totalCount > 1 ? 'flex' : 'none'}
+            pageSize={pageSize}
+            handlePageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+            totalCount={totalCount}
           />
           {beneficiary && (
             <BeneficiaryDetailsModal

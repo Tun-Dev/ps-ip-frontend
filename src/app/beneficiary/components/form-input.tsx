@@ -14,6 +14,10 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Radio,
   RadioGroup,
   Spinner,
@@ -36,6 +40,7 @@ import { PhoneNumberInput } from '@/shared/chakra/components/phone-number-input'
 import { QuestionDetails } from '@/types';
 import { fileSchema, getImageUrl, IdType } from '@/utils';
 import { useParams } from 'next/navigation';
+import Webcam from 'react-webcam';
 
 type FormInputProps = {
   question: QuestionDetails;
@@ -369,25 +374,101 @@ const DropdownInput = ({ question, form }: FormInputProps) => {
   );
 };
 
+// const ImageInput = ({ question, form }: FormInputProps) => {
+//   const toast = useToast();
+//   const [preview, setPreview] = useState(() =>
+//     form.getValues(question.id) ? getImageUrl(form.getValues(question.id)) : ''
+//   );
+//   const inputRef = useRef<HTMLInputElement>(null);
+
+//   const { mutate: uploadFile, isPending } = useUploadFile();
+
+//   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
+//     if (!e.target.files) return;
+//     const file = e.target.files[0];
+//     const { success, error } = fileSchema.safeParse(file);
+
+//     if (!success) return toast({ title: 'Error', description: error.flatten().formErrors[0], status: 'error' });
+
+//     if (preview) URL.revokeObjectURL(preview);
+//     setPreview(URL.createObjectURL(file));
+//     e.target.value = '';
+
+//     uploadFile(
+//       { files: [file], type: 'beneficiaryDocs' },
+//       {
+//         onSuccess: (data) => {
+//           form.setValue(question.id, data.body[0].fileName);
+//           form.clearErrors(question.id);
+//         },
+//       }
+//     );
+//   };
+
+//   return (
+//     <Flex gap={{ base: '4', xs: '8' }} px={{ xs: '1.875rem' }} align="center">
+//       <Flex
+//         id={question.id}
+//         as="button"
+//         type="button"
+//         boxSize="6rem"
+//         borderRadius="50%"
+//         border="1px dashed"
+//         borderColor="grey.300"
+//         align="center"
+//         justify="center"
+//         pos="relative"
+//         outlineColor="transparent"
+//         overflow="hidden"
+//         _focusVisible={{ boxShadow: 'outline' }}
+//         onClick={() => inputRef.current?.click()}
+//         flexShrink="0"
+//       >
+//         <input type="file" hidden accept="image/*" onChange={handleFile} ref={inputRef} disabled={isPending} />
+//         {preview && (
+//           <Image src={preview} alt={question.question} objectFit="cover" pos="absolute" inset="0" boxSize="full" />
+//         )}
+//         {preview ? null : <Icon as={MdOutlineAddCircle} boxSize="8" color="secondary.500" />}
+//         {isPending && <Spinner color="text" size="sm" pos="absolute" inset="0" m="auto" />}
+//       </Flex>
+//       <Flex gap="2">
+//         <Icon as={MdInfo} boxSize="5" color="grey.400" />
+//         <Text variant="Body2Regular" color="grey.400" maxW="12.625rem">
+//           Uploaded picture size should not exceed 500kb
+//         </Text>
+//       </Flex>
+//     </Flex>
+//   );
+// };
+
 const ImageInput = ({ question, form }: FormInputProps) => {
   const toast = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const webcamRef = useRef<Webcam>(null);
+
   const [preview, setPreview] = useState(() =>
     form.getValues(question.id) ? getImageUrl(form.getValues(question.id)) : ''
   );
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [webcamMode, setWebcamMode] = useState(false);
 
   const { mutate: uploadFile, isPending } = useUploadFile();
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
-    const { success, error } = fileSchema.safeParse(file);
+    validateAndUpload(file);
+    e.target.value = '';
+  };
 
-    if (!success) return toast({ title: 'Error', description: error.flatten().formErrors[0], status: 'error' });
+  const validateAndUpload = (file: File) => {
+    const { success, error } = fileSchema.safeParse(file);
+    if (!success) {
+      toast({ title: 'Error', description: error.flatten().formErrors[0], status: 'error' });
+      return;
+    }
 
     if (preview) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(file));
-    e.target.value = '';
 
     uploadFile(
       { files: [file], type: 'beneficiaryDocs' },
@@ -400,32 +481,80 @@ const ImageInput = ({ question, form }: FormInputProps) => {
     );
   };
 
+  const capturePhoto = () => {
+    const imageSrc = webcamRef.current?.getScreenshot();
+    if (!imageSrc) return;
+
+    fetch(imageSrc)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const file = new File([blob], 'webcam.jpg', { type: 'image/jpeg' });
+        validateAndUpload(file);
+        setWebcamMode(false);
+      });
+  };
+
   return (
     <Flex gap={{ base: '4', xs: '8' }} px={{ xs: '1.875rem' }} align="center">
-      <Flex
-        id={question.id}
-        as="button"
-        type="button"
-        boxSize="6rem"
-        borderRadius="50%"
-        border="1px dashed"
-        borderColor="grey.300"
-        align="center"
-        justify="center"
-        pos="relative"
-        outlineColor="transparent"
-        overflow="hidden"
-        _focusVisible={{ boxShadow: 'outline' }}
-        onClick={() => inputRef.current?.click()}
-        flexShrink="0"
-      >
-        <input type="file" hidden accept="image/*" onChange={handleFile} ref={inputRef} disabled={isPending} />
-        {preview && (
-          <Image src={preview} alt={question.question} objectFit="cover" pos="absolute" inset="0" boxSize="full" />
+      <Flex flexDir="column" align="center">
+        {!webcamMode ? (
+          <Menu>
+            <MenuButton
+              as={Flex}
+              id={question.id}
+              boxSize="6rem"
+              borderRadius="50%"
+              border="1px dashed"
+              borderColor="grey.300"
+              align="center"
+              justify="center"
+              pos="relative"
+              outlineColor="transparent"
+              overflow="hidden"
+              cursor="pointer"
+              _focusVisible={{ boxShadow: 'outline' }}
+              flexShrink="0"
+            >
+              <input type="file" hidden accept="image/*" onChange={handleFile} ref={inputRef} disabled={isPending} />
+              {preview ? (
+                <Image
+                  src={preview}
+                  alt={question.question}
+                  objectFit="cover"
+                  pos="absolute"
+                  inset="0"
+                  boxSize="full"
+                />
+              ) : (
+                <Icon as={MdOutlineAddCircle} boxSize="8" color="secondary.500" />
+              )}
+              {isPending && <Spinner color="text" size="sm" pos="absolute" inset="0" m="auto" />}
+            </MenuButton>
+            <MenuList>
+              <MenuItem onClick={() => inputRef.current?.click()}>Upload Photo</MenuItem>
+              <MenuItem onClick={() => setWebcamMode(true)}>Take Photo</MenuItem>
+            </MenuList>
+          </Menu>
+        ) : (
+          <Flex direction="column" align="center">
+            <Webcam
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              videoConstraints={{ facingMode: 'user' }}
+              style={{ width: '6rem', height: '6rem', borderRadius: '50%' }}
+            />
+            <Flex mt="2" gap="2">
+              <Button size="xs" onClick={capturePhoto}>
+                Capture
+              </Button>
+              <Button size="xs" onClick={() => setWebcamMode(false)} variant="ghost">
+                Cancel
+              </Button>
+            </Flex>
+          </Flex>
         )}
-        {preview ? null : <Icon as={MdOutlineAddCircle} boxSize="8" color="secondary.500" />}
-        {isPending && <Spinner color="text" size="sm" pos="absolute" inset="0" m="auto" />}
       </Flex>
+
       <Flex gap="2">
         <Icon as={MdInfo} boxSize="5" color="grey.400" />
         <Text variant="Body2Regular" color="grey.400" maxW="12.625rem">

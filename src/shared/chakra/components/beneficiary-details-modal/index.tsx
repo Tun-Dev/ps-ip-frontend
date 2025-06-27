@@ -69,6 +69,11 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary, moduleName }: B
     setTabIndex(index === -1 ? 0 : index);
   }, [moduleName, moduleTabs, isOpen]);
 
+  const sortedBeneficiaryDetails = useMemo(() => {
+    if (!beneficiaryDetails?.body?.progressLog) return [];
+    return [...beneficiaryDetails.body.progressLog].sort((a, b) => a.order - b.order);
+  }, [beneficiaryDetails]);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -141,7 +146,7 @@ function BeneficiaryDetailsModal({ isOpen, onClose, beneficiary, moduleName }: B
                   </TabPanel>
                 ))}
                 <TabPanel px="0" py="1.25rem">
-                  <SummaryTab progressLog={beneficiaryDetails?.body?.progressLog} />
+                  <SummaryTab progressLog={sortedBeneficiaryDetails} />
                 </TabPanel>
               </TabPanels>
             </Tabs>

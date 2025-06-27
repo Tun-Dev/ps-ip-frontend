@@ -40,6 +40,7 @@ type ModalProps = {
   beneficiariesIds?: string[];
   programId: string;
   programName: string;
+  isBulk?: boolean;
 };
 
 const CreateWhiteListBucket = ({
@@ -49,8 +50,9 @@ const CreateWhiteListBucket = ({
   beneficiariesIds,
   programType,
   programName,
+  isBulk = false,
 }: ModalProps) => {
-  const shouldSkipOtp = !beneficiariesIds || beneficiariesIds.length === 0;
+  // const shouldSkipOtp = !beneficiariesIds || beneficiariesIds.length === 0;
   const toast = useToast();
   const user = useUserStore((state) => state.user);
   const [otp, setOtp] = useState('');
@@ -75,11 +77,11 @@ const CreateWhiteListBucket = ({
 
   const { response: data } = useFilterVendors({ program: programId, page: 1, pageSize: 999 });
 
-  useEffect(() => {
-    if (isOpen) {
-      setStep(shouldSkipOtp ? 3 : 1); // Go straight to form if no OTP needed
-    }
-  }, [isOpen, shouldSkipOtp]);
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     setStep(shouldSkipOtp ? 3 : 1); // Go straight to form if no OTP needed
+  //   }
+  // }, [isOpen, shouldSkipOtp]);
 
   useEffect(() => {
     if (step === 2) {
@@ -106,6 +108,7 @@ const CreateWhiteListBucket = ({
 
   const onSubmit = (data: FormValues) => {
     const payload = {
+      isBulk: isBulk,
       programId: programId,
       ...(beneficiariesIds && beneficiariesIds.length > 0 ? { beneficiaries: beneficiariesIds, otp: otp } : {}),
       ...data,
@@ -262,11 +265,11 @@ const CreateWhiteListBucket = ({
 
             {step === 3 && (
               <>
-                {!shouldSkipOtp && (
-                  <Button variant="primary" height="3rem" w="full" onClick={() => setStep(2)}>
-                    Previous Step
-                  </Button>
-                )}
+                {/* {!shouldSkipOtp && ( */}
+                <Button variant="primary" height="3rem" w="full" onClick={() => setStep(2)}>
+                  Previous Step
+                </Button>
+                {/* )} */}
                 <Button variant="primary" w="full" h="3rem" mx="auto" type="submit" isLoading={isPending}>
                   Create Whitelist
                 </Button>

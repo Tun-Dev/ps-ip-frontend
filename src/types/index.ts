@@ -429,6 +429,7 @@ export type Verification = {
 };
 
 export type ProgressLog = {
+  order: number;
   agentName: string;
   date: string;
   progress: string;
@@ -883,6 +884,7 @@ export type CreateWhiteListBucketPayload = {
   beneficiaries?: string[];
   whitelistId?: string;
   otp?: string;
+  isBulk?: boolean;
 };
 
 export type VettingOfficersDashboard = {

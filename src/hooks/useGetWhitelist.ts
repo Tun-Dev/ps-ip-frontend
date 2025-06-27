@@ -14,6 +14,6 @@ export const useGetWhitelist = (params: Params) => {
   return useQuery({
     queryKey: ['whitelist', params],
     queryFn: getWhitelist,
-    enabled: !!params.programId && !!params.vendorId,
+    enabled: !!params.programId,
   });
 };

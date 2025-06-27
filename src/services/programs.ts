@@ -145,3 +145,9 @@ export const uploadDisbursementList = async (programId: string, file: File) => {
 
   return response.data;
 };
+
+export const downloadWhitelist = async (bucketId: string) => {
+  const { data } = await axiosInstance.get(`/whitelist/beneficiaries/${bucketId}`);
+
+  return data;
+};

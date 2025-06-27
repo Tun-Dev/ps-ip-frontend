@@ -98,6 +98,7 @@ export const BeneficiaryPanel = ({ status, selectable = true }: BeneficiaryPanel
 
   const toast = useToast();
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
@@ -117,7 +118,7 @@ export const BeneficiaryPanel = ({ status, selectable = true }: BeneficiaryPanel
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
     useGetBeneficiariesById({
       page,
-      pageSize: 10,
+      pageSize: pageSize,
       programId: programID.toString(),
       moduleId,
       status,
@@ -125,6 +126,7 @@ export const BeneficiaryPanel = ({ status, selectable = true }: BeneficiaryPanel
     });
 
   const totalPages = data?.body.totalPages ?? 0;
+  const totalCount = data?.body.total ?? 0;
 
   const tableData = useMemo(() => (data ? data.body.data : []), [data]);
 
@@ -352,7 +354,13 @@ export const BeneficiaryPanel = ({ status, selectable = true }: BeneficiaryPanel
         currentPage={page}
         totalPages={totalPages}
         isDisabled={isLoading || isPlaceholderData}
-        display={totalPages > 1 ? 'flex' : 'none'}
+        display={totalCount > 1 ? 'flex' : 'none'}
+        pageSize={pageSize}
+        handlePageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(1);
+        }}
+        totalCount={totalCount}
       />
       {beneficiary && (
         <VettingModalProvider beneficiary={beneficiary}>

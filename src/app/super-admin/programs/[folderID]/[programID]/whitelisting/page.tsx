@@ -55,6 +55,7 @@ import { Image } from '@chakra-ui/next-js';
 import { formatDateForInput } from '@/utils';
 import { useParams, usePathname } from 'next/navigation';
 import * as XLSX from 'xlsx';
+import { useDownloadWhitelist } from '@/hooks/useDownloadWhitelist';
 // import { format } from 'date-fns';
 
 const columnHelper = createColumnHelper<Beneficiary>();
@@ -73,8 +74,11 @@ const WhitelistingPage = () => {
   const hideDownload = pathname?.includes('clients');
 
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [bucketPage, setBucketPage] = useState(1);
+  const [bucketSize, setBucketSize] = useState(10);
   const [selectedWLPage, setSelectedWLPage] = useState(1);
+  const [selectedPageSize, setSelectedPageSize] = useState(10);
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isOpenCreate, onOpen: onOpenCreate, onClose: onCloseCreate } = useDisclosure();
@@ -85,7 +89,7 @@ const WhitelistingPage = () => {
   const { response } = useGetProgramById(programID?.toString());
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedWhitelistId, setSelectedWhitelistId] = useState<string>('');
-  const [selectedDownloadWhitelistId, setSelectedDownloadWhitelistId] = useState<string>('');
+  // const [selectedDownloadWhitelistId, setSelectedDownloadWhitelistId] = useState<string>('');
   const [selectedWL, setSelectedWL] = useState<WhitelistDetails>();
   const { data: modules } = useGetModules();
 
@@ -96,7 +100,7 @@ const WhitelistingPage = () => {
   const { data, isPlaceholderData, isLoading, isError, refetch, isRefetching, isRefetchError } =
     useGetBeneficiariesById({
       page: page,
-      pageSize: 10,
+      pageSize: pageSize,
       programId: programID?.toString(),
       moduleId,
       status: FormStatus.PENDING,
@@ -113,7 +117,7 @@ const WhitelistingPage = () => {
     isRefetchError: isWhitelistRefetchError,
   } = useGetBeneficiariesById({
     page: selectedWLPage,
-    pageSize: 10,
+    pageSize: bucketSize,
     programId: programID?.toString(),
     moduleId,
     whitelistId: selectedWhitelistId,
@@ -126,8 +130,11 @@ const WhitelistingPage = () => {
   );
 
   const totalPages = data?.body.totalPages ?? 0;
+  const totalCount = data?.body.total ?? 0;
   const totalBucketPages = whitelistBucket?.body.totalPages ?? 0;
+  const totalWhitelistCount = whitelistBucket?.body.total ?? 0;
   const totalSelectedWhitelistBucketPage = selectedWhitelistBucket?.body?.totalPages ?? 0;
+  const totalSelectedWhitelistCount = selectedWhitelistBucket?.body?.total ?? 0;
 
   const tableData = useMemo(() => {
     return data ? data.body.data : [];
@@ -141,40 +148,79 @@ const WhitelistingPage = () => {
     return selectedWhitelistBucket ? selectedWhitelistBucket.body.data : [];
   }, [selectedWhitelistBucket]);
 
-  const { refetch: refetchAll } = useGetBeneficiariesById({
-    page: 1,
-    pageSize: 100000,
-    programId: programID.toString(),
-    moduleId,
-    whitelistId: selectedDownloadWhitelistId,
-    enabled: !!selectedDownloadWhitelistId,
-  });
+  // const { refetch: refetchAll } = useGetBeneficiariesById({
+  //   page: 1,
+  //   pageSize: 100000,
+  //   programId: programID.toString(),
+  //   moduleId,
+  //   whitelistId: selectedDownloadWhitelistId,
+  //   enabled: !!selectedDownloadWhitelistId,
+  // });
 
-  const handleDownloadWhitelist = async (bucket: WhitelistDetails) => {
-    setSelectedDownloadWhitelistId(bucket.id.toString());
-    const result = await refetchAll();
-    if (result.data?.body.data.length === 0) refetchAll(); // Ensure we have the latest data
-    const allRows = result.data?.body.data ?? [];
-    console.log('allRows', allRows);
+  const [bucketId, setBucketId] = useState<string | undefined>(undefined);
 
-    const payload = allRows.map((row) => ({
-      'First Name': row.firstname ?? 'N/A',
-      'Last Name': row.lastname ?? 'N/A',
-      'Other Names': row.otherNames ?? 'N/A',
-      Gender: row.gender ?? 'N/A',
-      Age: row.age ?? 'N/A',
-      'Trade Type': row.tradeType ?? 'N/A',
-      'Whitelist Date': row.whitelistDate ? formatDateForInput(row.whitelistDate) : 'N/A',
-    }));
+  const { refetch: refetchDownload } = useDownloadWhitelist(bucketId ?? '', !!bucketId);
+
+  const handleClick = async (newBucketId: string) => {
+    setBucketId(newBucketId);
+
+    const { data } = await refetchDownload();
+    const rows = data?.body?.data as Record<string, any>[]; // ✅ explicit type
+    if (!rows?.length) return;
+
+    const allKeys = Array.from(new Set(rows.flatMap((row) => Object.keys(row))));
+
+    const payload = rows.map((row) => {
+      const item: Record<string, any> = {};
+      allKeys.forEach((key) => {
+        let value = row[key] ?? 'N/A';
+        if (key.toLowerCase().includes('date') && value !== 'N/A') {
+          value = formatDateForInput(value);
+        }
+        item[toTitleCase(key)] = value;
+      });
+      return item;
+    });
 
     const ws = XLSX.utils.json_to_sheet(payload);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Whitelist');
-
-    // const ts = format(new Date(), 'dd/MM/yyyy H:mm:ss');
-    const baseName = bucket?.name ?? 'Whitelist';
-    XLSX.writeFile(wb, `${baseName}.xlsx`);
+    XLSX.writeFile(wb, 'Whitelist.xlsx');
   };
+
+  // Optional: convert "firstName" -> "First Name"
+  function toTitleCase(str: string) {
+    return str
+      .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase to space
+      .replace(/_/g, ' ') // snake_case to space
+      .replace(/\b\w/g, (c) => c.toUpperCase()); // Capitalize words
+  }
+
+  // const handleDownloadWhitelist = async (bucket: WhitelistDetails) => {
+  //   setSelectedDownloadWhitelistId(bucket.id.toString());
+  //   // const result = await refetchAll();
+  //   if (whitelistDownload?.data?.body.data.length === 0) refetchAll(); // Ensure we have the latest data
+  //   const allRows = whitelistDownload?.data?.body.data ?? [];
+  //   console.log('allRows', allRows);
+
+  //   const payload = allRows.map((row) => ({
+  //     'First Name': row.firstname ?? 'N/A',
+  //     'Last Name': row.lastname ?? 'N/A',
+  //     'Other Names': row.otherNames ?? 'N/A',
+  //     Gender: row.gender ?? 'N/A',
+  //     Age: row.age ?? 'N/A',
+  //     'Trade Type': row.tradeType ?? 'N/A',
+  //     'Whitelist Date': row.whitelistDate ? formatDateForInput(row.whitelistDate) : 'N/A',
+  //   }));
+
+  //   const ws = XLSX.utils.json_to_sheet(payload);
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, 'Whitelist');
+
+  //   // const ts = format(new Date(), 'dd/MM/yyyy H:mm:ss');
+  //   const baseName = bucket?.name ?? 'Whitelist';
+  //   XLSX.writeFile(wb, `${baseName}.xlsx`);
+  // };
 
   const columns = useMemo(
     () =>
@@ -445,7 +491,8 @@ const WhitelistingPage = () => {
                 onClick={(e) => {
                   e.stopPropagation();
                   console.log('test download');
-                  handleDownloadWhitelist(info.row.original);
+                  // handleDownloadWhitelist(info.row.original);
+                  handleClick(info.row.original.id);
                 }}
               >
                 <Text as="span" variant="Body2Regular" w="full">
@@ -585,7 +632,13 @@ const WhitelistingPage = () => {
                   currentPage={page}
                   totalPages={totalPages}
                   isDisabled={isLoading || isPlaceholderData}
-                  display={totalPages > 1 ? 'flex' : 'none'}
+                  display={totalCount > 1 ? 'flex' : 'none'}
+                  pageSize={pageSize}
+                  handlePageSizeChange={(size) => {
+                    setPageSize(size);
+                    setPage(1);
+                  }}
+                  totalCount={totalCount}
                 />
               </>
               {beneficiary && (
@@ -657,7 +710,13 @@ const WhitelistingPage = () => {
                     currentPage={bucketPage}
                     totalPages={totalBucketPages}
                     isDisabled={isLoading || isPlaceholderData}
-                    display={totalBucketPages > 1 ? 'flex' : 'none'}
+                    display={totalWhitelistCount > 1 ? 'flex' : 'none'}
+                    pageSize={bucketSize}
+                    handlePageSizeChange={(size) => {
+                      setBucketSize(size);
+                      setBucketPage(1);
+                    }}
+                    totalCount={totalWhitelistCount}
                   />
                 </>
               ) : (
@@ -692,7 +751,13 @@ const WhitelistingPage = () => {
                     currentPage={selectedWLPage}
                     totalPages={totalSelectedWhitelistBucketPage}
                     isDisabled={isWhitelistLoading || isWhitelistPlaceholderData}
-                    display={totalSelectedWhitelistBucketPage > 1 ? 'flex' : 'none'}
+                    display={totalSelectedWhitelistCount > 1 ? 'flex' : 'none'}
+                    pageSize={selectedPageSize}
+                    handlePageSizeChange={(size) => {
+                      setSelectedPageSize(size);
+                      setSelectedWLPage(1);
+                    }}
+                    totalCount={totalSelectedWhitelistCount}
                   />
                 </>
               )}
