@@ -334,15 +334,26 @@ const DropdownInput = ({ question, form }: FormInputProps) => {
     }));
   }, [isTradeSubtype, selectedTradeType, question.options, isDisabilitySubtype, selectedDisabilityType]);
 
+  // Determine if this dropdown should be disabled:
+  const forceDisabled = (isTradeSubtype && !selectedTradeType) || (isDisabilitySubtype && !selectedDisabilityType);
+
   const currentOption = useCallback(
     (value: string | undefined) => (value !== undefined ? options.find((option) => option.value === value) : undefined),
     [options]
   );
 
+  // useEffect(() => {
+  //   // Reset trade subtype value when state changes
+  //   if (isTradeSubtype && selectedTradeType) form.resetField(question.id);
+  // }, [form, question.id, isTradeSubtype, selectedTradeType]);
+
+  // Whenever the parent selects change (or clear), wipe the child field:
   useEffect(() => {
-    // Reset trade subtype value when state changes
-    if (isTradeSubtype && selectedTradeType) form.resetField(question.id);
-  }, [form, question.id, isTradeSubtype, selectedTradeType]);
+    if (isTradeSubtype) {
+      // if no tradeType or tradeType changed, reset subtype
+      form.resetField(question.id);
+    }
+  }, [form, question.id, selectedTradeType, isTradeSubtype]);
 
   useEffect(() => {
     // Reset disability subtype value when state changes
@@ -367,7 +378,7 @@ const DropdownInput = ({ question, form }: FormInputProps) => {
             onChange(value.value);
           }}
           onBlur={onBlur}
-          isDisabled={disabled}
+          isDisabled={disabled || forceDisabled}
           isRequired={question.mandatory}
         />
       )}

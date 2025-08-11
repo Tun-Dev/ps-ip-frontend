@@ -14,6 +14,7 @@ type TablePaginationProps = {
   isDisabled?: boolean;
   pageSize?: number;
   totalCount?: number;
+  showingName?: string;
 } & FlexProps;
 
 const getPaginationRange = (current: number, total: number) => {
@@ -49,6 +50,7 @@ export function TablePagination({
   isDisabled,
   pageSize,
   totalCount,
+  showingName = 'Beneficiaries',
   ...props
 }: TablePaginationProps) {
   const paginationRange = getPaginationRange(currentPage, totalPages);
@@ -181,7 +183,7 @@ export function TablePagination({
         <Skeleton isLoaded={!isDisabled} minW="8rem">
           <Text color="grey.500" fontSize="sm">
             {/* Showing {currentCount} of {totalCount} Beneficiaries */}
-            Showing {Math.min(currentPage * (pageSize ?? 10), totalCount ?? 0)} of {totalCount ?? 0} Beneficiaries
+            Showing {Math.min(currentPage * (pageSize ?? 10), totalCount ?? 0)} of {totalCount ?? 0} {showingName}
           </Text>
         </Skeleton>
       </Flex>

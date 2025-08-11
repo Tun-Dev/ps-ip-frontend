@@ -25,7 +25,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   MdAddCircle,
   MdArrowBack,
@@ -163,7 +163,17 @@ const WhitelistingPage = () => {
 
   const handleClick = async (newBucketId: string) => {
     setBucketId(newBucketId);
+  };
 
+  // Optional: convert "firstName" -> "First Name"
+  function toTitleCase(str: string) {
+    return str
+      .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase to space
+      .replace(/_/g, ' ') // snake_case to space
+      .replace(/\b\w/g, (c) => c.toUpperCase()); // Capitalize words
+  }
+
+  const downloadWhitelist = async () => {
     const { data } = await refetchDownload();
     const rows = data?.body?.data as Record<string, any>[]; // ✅ explicit type
     if (!rows?.length) return;
@@ -188,13 +198,11 @@ const WhitelistingPage = () => {
     XLSX.writeFile(wb, 'Whitelist.xlsx');
   };
 
-  // Optional: convert "firstName" -> "First Name"
-  function toTitleCase(str: string) {
-    return str
-      .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase to space
-      .replace(/_/g, ' ') // snake_case to space
-      .replace(/\b\w/g, (c) => c.toUpperCase()); // Capitalize words
-  }
+  useEffect(() => {
+    if (bucketId) {
+      downloadWhitelist();
+    }
+  }, [bucketId]);
 
   // const handleDownloadWhitelist = async (bucket: WhitelistDetails) => {
   //   setSelectedDownloadWhitelistId(bucket.id.toString());
@@ -487,18 +495,21 @@ const WhitelistingPage = () => {
                   Edit
                 </Text>
               </MenuItem>
-              <MenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log('test download');
-                  // handleDownloadWhitelist(info.row.original);
-                  handleClick(info.row.original.id);
-                }}
-              >
-                <Text as="span" variant="Body2Regular" w="full">
-                  Download whitelist
-                </Text>
-              </MenuItem>
+              {info.row.original.beneficiariesNo > 0 && (
+                <MenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('test download');
+                    // handleDownloadWhitelist(info.row.original);
+                    handleClick(info.row.original.id);
+                  }}
+                >
+                  <Text as="span" variant="Body2Regular" w="full">
+                    Download whitelist
+                  </Text>
+                </MenuItem>
+              )}
+
               {/* <MenuItem
                 onClick={(e) => {
                   e.stopPropagation();

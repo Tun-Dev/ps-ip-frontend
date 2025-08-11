@@ -29,14 +29,16 @@ const ProgramsFolderPage = () => {
   const toast = useToast();
   const router = useRouter();
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
   const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure();
 
-  const { data: groups, isLoading, isPlaceholderData } = useGetGroup({ page, pageSize: 12 });
+  const { data: groups, isLoading, isPlaceholderData } = useGetGroup({ page, pageSize: pageSize });
 
   const totalPages = groups?.body.totalPages ?? 1;
+  const totalCount = groups?.body.total ?? 0;
 
   const [selectedGroup, setSelectedGroup] = useState<GroupEditPayload>();
 
@@ -105,6 +107,13 @@ const ProgramsFolderPage = () => {
           totalPages={totalPages}
           isDisabled={isLoading || isPlaceholderData}
           display={totalPages > 1 ? 'flex' : 'none'}
+          pageSize={pageSize}
+          handlePageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+          totalCount={totalCount}
+          showingName="Folders"
         />
       </Stack>
       <CreateFileModal onClose={onClose} isOpen={isOpen} />
