@@ -40,8 +40,11 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
   const Schema = z.object({
     name: z.string().min(1, 'Name is required'),
     vendorId: z.string().nullable().optional(),
-    beneficiariesNo: z.coerce.number().min(1, 'Number of Beneficiaries is required'),
-    // amount: z.coerce.number().nullable(),
+    beneficiariesNo: z.coerce.number(),
+    amount: z.preprocess(
+      (v) => (v === '' || v === null || v === undefined ? undefined : Number(v)),
+      z.number().positive().optional()
+    ),
   });
 
   type FormValues = z.infer<typeof Schema>;
@@ -56,11 +59,13 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
 
   const onSubmit = (data: FormValues) => {
     const { vendorId, ...rest } = data;
+
     const payload = {
       programId: programId,
       id: initialValue?.id,
       ...rest,
       ...(vendorId ? { vendorId: Number(vendorId) } : {}),
+      isBulk: false,
     };
 
     editWhitelist(payload, {
@@ -157,24 +162,24 @@ const EditWhiteListBucket = ({ isOpen, onClose, programId, programType, initialV
                 </FormControl>
               )}
 
-              {/* {(programType === 'Grants' || programType === 'Loans') && (
-                <FormControl isInvalid={!!errors.name} isRequired>
-                  <FormLabel htmlFor="amount">
-                    <Text as="span" variant="Body2Semibold" color="grey.500">
-                      Amount
-                    </Text>
-                  </FormLabel>
-                  <Input
-                    type="number"
-                    onWheel={(e) => e.currentTarget.blur()}
-                    id="amount"
-                    variant="primary"
-                    placeholder="500000"
-                    {...register('amount', { valueAsNumber: true })}
-                  />
-                  <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
-                </FormControl>
-              )} */}
+              {/* {(programType === 'Grants' || programType === 'Loans') && ( */}
+              <FormControl isInvalid={!!errors.name} isRequired>
+                <FormLabel htmlFor="amount">
+                  <Text as="span" variant="Body2Semibold" color="grey.500">
+                    Amount
+                  </Text>
+                </FormLabel>
+                <Input
+                  type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
+                  id="amount"
+                  variant="primary"
+                  placeholder="500000"
+                  {...register('amount', { valueAsNumber: true })}
+                />
+                <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
+              </FormControl>
+              {/* )} */}
               {/* <FormControl isInvalid={!!errors.beneficiariesNo} isRequired>
                 <FormLabel htmlFor="beneficiariesNo">
                   <Text as="span" variant="Body2Semibold" color="grey.500">

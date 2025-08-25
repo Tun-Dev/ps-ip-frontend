@@ -920,6 +920,8 @@ export type WhitelistDetails = {
   programName: string;
   vendorId: null | string;
   beneficiariesNo: number;
+  amount: number;
+  dateCreated: string;
 };
 
 export type ExitingWhitelistPayload = {

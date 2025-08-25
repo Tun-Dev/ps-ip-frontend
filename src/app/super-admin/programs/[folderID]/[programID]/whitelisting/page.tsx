@@ -405,11 +405,10 @@ const WhitelistingPage = () => {
           if (key === 'beneficiariesNo') {
             return (
               <Text variant="Body3Semibold" textAlign="left">
-                No. of Beneficiaries
+                No. of Beneficiariessss
               </Text>
             );
           }
-
           if (key === 'dateCreated') {
             return (
               <Text variant="Body3Semibold" textAlign="left">
@@ -417,7 +416,13 @@ const WhitelistingPage = () => {
               </Text>
             );
           }
-
+          if (key === 'amount') {
+            return (
+              <Text variant="Body3Semibold" textAlign="left">
+                Amount
+              </Text>
+            );
+          }
           return (
             <Text variant="Body3Semibold" textAlign="left">
               {keyRename(key)}
@@ -427,14 +432,13 @@ const WhitelistingPage = () => {
         accessorKey: key,
         cell: (info) => {
           const value = info.getValue() as string | number | undefined;
-
-          if (key === 'Picture' && typeof value === 'string')
+          if (key === 'Picture' && typeof value === 'string') {
             return (
               <Box pos="relative" boxSize="5" rounded="full" overflow="hidden">
                 <Image src={value} alt="Beneficiary Image" sizes="1.25rem" sx={{ objectFit: 'cover' }} fill />
               </Box>
             );
-
+          }
           if (key === 'dateCreated' && typeof value === 'string') {
             return (
               <Text as="span" textAlign="left" display="block" variant="Body2Regular">
@@ -442,14 +446,20 @@ const WhitelistingPage = () => {
               </Text>
             );
           }
-
+          if (key === 'amount' && typeof value === 'number') {
+            return (
+              <Text as="span" textAlign="left" display="block" variant="Body2Regular">
+                {value.toLocaleString()}
+              </Text>
+            );
+          }
           return (
             <Text as="span" textAlign="left" display="block" variant="Body2Regular">
               {info.getValue() !== null && value !== undefined ? value.toString() : 'N/A'}
             </Text>
           );
         },
-        enableSorting: false, // You can enable this if sorting is required
+        enableSorting: false,
       }));
 
     const statusColumn: ColumnDef<WhitelistDetails> = {
@@ -499,8 +509,6 @@ const WhitelistingPage = () => {
                 <MenuItem
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('test download');
-                    // handleDownloadWhitelist(info.row.original);
                     handleClick(info.row.original.id);
                   }}
                 >
@@ -509,23 +517,10 @@ const WhitelistingPage = () => {
                   </Text>
                 </MenuItem>
               )}
-
-              {/* <MenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedIds([info.row.original.id.toString()]);
-                  onOpenExisting();
-                  // onApprove({ status: 'Approved', id: info.row.original.id });
-                }}
-              >
-                <Text as="span" variant="Body2Regular" w="full">
-                  Start Disbursement
-                </Text>
-              </MenuItem> */}
             </MenuList>
           </Menu>
         ),
-      enableSorting: false, // Enable sorting for status
+      enableSorting: false,
     };
 
     return [...otherColumns, statusColumn];

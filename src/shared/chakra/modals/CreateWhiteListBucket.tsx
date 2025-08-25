@@ -215,31 +215,31 @@ const CreateWhiteListBucket = ({
                   </FormControl>
                 )}
 
-                {(programType === 'Grants' || programType === 'Loans') && (
-                  <FormControl isInvalid={!!errors.amount} isRequired>
-                    <FormLabel htmlFor="amount">
-                      <Text as="span" variant="Body2Semibold" color="grey.500">
-                        Amount Per Beneficiary
-                      </Text>
-                    </FormLabel>
+                {/* {(programType === 'Grants' || programType === 'Loans') && ( */}
+                <FormControl isInvalid={!!errors.amount} isRequired>
+                  <FormLabel htmlFor="amount">
+                    <Text as="span" variant="Body2Semibold" color="grey.500">
+                      Amount Per Beneficiary
+                    </Text>
+                  </FormLabel>
 
-                    <InputGroup>
-                      <InputLeftElement>
-                        <Text>₦</Text>
-                      </InputLeftElement>
-                      <Input
-                        type="number"
-                        onWheel={(e) => e.currentTarget.blur()}
-                        id="amount"
-                        variant="primary"
-                        placeholder="500000"
-                        {...register('amount')}
-                      />
-                    </InputGroup>
+                  <InputGroup>
+                    <InputLeftElement>
+                      <Text>₦</Text>
+                    </InputLeftElement>
+                    <Input
+                      type="number"
+                      onWheel={(e) => e.currentTarget.blur()}
+                      id="amount"
+                      variant="primary"
+                      placeholder="500000"
+                      {...register('amount')}
+                    />
+                  </InputGroup>
 
-                    <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
-                  </FormControl>
-                )}
+                  <FormErrorMessage>{errors.amount && errors.amount.message}</FormErrorMessage>
+                </FormControl>
+                {/* )} */}
               </Flex>
             )}
           </ModalBody>
