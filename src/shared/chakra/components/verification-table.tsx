@@ -3,7 +3,7 @@
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetBeneficiariesById } from '@/hooks/useGetBeneficariesByProgramId';
 import { useGetModules } from '@/hooks/useGetModules';
-import { useGetStates } from '@/hooks/useGetStates';
+// import { useGetStates } from '@/hooks/useGetStates';
 import { useGetVerificationStatus } from '@/hooks/useGetVerificationStatus';
 import { useProcessVerification } from '@/hooks/useProcessVerification';
 import { useToggleVerification } from '@/hooks/useToggleAutomaticVerification';
@@ -31,13 +31,13 @@ import {
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 // import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { useParams, usePathname } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MdCheckCircle, MdDownload, MdSearch } from 'react-icons/md';
 import BeneficiaryDetailsModal from './beneficiary-details-modal';
-import { Dropdown } from './dropdown';
+// import { Dropdown } from './dropdown';
+import { BeneficiaryFilterMenu, BeneficiaryFilters } from './beneficiary-filter-menu';
 
 const moduleName = 'Verification';
-type Gender = 'Male' | 'Female' | undefined;
 
 const VerificationTable = () => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
@@ -96,16 +96,25 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const { mutate: processVerification, isPending: isProcessingVerification } = useProcessVerification();
-  const [gender, setGender] = useState<string>();
-  const [selectedStateId, setSelectedStateId] = useState<number>();
-  const [selectedLGA, setSelectedLGA] = useState<number>();
+
+  const [filters, setFilters] = useState<BeneficiaryFilters>({});
+  const storageKey = useMemo(() => `beneficiary-filters:${programID}`, [programID]);
+
+  // boot with last APPLIED filters, if any
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(`${storageKey}:applied`);
+      if (raw) setFilters(JSON.parse(raw));
+    } catch {}
+  }, [storageKey]);
 
   const handleProcessVerification = useCallback(() => {
     processVerification({
-      filters: { gender, state: selectedStateId, lga: selectedLGA, status: status },
+      filters: { gender: filters.gender, state: filters.state, lga: filters.lga, status: status },
       programId: programID.toString(),
     });
-  }, [gender, processVerification, programID, selectedLGA, selectedStateId, status]);
+  }, [processVerification, programID, filters, status]);
 
   const { data: modules } = useGetModules();
 
@@ -119,9 +128,11 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
       programId: programID.toString(),
       moduleId,
       enabled: !!programID && !!moduleId,
-      state: selectedStateId,
-      gender: gender as Gender,
-      lga: selectedLGA,
+      gender: filters.gender,
+      state: filters.state,
+      lga: filters.lga,
+      startDate: filters.startDate,
+      endDate: filters.endDate,
       status,
     });
 
@@ -133,56 +144,7 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
   const resetFilters = () => {
     setPage(1);
     setQuery('');
-    setGender(undefined);
-    setSelectedStateId(undefined);
-    setSelectedLGA(undefined);
   };
-
-  const genderOptions = useMemo(
-    () => [
-      { label: 'All', value: undefined },
-      { label: 'Male', value: 'Male' },
-      { label: 'Female', value: 'Female' },
-    ],
-    []
-  );
-
-  const currentGender = useCallback(
-    (value: string | undefined) => (value ? genderOptions.find((option) => option.value === value) : undefined),
-    [genderOptions]
-  );
-
-  const { data: states } = useGetStates();
-
-  const stateOptions = useMemo(() => {
-    if (!states) return [];
-    return [
-      { label: 'All', value: undefined },
-      ...states.body.map((state) => ({ label: state.name, value: state.id })),
-    ];
-  }, [states]);
-
-  const currentState = useCallback(
-    (value: number | undefined) =>
-      value !== undefined ? stateOptions.find((option) => option.value === value) : undefined,
-    [stateOptions]
-  );
-
-  // Filter LGAs based on selected state
-  const filteredLGAOptions = useMemo(() => {
-    if (!states || selectedStateId === undefined) return [];
-    const selectedState = states.body.find((state) => state.id === selectedStateId);
-    if (!selectedState) return [];
-    return [
-      { label: 'All', value: undefined },
-      ...selectedState.LGAs.map((lga) => ({ label: lga.name, value: lga.id })),
-    ];
-  }, [states, selectedStateId]);
-
-  const currentLGA = useCallback(() => {
-    if (selectedLGA === undefined) return undefined;
-    return filteredLGAOptions.find((option) => option.value === selectedLGA);
-  }, [filteredLGAOptions, selectedLGA]);
 
   const columns = useMemo(
     () =>
@@ -288,7 +250,15 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
     <Flex direction="column" gap="1.5rem" h="full">
       <Stack gap="4">
         <Flex align="center" justify="space-between">
-          <Flex>
+          <Flex align="center" gap="6">
+            <BeneficiaryFilterMenu
+              value={filters}
+              onApply={(next) => {
+                setFilters(next);
+                setPage(1);
+              }}
+              storageKey={storageKey}
+            />
             <InputGroup size="sm">
               <InputLeftElement pointerEvents="none" color="primary.600">
                 <MdSearch />
@@ -337,54 +307,7 @@ const BeneficiaryPanel = ({ status }: BeneficiaryPanelProps) => {
             )}
           </Flex>
         </Flex>
-        <Flex align="center" justify="space-between">
-          <Flex align="center" gap="2" minW="50%">
-            <Text color="grey.500" variant="Body2Semibold">
-              Filter by
-            </Text>
-            <Flex align="center" gap="4" flex="1">
-              <Dropdown
-                id="gender"
-                variant="whiteDropdown"
-                placeholder="Gender"
-                name="Gender"
-                options={genderOptions}
-                value={currentGender(gender) ?? ''}
-                onChange={(selected) => {
-                  if (!selected || typeof selected === 'string') return;
-                  setGender(selected.value);
-                }}
-                chakraStyles={{ container: (styles) => ({ ...styles, w: '7rem', flexShrink: '0' }) }}
-              />
-              <Dropdown
-                id="state"
-                variant="whiteDropdown"
-                placeholder="State"
-                name="State"
-                options={stateOptions}
-                value={currentState(selectedStateId) ?? ''}
-                onChange={(selected) => {
-                  if (!selected || typeof selected === 'string') return;
-                  setSelectedLGA(undefined);
-                  setSelectedStateId(selected.value);
-                }}
-                chakraStyles={{ container: (styles) => ({ ...styles, minWidth: 'fit-content', w: 'full' }) }}
-              />
-              <Dropdown
-                id="lga"
-                variant="whiteDropdown"
-                placeholder="LGA"
-                name="LGA"
-                options={filteredLGAOptions}
-                value={currentLGA() ?? ''}
-                onChange={(selected) => {
-                  if (!selected || typeof selected === 'string') return;
-                  setSelectedLGA(selected.value);
-                }}
-                chakraStyles={{ container: (styles) => ({ ...styles, minWidth: 'fit-content', w: 'full' }) }}
-              />
-            </Flex>
-          </Flex>
+        <Flex align="center" justify="end">
           {status === FormStatus.PENDING && !hideDownload && (
             <Button
               variant="accept"

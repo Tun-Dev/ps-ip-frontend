@@ -16,6 +16,8 @@ type Params = Partial<{
   whitelistId: string;
   enabled: boolean;
   verificationStatus: 'null' | boolean;
+  startDate?: string;
+  endDate?: string;
 }>;
 
 export const useGetBeneficiariesById = ({ programId, moduleId, ...params }: Params) => {

@@ -26,7 +26,7 @@ import {
   Textarea,
   useToast,
 } from '@chakra-ui/react';
-import { getBanks } from 'nigeria-banks-list';
+// import { getBanks } from 'nigeria-banks-list';
 import { ChangeEvent, HTMLInputTypeAttribute, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
 import { MdInfo, MdOutlineAddCircle } from 'react-icons/md';
@@ -42,6 +42,7 @@ import { fileSchema, getImageUrl, IdType } from '@/utils';
 import { useParams } from 'next/navigation';
 import Webcam from 'react-webcam';
 import { isMobile } from 'react-device-detect';
+import { useGetBanks } from '@/hooks/useGetBanks';
 
 type FormInputProps = {
   question: QuestionDetails;
@@ -197,10 +198,13 @@ const KYCInput = ({ question, form }: FormInputProps) => {
   const { programId } = useParams();
   const [fullname, setFullname] = useState<string>();
 
+  const { data } = useGetBanks();
+
   const { mutate, isPending } = useVerifyData();
   const { data: verificationStatus } = useGetVerificationStatus(programId.toString());
 
-  const banks = useMemo(() => getBanks().map((bank) => ({ label: bank.name, value: bank.code })), []);
+  // const banks = useMemo(() => getBanks().map((bank) => ({ label: bank.name, value: bank.code })), []);
+  const banks = useMemo(() => data?.map((bank) => ({ label: bank.name, value: bank.code })), [data]);
   const currentBank = useCallback((value) => banks.find((bank) => bank.value === value?.value), [banks]);
 
   const type = useMemo(() => {

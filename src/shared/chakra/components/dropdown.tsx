@@ -94,7 +94,9 @@ export const Dropdown = <Option, IsMulti extends boolean = false, Group extends 
             ':hover': { backgroundColor: hoverBg },
           };
         },
+        menuPortal: (base) => ({ ...base, zIndex: 2000 }),
       }}
+      menuPortalTarget={typeof window !== 'undefined' ? document.body : undefined}
       {...props}
     />
   );

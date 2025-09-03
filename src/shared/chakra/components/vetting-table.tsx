@@ -22,7 +22,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MdCancel, MdCheckCircle, MdDownload, MdMoreHoriz, MdSearch } from 'react-icons/md';
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
@@ -37,6 +37,7 @@ import { FormStatus } from '@/utils';
 // import { parsePhoneNumber } from 'libphonenumber-js/min';
 import { useParams, usePathname } from 'next/navigation';
 import { VettingModal } from './vetting-modal';
+import { BeneficiaryFilterMenu, BeneficiaryFilters } from './beneficiary-filter-menu';
 
 const moduleName = 'Vetting';
 
@@ -103,10 +104,21 @@ export const BeneficiaryPanel = ({ status, selectable = true }: BeneficiaryPanel
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [filters, setFilters] = useState<BeneficiaryFilters>({});
+  const storageKey = useMemo(() => `beneficiary-filters:${programID}`, [programID]);
 
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
   const { response } = useGetProgramById(programID.toString());
   const { data: modules } = useGetModules();
+
+  // boot with last APPLIED filters, if any
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(`${storageKey}:applied`);
+      if (raw) setFilters(JSON.parse(raw));
+    } catch {}
+  }, [storageKey]);
 
   const moduleId = useMemo(() => modules?.body?.find((module) => module.name === moduleName)?.id ?? 0, [modules]);
 
@@ -123,6 +135,11 @@ export const BeneficiaryPanel = ({ status, selectable = true }: BeneficiaryPanel
       moduleId,
       status,
       enabled: !!programID && !!moduleId,
+      gender: filters.gender,
+      state: filters.state,
+      lga: filters.lga,
+      startDate: filters.startDate,
+      endDate: filters.endDate,
     });
 
   const totalPages = data?.body.totalPages ?? 0;
@@ -290,6 +307,14 @@ export const BeneficiaryPanel = ({ status, selectable = true }: BeneficiaryPanel
     <Flex direction="column" gap="1.5rem" h="full">
       <Flex align="center" justify="space-between">
         <Flex align="center" gap="6">
+          <BeneficiaryFilterMenu
+            value={filters}
+            onApply={(next) => {
+              setFilters(next);
+              setPage(1);
+            }}
+            storageKey={storageKey}
+          />
           <InputGroup>
             <InputLeftElement pointerEvents="none" color="primary.600">
               <MdSearch />

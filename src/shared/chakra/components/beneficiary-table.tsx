@@ -18,7 +18,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MdCancel, MdCheckCircle, MdMoreHoriz, MdOutlineUploadFile, MdSearch } from 'react-icons/md';
 
 import { useApproveBeneficiary } from '@/hooks/useApproveBeneficiary';
@@ -35,7 +35,8 @@ import { FormStatus } from '@/utils';
 import { useParams } from 'next/navigation';
 import NominationModal from '../modals/NominationModal';
 // import DownloadDisbursementListModal from '../modals/DownloadDisbursementListModal';
-import { Dropdown } from './dropdown';
+// import { Dropdown } from './dropdown';
+import { BeneficiaryFilterMenu, type BeneficiaryFilters } from './beneficiary-filter-menu';
 // import UploadDisbursementListModal from '../modals/UploadDisbursementListModal';
 
 const columnHelper = createColumnHelper<Beneficiary>();
@@ -50,13 +51,13 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   const { programID } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const statusOptions = useMemo(
-    () => [
-      { label: 'Disbursed', value: 'disbursed' },
-      { label: 'Not Disbursed', value: 'not-disbursed' },
-    ],
-    []
-  );
+  // const statusOptions = useMemo(
+  //   () => [
+  //     { label: 'Disbursed', value: 'disbursed' },
+  //     { label: 'Not Disbursed', value: 'not-disbursed' },
+  //   ],
+  //   []
+  // );
 
   const { isOpen: isNominationOpen, onOpen: onNominationOpen, onClose: onNominationClose } = useDisclosure();
   // const {
@@ -69,12 +70,23 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
   //   onOpen: onUploadDisbursementOpen,
   //   onClose: onUploadDisbursementClose,
   // } = useDisclosure();
+  const [filters, setFilters] = useState<BeneficiaryFilters>({});
+  const storageKey = useMemo(() => `beneficiary-filters:${programID}`, [programID]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // boot with last APPLIED filters, if any
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(`${storageKey}:applied`);
+      if (raw) setFilters(JSON.parse(raw));
+    } catch {}
+  }, [storageKey]);
 
   // const { response: programDetails } = useGetProgramById(programID?.toString());
   const { mutate: approveBeneficiary } = useApproveBeneficiary();
@@ -95,6 +107,12 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
       programId: programID.toString(),
       moduleId: moduleId,
       enabled: !!programID && !!moduleId,
+      gender: filters.gender,
+      state: filters.state,
+      lga: filters.lga,
+      startDate: filters.startDate,
+      endDate: filters.endDate,
+      status: filters.status,
     });
 
   const totalPages = data?.body.totalPages ?? 1;
@@ -124,154 +142,6 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
     },
     [approveBeneficiary, programID, moduleId, toast]
   );
-
-  // const columns = useMemo(
-  //   () =>
-  //     [
-  //       columnHelper.accessor('firstname', {
-  //         header: 'First Name',
-  //         cell: (info) => (
-  //           <Text as="span" variant="Body2Regular">
-  //             {info.getValue() ?? 'N/A'}
-  //           </Text>
-  //         ),
-  //       }),
-  //       columnHelper.accessor('lastname', {
-  //         header: 'Last Name',
-  //         cell: (info) => (
-  //           <Text as="span" variant="Body2Regular">
-  //             {info.getValue() ?? 'N/A'}
-  //           </Text>
-  //         ),
-  //       }),
-  //       columnHelper.accessor('otherNames', {
-  //         header: 'Other Names',
-  //         cell: (info) => (
-  //           <Text as="span" variant="Body2Regular">
-  //             {info.getValue() ?? 'N/A'}
-  //           </Text>
-  //         ),
-  //       }),
-  //       columnHelper.accessor('email', {
-  //         header: 'Email',
-  //         cell: (info) => (
-  //           <Text as="span" variant="Body2Regular">
-  //             {info.getValue() ?? 'N/A'}
-  //           </Text>
-  //         ),
-  //       }),
-  //       columnHelper.accessor('phoneNumber', {
-  //         header: 'Phone Number',
-  //         cell: (info) => (
-  //           <Text as="span" variant="Body2Regular">
-  //             {info.getValue() ? '0' + parsePhoneNumber(info.getValue()).nationalNumber : 'N/A'}
-  //           </Text>
-  //         ),
-  //       }),
-  //       columnHelper.accessor('gender', {
-  //         header: 'Gender',
-  //         cell: (info) => (
-  //           <Text as="span" variant="Body2Regular">
-  //             {info.getValue() ?? 'N/A'}
-  //           </Text>
-  //         ),
-  //         meta: { isCentered: true },
-  //       }),
-  //       columnHelper.accessor('dob', {
-  //         header: 'Date of Birth',
-  //         cell: (info) => (
-  //           <Text as="span" variant="Body2Regular">
-  //             {info.getValue() ? formatDateForInput(info.getValue()) : 'N/A'}
-  //           </Text>
-  //         ),
-  //         meta: { isCentered: true },
-  //       }),
-  //       columnHelper.accessor('isFlagged', {
-  //         header: 'Flagged',
-  //         cell: (info) => (
-  //           <Text as="span" variant="Body2Regular">
-  //             {info.getValue() === true ? 'Yes' : info.getValue() === false ? 'No' : 'N/A'}
-  //           </Text>
-  //         ),
-  //         meta: { isCentered: true },
-  //       }),
-  //       columnHelper.display({
-  //         id: 'actions',
-  //         header: () => (
-  //           <Text variant="Body3Semibold" color="grey.500" textAlign="center">
-  //             Actions/Status
-  //           </Text>
-  //         ),
-  //         cell: (info) =>
-  //           info.row.original.status === FormStatus.APPROVED ? (
-  //             <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
-  //               Approved
-  //             </Text>
-  //           ) : info.row.original.status === FormStatus.DISAPPROVED ? (
-  //             <Text as="span" display="block" color="red" textAlign="center" variant="Body3Semibold">
-  //               Denied
-  //             </Text>
-  //           ) : info.row.original.status === FormStatus.DISBURSED ? (
-  //             <Text as="span" display="block" color="green" textAlign="center" variant="Body3Semibold">
-  //               Disbursed
-  //             </Text>
-  //           ) : (
-  //             <Menu>
-  //               <MenuButton
-  //                 as={IconButton}
-  //                 variant="ghost"
-  //                 aria-label="Actions"
-  //                 icon={<Icon as={MdMoreHoriz} boxSize="1.25rem" color="grey.500" />}
-  //                 minW="0"
-  //                 h="auto"
-  //                 mx="auto"
-  //                 display="flex"
-  //                 p="1"
-  //                 onClick={(e) => e.stopPropagation()}
-  //               />
-  //               <MenuList>
-  //                 {moduleName === 'Disbursement' ? (
-  //                   <MenuItem
-  //                     onClick={(e) => {
-  //                       e.stopPropagation();
-  //                       onApprove({ status: FormStatus.DISBURSED, ids: [info.row.original.id] });
-  //                     }}
-  //                   >
-  //                     <Text as="span" variant="Body2Regular" w="full">
-  //                       Mark as Disbursed
-  //                     </Text>
-  //                   </MenuItem>
-  //                 ) : (
-  //                   <>
-  //                     <MenuItem
-  //                       onClick={(e) => {
-  //                         e.stopPropagation();
-  //                         onApprove({ status: FormStatus.APPROVED, ids: [info.row.original.id] });
-  //                       }}
-  //                     >
-  //                       <Text as="span" variant="Body2Regular" w="full">
-  //                         Approve
-  //                       </Text>
-  //                     </MenuItem>
-  //                     <MenuItem
-  //                       onClick={(e) => {
-  //                         e.stopPropagation();
-  //                         onApprove({ status: FormStatus.DISAPPROVED, ids: [info.row.original.id] });
-  //                       }}
-  //                     >
-  //                       <Text as="span" variant="Body2Regular" w="full">
-  //                         Deny
-  //                       </Text>
-  //                     </MenuItem>
-  //                   </>
-  //                 )}
-  //               </MenuList>
-  //             </Menu>
-  //           ),
-  //       }),
-  //     ] as ColumnDef<Beneficiary>[],
-  //   [onApprove, moduleName]
-  // );
 
   const columns = useMemo(
     () =>
@@ -458,6 +328,15 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
         <Flex direction="column" h="full" gap="6">
           <Flex align="center" justify="space-between">
             <Flex align="center" gap="6">
+              <BeneficiaryFilterMenu
+                value={filters}
+                onApply={(next) => {
+                  setFilters(next);
+                  setPage(1);
+                }}
+                storageKey={storageKey}
+              />
+
               <InputGroup size="sm">
                 <InputLeftElement pointerEvents="none" color="primary.600">
                   <MdSearch />
@@ -473,12 +352,13 @@ export const BeneficiaryTable = ({ moduleName }: Props) => {
                   }}
                 />
               </InputGroup>
-              {moduleName === 'Disbursement' && (
+
+              {/* {moduleName === 'Disbursement' && (
                 <Flex gap="2" alignItems="center" w="400px">
                   <Text>Status</Text>
                   <Dropdown options={statusOptions} />
                 </Flex>
-              )}
+              )} */}
             </Flex>
             <Flex gap="16px">
               {/* <Button

@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: 'PS-IP',
-  title: 'PS-IP',
+  name: 'BOI Interventions',
+  title: 'BOI Interventions',
   description: '',
 };
 

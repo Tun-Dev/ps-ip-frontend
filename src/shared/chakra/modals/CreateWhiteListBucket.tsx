@@ -264,7 +264,7 @@ const CreateWhiteListBucket = ({
             )}
 
             {step === 3 && (
-              <>
+              <Flex gap="2">
                 {/* {!shouldSkipOtp && ( */}
                 <Button variant="primary" height="3rem" w="full" onClick={() => setStep(2)}>
                   Previous Step
@@ -273,7 +273,7 @@ const CreateWhiteListBucket = ({
                 <Button variant="primary" w="full" h="3rem" mx="auto" type="submit" isLoading={isPending}>
                   Create Whitelist
                 </Button>
-              </>
+              </Flex>
             )}
           </ModalFooter>
         </ModalContent>

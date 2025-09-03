@@ -42,7 +42,7 @@ import { useGetModules } from '@/hooks/useGetModules';
 import { useGetProgramById } from '@/hooks/useGetProgramById';
 import { useGetWhitelistByProgramId } from '@/hooks/useGetWhitelistByProgramId';
 import { ReusableTable } from '@/shared';
-import { Dropdown } from '@/shared/chakra/components';
+// import { Dropdown } from '@/shared/chakra/components';
 import BeneficiaryDetailsModal from '@/shared/chakra/components/beneficiary-details-modal';
 import { TablePagination } from '@/shared/chakra/components/table-pagination';
 import { AddExistingWhiteListBucket } from '@/shared/chakra/modals/AddExistingWhiteListBucket';
@@ -56,18 +56,19 @@ import { formatDateForInput } from '@/utils';
 import { useParams, usePathname } from 'next/navigation';
 import * as XLSX from 'xlsx';
 import { useDownloadWhitelist } from '@/hooks/useDownloadWhitelist';
+import { BeneficiaryFilterMenu, BeneficiaryFilters } from '@/shared/chakra/components/beneficiary-filter-menu';
 // import { format } from 'date-fns';
 
 const columnHelper = createColumnHelper<Beneficiary>();
 
-const options = [
-  { label: 'Aggregator', value: 'Aggregator' },
-  { label: 'Disabled', value: 'Disabled' },
-  { label: 'Pending', value: 'Pending' },
-  { label: 'Above 50%', value: 'Above 50%' },
-] as const;
+// const options = [
+//   { label: 'Aggregator', value: 'Aggregator' },
+//   { label: 'Disabled', value: 'Disabled' },
+//   { label: 'Pending', value: 'Pending' },
+//   { label: 'Above 50%', value: 'Above 50%' },
+// ] as const;
 
-type Option = (typeof options)[number];
+// type Option = (typeof options)[number];
 
 const WhitelistingPage = () => {
   const pathname = usePathname();
@@ -84,14 +85,29 @@ const WhitelistingPage = () => {
   const { isOpen: isOpenCreate, onOpen: onOpenCreate, onClose: onCloseCreate } = useDisclosure();
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
   const { isOpen: isOpenExisting, onOpen: onOpenExisting, onClose: onCloseExisting } = useDisclosure();
-  const [sort, setSort] = useState<Option | null>(options[0]);
+  // const [sort, setSort] = useState<Option | null>(options[0]);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const { response } = useGetProgramById(programID?.toString());
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedWhitelistId, setSelectedWhitelistId] = useState<string>('');
   // const [selectedDownloadWhitelistId, setSelectedDownloadWhitelistId] = useState<string>('');
   const [selectedWL, setSelectedWL] = useState<WhitelistDetails>();
+  const [filters, setFilters] = useState<BeneficiaryFilters>({});
+  const [filters2, setFilters2] = useState<BeneficiaryFilters>({});
+  const storageKey = useMemo(() => `beneficiary-filters:${programID}`, [programID]);
+  const storageKey2 = useMemo(() => `beneficiary-filters-2:${programID}`, [programID]);
   const { data: modules } = useGetModules();
+
+  // boot with last APPLIED filters, if any
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(`${storageKey}:applied`);
+      const raw2 = localStorage.getItem(`${storageKey2}:applied`);
+      if (raw) setFilters(JSON.parse(raw));
+      if (raw2) setFilters2(JSON.parse(raw2));
+    } catch {}
+  }, [storageKey, storageKey2]);
 
   const moduleId = modules?.body?.find((module) => module.name === 'Whitelisting')?.id ?? 0;
 
@@ -105,6 +121,11 @@ const WhitelistingPage = () => {
       moduleId,
       status: FormStatus.PENDING,
       enabled: !!programID && !!moduleId,
+      gender: filters.gender,
+      state: filters.state,
+      lga: filters.lga,
+      startDate: filters.startDate,
+      endDate: filters.endDate,
     });
 
   const {
@@ -122,6 +143,11 @@ const WhitelistingPage = () => {
     moduleId,
     whitelistId: selectedWhitelistId,
     enabled: !!selectedWhitelistId,
+    gender: filters2.gender,
+    state: filters2.state,
+    lga: filters2.lga,
+    startDate: filters2.startDate,
+    endDate: filters2.endDate,
   });
 
   const { data: whitelistBucket } = useGetWhitelistByProgramId(
@@ -573,12 +599,20 @@ const WhitelistingPage = () => {
             <Flex direction="column" h="full">
               <Flex align="center" justify="space-between" mb="8">
                 <Flex align="center" gap="6">
-                  <Flex align="center" gap="2" shrink={0}>
+                  {/* <Flex align="center" gap="2" shrink={0}>
                     <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
                       Filter by
                     </Text>
                     <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
-                  </Flex>
+                  </Flex> */}
+                  <BeneficiaryFilterMenu
+                    value={filters}
+                    onApply={(next) => {
+                      setFilters(next);
+                      setPage(1);
+                    }}
+                    storageKey={storageKey}
+                  />
                   <InputGroup>
                     <InputLeftElement pointerEvents="none" color="primary.600">
                       <MdSearch />
@@ -663,12 +697,14 @@ const WhitelistingPage = () => {
             <Flex direction="column" h="full">
               <Flex align="center" justify="space-between" mb="8">
                 <Flex align="center" gap="6">
-                  <Flex align="center" gap="2" shrink={0}>
-                    <Text as="label" variant="Body2Semibold" color="grey.500" flexShrink={0}>
-                      Filter by
-                    </Text>
-                    <Dropdown variant="primaryDropdown" options={options} value={sort} onChange={setSort} />
-                  </Flex>
+                  <BeneficiaryFilterMenu
+                    value={filters2}
+                    onApply={(next) => {
+                      setFilters2(next);
+                      setPage(1);
+                    }}
+                    storageKey={storageKey2}
+                  />
                   <InputGroup>
                     <InputLeftElement pointerEvents="none" color="primary.600">
                       <MdSearch />

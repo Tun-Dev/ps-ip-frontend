@@ -3,7 +3,7 @@
 import { Button, FormControl, FormErrorMessage, FormLabel, Input, Stack, Text } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { parsePhoneNumber } from 'libphonenumber-js/min';
-import Link from 'next/link';
+// import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -44,7 +44,15 @@ const BeneficiaryPage = () => {
         <Text textAlign="center" variant="Body1Semibold" color="primary.500">
           Are you using this portal for the first time?
         </Text>
-        <Button as={Link} variant="primary" h="12" w="full" maxW="20rem" href={`/beneficiary/${programId}/details`}>
+        <Button
+          // as={Link}
+          variant="primary"
+          h="12"
+          w="full"
+          maxW="20rem"
+          // href={`/beneficiary/${programId}/details`}
+          isDisabled={true}
+        >
           Take Application
         </Button>
       </Stack>
